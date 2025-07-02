@@ -3,6 +3,8 @@ import 'package:example/core/resources/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:jet/adapters/jet_adapter.dart';
 import 'package:jet/config/jet_config.dart';
+import 'package:jet/localization/models/locale_info.dart';
+import 'package:jet/localization/widgets/language_switcher.dart';
 
 /// Application configuration class that extends [JetConfig] to provide
 /// centralized configuration for the entire Flutter application.
@@ -56,9 +58,17 @@ class AppConfig extends JetConfig {
   /// To add more locales, ensure corresponding message files exist
   /// in the localization directory.
   @override
-  List<Locale> get supportedLocales => [
-    const Locale('ar'),
-    const Locale('en'),
+  List<LocaleInfo> get supportedLocales => [
+    const LocaleInfo(
+      locale: Locale('ar'),
+      displayName: 'العربية',
+      nativeName: 'Arabic',
+    ),
+    const LocaleInfo(
+      locale: Locale('en'),
+      displayName: 'English',
+      nativeName: 'English',
+    ),
   ];
 
   /// Additional localization delegates for custom or third-party localizations.

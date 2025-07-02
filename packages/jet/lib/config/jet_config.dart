@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jet/adapters/jet_adapter.dart';
+import 'package:jet/localization/models/locale_info.dart';
+import 'package:jet/localization/widgets/language_switcher.dart';
 
 /// Configuration class for Jet framework that defines app-wide settings.
 /// 
@@ -49,7 +51,7 @@ abstract class JetConfig {
   /// These locales determine which translations and regional settings
   /// are available in the app.
   /// Example: `[const Locale('en'), const Locale('es'), const Locale('fr')]`
-  List<Locale> get supportedLocales;
+  List<LocaleInfo> get supportedLocales;
 
   /// List of localization delegates for custom localization.
   /// 

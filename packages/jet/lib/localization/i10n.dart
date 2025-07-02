@@ -3,10 +3,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:jet/localization/intl/messages.dart';
 import 'package:jet/localization/intl/messages_en.dart';
 
-// Export the locale provider from local_switcher.dart
-export 'package:jet/localization/widgets/language_switcher.dart'
-    show localeProvider, LocaleNotifier;
-
 class JetLocalizations {
   JetLocalizations._();
 

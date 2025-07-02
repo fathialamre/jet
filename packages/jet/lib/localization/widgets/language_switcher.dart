@@ -2,89 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jet/extensions/build_context.dart';
-import 'package:jet/localization/intl/messages.dart';
-import 'package:jet/storage/local_storage.dart';
-
-const String _localeStorageKey = 'selected_locale';
-
-/// Provider that manages locale state with persistence using JetStorage
-final localeProvider = StateNotifierProvider<LocaleNotifier, Locale>((ref) {
-  return LocaleNotifier();
-});
-
-class LocaleNotifier extends StateNotifier<Locale> {
-  LocaleNotifier() : super(const Locale('en')) {
-    _loadSavedLocale();
-  }
-
-  /// Load the saved locale from storage
-  Future<void> _loadSavedLocale() async {
-    final savedLocaleCode = JetStorage.read<String>(_localeStorageKey);
-    if (savedLocaleCode != null) {
-      final locale = Locale(savedLocaleCode);
-      if (_isSupportedLocale(locale)) {
-        state = locale;
-      }
-    }
-  }
-
-  /// Check if the locale is supported
-  bool _isSupportedLocale(Locale locale) {
-    return JetLocalizationsImpl.supportedLocales.any(
-      (supported) => supported.languageCode == locale.languageCode,
-    );
-  }
-
-  /// Change the locale and persist it
-  Future<void> changeLocale(Locale locale) async {
-    if (_isSupportedLocale(locale)) {
-      state = locale;
-      await JetStorage.write(_localeStorageKey, locale.languageCode);
-    }
-  }
-}
-
-/// Model class for locale information
-class LocaleInfo {
-  final Locale locale;
-  final String displayName;
-  final String nativeName;
-
-  const LocaleInfo({
-    required this.locale,
-    required this.displayName,
-    required this.nativeName,
-  });
-}
-
-/// Available locales with their display information
-class AvailableLocales {
-  static const List<LocaleInfo> locales = [
-    LocaleInfo(
-      locale: Locale('en'),
-      displayName: 'English',
-      nativeName: 'English',
-    ),
-    LocaleInfo(
-      locale: Locale('ar'),
-      displayName: 'Arabic',
-      nativeName: 'العربية',
-    ),
-  ];
-
-  static LocaleInfo? getLocaleInfo(Locale locale) {
-    try {
-      return locales.firstWhere(
-        (info) => info.locale.languageCode == locale.languageCode,
-      );
-    } catch (e) {
-      return null;
-    }
-  }
-}
+import 'package:jet/localization/models/locale_info.dart';
+import 'package:jet/localization/notifiers/language_switcher_notifier.dart';
+import 'package:jet/localization/widgets/base_language_switcher.dart';
 
 /// Widget that shows a locale selection bottom sheet
-class LanguageSwitcher extends ConsumerWidget {
+class LanguageSwitcher extends BaseLanguageSwitcher {
   const LanguageSwitcher({super.key});
 
   static Future<void> show(BuildContext context) {
@@ -104,9 +27,14 @@ class LanguageSwitcher extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final currentLocale = ref.watch(localeProvider);
-    JetLocalizationsImpl.of(context);
+  Widget build(
+    BuildContext context,
+    WidgetRef ref,
+    Locale state,
+    LanguageSwitcherNotifier notifier,
+    List<LocaleInfo> supportedLocales,
+  ) {
+    final currentLocale = state;
 
     return Container(
       decoration: const BoxDecoration(
@@ -115,7 +43,6 @@ class LanguageSwitcher extends ConsumerWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Handle bar
           Container(
             margin: const EdgeInsets.only(top: 12),
             width: 40,
@@ -163,9 +90,9 @@ class LanguageSwitcher extends ConsumerWidget {
           ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: AvailableLocales.locales.length,
+            itemCount: supportedLocales.length,
             itemBuilder: (context, index) {
-              final localeInfo = AvailableLocales.locales[index];
+              final localeInfo = supportedLocales[index];
               final isSelected =
                   currentLocale.languageCode == localeInfo.locale.languageCode;
 
@@ -204,12 +131,7 @@ class LanguageSwitcher extends ConsumerWidget {
                         : FontWeight.normal,
                   ),
                 ),
-                subtitle: Text(
-                  localeInfo.nativeName,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
+
                 trailing: isSelected
                     ? Icon(
                         Icons.check_circle,
@@ -219,9 +141,7 @@ class LanguageSwitcher extends ConsumerWidget {
                 onTap: () async {
                   if (!isSelected) {
                     HapticFeedback.lightImpact();
-                    await ref
-                        .read(localeProvider.notifier)
-                        .changeLocale(localeInfo.locale);
+                    await notifier.changeLocale(localeInfo.locale);
                   }
                   if (context.mounted) {
                     Navigator.of(context).pop();
@@ -240,13 +160,20 @@ class LanguageSwitcher extends ConsumerWidget {
 }
 
 /// Simple button widget to trigger the locale selector
-class LanguageSwitcherButton extends ConsumerWidget {
+class LanguageSwitcherButton extends BaseLanguageSwitcher {
   const LanguageSwitcherButton({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final currentLocale = ref.watch(localeProvider);
-    final localeInfo = AvailableLocales.getLocaleInfo(currentLocale);
+  Widget build(
+    BuildContext context,
+    WidgetRef ref,
+    Locale state,
+    LanguageSwitcherNotifier notifier,
+    List<LocaleInfo> supportedLocales,
+  ) {
+    final localeInfo = supportedLocales.firstWhere(
+      (info) => info.locale.languageCode == state.languageCode,
+    );
 
     return IconButton(
       onPressed: () {
@@ -256,29 +183,28 @@ class LanguageSwitcherButton extends ConsumerWidget {
       icon: Stack(
         children: [
           const Icon(Icons.language),
-          if (localeInfo != null)
-            Positioned(
-              right: 0,
-              bottom: 0,
-              child: Container(
-                padding: const EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary,
-                  shape: BoxShape.circle,
-                ),
-                child: Text(
-                  localeInfo.locale.languageCode.toUpperCase(),
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onPrimary,
-                    fontSize: 8,
-                    fontWeight: FontWeight.bold,
-                  ),
+          Positioned(
+            right: 0,
+            bottom: 0,
+            child: Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary,
+                shape: BoxShape.circle,
+              ),
+              child: Text(
+                localeInfo.locale.languageCode.toUpperCase(),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  fontSize: 8,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
+          ),
         ],
       ),
-      tooltip: 'Change Language',
+      tooltip: context.jetI10n.changeLanguage,
     );
   }
 }

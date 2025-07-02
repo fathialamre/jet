@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jet/jet_framework.dart';
+import 'package:jet/localization/notifiers/language_switcher_notifier.dart';
 
 class LoginPage extends ConsumerWidget {
   const LoginPage({super.key});
@@ -7,7 +8,7 @@ class LoginPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final localizations = JetLocalizations.of(context);
-    final currentLocale = ref.watch(localeProvider);
+    final currentLocale = ref.watch(languageSwitcherProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -26,7 +27,7 @@ class LoginPage extends ConsumerWidget {
           children: [
             // Welcome text
             Text(
-              'Welcome',
+              'Welcome ${currentLocale.languageCode}',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),

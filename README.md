@@ -1,201 +1,155 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# 🚀 Jet Framework
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
+**Jet** is a powerful, lightweight Flutter framework designed to accelerate mobile app development with a focus on clean architecture, modularity, and developer experience. Built with modern Flutter best practices, Jet provides a comprehensive toolkit for building scalable, maintainable, and feature-rich mobile applications.
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
+Jet Framework emphasizes **convention over configuration**, offering pre-built solutions for common mobile development challenges while maintaining the flexibility to customize and extend functionality as needed.
 
-# Jet Framework
 
-A comprehensive Flutter framework package that provides essential building blocks for modern Flutter applications including routing, localization, theming, storage, and UI components.
+## 📦 Installation
 
-## 📁 Project Structure
-
-### `/lib` - Main Package Structure
-
-```
-lib/
-├── jet.dart                    # Main package export file
-├── jet_framework.dart          # Framework initialization
-├── adapters/                   # Interface adapters
-│   ├── adapters.dart          # Main adapters export
-│   ├── jet_adapter.dart       # Core Jet adapter interface
-│   └── storage_adapter.dart   # Storage adapter interface
-├── bootstrap/                  # Application bootstrapping
-│   └── boot.dart             # Bootstrap configuration
-├── config/                    # Configuration management
-│   └── jet_config.dart       # Main configuration class
-├── extensions/                # Dart extensions
-│   ├── build_context.dart    # BuildContext extensions
-│   └── text_extensions.dart  # Text styling extensions
-├── helpers/                   # Utility helpers
-│   └── jet_logger.dart       # Logging utilities
-├── localization/             # Internationalization
-│   ├── i10n.dart            # Localization setup
-│   ├── intl/                # Generated message files
-│   │   ├── messages.dart    # Main messages class
-│   │   ├── messages_en.dart # English messages
-│   │   └── messages_ar.dart # Arabic messages
-│   └── widgets/             # Localization widgets
-│       └── language_switcher.dart
-├── resources/               # App resources
-│   └── theme/              # Theme management
-│       └── theme_switcher.dart
-├── router/                 # Navigation routing
-│   └── jet_router.dart    # Router configuration
-├── storage/               # Data storage
-│   ├── local_storage.dart # Local storage implementation
-│   └── model.dart        # Storage models
-└── widgets/              # UI Components
-    ├── jet_main.dart    # Main app widget
-    └── widgets/         # Component library
-        ├── buttons/     # Button components
-        │   ├── jet_button.dart
-        │   └── jet_cupertino_button.dart
-        ├── dialogs/     # Dialog components
-        │   ├── show_adaptive_confirmation_dialog.dart
-        │   └── show_adaptive_simple_dialog.dart
-        ├── sheets/      # Bottom sheet components
-        │   └── show_confirmation_sheet.dart
-        └── theme/       # Theme widgets
-            └── theme_switcher_widgets.dart
-```
-
-## 🚀 Getting Started
-
-### Installation
-
-Add Jet to your `pubspec.yaml`:
+Add Jet to your Flutter project by adding it to your `pubspec.yaml` file:
 
 ```yaml
 dependencies:
   jet:
-    path: ../packages/jet  # Adjust path as needed
+    path: packages/jet  # For local development
+    # git:
+    #   url: https://github.com/your-org/jet.git  # For git dependency
+    #   ref: main
 ```
 
-### Dependencies
+Then run:
 
-Jet relies on the following key packages:
-- `auto_route` (^10.1.0+1) - For routing
-- `lucide_icons_flutter` (^3.0.6) - For icons
-- `flutter_secure_storage` (^9.2.4) - For secure storage
-- `shared_preferences` (^2.5.3) - For preferences
-- `hooks_riverpod` (^2.6.1) - For state management
-- `intl` (^0.20.2) - For internationalization
+```bash
+flutter pub get
+```
 
-## 🏗️ Core Components
 
-### 1. **Bootstrap (`/bootstrap`)**
-Application initialization and configuration setup.
 
-**Key Files:**
-- `boot.dart` - Handles app bootstrapping and initial configuration
+### Quick Start
 
-### 2. **Configuration (`/config`)**
-Centralized configuration management for the entire application.
-
-**Key Files:**
-- `jet_config.dart` - Main configuration class with app settings
-
-### 3. **Adapters (`/adapters`)**
-Interface adapters that provide abstraction layers for various functionalities.
-
-**Key Files:**
-- `jet_adapter.dart` - Core adapter interface
-- `storage_adapter.dart` - Storage abstraction layer
-
-### 4. **Router (`/router`)**
-Navigation and routing management built on top of auto_route.
-
-**Key Files:**
-- `jet_router.dart` - Router configuration and setup
-
-### 5. **Storage (`/storage`)**
-Data persistence layer with support for secure and regular storage.
-
-**Key Files:**
-- `local_storage.dart` - Local storage implementation
-- `model.dart` - Storage model definitions
-
-### 6. **Localization (`/localization`)**
-Complete internationalization support with built-in language switching.
-
-**Key Features:**
-- Support for multiple languages (English, Arabic)
-- Language switcher widget
-- Automatic locale detection
-- RTL support
-
-**Key Files:**
-- `i10n.dart` - Localization setup and configuration
-- `language_switcher.dart` - Language switching UI component
-
-### 7. **Extensions (`/extensions`)**
-Useful Dart extensions for enhanced development experience.
-
-**Key Files:**
-- `build_context.dart` - BuildContext convenience methods
-- `text_extensions.dart` - Rich text styling extensions
-
-### 8. **Helpers (`/helpers`)**
-Utility classes and helper functions.
-
-**Key Files:**
-- `jet_logger.dart` - Comprehensive logging system
-
-### 9. **Resources (`/resources`)**
-App resources including themes and styling.
-
-**Key Files:**
-- `theme_switcher.dart` - Theme management and switching
-
-### 10. **Widgets (`/widgets`)**
-Comprehensive UI component library with adaptive design support.
-
-**Component Categories:**
-
-#### **Buttons**
-- `jet_button.dart` - Primary button component
-- `jet_cupertino_button.dart` - iOS-style button component
-
-#### **Dialogs**
-- `show_adaptive_confirmation_dialog.dart` - Confirmation dialogs
-- `show_adaptive_simple_dialog.dart` - Simple alert dialogs
-
-#### **Sheets**
-- `show_confirmation_sheet.dart` - Bottom sheet confirmations
-
-#### **Theme**
-- `theme_switcher_widgets.dart` - Theme switching UI components
-
-## 📖 Usage Examples
-
-### Basic App Setup
+1. **Create your app configuration:**
 
 ```dart
+// lib/core/config/app_config.dart
 import 'package:jet/jet.dart';
 
-void main() {
-  runApp(MyApp());
-}
+class AppConfig extends JetConfig {
+  @override
+  List<JetAdapter> get adapters => [
+    RouterAdapter(),
+  ];
 
-class MyApp extends StatelessWidget {
+  @override
+  List<LocaleInfo> get supportedLocales => [
+    LocaleInfo(
+      locale: const Locale('en'),
+      displayName: 'English',
+      nativeName: 'English',
+    ),
+    LocaleInfo(
+      locale: const Locale('ar'),
+      displayName: 'Arabic',
+      nativeName: 'العربية',
+    ),
+  ];
+}
+```
+
+2. **Set up your main.dart:**
+
+```dart
+// lib/main.dart
+import 'package:jet/jet.dart';
+import 'core/config/app_config.dart';
+
+void main() async {
+  final config = AppConfig();
+
+  Jet.fly(
+    setup: () => Boot.start(config),
+    setupFinished: (jet) => Boot.finished(jet, config),
+  );
+}
+```
+
+3. **Create your first page:**
+
+```dart
+// lib/features/home/pages/home_page.dart
+import 'package:flutter/material.dart';
+import 'package:jet/jet.dart';
+
+class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return JetMain(
-      // Your app configuration
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(context.l10n.appTitle),
+      ),
+      body: Center(
+        child: JetButton(
+          text: 'Welcome to Jet!',
+          onPressed: () {
+            // Your app logic here
+          },
+        ),
+      ),
     );
   }
 }
 ```
 
-### App Configuration
+4. **Run your app:**
+
+```bash
+flutter run
+```
+
+## Table of Contents
+
+- [Jet Framework](#-jet-framework)
+- [Installation](#-installation)
+  - [Quick Start](#quick-start)
+- [App Configuration](#️-app-configuration)
+  - [Configuration Options](#configuration-options)
+  - [Advanced Configuration Examples](#advanced-configuration-examples)
+  - [Setting Up main.dart](#setting-up-maindart)
+  - [Main.dart Setup Explanation](#maindart-setup-explanation)
+  - [Boot Lifecycle](#boot-lifecycle)
+  - [Best Practices](#best-practices)
+- [Using Routing](#-using-routing)
+  - [Setting Up Your Router](#setting-up-your-router)
+  - [Router Configuration](#router-configuration)
+  - [Adding More Routes](#adding-more-routes)
+  - [Navigation Examples](#navigation-examples)
+- [Adapters](#-adapters)
+  - [Adapter Interface](#adapter-interface)
+  - [Router Adapter Example](#router-adapter-example)
+  - [Adapter Lifecycle](#adapter-lifecycle)
+  - [Creating Custom Adapters](#creating-custom-adapters)
+  - [Using Multiple Adapters](#using-multiple-adapters)
+  - [Adapter Best Practices](#adapter-best-practices)
+- [JetStorage](#-jetstorage)
+  - [Storage Types](#storage-types)
+  - [Basic Usage](#basic-usage)
+  - [Secure Storage](#secure-storage)
+  - [Working with JSON Objects](#working-with-json-objects)
+  - [Custom Models](#custom-models)
+  - [Storage Management](#storage-management)
+  - [Complete Example](#complete-example)
+  - [Key Features](#key-features)
+- [Using Localization](#-using-localization)
+  - [Language Switcher Components](#language-switcher-components)
+  - [Basic Usage](#basic-usage-1)
+  - [Advanced Usage with State Management](#advanced-usage-with-state-management)
+  - [Custom Language Switcher](#custom-language-switcher)
+  - [Adding Custom Locales](#adding-custom-locales)
+  - [Integration with App Configuration](#integration-with-app-configuration)
+  - [Complete Integration Example](#complete-integration-example)
+  - [Key Features](#key-features-1)
+
+## ⚙️ App Configuration
 
 The Jet framework uses a centralized configuration approach through the `JetConfig` class. Create your own configuration by extending `JetConfig`:
 
@@ -203,6 +157,7 @@ The Jet framework uses a centralized configuration approach through the `JetConf
 import 'package:flutter/material.dart';
 import 'package:jet/config/jet_config.dart';
 import 'package:jet/adapters/jet_adapter.dart';
+import 'package:jet/localization/models/locale_info.dart';
 
 class AppConfig extends JetConfig {
   @override
@@ -212,10 +167,17 @@ class AppConfig extends JetConfig {
   ];
 
   @override
-  List<Locale> get supportedLocales => [
-    const Locale('en'),
-    const Locale('ar'),
-    const Locale('es'),
+  List<LocaleInfo> get supportedLocales => [
+    LocaleInfo(
+      locale: const Locale('en'),
+      displayName: 'English',
+      nativeName: 'English',
+    ),
+    LocaleInfo(
+      locale: const Locale('ar'),
+      displayName: 'Arabic',
+      nativeName: 'العربية',
+    ),
   ];
 
   @override
@@ -246,7 +208,7 @@ class AppConfig extends JetConfig {
 | Property | Type | Description |
 |----------|------|-------------|
 | `adapters` | `List<JetAdapter>` | List of adapters for extending framework functionality (routing, API, analytics, etc.) |
-| `supportedLocales` | `List<Locale>` | Languages your app supports |
+| `supportedLocales` | `List<LocaleInfo>` | Languages your app supports with display names |
 | `defaultLocale` | `Locale?` | Fallback language when device locale isn't supported |
 | `theme` | `ThemeData?` | Light mode theme configuration |
 | `darkTheme` | `ThemeData?` | Dark mode theme configuration |
@@ -257,9 +219,17 @@ class AppConfig extends JetConfig {
 **Multi-language with RTL Support:**
 ```dart
 @override
-List<Locale> get supportedLocales => [
-  const Locale('en', 'US'),    // English (US)
-  const Locale('ar', 'LY'),    // Arabic (Libya)
+List<LocaleInfo> get supportedLocales => [
+  LocaleInfo(
+    locale: const Locale('en', 'US'),
+    displayName: 'English (US)',
+    nativeName: 'English',
+  ),
+  LocaleInfo(
+    locale: const Locale('ar', 'LY'),
+    displayName: 'Arabic (Libya)',
+    nativeName: 'العربية',
+  ),
 ];
 
 @override
@@ -362,7 +332,7 @@ The boot process follows this sequence:
 - **Async initialization** - Use `async/await` for any setup that requires it
 - **Environment-specific configs** - Create different config classes for dev/staging/prod
 
-### Using Routing
+## 🧭 Using Routing
 
 Jet Framework uses a router to manage navigation within the application by relying on the **[Auto Route](https://pub.dev/packages/auto_route)** package, which provides a flexible and clear way to define routes and handle navigation safely and efficiently. 
 
@@ -448,7 +418,7 @@ context.router.pop();
 **Note:**
 As I mentioned earlier, you can take advantage of the power of [AutoRoute](https://pub.dev/packages/auto_route) and use code generation.
 
-### Adapters
+## 🔌 Adapters
 
 Adapters are a powerful tool that helps structure the **Jet framework** by organizing and registering the usage of third-party packages in a clean and scalable way. They serve as an integration layer, allowing external libraries and services to be smoothly plugged into the project without tightly coupling them to the core logic.
 
@@ -501,7 +471,7 @@ class RouterAdapter implements JetAdapter {
 1. **Registration** → Adapters are added to your `AppConfig`
 2. **Boot Phase** → `boot()` method called for each adapter in sequence
 3. **After Boot** → `afterBoot()` method called for final setup
-4. **Ready** → The ** Jet framework** is fully configured and ready
+4. **Ready** → The **Jet framework** is fully configured and ready
 
 #### Creating Custom Adapters
 
@@ -577,7 +547,7 @@ List<JetAdapter> get adapters => [
 - **Configuration** - Accept configuration through constructor parameters
 - **Testing** - Create mock adapters for testing environments
 
-### JetStorage
+## 💾 JetStorage
 
 JetStorage is a tool for securely storing data locally. It provides a set of simple and clear methods for reading, writing, and managing key-value pairs. It is designed for storing lightweight data such as tokens, user preferences, small JSON objects, and other essential configurations.
 
@@ -765,63 +735,357 @@ class UserPreferences {
 - **Cross-platform** - Works on both iOS and Android
 - **Error Handling** - Built-in error logging and graceful failures
 
-### Using Localization
+## 🌍 Using Localization
+
+Jet Framework provides comprehensive internationalization (i18n) support with built-in language switching capabilities. The localization system includes persistent locale storage, a beautiful language switcher interface, and seamless integration with Flutter's localization delegates.
+
+### Language Switcher Components
+
+The Jet framework includes several components for managing localization:
+
+| Component | Description |
+|-----------|-------------|
+| `LanguageSwitcherNotifier` | State manager for locale with persistent storage |
+| `LocaleInfo` | Model class containing locale display information (locale, displayName, nativeName) |
+| `BaseLanguageSwitcher` | Abstract base class for creating custom language switcher widgets |
+| `LanguageSwitcher` | Modal bottom sheet for language selection |
+| `LanguageSwitcherButton` | Simple icon button to trigger language switcher |
+
+### Basic Usage
+
+#### 1. Simple Language Switcher Button
+
+Add a language switcher button to your app bar or anywhere in your UI:
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:jet/localization/widgets/language_switcher.dart';
+
+class MyAppBar extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      title: Text('My App'),
+      actions: [
+        // Simple language switcher button
+        LanguageSwitcher.toggleButton(),
+        SizedBox(width: 8),
+      ],
+    );
+  }
+}
+```
+
+#### 2. Show Language Switcher Modal
+
+Programmatically show the language selection modal:
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:jet/localization/widgets/language_switcher.dart';
+
+class SettingsPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () {
+            // Show language selection modal
+            LanguageSwitcher.show(context);
+          },
+          child: Text('Change Language'),
+        ),
+      ),
+    );
+  }
+}
+```
+
+#### 3. Embedded Language Switcher
+
+Use the language switcher widget directly in your layout:
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:jet/localization/widgets/language_switcher.dart';
+
+class LanguageSettingsPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Language Settings')),
+      body: Column(
+        children: [
+          // Other settings widgets...
+          
+          // Embedded language switcher
+          const LanguageSwitcher(),
+          
+          // More settings...
+        ],
+      ),
+    );
+  }
+}
+```
+
+### Custom Language Switcher using BaseLanguageSwitcher
+
+Create your own language switcher by extending `BaseLanguageSwitcher`. This gives you access to the current locale state, notifier for changing locales, and the list of supported locales from your app configuration:
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jet/localization/widgets/base_language_switcher.dart';
+import 'package:jet/localization/models/locale_info.dart';
+import 'package:jet/localization/notifiers/language_switcher_notifier.dart';
+
+class CustomLanguageDropdown extends BaseLanguageSwitcher {
+  const CustomLanguageDropdown({super.key});
+
+  @override
+  Widget build(
+    BuildContext context,
+    WidgetRef ref,
+    Locale state,
+    LanguageSwitcherNotifier notifier,
+    List<LocaleInfo> supportedLocales,
+  ) {
+    // Find current locale info
+    final currentLocaleInfo = supportedLocales.firstWhere(
+      (info) => info.locale.languageCode == state.languageCode,
+      orElse: () => supportedLocales.first,
+    );
+    
+    return DropdownButton<LocaleInfo>(
+      value: currentLocaleInfo,
+      underline: Container(),
+      icon: Icon(Icons.keyboard_arrow_down),
+      items: supportedLocales.map((LocaleInfo localeInfo) {
+        return DropdownMenuItem<LocaleInfo>(
+          value: localeInfo,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                child: Center(
+                  child: Text(
+                    localeInfo.locale.languageCode.toUpperCase(),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 8),
+              Text(localeInfo.displayName),
+            ],
+          ),
+        );
+      }).toList(),
+      onChanged: (LocaleInfo? newLocaleInfo) {
+        if (newLocaleInfo != null) {
+          notifier.changeLocale(newLocaleInfo.locale);
+        }
+      },
+    );
+  }
+}
+```
+
+### Advanced Usage with State Management
+
+Since we are using **[Riverpod](https://pub.dev/packages/hooks_riverpod)**, we can increase the level of customization and flexibility by leveraging its providers.
+
+For example, we can use the `languageSwitcherProvider` anywhere in the app to manage and react to language changes:
+
+```dart
+final currentLocale = ref.watch(languageSwitcherProvider);
+final localeNotifier = ref.read(languageSwitcherProvider.notifier);
+```
+
+This approach allows you to easily access the current language and control language switching in a clean and scalable way.
+
+
+**Watching and Changing Locale with Riverpod:**
+
+```dart
+class LocaleManagementWidget extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Watch the current locale - widget rebuilds when locale changes
+    final currentLocale = ref.watch(languageSwitcherProvider);
+    // Get the notifier to change locale
+    final localeNotifier = ref.read(languageSwitcherProvider.notifier);
+    
+    return Card(
+      margin: EdgeInsets.all(16),
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Display current language
+            Text(
+              'Current Language: ${currentLocale.languageCode.toUpperCase()}',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            SizedBox(height: 16),
+            
+            // Localized content that updates reactively
+            Container(
+              padding: EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                currentLocale.languageCode == 'ar' 
+                    ? 'هذا النص يتغير تلقائياً عند تغيير اللغة' 
+                    : 'This text changes automatically when language changes',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
+            SizedBox(height: 20),
+            
+            // Language switching buttons
+            Text(
+              'Switch Language:',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            SizedBox(height: 12),
+            
+            Wrap(
+              spacing: 8,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () => localeNotifier.changeLocale(Locale('en')),
+                  icon: Icon(Icons.language),
+                  label: Text('English'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: currentLocale.languageCode == 'en' 
+                        ? Theme.of(context).colorScheme.primary 
+                        : null,
+                  ),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () => localeNotifier.changeLocale(Locale('ar')),
+                  icon: Icon(Icons.language),
+                  label: Text('عربي'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: currentLocale.languageCode == 'ar' 
+                        ? Theme.of(context).colorScheme.primary 
+                        : null,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+            
+            // Form with localized validation
+            Form(
+              child: Column(
+                children: [
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: currentLocale.languageCode == 'ar' 
+                          ? 'الاسم' 
+                          : 'Name',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value?.isEmpty ?? true) {
+                        return currentLocale.languageCode == 'ar'
+                            ? 'يرجى إدخال الاسم'
+                            : 'Please enter name';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Form submission logic
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              currentLocale.languageCode == 'ar' 
+                                  ? 'تم الإرسال بنجاح!' 
+                                  : 'Submitted successfully!',
+                            ),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        currentLocale.languageCode == 'ar' ? 'إرسال' : 'Submit',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+#### Adding custom Locals 
+
+Complete example of integrating localization with your app configuration:
 
 ```dart
 import 'package:jet/jet.dart';
+import 'package:jet/localization/models/locale_info.dart';
 
-// In your widget
-Text(context.l10n.welcomeMessage)
+class AppConfig extends JetConfig {
+  @override
+  List<JetAdapter> get adapters => [
+    RouterAdapter(),
+  ];
 
-// Language switcher
-LanguageSwitcher()
+  @override
+  List<LocaleInfo> get supportedLocales => [
+    LocaleInfo(
+      locale: const Locale('en'),
+      displayName: 'English',
+      nativeName: 'English',
+    ),
+    LocaleInfo(
+      locale: const Locale('ar'),
+      displayName: 'Arabic',
+      nativeName: 'العربية',
+    ),
+  ];
+
+  @override
+  Locale? get defaultLocale => const Locale('en');
+
+  @override
+  List<LocalizationsDelegate<Object>> get localizationsDelegates => [];
+}
 ```
 
-### Using Theme Switching
+#### Key Features
 
-```dart
-import 'package:jet/jet.dart';
-
-// Theme switcher widget
-ThemeSwitcherWidget()
-```
-
-### Using Jet Buttons
-
-```dart
-import 'package:jet/jet.dart';
-
-JetButton(
-  text: 'Click Me',
-  onPressed: () {
-    // Handle button press
-  },
-)
-```
-
-## 🎨 Features
-
-- **🎯 Adaptive UI** - Components that adapt to iOS and Android design guidelines
-- **🌍 Internationalization** - Built-in support for multiple languages with RTL support
-- **🎨 Theming** - Complete theme management with light/dark mode support
-- **💾 Storage** - Secure and regular storage solutions
-- **🧭 Routing** - Powerful routing system built on auto_route
-- **📱 Responsive** - Mobile-first responsive design
-- **🔧 Extensible** - Easy to extend and customize
-- **📚 Well-documented** - Comprehensive documentation and examples
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 📞 Support
-
-For support and questions, please open an issue in the repository.
+- **Persistent Language Storage** - Remembers user's language choice across app restarts
+- **BaseLanguageSwitcher** - Abstract base class for creating custom language switchers
+- **Built-in UI Components** - Pre-built language switcher modal and button widgets
+- **State Management** - Riverpod integration for reactive language switching
+- **LocaleInfo Model** - Rich locale information with display names and native names
+- **RTL Support** - Automatic text direction detection for RTL languages
+- **Flexible Configuration** - Easy integration with app configuration system
+- **Custom Styling** - Full control over UI appearance and behavior
