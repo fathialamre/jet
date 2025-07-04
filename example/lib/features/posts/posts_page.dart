@@ -11,6 +11,15 @@ class PostsPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Posts'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.shopping_cart),
+            tooltip: 'Infinite Scroll Demo',
+            onPressed: () => context.router.push(
+              const PageRouteInfo('InfiniteScrollExampleRoute'),
+            ),
+          ),
+        ],
       ),
       body:
           JetAsyncRefreshableWidget.autoDisposeFutureProviderFamily<
