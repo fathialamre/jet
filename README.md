@@ -139,15 +139,32 @@ flutter run
   - [Storage Management](#storage-management)
   - [Complete Example](#complete-example)
   - [Key Features](#key-features)
+- [Using Theme Switching](#-using-theme-switching)
+  - [Theme Switcher Components](#theme-switcher-components)
+  - [Basic Usage](#basic-usage-2)
+  - [Custom Theme Switcher using BaseThemeSwitcher](#custom-theme-switcher-using-basethemeswitcher)
+  - [Advanced Usage with State Management](#advanced-usage-with-state-management-1)
+  - [Complete Integration Example](#complete-integration-example-1)
+  - [ThemeSwitcherNotifier Methods](#themeswitchernotifier-methods)
+  - [Key Features](#key-features-2)
 - [Using Localization](#-using-localization)
   - [Language Switcher Components](#language-switcher-components)
-  - [Basic Usage](#basic-usage-1)
-  - [Advanced Usage with State Management](#advanced-usage-with-state-management)
-  - [Custom Language Switcher](#custom-language-switcher)
+  - [Basic Usage](#basic-usage-3)
+  - [Custom Language Switcher using BaseLanguageSwitcher](#custom-language-switcher-using-baselanguageswitcher)
+  - [Advanced Usage with State Management](#advanced-usage-with-state-management-2)
   - [Adding Custom Locales](#adding-custom-locales)
   - [Integration with App Configuration](#integration-with-app-configuration)
-  - [Complete Integration Example](#complete-integration-example)
-  - [Key Features](#key-features-1)
+  - [Complete Integration Example](#complete-integration-example-2)
+  - [Key Features](#key-features-3)
+- [State Management](#-state-management)
+  - [Riverpod Integration](#riverpod-integration)
+  - [JetConsumer Widgets](#jetconsumer-widgets)
+  - [Refreshable Widgets](#refreshable-widgets)
+  - [JetAsyncRefreshableWidget](#jetasyncrefreshablewidget)
+  - [State Helpers](#state-helpers)
+  - [Provider Types Support](#provider-types-support)
+  - [Performance Optimizations](#performance-optimizations)
+  - [Key Features](#key-features-4)
 
 ## ⚙️ App Configuration
 
@@ -735,6 +752,413 @@ class UserPreferences {
 - **Cross-platform** - Works on both iOS and Android
 - **Error Handling** - Built-in error logging and graceful failures
 
+## 🎨 Using Theme Switching
+
+Jet Framework provides comprehensive theme management with built-in dark mode, light mode, and system theme support. The theme switcher system includes persistent theme storage, beautiful theme selection interfaces, and seamless integration with Flutter's theme system.
+
+### Theme Switcher Components
+
+The Jet framework includes several components for managing themes:
+
+| Component | Description |
+|-----------|-------------|
+| `ThemeSwitcherNotifier` | State manager for theme mode with persistent storage |
+| `BaseThemeSwitcher` | Abstract base class for creating custom theme switcher widgets |
+| `ThemeSwitcher` | Utility class with pre-built theme switcher widgets |
+| `SegmentedButtonThemeSwitcher` | Segmented button for theme selection |
+| `ToggleButtonSwitcher` | Toggle button for quick theme switching |
+| `BottomSheetThemeSwitcher` | Modal bottom sheet for theme selection |
+
+### Basic Usage
+
+#### 1. Simple Theme Toggle Button
+
+Add a theme toggle button to your app bar or anywhere in your UI:
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:jet/resources/theme/widgets/theme_switcher.dart';
+
+class MyAppBar extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      title: Text('My App'),
+      actions: [
+        // Simple theme toggle button
+        ThemeSwitcher.toggleButton(context),
+        SizedBox(width: 8),
+      ],
+    );
+  }
+}
+```
+
+#### 2. Segmented Theme Switcher
+
+Use a segmented button to display all theme options:
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:jet/resources/theme/widgets/theme_switcher.dart';
+
+class ThemeSettingsWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Theme Settings',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            SizedBox(height: 12),
+            // Segmented theme switcher
+            ThemeSwitcher.segmentedButton(context),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+#### 3. Show Theme Switcher Modal
+
+Programmatically show the theme selection modal:
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:jet/resources/theme/widgets/theme_switcher.dart';
+
+class SettingsPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () {
+            // Show theme selection modal
+            ThemeSwitcher.show(context);
+          },
+          child: Text('Change Theme'),
+        ),
+      ),
+    );
+  }
+}
+```
+
+### Custom Theme Switcher using BaseThemeSwitcher
+
+Create your own theme switcher by extending `BaseThemeSwitcher`. This gives you access to the current theme state, notifier for changing themes, and all available theme modes:
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jet/resources/theme/widgets/base_theme_switcher.dart';
+import 'package:jet/resources/theme/theme_switcher.dart';
+
+class CustomThemeDropdown extends BaseThemeSwitcher {
+  const CustomThemeDropdown({super.key});
+
+  @override
+  Widget build(
+    BuildContext context,
+    WidgetRef ref,
+    ThemeSwitcherNotifier notifier,
+    ThemeMode state,
+  ) {
+    return DropdownButton<ThemeMode>(
+      value: state,
+      underline: Container(),
+      icon: Icon(Icons.keyboard_arrow_down),
+      items: ThemeMode.values.map((ThemeMode themeMode) {
+        return DropdownMenuItem<ThemeMode>(
+          value: themeMode,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(_getThemeIcon(themeMode)),
+              SizedBox(width: 8),
+              Text(_getThemeLabel(themeMode)),
+            ],
+          ),
+        );
+      }).toList(),
+      onChanged: (ThemeMode? newTheme) {
+        if (newTheme != null) {
+          notifier.switchTheme(newTheme);
+        }
+      },
+    );
+  }
+
+  IconData _getThemeIcon(ThemeMode themeMode) {
+    switch (themeMode) {
+      case ThemeMode.light:
+        return Icons.light_mode;
+      case ThemeMode.dark:
+        return Icons.dark_mode;
+      case ThemeMode.system:
+        return Icons.auto_mode;
+    }
+  }
+
+  String _getThemeLabel(ThemeMode themeMode) {
+    switch (themeMode) {
+      case ThemeMode.light:
+        return 'Light';
+      case ThemeMode.dark:
+        return 'Dark';
+      case ThemeMode.system:
+        return 'System';
+    }
+  }
+}
+```
+
+### Advanced Usage with State Management
+
+Since we are using **[Riverpod](https://pub.dev/packages/hooks_riverpod)**, we can increase the level of customization and flexibility by leveraging its providers.
+
+For example, we can use the `themeSwitcherProvider` anywhere in the app to manage and react to theme changes:
+
+```dart
+final currentTheme = ref.watch(themeSwitcherProvider);
+final themeNotifier = ref.read(themeSwitcherProvider.notifier);
+```
+
+This approach allows you to easily access the current theme and control theme switching in a clean and scalable way.
+
+**Watching and Changing Theme with Riverpod:**
+
+```dart
+class ThemeManagementWidget extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Watch the current theme - widget rebuilds when theme changes
+    final currentTheme = ref.watch(themeSwitcherProvider);
+    // Get the notifier to change theme
+    final themeNotifier = ref.read(themeSwitcherProvider.notifier);
+    // Check if current effective theme is dark
+    final isDark = ref.watch(isDarkThemeProvider);
+    
+    return Card(
+      margin: EdgeInsets.all(16),
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Display current theme info
+            Row(
+              children: [
+                Icon(
+                  isDark ? Icons.dark_mode : Icons.light_mode,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                SizedBox(width: 8),
+                Text(
+                  'Current Theme: ${currentTheme.name.toUpperCase()}',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ],
+            ),
+            SizedBox(height: 8),
+            
+            // Theme status indicator
+            Container(
+              padding: EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: isDark 
+                    ? Colors.indigo.withOpacity(0.1)
+                    : Colors.amber.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: isDark 
+                      ? Colors.indigo.withOpacity(0.3)
+                      : Colors.amber.withOpacity(0.3),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    isDark ? Icons.nights_stay : Icons.wb_sunny,
+                    size: 16,
+                    color: isDark ? Colors.indigo : Colors.amber,
+                  ),
+                  SizedBox(width: 8),
+                  Text(
+                    isDark 
+                        ? 'Dark theme is currently active' 
+                        : 'Light theme is currently active',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: isDark ? Colors.indigo : Colors.amber.shade700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 20),
+            
+            // Theme switching buttons
+            Text(
+              'Quick Theme Actions:',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            SizedBox(height: 12),
+            
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () => themeNotifier.setLightTheme(),
+                  icon: Icon(Icons.light_mode),
+                  label: Text('Light'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: currentTheme == ThemeMode.light 
+                        ? Theme.of(context).colorScheme.primary 
+                        : null,
+                  ),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () => themeNotifier.setDarkTheme(),
+                  icon: Icon(Icons.dark_mode),
+                  label: Text('Dark'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: currentTheme == ThemeMode.dark 
+                        ? Theme.of(context).colorScheme.primary 
+                        : null,
+                  ),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () => themeNotifier.setSystemTheme(),
+                  icon: Icon(Icons.auto_mode),
+                  label: Text('System'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: currentTheme == ThemeMode.system 
+                        ? Theme.of(context).colorScheme.primary 
+                        : null,
+                  ),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () => themeNotifier.toggleTheme(),
+                  icon: Icon(Icons.swap_horiz),
+                  label: Text('Toggle'),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+            
+            // Theme-aware content example
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: isDark 
+                      ? [Colors.purple.shade900, Colors.blue.shade900]
+                      : [Colors.blue.shade100, Colors.purple.shade100],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.palette,
+                    size: 32,
+                    color: isDark ? Colors.white70 : Colors.black87,
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'This content adapts to your theme!',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: isDark ? Colors.white70 : Colors.black87,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+### Complete Integration Example
+
+Here's how to integrate theme switching with your app configuration:
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jet/jet.dart';
+
+class MyApp extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeSwitcherProvider);
+    
+    return MaterialApp(
+      title: 'Jet App',
+      themeMode: themeMode,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.light,
+        ),
+        useMaterial3: true,
+      ),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.dark,
+        ),
+        useMaterial3: true,
+      ),
+      home: HomePage(),
+    );
+  }
+}
+```
+
+### ThemeSwitcherNotifier Methods
+
+The `ThemeSwitcherNotifier` provides several convenient methods:
+
+| Method | Description |
+|--------|-------------|
+| `switchTheme(ThemeMode)` | Switch to a specific theme mode |
+| `toggleTheme()` | Toggle between light and dark themes |
+| `setLightTheme()` | Switch to light theme |
+| `setDarkTheme()` | Switch to dark theme |
+| `setSystemTheme()` | Switch to system theme |
+| `isLight` | Check if current theme is light |
+| `isDark` | Check if current theme is dark |
+| `isSystem` | Check if current theme is system |
+
+### Key Features
+
+- **Persistent Theme Storage** - Remembers user's theme choice across app restarts
+- **BaseThemeSwitcher** - Abstract base class for creating custom theme switchers
+- **Built-in UI Components** - Pre-built theme switcher widgets (toggle, segmented, modal)
+- **State Management** - Riverpod integration for reactive theme switching
+- **System Theme Support** - Automatically follows system dark/light mode preferences
+- **Three Theme Modes** - Light, dark, and system theme options
+- **Custom Styling** - Full control over UI appearance and behavior
+- **Theme Detection** - Utility providers for checking current effective theme
+
 ## 🌍 Using Localization
 
 Jet Framework provides comprehensive internationalization (i18n) support with built-in language switching capabilities. The localization system includes persistent locale storage, a beautiful language switcher interface, and seamless integration with Flutter's localization delegates.
@@ -1089,3 +1513,994 @@ class AppConfig extends JetConfig {
 - **RTL Support** - Automatic text direction detection for RTL languages
 - **Flexible Configuration** - Easy integration with app configuration system
 - **Custom Styling** - Full control over UI appearance and behavior
+
+## 🔄 State Management
+
+Jet Framework derives its true power from **[Riverpod](https://pub.dev/packages/hooks_riverpod)**, one of Flutter's most robust and efficient state management solutions. By building on top of Riverpod's foundation, Jet provides enhanced widgets, utilities, and patterns that make state management both powerful and developer-friendly.
+
+**Riverpod** brings compile-time safety, automatic dependency injection, excellent testing capabilities, and performance optimizations. Jet Framework amplifies these benefits by providing specialized widgets for common patterns like data fetching with pull-to-refresh, error handling, and loading states.
+
+### Riverpod Integration
+
+Jet Framework is deeply integrated with Riverpod and provides enhanced widgets that work seamlessly with all Riverpod provider types:
+
+| Provider Type | Description | Jet Support |
+|---------------|-------------|-------------|
+| `Provider` | Simple read-only values | ✅ Full support |
+| `StateProvider` | Simple mutable state | ✅ Full support |
+| `FutureProvider` | Async operations | ✅ **Enhanced with refreshable widgets** |
+| `StreamProvider` | Stream of values | ✅ Full support |
+| `StateNotifierProvider` | Complex state management | ✅ Enhanced support |
+| `ChangeNotifierProvider` | Legacy change notifier | ✅ Full support |
+
+**Learn more about Riverpod:** [https://pub.dev/packages/hooks_riverpod](https://pub.dev/packages/hooks_riverpod)
+
+### JetConsumer Widgets
+
+Jet provides specialized consumer widgets that give you access to both Riverpod's `WidgetRef` and the Jet framework instance:
+
+#### JetConsumerWidget
+
+Use this when you need to extend a widget class:
+
+```dart
+import 'package:jet/jet.dart';
+
+class UserProfile extends JetConsumerWidget {
+  const UserProfile({super.key});
+
+  @override
+  Widget jetBuild(BuildContext context, WidgetRef ref, Jet jet) {
+    // Access to ref for watching providers
+    final user = ref.watch(userProvider);
+    
+    // Access to jet instance for framework features
+    final router = jet.router;
+    
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Profile'),
+        actions: [
+          IconButton(
+            onPressed: () => router.pushNamed('/settings'),
+            icon: Icon(Icons.settings),
+          ),
+        ],
+      ),
+      body: user.when(
+        data: (userData) => UserDetails(user: userData),
+        loading: () => jet.config.loader, // Use Jet's configured loader
+        error: (error, stack) => ErrorWidget(error),
+      ),
+    );
+  }
+}
+```
+
+#### JetConsumer
+
+Use this functional approach when you don't need to extend a class:
+
+```dart
+class SettingsPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: JetConsumer(
+        builder: (context, ref, jet) {
+          final settings = ref.watch(settingsProvider);
+          
+          return Column(
+            children: [
+              // Access theme switching from jet
+              ThemeSwitcher.segmentedButton(context),
+              
+              // Access language switching
+              LanguageSwitcher.toggleButton(),
+              
+              // Use refreshable widgets for async data
+              Expanded(
+                child: JetAsyncRefreshableWidget.autoDisposeFutureProvider<List<Setting>>(
+                  provider: userSettingsProvider,
+                  builder: (settings, ref) => SettingsList(settings: settings),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+```
+
+### Refreshable Widgets
+
+One of Jet's most powerful features is its refreshable widget system. These widgets provide complete pull-to-refresh functionality with proper loading states, error handling, and performance optimizations.
+
+#### Basic JetRefreshableWidget
+
+For complete control over the refresh behavior:
+
+```dart
+class PostsList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return JetRefreshableWidget<List<Post>>(
+      // Watch any AsyncValue provider
+      asyncValue: (ref) => ref.watch(postsProvider),
+      
+      // Custom refresh logic
+      onRefresh: () async {
+        await ApiService.refreshPosts();
+        // Additional refresh logic
+      },
+      
+      // Builder when data is available
+      builder: (posts, ref) {
+        return ListView.builder(
+          itemCount: posts.length,
+          itemBuilder: (context, index) => PostCard(post: posts[index]),
+        );
+      },
+      
+      // Optional custom loading widget
+      loading: const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text('Loading posts...'),
+          ],
+        ),
+      ),
+      
+      // Optional custom error widget
+      error: (error, stackTrace) => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error, size: 48, color: Colors.red),
+            SizedBox(height: 16),
+            Text('Failed to load posts'),
+            TextButton(
+              onPressed: () {
+                // Custom retry logic
+              },
+              child: Text('Retry'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+### JetAsyncRefreshableWidget
+
+`JetAsyncRefreshableWidget` is Jet Framework's premier solution for handling asynchronous data with pull-to-refresh functionality. This powerful widget automatically manages loading states, error handling, and refresh operations for different types of Riverpod providers.
+
+**JetAsyncRefreshableWidget** comes in **two main types**:
+
+| Type | Description | Use Case |
+|------|-------------|----------|
+| **Regular** | Works with standard providers that don't require parameters | Static data fetching (all posts, user profile, app settings) |
+| **Family** | Works with parameterized providers that accept arguments | Dynamic data fetching (posts by category, user by ID, search results) |
+
+Both types provide the same powerful features:
+- **Automatic refresh logic** based on provider type
+- **Built-in loading and error states** with customizable UI
+- **Pull-to-refresh functionality** with smooth animations
+- **Performance optimizations** to prevent unnecessary rebuilds
+- **Type safety** with full Dart-like type inference
+
+#### Regular JetAsyncRefreshableWidget
+
+Use this for providers that don't require parameters. Perfect for fetching static data like user profiles, app settings, or general content lists.
+
+```dart
+// Example 1: Simple Posts List
+class PostsList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return JetAsyncRefreshableWidget.autoDisposeFutureProvider<List<Post>>(
+      provider: postsProvider,
+      builder: (posts, ref) {
+        return ListView.builder(
+          itemCount: posts.length,
+          itemBuilder: (context, index) => PostCard(post: posts[index]),
+        );
+      },
+      // Optional: Custom loading widget
+      loadingBuilder: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text('Loading posts...'),
+          ],
+        ),
+      ),
+      // Optional: Custom error widget
+      errorBuilder: (error, stackTrace) => Center(
+        child: Column(
+          children: [
+            Icon(Icons.error, size: 48, color: Colors.red),
+            Text('Failed to load posts'),
+            ElevatedButton(
+              onPressed: () => ref.invalidate(postsProvider),
+              child: Text('Retry'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Provider definition
+final postsProvider = AutoDisposeFutureProvider<List<Post>>((ref) async {
+  final api = ref.read(apiServiceProvider);
+  return await api.getAllPosts();
+});
+```
+
+```dart
+// Example 2: User Profile
+class UserProfilePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Profile')),
+      body: JetAsyncRefreshableWidget.autoDisposeFutureProvider<UserProfile>(
+        provider: currentUserProfileProvider,
+        builder: (profile, ref) {
+          return SingleChildScrollView(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              children: [
+                CircleAvatar(
+                  radius: 60,
+                  backgroundImage: NetworkImage(profile.avatarUrl),
+                ),
+                SizedBox(height: 16),
+                Text(profile.name, style: Theme.of(context).textTheme.headlineMedium),
+                Text(profile.email),
+                SizedBox(height: 24),
+                ProfileStats(profile: profile),
+                SizedBox(height: 24),
+                ProfileActions(profile: profile),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+final currentUserProfileProvider = AutoDisposeFutureProvider<UserProfile>((ref) async {
+  final api = ref.read(apiServiceProvider);
+  final userId = ref.read(authProvider).currentUser?.id;
+  if (userId == null) throw Exception('User not authenticated');
+  return await api.getUserProfile(userId);
+});
+```
+
+#### Family JetAsyncRefreshableWidget
+
+Use this for providers that require parameters. Perfect for dynamic data fetching where the content depends on user input, route parameters, or other variables.
+
+```dart
+// Example 1: Products by Category
+class CategoryProductsPage extends StatelessWidget {
+  final String categoryId;
+  
+  const CategoryProductsPage({required this.categoryId});
+
+  @override
+  Widget build(BuildContext context) {
+    return JetAsyncRefreshableWidget.autoDisposeFutureProviderFamily<List<Product>, String>(
+      provider: productsByCategoryProvider,
+      param: categoryId,
+      builder: (products, ref) {
+        return GridView.builder(
+          padding: EdgeInsets.all(16),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 0.75,
+          ),
+          itemCount: products.length,
+          itemBuilder: (context, index) => ProductCard(
+            product: products[index],
+            onTap: () => _navigateToProduct(context, products[index]),
+          ),
+        );
+      },
+    );
+  }
+  
+  void _navigateToProduct(BuildContext context, Product product) {
+    context.router.pushNamed('/product/${product.id}');
+  }
+}
+
+// Family provider definition
+final productsByCategoryProvider = AutoDisposeFutureProvider.family<List<Product>, String>((ref, categoryId) async {
+  final api = ref.read(apiServiceProvider);
+  return await api.getProductsByCategory(categoryId);
+});
+```
+
+```dart
+// Example 2: Search Results
+class SearchResultsPage extends StatelessWidget {
+  final String searchQuery;
+  
+  const SearchResultsPage({required this.searchQuery});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Search: $searchQuery'),
+      ),
+      body: JetAsyncRefreshableWidget.autoDisposeFutureProviderFamily<SearchResults, String>(
+        provider: searchResultsProvider,
+        param: searchQuery,
+        builder: (results, ref) {
+          if (results.items.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.search_off, size: 64, color: Colors.grey),
+                  SizedBox(height: 16),
+                  Text('No results found for "$searchQuery"'),
+                  SizedBox(height: 8),
+                  Text('Try a different search term'),
+                ],
+              ),
+            );
+          }
+          
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsets.all(16),
+                child: Text(
+                  '${results.totalCount} results found',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: results.items.length,
+                  itemBuilder: (context, index) => SearchResultCard(
+                    result: results.items[index],
+                    query: searchQuery,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+        loadingBuilder: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text('Searching for "$searchQuery"...'),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+final searchResultsProvider = AutoDisposeFutureProvider.family<SearchResults, String>((ref, query) async {
+  if (query.trim().isEmpty) {
+    return SearchResults(items: [], totalCount: 0);
+  }
+  
+  final api = ref.read(apiServiceProvider);
+  return await api.search(query);
+});
+```
+
+```dart
+// Example 3: User Posts with Pagination
+class UserPostsTab extends StatelessWidget {
+  final String userId;
+  
+  const UserPostsTab({required this.userId});
+
+  @override
+  Widget build(BuildContext context) {
+    return JetAsyncRefreshableWidget.autoDisposeFutureProviderFamily<List<Post>, String>(
+      provider: userPostsProvider,
+      param: userId,
+      builder: (posts, ref) {
+        return ListView.builder(
+          itemCount: posts.length,
+          itemBuilder: (context, index) {
+            final post = posts[index];
+            return PostCard(
+              post: post,
+              showAuthor: false, // Don't show author since we're on their profile
+              onLike: () => _toggleLike(ref, post),
+              onComment: () => _showComments(context, post),
+            );
+          },
+        );
+      },
+      errorBuilder: (error, stackTrace) => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.person_off, size: 48, color: Colors.grey),
+            SizedBox(height: 16),
+            Text('Unable to load user posts'),
+            TextButton(
+              onPressed: () => ref.invalidate(userPostsProvider(userId)),
+              child: Text('Try again'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  void _toggleLike(WidgetRef ref, Post post) {
+    ref.read(postLikesProvider.notifier).toggleLike(post.id);
+  }
+  
+  void _showComments(BuildContext context, Post post) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => CommentsBottomSheet(postId: post.id),
+    );
+  }
+}
+
+final userPostsProvider = AutoDisposeFutureProvider.family<List<Post>, String>((ref, userId) async {
+  final api = ref.read(apiServiceProvider);
+  return await api.getUserPosts(userId);
+});
+```
+
+#### Advanced Family Provider Examples
+
+```dart
+// Example 4: Complex Parameters with Custom Types
+class FilteredProductsPage extends StatelessWidget {
+  final ProductFilter filter;
+  
+  const FilteredProductsPage({required this.filter});
+
+  @override
+  Widget build(BuildContext context) {
+    return JetAsyncRefreshableWidget.autoDisposeFutureProviderFamily<List<Product>, ProductFilter>(
+      provider: filteredProductsProvider,
+      param: filter,
+      builder: (products, ref) {
+        return Column(
+          children: [
+            FilterSummary(filter: filter),
+            Expanded(
+              child: GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                ),
+                itemCount: products.length,
+                itemBuilder: (context, index) => ProductCard(product: products[index]),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+// Custom parameter type
+class ProductFilter {
+  final String? category;
+  final double? minPrice;
+  final double? maxPrice;
+  final String? brand;
+  final bool inStock;
+  
+  const ProductFilter({
+    this.category,
+    this.minPrice,
+    this.maxPrice,
+    this.brand,
+    this.inStock = true,
+  });
+  
+  // Override equality for proper provider caching
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ProductFilter &&
+          runtimeType == other.runtimeType &&
+          category == other.category &&
+          minPrice == other.minPrice &&
+          maxPrice == other.maxPrice &&
+          brand == other.brand &&
+          inStock == other.inStock;
+
+  @override
+  int get hashCode =>
+      category.hashCode ^
+      minPrice.hashCode ^
+      maxPrice.hashCode ^
+      brand.hashCode ^
+      inStock.hashCode;
+}
+
+final filteredProductsProvider = AutoDisposeFutureProvider.family<List<Product>, ProductFilter>((ref, filter) async {
+  final api = ref.read(apiServiceProvider);
+  return await api.getFilteredProducts(filter);
+});
+```
+
+### State Helpers
+
+`JetStateHelpers` provides a collection of pre-built, highly optimized convenience methods that eliminate boilerplate code for the most common UI patterns in mobile applications. These helpers automatically handle pull-to-refresh functionality, loading states, error handling, and performance optimizations.
+
+**Key Features of JetStateHelpers:**
+- **Zero Boilerplate** - Reduces complex state management to single method calls
+- **Built-in Pull-to-Refresh** - Automatic refresh functionality with smooth animations
+- **Family Provider Support** - Full support for parameterized providers
+- **Performance Optimized** - Smart loading states and minimal rebuilds
+- **Customizable UI** - Optional custom loading, error, and layout configurations
+- **Type Safe** - Full type inference and compile-time safety
+
+**Available Helper Methods:**
+
+| Method | Description | Family Support |
+|--------|-------------|----------------|
+| `refreshableList()` | Creates ListView with pull-to-refresh for list data | ✅ `refreshableListFamily()` |
+| `refreshableGrid()` | Creates GridView with pull-to-refresh for grid layouts | ✅ `refreshableGridFamily()` |
+| `refreshableItem()` | Creates scrollable single item with pull-to-refresh | ✅ `refreshableItemFamily()` |
+
+Each helper method comes in two variants:
+- **Regular**: For providers without parameters (`AutoDisposeFutureProvider<List<T>>`)
+- **Family**: For providers with parameters (`AutoDisposeFutureProvider<List<T>>.family`)
+
+#### Refreshable Lists
+
+Perfect for displaying lists of items with pull-to-refresh functionality. Automatically handles ListView configuration, item building, and refresh logic.
+
+```dart
+// Regular Provider Example
+class QuickPostsList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return JetStateHelpers.refreshableList<Post>(
+      provider: postsProvider,
+      itemBuilder: (post, index) => ListTile(
+        leading: CircleAvatar(
+          backgroundImage: NetworkImage(post.author.avatarUrl),
+        ),
+        title: Text(post.title),
+        subtitle: Text(post.excerpt),
+        trailing: Text(post.publishDate),
+        onTap: () => context.router.pushNamed('/post/${post.id}'),
+      ),
+      padding: EdgeInsets.all(16),
+      // Optional customizations
+      physics: BouncingScrollPhysics(),
+      loading: Center(child: CircularProgressIndicator()),
+      error: (error, stackTrace) => ErrorMessage(error: error),
+    );
+  }
+}
+
+// Family Provider Example - Posts by Category
+class CategoryPostsList extends StatelessWidget {
+  final String categoryId;
+  
+  const CategoryPostsList({required this.categoryId});
+
+  @override
+  Widget build(BuildContext context) {
+    return JetStateHelpers.refreshableListFamily<Post, String>(
+      provider: postsByCategoryProvider,
+      param: categoryId,
+      itemBuilder: (post, index) => PostCard(
+        post: post,
+        onLike: () => _toggleLike(post.id),
+        onShare: () => _sharePost(post),
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    );
+  }
+  
+  void _toggleLike(String postId) {
+    // Handle like logic
+  }
+  
+  void _sharePost(Post post) {
+    // Handle share logic
+  }
+}
+
+final postsByCategoryProvider = AutoDisposeFutureProvider.family<List<Post>, String>((ref, categoryId) async {
+  final api = ref.read(apiServiceProvider);
+  return await api.getPostsByCategory(categoryId);
+});
+```
+
+#### Refreshable Grids
+
+Ideal for displaying items in a grid layout with pull-to-refresh functionality. Perfect for product catalogs, photo galleries, or any grid-based content.
+
+```dart
+// Regular Provider Example
+class ProductsGrid extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return JetStateHelpers.refreshableGrid<Product>(
+      provider: productsProvider,
+      crossAxisCount: 2,
+      itemBuilder: (product, index) => ProductCard(
+        product: product,
+        onAddToCart: () => _addToCart(product),
+        onFavorite: () => _toggleFavorite(product.id),
+      ),
+      crossAxisSpacing: 12,
+      mainAxisSpacing: 12,
+      childAspectRatio: 0.75,
+      padding: EdgeInsets.all(16),
+    );
+  }
+  
+  void _addToCart(Product product) {
+    // Add to cart logic
+  }
+  
+  void _toggleFavorite(String productId) {
+    // Toggle favorite logic
+  }
+}
+
+// Family Provider Example - Products by Category with Filters
+class FilteredProductsGrid extends StatelessWidget {
+  final ProductFilter filter;
+  
+  const FilteredProductsGrid({required this.filter});
+
+  @override
+  Widget build(BuildContext context) {
+    return JetStateHelpers.refreshableGridFamily<Product, ProductFilter>(
+      provider: filteredProductsProvider,
+      param: filter,
+      crossAxisCount: MediaQuery.of(context).size.width > 600 ? 3 : 2, // Responsive
+      itemBuilder: (product, index) => ProductCard(
+        product: product,
+        showDiscount: filter.showDiscountsOnly,
+        onQuickView: () => _showQuickView(context, product),
+      ),
+      crossAxisSpacing: 16,
+      mainAxisSpacing: 16,
+      childAspectRatio: 0.8,
+      padding: EdgeInsets.all(20),
+      loading: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text('Loading filtered products...'),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  void _showQuickView(BuildContext context, Product product) {
+    showDialog(
+      context: context,
+      builder: (context) => ProductQuickViewDialog(product: product),
+    );
+  }
+}
+
+class ProductFilter {
+  final String? category;
+  final double? minPrice;
+  final double? maxPrice;
+  final bool showDiscountsOnly;
+  
+  const ProductFilter({
+    this.category,
+    this.minPrice,
+    this.maxPrice,
+    this.showDiscountsOnly = false,
+  });
+  
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ProductFilter &&
+          category == other.category &&
+          minPrice == other.minPrice &&
+          maxPrice == other.maxPrice &&
+          showDiscountsOnly == other.showDiscountsOnly;
+
+  @override
+  int get hashCode => Object.hash(category, minPrice, maxPrice, showDiscountsOnly);
+}
+
+final filteredProductsProvider = AutoDisposeFutureProvider.family<List<Product>, ProductFilter>((ref, filter) async {
+  final api = ref.read(apiServiceProvider);
+  return await api.getFilteredProducts(filter);
+});
+```
+
+#### Refreshable Single Items
+
+Perfect for displaying detailed single items with pull-to-refresh functionality. The content is automatically wrapped in a scrollable container to enable refresh gestures.
+
+```dart
+// Regular Provider Example
+class UserProfileView extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return JetStateHelpers.refreshableItem<UserProfile>(
+      provider: currentUserProfileProvider,
+      itemBuilder: (profile, ref) => Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Stack(
+            children: [
+              CircleAvatar(
+                radius: 60,
+                backgroundImage: NetworkImage(profile.avatarUrl),
+              ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: CircleAvatar(
+                  radius: 18,
+                  child: IconButton(
+                    onPressed: () => _editProfile(profile),
+                    icon: Icon(Icons.edit, size: 16),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 20),
+          Text(
+            profile.displayName,
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          Text(
+            profile.email,
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: Colors.grey[600],
+            ),
+          ),
+          SizedBox(height: 24),
+          ProfileStatsRow(profile: profile),
+          SizedBox(height: 32),
+          ProfileActionButtons(profile: profile),
+          SizedBox(height: 24),
+          RecentActivitySection(userId: profile.id),
+        ],
+      ),
+      padding: EdgeInsets.all(20),
+    );
+  }
+  
+  void _editProfile(UserProfile profile) {
+    // Navigate to edit profile page
+  }
+}
+
+// Family Provider Example - User Profile by ID
+class PublicUserProfile extends StatelessWidget {
+  final String userId;
+  
+  const PublicUserProfile({required this.userId});
+
+  @override
+  Widget build(BuildContext context) {
+    return JetStateHelpers.refreshableItemFamily<UserProfile, String>(
+      provider: userProfileByIdProvider,
+      param: userId,
+      itemBuilder: (profile, ref) => Column(
+        children: [
+          ProfileHeader(profile: profile),
+          SizedBox(height: 24),
+          ProfileBio(bio: profile.bio),
+          SizedBox(height: 32),
+          ProfileTabs(userId: userId), // Posts, Followers, Following
+          SizedBox(height: 24),
+          ContactActions(profile: profile),
+        ],
+      ),
+      padding: EdgeInsets.all(16),
+      error: (error, stackTrace) => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.person_off, size: 64, color: Colors.grey),
+            SizedBox(height: 16),
+            Text('Unable to load user profile'),
+            SizedBox(height: 8),
+            Text('This user may not exist or be private'),
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Go Back'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+final userProfileByIdProvider = AutoDisposeFutureProvider.family<UserProfile, String>((ref, userId) async {
+  final api = ref.read(apiServiceProvider);
+  return await api.getUserProfile(userId);
+});
+```
+
+### Provider Types Support
+
+Jet's refreshable widgets support different provider types with optimized refresh strategies:
+
+#### AutoDisposeFutureProvider (Recommended)
+
+```dart
+final postsProvider = AutoDisposeFutureProvider<List<Post>>((ref) async {
+  final api = ref.read(apiServiceProvider);
+  return await api.getPosts();
+});
+
+// Usage
+JetAsyncRefreshableWidget.autoDisposeFutureProvider<List<Post>>(
+  provider: postsProvider,
+  builder: (posts, ref) => PostsList(posts: posts),
+);
+```
+
+#### FutureProvider
+
+```dart
+final userProvider = FutureProvider<User>((ref) async {
+  final api = ref.read(apiServiceProvider);
+  return await api.getCurrentUser();
+});
+
+// Usage
+JetAsyncRefreshableWidget.futureProvider<User>(
+  provider: userProvider,
+  builder: (user, ref) => UserProfile(user: user),
+);
+```
+
+#### StateNotifier (Legacy Support)
+
+```dart
+class PostsNotifier extends StateNotifier<AsyncValue<List<Post>>> {
+  PostsNotifier(this._api) : super(const AsyncValue.loading());
+  
+  final ApiService _api;
+
+  Future<void> loadPosts() async {
+    state = const AsyncValue.loading();
+    try {
+      final posts = await _api.getPosts();
+      state = AsyncValue.data(posts);
+    } catch (error, stackTrace) {
+      state = AsyncValue.error(error, stackTrace);
+    }
+  }
+  
+  Future<void> refresh() => loadPosts();
+}
+
+final postsProvider = StateNotifierProvider<PostsNotifier, AsyncValue<List<Post>>>((ref) {
+  return PostsNotifier(ref.read(apiServiceProvider));
+});
+
+// Usage
+JetAsyncRefreshableWidget.notifier<List<Post>>(
+  provider: postsProvider,
+  refreshMethod: () => ref.read(postsProvider.notifier).refresh(),
+  builder: (posts, ref) => PostsList(posts: posts),
+);
+```
+
+### Performance Optimizations
+
+Jet's refreshable widgets include several performance optimizations:
+
+#### Smart Loading States
+
+```dart
+// Prevents double loading indicators during refresh
+JetRefreshableWidget<List<Post>>(
+  asyncValue: (ref) => ref.watch(postsProvider),
+  onRefresh: () => ref.refresh(postsProvider.future),
+  builder: (posts, ref) => PostsList(posts: posts),
+  // These optimizations are built-in:
+  // - skipLoadingOnReload: true
+  // - skipLoadingOnRefresh: true
+);
+```
+
+#### Automatic Resource Management
+
+```dart
+// AutoDispose providers automatically clean up when not in use
+final postsProvider = AutoDisposeFutureProvider<List<Post>>((ref) async {
+  // This provider will be disposed when no widgets are watching it
+  final api = ref.read(apiServiceProvider);
+  return await api.getPosts();
+});
+```
+
+#### Minimal Rebuilds
+
+```dart
+class OptimizedPostsList extends JetConsumerWidget {
+  @override
+  Widget jetBuild(BuildContext context, WidgetRef ref, Jet jet) {
+    // Only this widget rebuilds when posts change
+    final posts = ref.watch(postsProvider);
+    
+    // Theme and other providers are watched separately
+    final theme = ref.watch(themeSwitcherProvider);
+    
+    return posts.when(
+      data: (postList) => ListView.builder(
+        itemCount: postList.length,
+        itemBuilder: (context, index) {
+          // Each item can watch its own specific data
+          return Consumer(
+            builder: (context, ref, child) {
+              final isLiked = ref.watch(postLikeProvider(postList[index].id));
+              return PostCard(
+                post: postList[index],
+                isLiked: isLiked,
+              );
+            },
+          );
+        },
+      ),
+      loading: () => jet.config.loader,
+      error: (error, stack) => ErrorWidget(error),
+    );
+  }
+}
+```
+
+#### Key Features
+
+- **Riverpod Integration** - Built on top of Flutter's most powerful state management solution
+- **Refreshable Widgets** - Pull-to-refresh functionality with proper state handling
+- **Multiple Provider Support** - Works with FutureProvider, StateNotifier, and more
+- **Performance Optimized** - Smart loading states and minimal rebuilds
+- **Error Handling** - Built-in error widgets with retry functionality
+- **Type Safety** - Full type safety with automatic Dart type inference
+- **JetConsumer Widgets** - Enhanced consumer widgets with Jet instance access
+- **State Helpers** - Convenient methods for common patterns (lists, grids, single items)
+- **Automatic Resource Management** - AutoDispose providers for memory efficiency
+- **Customizable UI** - Full control over loading, error, and refresh indicators

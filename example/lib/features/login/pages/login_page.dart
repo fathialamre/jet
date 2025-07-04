@@ -14,7 +14,7 @@ class LoginPage extends ConsumerWidget {
       appBar: AppBar(
         title: Text(localizations.appName),
         actions: [
-          // Add the locale switcher button to the app bar
+          ThemeSwitcher.toggleButton(context),
           LanguageSwitcher.toggleButton(),
           const SizedBox(width: 8),
         ],
@@ -89,6 +89,11 @@ class LoginPage extends ConsumerWidget {
 
             const SizedBox(height: 16),
 
+            ThemeSwitcher.segmentedButton(context),
+            TextButton(
+              onPressed: () => ThemeSwitcher.show(context),
+              child: const Text('Show Theme Switcher'),
+            ),
             // Manual bottom sheet trigger
             OutlinedButton.icon(
               onPressed: () => LanguageSwitcher.show(context),

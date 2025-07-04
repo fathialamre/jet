@@ -39,4 +39,10 @@ class JetLocalizationsImplAr extends JetLocalizationsImpl {
 
   @override
   String get changeLanguage => 'تغيير اللغة';
+
+  @override
+  String get changeTheme => 'تغيير الوضع';
+
+  @override
+  String get retry => 'إعادة المحاولة';
 }

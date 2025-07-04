@@ -46,9 +46,10 @@ abstract class JetLocalizationsImpl {
   String get switchToDarkTheme;
   String get switchToLightTheme;
   String get switchToSystemTheme;
-
+  String get changeTheme;
   // Language related translations
   String get changeLanguage;
+  String get retry;
 }
 
 class JetLocalizationsDelegate

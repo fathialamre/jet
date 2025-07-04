@@ -12,7 +12,7 @@ class JetButton extends StatefulWidget {
   const JetButton({
     super.key,
     required this.text,
-    required this.onTap,
+     this.onTap,
     this.type = JetButtonType.filled,
     this.isEnabled = true,
     this.width,
@@ -172,7 +172,7 @@ class JetButton extends StatefulWidget {
   }
 
   final String text;
-  final FutureOr<void> Function() onTap;
+  final FutureOr<void>? Function()? onTap;
   final JetButtonType type;
   final bool isEnabled;
   final double? width;
@@ -197,7 +197,7 @@ class _JetButtonState extends State<JetButton> {
   Future<void> _handleTap() async {
     if (_isLoading) return;
 
-    final result = widget.onTap();
+    final result = widget.onTap?.call();
 
     // Check if the result is a Future
     if (result is Future) {

@@ -3,47 +3,20 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jet/storage/local_storage.dart';
 import 'package:jet/helpers/jet_logger.dart';
 
-/// Enum for available theme modes
-enum JetThemeMode {
-  light,
-  dark,
-  system;
-
-  /// Convert to Flutter's ThemeMode
-  ThemeMode get flutterThemeMode {
-    switch (this) {
-      case JetThemeMode.light:
-        return ThemeMode.light;
-      case JetThemeMode.dark:
-        return ThemeMode.dark;
-      case JetThemeMode.system:
-        return ThemeMode.system;
-    }
+extension ThemeModeExtension on ThemeMode {
+  static ThemeMode fromString(String value) {
+    return ThemeMode.values.firstWhere(
+      (e) => e.name == value,
+      orElse: () => ThemeMode.system,
+    );
   }
-
-  /// Create from string for persistence
-  static JetThemeMode fromString(String value) {
-    switch (value.toLowerCase()) {
-      case 'light':
-        return JetThemeMode.light;
-      case 'dark':
-        return JetThemeMode.dark;
-      case 'system':
-        return JetThemeMode.system;
-      default:
-        return JetThemeMode.system;
-    }
-  }
-
-  /// Convert to string for persistence
-  String get value => name;
 }
 
 /// Theme switcher state notifier
-class ThemeSwitcherNotifier extends StateNotifier<JetThemeMode> {
+class ThemeSwitcherNotifier extends StateNotifier<ThemeMode> {
   static const String _storageKey = 'jet_theme_mode';
 
-  ThemeSwitcherNotifier() : super(JetThemeMode.system) {
+  ThemeSwitcherNotifier() : super(ThemeMode.system) {
     _loadTheme();
   }
 
@@ -52,26 +25,29 @@ class ThemeSwitcherNotifier extends StateNotifier<JetThemeMode> {
     try {
       final savedTheme = JetStorage.read<String>(
         _storageKey,
-        defaultValue: JetThemeMode.system.value,
+        defaultValue: ThemeMode.system.name,
       );
 
       if (savedTheme != null) {
-        state = JetThemeMode.fromString(savedTheme);
-        dump('[ThemeSwitcher] Loaded theme: ${state.value}');
+        state = ThemeMode.values.firstWhere(
+          (e) => e.name == savedTheme,
+          orElse: () => ThemeMode.system,
+        );
+        dump('[ThemeSwitcher] Loaded theme: ${state.name}');
       }
     } catch (e, stackTrace) {
       dump('[ThemeSwitcher] Error loading theme: $e', stackTrace: stackTrace);
       // Fallback to system theme if loading fails
-      state = JetThemeMode.system;
+      state = ThemeMode.system;
     }
   }
 
   /// Switch to a specific theme mode
-  Future<void> switchTheme(JetThemeMode themeMode) async {
+  Future<void> switchTheme(ThemeMode themeMode) async {
     try {
       state = themeMode;
-      await JetStorage.write(_storageKey, themeMode.value);
-      dump('[ThemeSwitcher] Theme switched to: ${themeMode.value}');
+      await JetStorage.write(_storageKey, themeMode.name);
+      dump('[ThemeSwitcher] Theme switched to: ${themeMode.name}');
     } catch (e, stackTrace) {
       dump('[ThemeSwitcher] Error saving theme: $e', stackTrace: stackTrace);
     }
@@ -79,41 +55,40 @@ class ThemeSwitcherNotifier extends StateNotifier<JetThemeMode> {
 
   /// Toggle between light and dark themes
   Future<void> toggleTheme() async {
-    final newTheme = state == JetThemeMode.light
-        ? JetThemeMode.dark
-        : JetThemeMode.light;
+    final newTheme = state == ThemeMode.light
+        ? ThemeMode.dark
+        : ThemeMode.light;
     await switchTheme(newTheme);
   }
 
   /// Switch to light theme
-  Future<void> setLightTheme() => switchTheme(JetThemeMode.light);
+  Future<void> setLightTheme() => switchTheme(ThemeMode.light);
 
   /// Switch to dark theme
-  Future<void> setDarkTheme() => switchTheme(JetThemeMode.dark);
+  Future<void> setDarkTheme() => switchTheme(ThemeMode.dark);
 
   /// Switch to system theme
-  Future<void> setSystemTheme() => switchTheme(JetThemeMode.system);
+  Future<void> setSystemTheme() => switchTheme(ThemeMode.system);
 
   /// Check if current theme is light
-  bool get isLight => state == JetThemeMode.light;
+  bool get isLight => state == ThemeMode.light;
 
   /// Check if current theme is dark
-  bool get isDark => state == JetThemeMode.dark;
+  bool get isDark => state == ThemeMode.dark;
 
   /// Check if current theme is system
-  bool get isSystem => state == JetThemeMode.system;
+  bool get isSystem => state == ThemeMode.system;
 }
 
 /// Theme switcher provider
 final themeSwitcherProvider =
-    StateNotifierProvider<ThemeSwitcherNotifier, JetThemeMode>(
+    StateNotifierProvider<ThemeSwitcherNotifier, ThemeMode>(
       (ref) => ThemeSwitcherNotifier(),
     );
 
 /// Convenience provider for accessing the current theme mode as Flutter's ThemeMode
 final currentThemeModeProvider = Provider<ThemeMode>((ref) {
-  final jetThemeMode = ref.watch(themeSwitcherProvider);
-  return jetThemeMode.flutterThemeMode;
+  return ref.watch(themeSwitcherProvider);
 });
 
 /// Provider for checking if the current effective theme is dark
@@ -121,8 +96,8 @@ final currentThemeModeProvider = Provider<ThemeMode>((ref) {
 final isDarkThemeProvider = Provider<bool>((ref) {
   final themeMode = ref.watch(themeSwitcherProvider);
 
-  if (themeMode == JetThemeMode.dark) return true;
-  if (themeMode == JetThemeMode.light) return false;
+  if (themeMode == ThemeMode.dark) return true;
+  if (themeMode == ThemeMode.light) return false;
 
   // For system theme, check the platform brightness
   return WidgetsBinding.instance.platformDispatcher.platformBrightness ==
@@ -136,10 +111,8 @@ extension ThemeSwitcherExtension on WidgetRef {
       read(themeSwitcherProvider.notifier);
 
   /// Get the current theme mode
-  JetThemeMode get currentTheme => read(themeSwitcherProvider);
+  ThemeMode get currentTheme => read(themeSwitcherProvider);
 
   /// Check if current theme is dark
   bool get isDarkMode => read(isDarkThemeProvider);
 }
-
-

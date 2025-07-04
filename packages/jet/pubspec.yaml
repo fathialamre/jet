@@ -11,12 +11,13 @@ dependencies:
   flutter:
     sdk: flutter
   
-
+  dio: ^5.8.0+1
   auto_route: ^10.1.0+1
   lucide_icons_flutter: ^3.0.6
 
   flutter_secure_storage: ^9.2.4
   shared_preferences: ^2.5.3
+  custom_refresh_indicator: ^4.0.1
 
   hooks_riverpod: ^2.6.1
   intl: ^0.20.2

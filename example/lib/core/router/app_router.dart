@@ -1,4 +1,6 @@
 import 'package:example/features/login/pages/login_page.dart';
+import 'package:example/features/posts/post_details/pages/post_details_page.dart';
+import 'package:example/features/posts/posts_page.dart';
 import 'package:jet/jet_framework.dart';
 
 class AppRouter extends RootStackRouter {
@@ -7,7 +9,15 @@ class AppRouter extends RootStackRouter {
     NamedRouteDef(
       name: 'LoginRoute',
       builder: (context, args) => LoginPage(),
+    ),
+    NamedRouteDef(
+      name: 'PostsRoute',
+      builder: (context, args) => PostsPage(),
       initial: true,
+    ),
+    NamedRouteDef(
+      name: 'PostDetailsRoute',
+      builder: (context, args) => PostDetailsPage(),
     ),
   ];
 }

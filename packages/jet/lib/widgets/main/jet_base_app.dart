@@ -5,7 +5,7 @@ import 'package:jet/config/jet_config.dart';
 import 'package:jet/jet.dart';
 import 'package:jet/localization/notifiers/language_switcher_notifier.dart';
 import 'package:jet/localization/widgets/language_switcher.dart';
-import 'package:jet/resources/theme/theme_switcher.dart';
+import 'package:jet/resources/theme/notifiers/theme_switcher_notifier.dart';
 
 abstract class BaseJetApp extends ConsumerStatefulWidget {
   const BaseJetApp({super.key, required this.jet});
