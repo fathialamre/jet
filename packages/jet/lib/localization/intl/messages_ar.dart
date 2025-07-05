@@ -45,4 +45,26 @@ class JetLocalizationsImplAr extends JetLocalizationsImpl {
 
   @override
   String get retry => 'إعادة المحاولة';
+
+  @override
+  String get noItemsFound => 'لا توجد عناصر';
+
+  @override
+  String get noItemsFoundMessage => 'لا توجد عناصر للعرض في الوقت الحالي.';
+
+  @override
+  String get noMoreItemsTitle => 'لا توجد عناصر أخرى';
+
+  @override
+  String get noMoreItemsMessage => 'لقد وصلت إلى نهاية القائمة.';
+
+  @override
+  String get loadMore => 'تحميل المزيد';
+
+  @override
+  String get somethingWentWrongWhileFetchingNewPage =>
+      'حدث خطأ أثناء تحميل صفحة جديدة';
+
+  @override
+  String get loadingMore => 'تحميل المزيد';
 }

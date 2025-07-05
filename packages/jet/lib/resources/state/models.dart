@@ -1,23 +1,35 @@
-/// Common pagination response models for API integration
+/// Data models for Jet state management
 ///
-/// This file provides flexible models that work with various pagination
-/// strategies and API response formats, including offset-based, cursor-based,
-/// and page-based pagination.
+/// This file contains all the model classes used by the Jet state management system,
+/// including pagination responses and related data structures.
+library;
 
 /// Generic pagination response wrapper
 ///
 /// This class can adapt to different API response formats by using
 /// custom extractors for data, total count, and pagination metadata.
 ///
-/// Example usage:
+/// **Examples:**
+///
+/// **DummyJSON-style APIs:**
 /// ```dart
-/// // For DummyJSON-style APIs
 /// final response = PaginationResponse.fromJson(
 ///   json,
-///   dataExtractor: (json) => (json['products'] as List).cast<Map<String, dynamic>>(),
+///   Product.fromJson,
+///   dataExtractor: (json) => json['products'] as List<dynamic>,
 ///   totalExtractor: (json) => json['total'] as int,
 ///   skipExtractor: (json) => json['skip'] as int,
 ///   limitExtractor: (json) => json['limit'] as int,
+/// );
+/// ```
+///
+/// **Standard REST APIs:**
+/// ```dart
+/// final response = PaginationResponse.fromJson(
+///   json,
+///   User.fromJson,
+///   dataExtractor: (json) => json['data'] as List<dynamic>,
+///   totalExtractor: (json) => json['total'] as int,
 /// );
 /// ```
 class PaginationResponse<T> {
@@ -52,6 +64,15 @@ class PaginationResponse<T> {
   ///
   /// This factory allows adaptation to different API response formats
   /// by providing custom functions to extract data from the JSON response.
+  ///
+  /// **Parameters:**
+  /// - [json]: The JSON response from the API
+  /// - [itemFromJson]: Function to convert each item JSON to type T
+  /// - [dataExtractor]: Custom function to extract the items array
+  /// - [totalExtractor]: Custom function to extract total count
+  /// - [skipExtractor]: Custom function to extract skip/offset value
+  /// - [limitExtractor]: Custom function to extract limit/page size
+  /// - [nextPageKeyExtractor]: Custom function to extract next page key
   factory PaginationResponse.fromJson(
     Map<String, dynamic> json,
     T Function(Map<String, dynamic>) itemFromJson, {
@@ -67,7 +88,6 @@ class PaginationResponse<T> {
                 json['data'] ??
                 json['items'] ??
                 json['results'] ??
-                json['products'] ??
                 json)
             as List<dynamic>;
 
@@ -210,125 +230,148 @@ class PaginationResponse<T> {
     );
   }
 
-  @override
-  String toString() {
-    return 'PaginationResponse(items: ${items.length}, total: $total, skip: $skip, limit: $limit, isLastPage: $isLastPage, nextPageKey: $nextPageKey)';
-  }
-}
-
-/// Parameters for pagination requests
-///
-/// This class provides a unified way to specify pagination parameters
-/// that can be adapted to different API requirements.
-class PaginationParams {
-  /// Page number (1-based, will be converted to 0-based if needed)
-  final int? page;
-
-  /// Skip/offset value (0-based)
-  final int? skip;
-
-  /// Number of items per page
-  final int limit;
-
-  /// Cursor for cursor-based pagination
-  final String? cursor;
-
-  /// Additional query parameters
-  final Map<String, dynamic>? extraParams;
-
-  const PaginationParams({
-    this.page,
-    this.skip,
-    required this.limit,
-    this.cursor,
-    this.extraParams,
-  });
-
-  /// Creates pagination params for offset-based pagination (like DummyJSON)
-  factory PaginationParams.offset({
-    required int skip,
-    required int limit,
-    Map<String, dynamic>? extraParams,
-  }) {
-    return PaginationParams(
-      skip: skip,
-      limit: limit,
-      extraParams: extraParams,
+  /// Creates a PaginationResponse for Laravel-style pagination
+  ///
+  /// This factory supports Laravel's paginate() response format:
+  /// ```json
+  /// {
+  ///   "data": [...],
+  ///   "current_page": 1,
+  ///   "last_page": 10,
+  ///   "per_page": 15,
+  ///   "total": 150,
+  ///   "from": 1,
+  ///   "to": 15
+  /// }
+  /// ```
+  factory PaginationResponse.fromLaravel(
+    Map<String, dynamic> json,
+    T Function(Map<String, dynamic>) itemFromJson,
+  ) {
+    return PaginationResponse.fromPageBased(
+      json,
+      itemFromJson,
+      dataKey: 'data',
+      currentPageKey: 'current_page',
+      lastPageKey: 'last_page',
+      perPageKey: 'per_page',
+      totalKey: 'total',
     );
   }
 
-  /// Creates pagination params for page-based pagination
-  factory PaginationParams.page({
-    required int page,
-    required int limit,
-    Map<String, dynamic>? extraParams,
-  }) {
-    return PaginationParams(
-      page: page,
-      limit: limit,
-      extraParams: extraParams,
+  /// Creates an empty PaginationResponse
+  ///
+  /// Useful for initial states or when no data is available.
+  factory PaginationResponse.empty() {
+    return PaginationResponse<T>(
+      items: const [],
+      total: 0,
+      skip: 0,
+      limit: 0,
+      isLastPage: true,
+      nextPageKey: null,
     );
   }
 
-  /// Creates pagination params for cursor-based pagination
-  factory PaginationParams.cursor({
-    required int limit,
-    String? cursor,
-    Map<String, dynamic>? extraParams,
-  }) {
-    return PaginationParams(
-      limit: limit,
-      cursor: cursor,
-      extraParams: extraParams,
+  /// Creates a single-page PaginationResponse from a list of items
+  ///
+  /// Useful when you have all data in memory and want to display it
+  /// in a paginated format.
+  factory PaginationResponse.fromList(List<T> items) {
+    return PaginationResponse<T>(
+      items: items,
+      total: items.length,
+      skip: 0,
+      limit: items.length,
+      isLastPage: true,
+      nextPageKey: null,
     );
   }
 
-  /// Converts to query parameters map
-  Map<String, dynamic> toQueryParams() {
-    final params = <String, dynamic>{};
-
-    if (page != null) {
-      params['page'] = page;
-    }
-
-    if (skip != null) {
-      params['skip'] = skip;
-    }
-
-    params['limit'] = limit;
-
-    if (cursor != null) {
-      params['cursor'] = cursor;
-    }
-
-    if (extraParams != null) {
-      params.addAll(extraParams!);
-    }
-
-    return params;
+  /// Converts this pagination response to JSON
+  Map<String, dynamic> toJson(Map<String, dynamic> Function(T) itemToJson) {
+    return {
+      'data': items.map(itemToJson).toList(),
+      'total': total,
+      'skip': skip,
+      'limit': limit,
+      'isLastPage': isLastPage,
+      'nextPageKey': nextPageKey,
+    };
   }
 
-  /// Creates new params for the next page
-  PaginationParams nextPage() {
-    if (page != null) {
-      return PaginationParams(
-        page: page! + 1,
-        limit: limit,
-        extraParams: extraParams,
-      );
-    } else if (skip != null) {
-      return PaginationParams(
-        skip: skip! + limit,
-        limit: limit,
-        extraParams: extraParams,
-      );
-    } else {
-      return this;
-    }
+  /// Returns a copy of this pagination response with updated values
+  PaginationResponse<T> copyWith({
+    List<T>? items,
+    int? total,
+    int? skip,
+    int? limit,
+    bool? isLastPage,
+    dynamic nextPageKey,
+  }) {
+    return PaginationResponse<T>(
+      items: items ?? this.items,
+      total: total ?? this.total,
+      skip: skip ?? this.skip,
+      limit: limit ?? this.limit,
+      isLastPage: isLastPage ?? this.isLastPage,
+      nextPageKey: nextPageKey ?? this.nextPageKey,
+    );
+  }
+
+  /// Whether there are more pages available
+  bool get hasNextPage => !isLastPage;
+
+  /// Whether there are previous pages available
+  bool get hasPreviousPage => skip > 0;
+
+  /// The current page number (1-based)
+  int get currentPage => (skip ~/ limit) + 1;
+
+  /// The total number of pages
+  int get totalPages => total > 0 ? (total / limit).ceil() : 0;
+
+  /// The range of items on the current page (e.g., "1-10 of 100")
+  String get itemRange {
+    if (items.isEmpty) return '0 of $total';
+    final from = skip + 1;
+    final to = skip + items.length;
+    return '$from-$to of $total';
   }
 
   @override
   String toString() {
-    return 'PaginationParams(page: $page, skip: $skip, limit: $limit, cursor: $cursor, extraParams: $extraParams)';
+    return 'PaginationResponse('
+        'items: ${items.length}, '
+        'total: $total, '
+        'skip: $skip, '
+        'limit: $limit, '
+        'isLastPage: $isLastPage, '
+        'nextPageKey: $nextPageKey'
+        ')';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! PaginationResponse<T>) return false;
+    return items == other.items &&
+        total == other.total &&
+        skip == other.skip &&
+        limit == other.limit &&
+        isLastPage == other.isLastPage &&
+        nextPageKey == other.nextPageKey;
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(
+      items,
+      total,
+      skip,
+      limit,
+      isLastPage,
+      nextPageKey,
+    );
   }
 }

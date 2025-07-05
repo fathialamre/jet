@@ -45,4 +45,27 @@ class JetLocalizationsImplEn extends JetLocalizationsImpl {
 
   @override
   String get retry => 'Retry';
+
+  @override
+  String get noItemsFound => 'No items found';
+
+  @override
+  String get noItemsFoundMessage =>
+      'There are no items to display at the moment.';
+
+  @override
+  String get noMoreItemsTitle => 'No more items';
+
+  @override
+  String get noMoreItemsMessage => 'You have reached the end of the list.';
+
+  @override
+  String get loadMore => 'Load more';
+
+  @override
+  String get somethingWentWrongWhileFetchingNewPage =>
+      'Something went wrong while fetching a new page';
+
+  @override
+  String get loadingMore => 'Loading more';
 }

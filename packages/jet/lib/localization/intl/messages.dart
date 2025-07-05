@@ -50,6 +50,15 @@ abstract class JetLocalizationsImpl {
   // Language related translations
   String get changeLanguage;
   String get retry;
+
+  // Paginator related translations
+  String get noItemsFound;
+  String get noItemsFoundMessage;
+  String get noMoreItemsTitle;
+  String get noMoreItemsMessage;
+  String get loadMore;
+  String get somethingWentWrongWhileFetchingNewPage;
+  String get loadingMore;
 }
 
 class JetLocalizationsDelegate

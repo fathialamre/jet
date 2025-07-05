@@ -1,7 +1,7 @@
 import 'package:example/features/login/pages/login_page.dart';
 import 'package:example/features/posts/post_details/pages/post_details_page.dart';
 import 'package:example/features/posts/posts_page.dart';
-import 'package:example/features/products/infinite_scroll_example_page.dart';
+import 'package:example/features/products/products_page.dart';
 import 'package:jet/jet_framework.dart';
 
 class AppRouter extends RootStackRouter {
@@ -22,7 +22,7 @@ class AppRouter extends RootStackRouter {
     ),
     NamedRouteDef(
       name: 'InfiniteScrollExampleRoute',
-      builder: (context, args) => InfiniteScrollExamplePage(),
+      builder: (context, args) => ProductsPage(),
     ),
   ];
 }

@@ -157,13 +157,15 @@ flutter run
   - [Complete Integration Example](#complete-integration-example-2)
   - [Key Features](#key-features-3)
 - [State Management](#-state-management)
-  - [Riverpod Integration](#riverpod-integration)
+  - [Core Components](#core-components)
+  - [JetBuilder - Unified State Management](#jetbuilder---unified-state-management)
+  - [Family Provider Support](#family-provider-support)
+  - [JetPaginator - Infinite Scroll Pagination](#jetpaginator---infinite-scroll-pagination)
   - [JetConsumer Widgets](#jetconsumer-widgets)
-  - [Refreshable Widgets](#refreshable-widgets)
-  - [JetAsyncRefreshableWidget](#jetasyncrefreshablewidget)
-  - [State Helpers](#state-helpers)
-  - [Provider Types Support](#provider-types-support)
+  - [Pagination Models](#pagination-models)
+  - [Provider Extensions](#provider-extensions)
   - [Performance Optimizations](#performance-optimizations)
+  - [Complete Example](#complete-example)
   - [Key Features](#key-features-4)
 
 ## ⚙️ App Configuration
@@ -1516,28 +1518,443 @@ class AppConfig extends JetConfig {
 
 ## 🔄 State Management
 
-Jet Framework derives its true power from **[Riverpod](https://pub.dev/packages/hooks_riverpod)**, one of Flutter's most robust and efficient state management solutions. By building on top of Riverpod's foundation, Jet provides enhanced widgets, utilities, and patterns that make state management both powerful and developer-friendly.
+Jet Framework provides powerful, unified state management built on top of **[Riverpod](https://pub.dev/packages/hooks_riverpod)**, one of Flutter's most robust state management solutions. Jet enhances Riverpod with specialized widgets that eliminate boilerplate and provide common patterns like pull-to-refresh, error handling, and pagination out of the box.
 
-**Riverpod** brings compile-time safety, automatic dependency injection, excellent testing capabilities, and performance optimizations. Jet Framework amplifies these benefits by providing specialized widgets for common patterns like data fetching with pull-to-refresh, error handling, and loading states.
+**Key Philosophy**: Jet's state management is designed around **simplicity and power**. Instead of multiple specialized widgets, we provide a unified `JetBuilder` API that handles all common use cases with minimal code.
 
-### Riverpod Integration
+### Core Components
 
-Jet Framework is deeply integrated with Riverpod and provides enhanced widgets that work seamlessly with all Riverpod provider types:
+| Component | Description |
+|-----------|-------------|
+| `JetBuilder` | Unified widget for lists, grids, and single items with pull-to-refresh |
+| `JetPaginator` | Infinite scroll pagination built on official `infinite_scroll_pagination` package |
+| `JetConsumer` / `JetConsumerWidget` | Enhanced consumer widgets with Jet framework access |
+| `PaginationResponse` | Flexible pagination models for different API formats |
+| `PageInfo` | Simple pagination information used by JetPaginator |
+| Extensions | Utility extensions for easier provider management |
 
-| Provider Type | Description | Jet Support |
-|---------------|-------------|-------------|
-| `Provider` | Simple read-only values | ✅ Full support |
-| `StateProvider` | Simple mutable state | ✅ Full support |
-| `FutureProvider` | Async operations | ✅ **Enhanced with refreshable widgets** |
-| `StreamProvider` | Stream of values | ✅ Full support |
-| `StateNotifierProvider` | Complex state management | ✅ Enhanced support |
-| `ChangeNotifierProvider` | Legacy change notifier | ✅ Full support |
+### JetBuilder - Unified State Management
 
-**Learn more about Riverpod:** [https://pub.dev/packages/hooks_riverpod](https://pub.dev/packages/hooks_riverpod)
+`JetBuilder` is the core of Jet's state management system. It provides a simple, consistent API for the most common UI patterns while handling pull-to-refresh, loading states, and error handling automatically.
+
+#### JetBuilder Methods
+
+| Method | Description |
+|--------|-------------|
+| `list()` | Creates a refreshable list widget |
+| `familyList()` | Creates a refreshable list widget with family provider support |
+| `grid()` | Creates a refreshable grid widget |
+| `familyGrid()` | Creates a refreshable grid widget with family provider support |
+| `item()` | Creates a refreshable single item widget |
+| `familyItem()` | Creates a refreshable single item widget with family provider support |
+| `builder()` | Creates a refreshable widget with custom builder |
+| `familyBuilder()` | Creates a refreshable widget with custom builder and family support |
+
+#### Basic List Example
+
+```dart
+class PostsList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return JetBuilder.list<Post>(
+      provider: postsProvider,
+      itemBuilder: (post, index) => ListTile(
+        leading: CircleAvatar(
+          backgroundImage: NetworkImage(post.author.avatarUrl),
+        ),
+        title: Text(post.title),
+        subtitle: Text(post.excerpt),
+        trailing: Text(post.publishDate),
+        onTap: () => context.router.pushNamed('/post/${post.id}'),
+      ),
+      padding: EdgeInsets.all(16),
+      loading: Center(child: CircularProgressIndicator()),
+      error: (error, stackTrace) => ErrorMessage(error: error),
+    );
+  }
+}
+
+// Provider definition
+final postsProvider = AutoDisposeFutureProvider<List<Post>>((ref) async {
+  final api = ref.read(apiServiceProvider);
+  return await api.getAllPosts();
+});
+```
+
+#### Grid Layout Example
+
+```dart
+class ProductsGrid extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return JetBuilder.grid<Product>(
+      provider: productsProvider,
+      crossAxisCount: 2,
+      itemBuilder: (product, index) => ProductCard(
+        product: product,
+        onAddToCart: () => _addToCart(product),
+        onFavorite: () => _toggleFavorite(product.id),
+      ),
+      crossAxisSpacing: 12,
+      mainAxisSpacing: 12,
+      childAspectRatio: 0.75,
+      padding: EdgeInsets.all(16),
+    );
+  }
+  
+  void _addToCart(Product product) {
+    // Add to cart logic
+  }
+  
+  void _toggleFavorite(String productId) {
+    // Toggle favorite logic
+  }
+}
+```
+
+#### Single Item Example
+
+```dart
+class UserProfileView extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return JetBuilder.item<UserProfile>(
+      provider: currentUserProfileProvider,
+      builder: (profile, ref) => Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          CircleAvatar(
+            radius: 60,
+            backgroundImage: NetworkImage(profile.avatarUrl),
+          ),
+          SizedBox(height: 20),
+          Text(
+            profile.displayName,
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          Text(
+            profile.email,
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: Colors.grey[600],
+            ),
+          ),
+          SizedBox(height: 24),
+          ProfileStatsRow(profile: profile),
+          SizedBox(height: 32),
+          ProfileActionButtons(profile: profile),
+        ],
+      ),
+      padding: EdgeInsets.all(20),
+    );
+  }
+}
+```
+
+#### Custom Builder Example
+
+```dart
+class CustomDataWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return JetBuilder.builder<DashboardData>(
+      provider: dashboardDataProvider,
+      builder: (data, ref) => Column(
+        children: [
+          StatsCard(stats: data.stats),
+          ChartWidget(chartData: data.chartData),
+          RecentActivityList(activities: data.recentActivities),
+        ],
+      ),
+      loading: Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      ),
+      error: (error, stackTrace) => ErrorPage(error: error),
+    );
+  }
+}
+```
+
+### Family Provider Support
+
+For providers that take parameters, use the `family` variants:
+
+#### Family List Example
+
+```dart
+class CategoryPostsList extends StatelessWidget {
+  final String categoryId;
+  
+  const CategoryPostsList({required this.categoryId});
+
+  @override
+  Widget build(BuildContext context) {
+    return JetBuilder.familyList<Post, String>(
+      provider: postsByCategoryProvider,
+      param: categoryId,
+      itemBuilder: (post, index) => PostCard(
+        post: post,
+        onLike: () => _toggleLike(post.id),
+        onShare: () => _sharePost(post),
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    );
+  }
+  
+  void _toggleLike(String postId) {
+    // Handle like logic
+  }
+  
+  void _sharePost(Post post) {
+    // Handle share logic
+  }
+}
+
+final postsByCategoryProvider = AutoDisposeFutureProvider.family<List<Post>, String>((ref, categoryId) async {
+  final api = ref.read(apiServiceProvider);
+  return await api.getPostsByCategory(categoryId);
+});
+```
+
+#### Family Grid Example
+
+```dart
+class FilteredProductsGrid extends StatelessWidget {
+  final ProductFilter filter;
+  
+  const FilteredProductsGrid({required this.filter});
+
+  @override
+  Widget build(BuildContext context) {
+    return JetBuilder.familyGrid<Product, ProductFilter>(
+      provider: filteredProductsProvider,
+      param: filter,
+      crossAxisCount: MediaQuery.of(context).size.width > 600 ? 3 : 2,
+      itemBuilder: (product, index) => ProductCard(
+        product: product,
+        showDiscount: filter.showDiscountsOnly,
+        onQuickView: () => _showQuickView(context, product),
+      ),
+      crossAxisSpacing: 16,
+      mainAxisSpacing: 16,
+      childAspectRatio: 0.8,
+      padding: EdgeInsets.all(20),
+    );
+  }
+  
+  void _showQuickView(BuildContext context, Product product) {
+    showDialog(
+      context: context,
+      builder: (context) => ProductQuickViewDialog(product: product),
+    );
+  }
+}
+
+class ProductFilter {
+  final String? category;
+  final double? minPrice;
+  final double? maxPrice;
+  final bool showDiscountsOnly;
+  
+  const ProductFilter({
+    this.category,
+    this.minPrice,
+    this.maxPrice,
+    this.showDiscountsOnly = false,
+  });
+  
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ProductFilter &&
+          category == other.category &&
+          minPrice == other.minPrice &&
+          maxPrice == other.maxPrice &&
+          showDiscountsOnly == other.showDiscountsOnly;
+
+  @override
+  int get hashCode => Object.hash(category, minPrice, maxPrice, showDiscountsOnly);
+}
+```
+
+### JetPaginator - Infinite Scroll Pagination
+
+`JetPaginator` provides powerful infinite scroll functionality that works with **any API format**. It's designed to be flexible and handle different pagination patterns (offset-based, cursor-based, page-based) with a unified interface.
+
+**Built on [infinite_scroll_pagination](https://pub.dev/packages/infinite_scroll_pagination)**: JetPaginator is built on top of the official `infinite_scroll_pagination` package, one of Flutter's most robust and battle-tested pagination solutions. This ensures maximum reliability, performance, and community support while providing Jet's simplified API on top.
+
+#### Key Features
+
+- **Official Package Foundation** - Built on the trusted `infinite_scroll_pagination` package
+- **Universal API Support** - Works with any pagination format through `fetchPage` and `parseResponse` functions
+- **Built-in Error Handling** - Automatic retry and error display with customizable error widgets
+- **Riverpod Integration** - Optional provider support for refresh functionality
+- **Performance Optimized** - Efficient state management through `PagingController`
+- **Pull-to-Refresh** - Integrated refresh functionality with customizable indicators
+- **Customizable UI** - Full control over loading, error, empty states, and refresh indicators
+- **List and Grid Support** - Both list and grid layouts supported
+
+#### JetPaginator Methods
+
+| Method | Description |
+|--------|-------------|
+| `list()` | Creates an infinite scroll list that works with any API format |
+| `grid()` | Creates an infinite scroll grid that works with any API format |
+
+#### Basic Pagination Example (DummyJSON API)
+
+```dart
+class ProductsPaginatedList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return JetPaginator.list<Product, Map<String, dynamic>>(
+      fetchPage: (pageKey) async {
+        final api = ref.read(apiServiceProvider);
+        return await api.getProducts(skip: pageKey, limit: 20);
+      },
+      parseResponse: (response, pageKey) => PageInfo(
+        items: (response['products'] as List)
+            .map((json) => Product.fromJson(json))
+            .toList(),
+        nextPageKey: response['skip'] + response['limit'] < response['total']
+            ? response['skip'] + response['limit']
+            : null,
+      ),
+      itemBuilder: (product, index) => ProductCard(product: product),
+      firstPageKey: 0,
+    );
+  }
+}
+```
+
+#### Cursor-Based Pagination Example
+
+```dart
+class PostsPaginatedList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return JetPaginator.list<Post, ApiResponse>(
+      fetchPage: (cursor) async {
+        final api = ref.read(apiServiceProvider);
+        return await api.getPosts(cursor: cursor, limit: 20);
+      },
+      parseResponse: (response, currentCursor) => PageInfo(
+        items: response.data.map((json) => Post.fromJson(json)).toList(),
+        nextPageKey: response.pagination?.nextCursor,
+        isLastPage: !response.pagination?.hasMore,
+      ),
+      itemBuilder: (post, index) => PostCard(post: post),
+      firstPageKey: null, // Start with null cursor
+    );
+  }
+}
+```
+
+#### Pagination Grid Example
+
+```dart
+class InfiniteProductsGrid extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return JetPaginator.grid<Product, Map<String, dynamic>>(
+      fetchPage: (pageKey) async {
+        return await api.getProducts(page: pageKey, size: 20);
+      },
+      parseResponse: (response, currentPage) => PageInfo(
+        items: response.content.map((json) => Product.fromJson(json)).toList(),
+        nextPageKey: response.hasNext ? (currentPage as int) + 1 : null,
+        totalItems: response.totalElements,
+      ),
+      itemBuilder: (product, index) => ProductCard(product: product),
+      crossAxisCount: 2,
+      crossAxisSpacing: 12,
+      mainAxisSpacing: 12,
+      childAspectRatio: 0.75,
+      firstPageKey: 1, // Start with page 1
+    );
+  }
+}
+```
+
+#### Provider Integration for Refresh
+
+```dart
+class ProductsWithProviderRefresh extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return JetPaginator.list<Product, Map<String, dynamic>>(
+      fetchPage: (pageKey) => api.getProducts(skip: pageKey, limit: 20),
+      parseResponse: (response, pageKey) => PageInfo(
+        items: (response['products'] as List)
+            .map((json) => Product.fromJson(json))
+            .toList(),
+        nextPageKey: response['skip'] + response['limit'] < response['total']
+            ? response['skip'] + response['limit']
+            : null,
+      ),
+      itemBuilder: (product, index) => ProductCard(product: product),
+      
+      // Enable Riverpod integration for refresh
+      provider: allProductsProvider, // This provider will be invalidated on refresh
+      
+      // Custom refresh callback
+      onRefresh: () {
+        // Additional custom refresh logic
+        print('Refreshing products...');
+      },
+    );
+  }
+}
+
+// Provider that will be invalidated during refresh
+final allProductsProvider = AutoDisposeFutureProvider<List<Product>>((ref) async {
+  final api = ref.read(apiServiceProvider);
+  return await api.getAllProducts();
+});
+```
+
+#### Custom Refresh Indicator Example
+
+```dart
+class CustomRefreshPaginator extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return JetPaginator.list<Product, Map<String, dynamic>>(
+      fetchPage: (pageKey) => api.getProducts(skip: pageKey, limit: 20),
+      parseResponse: (response, pageKey) => PageInfo(
+        items: (response['products'] as List)
+            .map((json) => Product.fromJson(json))
+            .toList(),
+        nextPageKey: response['skip'] + response['limit'] < response['total']
+            ? response['skip'] + response['limit']
+            : null,
+      ),
+      itemBuilder: (product, index) => ProductCard(product: product),
+      
+      // Custom refresh indicator
+      refreshIndicatorBuilder: (context, controller) {
+        return AnimatedContainer(
+          duration: Duration(milliseconds: 300),
+          child: Icon(
+            Icons.refresh,
+            color: controller.state.isLoading ? Colors.blue : Colors.grey,
+            size: 24 + (controller.value * 12), // Animated size
+          ),
+        );
+      },
+      
+      // Or use simple color customization
+      refreshIndicatorColor: Colors.green,
+      refreshIndicatorBackgroundColor: Colors.grey[100],
+      refreshIndicatorStrokeWidth: 3.0,
+      refreshIndicatorDisplacement: 50.0,
+    );
+  }
+}
+```
 
 ### JetConsumer Widgets
 
-Jet provides specialized consumer widgets that give you access to both Riverpod's `WidgetRef` and the Jet framework instance:
+Jet provides enhanced consumer widgets that give you access to both Riverpod's `WidgetRef` and the Jet framework instance.
 
 #### JetConsumerWidget
 
@@ -1546,8 +1963,8 @@ Use this when you need to extend a widget class:
 ```dart
 import 'package:jet/jet.dart';
 
-class UserProfile extends JetConsumerWidget {
-  const UserProfile({super.key});
+class MyCustomWidget extends JetConsumerWidget {
+  const MyCustomWidget({super.key});
 
   @override
   Widget jetBuild(BuildContext context, WidgetRef ref, Jet jet) {
@@ -1559,7 +1976,7 @@ class UserProfile extends JetConsumerWidget {
     
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profile'),
+        title: Text('My App'),
         actions: [
           IconButton(
             onPressed: () => router.pushNamed('/settings'),
@@ -1598,11 +2015,11 @@ class SettingsPage extends StatelessWidget {
               // Access language switching
               LanguageSwitcher.toggleButton(),
               
-              // Use refreshable widgets for async data
+              // Use JetBuilder for async data
               Expanded(
-                child: JetAsyncRefreshableWidget.autoDisposeFutureProvider<List<Setting>>(
+                child: JetBuilder.list<Setting>(
                   provider: userSettingsProvider,
-                  builder: (settings, ref) => SettingsList(settings: settings),
+                  itemBuilder: (setting, index) => SettingTile(setting: setting),
                 ),
               ),
             ],
@@ -1614,833 +2031,177 @@ class SettingsPage extends StatelessWidget {
 }
 ```
 
-### Refreshable Widgets
+### Pagination Models
 
-One of Jet's most powerful features is its refreshable widget system. These widgets provide complete pull-to-refresh functionality with proper loading states, error handling, and performance optimizations.
+Jet provides flexible pagination models that can adapt to different API response formats:
 
-#### Basic JetRefreshableWidget
+#### PageInfo
 
-For complete control over the refresh behavior:
-
-```dart
-class PostsList extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return JetRefreshableWidget<List<Post>>(
-      // Watch any AsyncValue provider
-      asyncValue: (ref) => ref.watch(postsProvider),
-      
-      // Custom refresh logic
-      onRefresh: () async {
-        await ApiService.refreshPosts();
-        // Additional refresh logic
-      },
-      
-      // Builder when data is available
-      builder: (posts, ref) {
-        return ListView.builder(
-          itemCount: posts.length,
-          itemBuilder: (context, index) => PostCard(post: posts[index]),
-        );
-      },
-      
-      // Optional custom loading widget
-      loading: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Loading posts...'),
-          ],
-        ),
-      ),
-      
-      // Optional custom error widget
-      error: (error, stackTrace) => Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.error, size: 48, color: Colors.red),
-            SizedBox(height: 16),
-            Text('Failed to load posts'),
-            TextButton(
-              onPressed: () {
-                // Custom retry logic
-              },
-              child: Text('Retry'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-```
-
-### JetAsyncRefreshableWidget
-
-`JetAsyncRefreshableWidget` is Jet Framework's premier solution for handling asynchronous data with pull-to-refresh functionality. This powerful widget automatically manages loading states, error handling, and refresh operations for different types of Riverpod providers.
-
-**JetAsyncRefreshableWidget** comes in **two main types**:
-
-| Type | Description | Use Case |
-|------|-------------|----------|
-| **Regular** | Works with standard providers that don't require parameters | Static data fetching (all posts, user profile, app settings) |
-| **Family** | Works with parameterized providers that accept arguments | Dynamic data fetching (posts by category, user by ID, search results) |
-
-Both types provide the same powerful features:
-- **Automatic refresh logic** based on provider type
-- **Built-in loading and error states** with customizable UI
-- **Pull-to-refresh functionality** with smooth animations
-- **Performance optimizations** to prevent unnecessary rebuilds
-- **Type safety** with full Dart-like type inference
-
-#### Regular JetAsyncRefreshableWidget
-
-Use this for providers that don't require parameters. Perfect for fetching static data like user profiles, app settings, or general content lists.
+Simple pagination information used by JetPaginator - this is the main model for pagination:
 
 ```dart
-// Example 1: Simple Posts List
-class PostsList extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return JetAsyncRefreshableWidget.autoDisposeFutureProvider<List<Post>>(
-      provider: postsProvider,
-      builder: (posts, ref) {
-        return ListView.builder(
-          itemCount: posts.length,
-          itemBuilder: (context, index) => PostCard(post: posts[index]),
-        );
-      },
-      // Optional: Custom loading widget
-      loadingBuilder: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Loading posts...'),
-          ],
-        ),
-      ),
-      // Optional: Custom error widget
-      errorBuilder: (error, stackTrace) => Center(
-        child: Column(
-          children: [
-            Icon(Icons.error, size: 48, color: Colors.red),
-            Text('Failed to load posts'),
-            ElevatedButton(
-              onPressed: () => ref.invalidate(postsProvider),
-              child: Text('Retry'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// Provider definition
-final postsProvider = AutoDisposeFutureProvider<List<Post>>((ref) async {
-  final api = ref.read(apiServiceProvider);
-  return await api.getAllPosts();
-});
-```
-
-```dart
-// Example 2: User Profile
-class UserProfilePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Profile')),
-      body: JetAsyncRefreshableWidget.autoDisposeFutureProvider<UserProfile>(
-        provider: currentUserProfileProvider,
-        builder: (profile, ref) {
-          return SingleChildScrollView(
-            padding: EdgeInsets.all(16),
-            child: Column(
-              children: [
-                CircleAvatar(
-                  radius: 60,
-                  backgroundImage: NetworkImage(profile.avatarUrl),
-                ),
-                SizedBox(height: 16),
-                Text(profile.name, style: Theme.of(context).textTheme.headlineMedium),
-                Text(profile.email),
-                SizedBox(height: 24),
-                ProfileStats(profile: profile),
-                SizedBox(height: 24),
-                ProfileActions(profile: profile),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-final currentUserProfileProvider = AutoDisposeFutureProvider<UserProfile>((ref) async {
-  final api = ref.read(apiServiceProvider);
-  final userId = ref.read(authProvider).currentUser?.id;
-  if (userId == null) throw Exception('User not authenticated');
-  return await api.getUserProfile(userId);
-});
-```
-
-#### Family JetAsyncRefreshableWidget
-
-Use this for providers that require parameters. Perfect for dynamic data fetching where the content depends on user input, route parameters, or other variables.
-
-```dart
-// Example 1: Products by Category
-class CategoryProductsPage extends StatelessWidget {
-  final String categoryId;
+class PageInfo<T> {
+  /// The list of items for the current page
+  final List<T> items;
   
-  const CategoryProductsPage({required this.categoryId});
-
-  @override
-  Widget build(BuildContext context) {
-    return JetAsyncRefreshableWidget.autoDisposeFutureProviderFamily<List<Product>, String>(
-      provider: productsByCategoryProvider,
-      param: categoryId,
-      builder: (products, ref) {
-        return GridView.builder(
-          padding: EdgeInsets.all(16),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 0.75,
-          ),
-          itemCount: products.length,
-          itemBuilder: (context, index) => ProductCard(
-            product: products[index],
-            onTap: () => _navigateToProduct(context, products[index]),
-          ),
-        );
-      },
-    );
-  }
+  /// The key for the next page (can be page number, offset, cursor, etc.)
+  /// If null, indicates this is the last page
+  final dynamic nextPageKey;
   
-  void _navigateToProduct(BuildContext context, Product product) {
-    context.router.pushNamed('/product/${product.id}');
-  }
-}
-
-// Family provider definition
-final productsByCategoryProvider = AutoDisposeFutureProvider.family<List<Product>, String>((ref, categoryId) async {
-  final api = ref.read(apiServiceProvider);
-  return await api.getProductsByCategory(categoryId);
-});
-```
-
-```dart
-// Example 2: Search Results
-class SearchResultsPage extends StatelessWidget {
-  final String searchQuery;
+  /// Whether this is the last page (optional, can be inferred from nextPageKey)
+  final bool? isLastPage;
   
-  const SearchResultsPage({required this.searchQuery});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Search: $searchQuery'),
-      ),
-      body: JetAsyncRefreshableWidget.autoDisposeFutureProviderFamily<SearchResults, String>(
-        provider: searchResultsProvider,
-        param: searchQuery,
-        builder: (results, ref) {
-          if (results.items.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.search_off, size: 64, color: Colors.grey),
-                  SizedBox(height: 16),
-                  Text('No results found for "$searchQuery"'),
-                  SizedBox(height: 8),
-                  Text('Try a different search term'),
-                ],
-              ),
-            );
-          }
-          
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: EdgeInsets.all(16),
-                child: Text(
-                  '${results.totalCount} results found',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: results.items.length,
-                  itemBuilder: (context, index) => SearchResultCard(
-                    result: results.items[index],
-                    query: searchQuery,
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
-        loadingBuilder: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(height: 16),
-              Text('Searching for "$searchQuery"...'),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-final searchResultsProvider = AutoDisposeFutureProvider.family<SearchResults, String>((ref, query) async {
-  if (query.trim().isEmpty) {
-    return SearchResults(items: [], totalCount: 0);
-  }
+  /// Total number of items (optional, not all APIs provide this)
+  final int? totalItems;
   
-  final api = ref.read(apiServiceProvider);
-  return await api.search(query);
-});
-```
-
-```dart
-// Example 3: User Posts with Pagination
-class UserPostsTab extends StatelessWidget {
-  final String userId;
-  
-  const UserPostsTab({required this.userId});
-
-  @override
-  Widget build(BuildContext context) {
-    return JetAsyncRefreshableWidget.autoDisposeFutureProviderFamily<List<Post>, String>(
-      provider: userPostsProvider,
-      param: userId,
-      builder: (posts, ref) {
-        return ListView.builder(
-          itemCount: posts.length,
-          itemBuilder: (context, index) {
-            final post = posts[index];
-            return PostCard(
-              post: post,
-              showAuthor: false, // Don't show author since we're on their profile
-              onLike: () => _toggleLike(ref, post),
-              onComment: () => _showComments(context, post),
-            );
-          },
-        );
-      },
-      errorBuilder: (error, stackTrace) => Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.person_off, size: 48, color: Colors.grey),
-            SizedBox(height: 16),
-            Text('Unable to load user posts'),
-            TextButton(
-              onPressed: () => ref.invalidate(userPostsProvider(userId)),
-              child: Text('Try again'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-  
-  void _toggleLike(WidgetRef ref, Post post) {
-    ref.read(postLikesProvider.notifier).toggleLike(post.id);
-  }
-  
-  void _showComments(BuildContext context, Post post) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => CommentsBottomSheet(postId: post.id),
-    );
-  }
-}
-
-final userPostsProvider = AutoDisposeFutureProvider.family<List<Post>, String>((ref, userId) async {
-  final api = ref.read(apiServiceProvider);
-  return await api.getUserPosts(userId);
-});
-```
-
-#### Advanced Family Provider Examples
-
-```dart
-// Example 4: Complex Parameters with Custom Types
-class FilteredProductsPage extends StatelessWidget {
-  final ProductFilter filter;
-  
-  const FilteredProductsPage({required this.filter});
-
-  @override
-  Widget build(BuildContext context) {
-    return JetAsyncRefreshableWidget.autoDisposeFutureProviderFamily<List<Product>, ProductFilter>(
-      provider: filteredProductsProvider,
-      param: filter,
-      builder: (products, ref) {
-        return Column(
-          children: [
-            FilterSummary(filter: filter),
-            Expanded(
-              child: GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                ),
-                itemCount: products.length,
-                itemBuilder: (context, index) => ProductCard(product: products[index]),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-// Custom parameter type
-class ProductFilter {
-  final String? category;
-  final double? minPrice;
-  final double? maxPrice;
-  final String? brand;
-  final bool inStock;
-  
-  const ProductFilter({
-    this.category,
-    this.minPrice,
-    this.maxPrice,
-    this.brand,
-    this.inStock = true,
+  const PageInfo({
+    required this.items,
+    this.nextPageKey,
+    this.isLastPage,
+    this.totalItems,
   });
-  
-  // Override equality for proper provider caching
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is ProductFilter &&
-          runtimeType == other.runtimeType &&
-          category == other.category &&
-          minPrice == other.minPrice &&
-          maxPrice == other.maxPrice &&
-          brand == other.brand &&
-          inStock == other.inStock;
-
-  @override
-  int get hashCode =>
-      category.hashCode ^
-      minPrice.hashCode ^
-      maxPrice.hashCode ^
-      brand.hashCode ^
-      inStock.hashCode;
 }
-
-final filteredProductsProvider = AutoDisposeFutureProvider.family<List<Product>, ProductFilter>((ref, filter) async {
-  final api = ref.read(apiServiceProvider);
-  return await api.getFilteredProducts(filter);
-});
 ```
 
-### State Helpers
+#### PaginationResponse
 
-`JetStateHelpers` provides a collection of pre-built, highly optimized convenience methods that eliminate boilerplate code for the most common UI patterns in mobile applications. These helpers automatically handle pull-to-refresh functionality, loading states, error handling, and performance optimizations.
-
-**Key Features of JetStateHelpers:**
-- **Zero Boilerplate** - Reduces complex state management to single method calls
-- **Built-in Pull-to-Refresh** - Automatic refresh functionality with smooth animations
-- **Family Provider Support** - Full support for parameterized providers
-- **Performance Optimized** - Smart loading states and minimal rebuilds
-- **Customizable UI** - Optional custom loading, error, and layout configurations
-- **Type Safe** - Full type inference and compile-time safety
-
-**Available Helper Methods:**
-
-| Method | Description | Family Support |
-|--------|-------------|----------------|
-| `refreshableList()` | Creates ListView with pull-to-refresh for list data | ✅ `refreshableListFamily()` |
-| `refreshableGrid()` | Creates GridView with pull-to-refresh for grid layouts | ✅ `refreshableGridFamily()` |
-| `refreshableItem()` | Creates scrollable single item with pull-to-refresh | ✅ `refreshableItemFamily()` |
-
-Each helper method comes in two variants:
-- **Regular**: For providers without parameters (`AutoDisposeFutureProvider<List<T>>`)
-- **Family**: For providers with parameters (`AutoDisposeFutureProvider<List<T>>.family`)
-
-#### Refreshable Lists
-
-Perfect for displaying lists of items with pull-to-refresh functionality. Automatically handles ListView configuration, item building, and refresh logic.
+A comprehensive pagination response wrapper that can adapt to different API formats:
 
 ```dart
-// Regular Provider Example
-class QuickPostsList extends StatelessWidget {
+// For DummyJSON-style APIs
+final response = PaginationResponse.fromDummyJson(
+  json,
+  Product.fromJson,
+  'products',
+);
+
+// For standard REST APIs
+final response = PaginationResponse.fromJson(
+  json,
+  User.fromJson,
+  dataExtractor: (json) => json['data'] as List<dynamic>,
+  totalExtractor: (json) => json['total'] as int,
+);
+
+// For cursor-based APIs
+final response = PaginationResponse.fromCursorBased(
+  json,
+  Post.fromJson,
+  dataKey: 'data',
+  paginationKey: 'pagination',
+  nextCursorKey: 'next_cursor',
+  hasMoreKey: 'has_more',
+);
+
+// For Laravel-style APIs
+final response = PaginationResponse.fromLaravel(
+  json,
+  User.fromJson,
+);
+
+// For page-based APIs
+final response = PaginationResponse.fromPageBased(
+  json,
+  Product.fromJson,
+  dataKey: 'data',
+  currentPageKey: 'current_page',
+  lastPageKey: 'last_page',
+  perPageKey: 'per_page',
+  totalKey: 'total',
+);
+```
+
+#### PaginationResponse Properties
+
+```dart
+class PaginationResponse<T> {
+  final List<T> items;        // The list of items
+  final int total;            // Total number of items
+  final int skip;             // Current skip/offset value
+  final int limit;            // Number of items per page
+  final bool isLastPage;      // Whether this is the last page
+  final dynamic nextPageKey;  // Next page key
+  
+  // Computed properties
+  bool get hasNextPage => !isLastPage;
+  bool get hasPreviousPage => skip > 0;
+  int get currentPage => (skip ~/ limit) + 1;
+  int get totalPages => total > 0 ? (total / limit).ceil() : 0;
+  String get itemRange => // "1-10 of 100"
+}
+```
+
+### Provider Extensions
+
+Jet provides useful extensions to make working with providers easier:
+
+#### Refresh Extensions
+
+| Method | Description |
+|--------|-------------|
+| `refreshByInvalidating()` | Simple refresh that invalidates the provider |
+| `refreshFamilyByInvalidating()` | Simple refresh for family providers |
+| `refreshFutureProvider()` | Refresh for FutureProvider that waits for completion |
+| `refreshAutoDisposeFutureProvider()` | Refresh for AutoDisposeFutureProvider that waits for completion |
+| `refreshFutureProviderFamily()` | Refresh for FutureProvider.family that waits for completion |
+| `refreshAutoDisposeFutureProviderFamily()` | Refresh for AutoDisposeFutureProvider.family that waits for completion |
+| `retryProvider()` | Retry callback for error states |
+| `retryFamilyProvider()` | Retry callback for family providers |
+
+#### Refresh Extensions Usage
+
+```dart
+class MyWidget extends JetConsumerWidget {
   @override
-  Widget build(BuildContext context) {
-    return JetStateHelpers.refreshableList<Post>(
+  Widget jetBuild(BuildContext context, WidgetRef ref, Jet jet) {
+    return JetBuilder.list<Post>(
       provider: postsProvider,
-      itemBuilder: (post, index) => ListTile(
-        leading: CircleAvatar(
-          backgroundImage: NetworkImage(post.author.avatarUrl),
-        ),
-        title: Text(post.title),
-        subtitle: Text(post.excerpt),
-        trailing: Text(post.publishDate),
-        onTap: () => context.router.pushNamed('/post/${post.id}'),
-      ),
-      padding: EdgeInsets.all(16),
-      // Optional customizations
-      physics: BouncingScrollPhysics(),
-      loading: Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) => ErrorMessage(error: error),
+      itemBuilder: (post, index) => PostCard(post: post),
+      
+      // Use extension methods for refresh - waits for completion
+      onRefresh: ref.refreshAutoDisposeFutureProvider(postsProvider),
+      
+      // Or use simple invalidating refresh
+      onRefresh: ref.refreshByInvalidating(postsProvider),
     );
   }
 }
 
-// Family Provider Example - Posts by Category
-class CategoryPostsList extends StatelessWidget {
+// For family providers
+class CategoryWidget extends JetConsumerWidget {
   final String categoryId;
   
-  const CategoryPostsList({required this.categoryId});
-
   @override
-  Widget build(BuildContext context) {
-    return JetStateHelpers.refreshableListFamily<Post, String>(
+  Widget jetBuild(BuildContext context, WidgetRef ref, Jet jet) {
+    return JetBuilder.familyList<Post, String>(
       provider: postsByCategoryProvider,
       param: categoryId,
-      itemBuilder: (post, index) => PostCard(
-        post: post,
-        onLike: () => _toggleLike(post.id),
-        onShare: () => _sharePost(post),
-      ),
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-    );
-  }
-  
-  void _toggleLike(String postId) {
-    // Handle like logic
-  }
-  
-  void _sharePost(Post post) {
-    // Handle share logic
-  }
-}
-
-final postsByCategoryProvider = AutoDisposeFutureProvider.family<List<Post>, String>((ref, categoryId) async {
-  final api = ref.read(apiServiceProvider);
-  return await api.getPostsByCategory(categoryId);
-});
-```
-
-#### Refreshable Grids
-
-Ideal for displaying items in a grid layout with pull-to-refresh functionality. Perfect for product catalogs, photo galleries, or any grid-based content.
-
-```dart
-// Regular Provider Example
-class ProductsGrid extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return JetStateHelpers.refreshableGrid<Product>(
-      provider: productsProvider,
-      crossAxisCount: 2,
-      itemBuilder: (product, index) => ProductCard(
-        product: product,
-        onAddToCart: () => _addToCart(product),
-        onFavorite: () => _toggleFavorite(product.id),
-      ),
-      crossAxisSpacing: 12,
-      mainAxisSpacing: 12,
-      childAspectRatio: 0.75,
-      padding: EdgeInsets.all(16),
-    );
-  }
-  
-  void _addToCart(Product product) {
-    // Add to cart logic
-  }
-  
-  void _toggleFavorite(String productId) {
-    // Toggle favorite logic
-  }
-}
-
-// Family Provider Example - Products by Category with Filters
-class FilteredProductsGrid extends StatelessWidget {
-  final ProductFilter filter;
-  
-  const FilteredProductsGrid({required this.filter});
-
-  @override
-  Widget build(BuildContext context) {
-    return JetStateHelpers.refreshableGridFamily<Product, ProductFilter>(
-      provider: filteredProductsProvider,
-      param: filter,
-      crossAxisCount: MediaQuery.of(context).size.width > 600 ? 3 : 2, // Responsive
-      itemBuilder: (product, index) => ProductCard(
-        product: product,
-        showDiscount: filter.showDiscountsOnly,
-        onQuickView: () => _showQuickView(context, product),
-      ),
-      crossAxisSpacing: 16,
-      mainAxisSpacing: 16,
-      childAspectRatio: 0.8,
-      padding: EdgeInsets.all(20),
-      loading: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Loading filtered products...'),
-          ],
-        ),
-      ),
-    );
-  }
-  
-  void _showQuickView(BuildContext context, Product product) {
-    showDialog(
-      context: context,
-      builder: (context) => ProductQuickViewDialog(product: product),
-    );
-  }
-}
-
-class ProductFilter {
-  final String? category;
-  final double? minPrice;
-  final double? maxPrice;
-  final bool showDiscountsOnly;
-  
-  const ProductFilter({
-    this.category,
-    this.minPrice,
-    this.maxPrice,
-    this.showDiscountsOnly = false,
-  });
-  
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is ProductFilter &&
-          category == other.category &&
-          minPrice == other.minPrice &&
-          maxPrice == other.maxPrice &&
-          showDiscountsOnly == other.showDiscountsOnly;
-
-  @override
-  int get hashCode => Object.hash(category, minPrice, maxPrice, showDiscountsOnly);
-}
-
-final filteredProductsProvider = AutoDisposeFutureProvider.family<List<Product>, ProductFilter>((ref, filter) async {
-  final api = ref.read(apiServiceProvider);
-  return await api.getFilteredProducts(filter);
-});
-```
-
-#### Refreshable Single Items
-
-Perfect for displaying detailed single items with pull-to-refresh functionality. The content is automatically wrapped in a scrollable container to enable refresh gestures.
-
-```dart
-// Regular Provider Example
-class UserProfileView extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return JetStateHelpers.refreshableItem<UserProfile>(
-      provider: currentUserProfileProvider,
-      itemBuilder: (profile, ref) => Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Stack(
-            children: [
-              CircleAvatar(
-                radius: 60,
-                backgroundImage: NetworkImage(profile.avatarUrl),
-              ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: CircleAvatar(
-                  radius: 18,
-                  child: IconButton(
-                    onPressed: () => _editProfile(profile),
-                    icon: Icon(Icons.edit, size: 16),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 20),
-          Text(
-            profile.displayName,
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          Text(
-            profile.email,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: Colors.grey[600],
-            ),
-          ),
-          SizedBox(height: 24),
-          ProfileStatsRow(profile: profile),
-          SizedBox(height: 32),
-          ProfileActionButtons(profile: profile),
-          SizedBox(height: 24),
-          RecentActivitySection(userId: profile.id),
-        ],
-      ),
-      padding: EdgeInsets.all(20),
-    );
-  }
-  
-  void _editProfile(UserProfile profile) {
-    // Navigate to edit profile page
-  }
-}
-
-// Family Provider Example - User Profile by ID
-class PublicUserProfile extends StatelessWidget {
-  final String userId;
-  
-  const PublicUserProfile({required this.userId});
-
-  @override
-  Widget build(BuildContext context) {
-    return JetStateHelpers.refreshableItemFamily<UserProfile, String>(
-      provider: userProfileByIdProvider,
-      param: userId,
-      itemBuilder: (profile, ref) => Column(
-        children: [
-          ProfileHeader(profile: profile),
-          SizedBox(height: 24),
-          ProfileBio(bio: profile.bio),
-          SizedBox(height: 32),
-          ProfileTabs(userId: userId), // Posts, Followers, Following
-          SizedBox(height: 24),
-          ContactActions(profile: profile),
-        ],
-      ),
-      padding: EdgeInsets.all(16),
-      error: (error, stackTrace) => Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.person_off, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
-            Text('Unable to load user profile'),
-            SizedBox(height: 8),
-            Text('This user may not exist or be private'),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('Go Back'),
-            ),
-          ],
-        ),
+      itemBuilder: (post, index) => PostCard(post: post),
+      
+      // Family provider refresh
+      onRefresh: ref.refreshAutoDisposeFutureProviderFamily(
+        postsByCategoryProvider,
+        categoryId,
       ),
     );
   }
 }
-
-final userProfileByIdProvider = AutoDisposeFutureProvider.family<UserProfile, String>((ref, userId) async {
-  final api = ref.read(apiServiceProvider);
-  return await api.getUserProfile(userId);
-});
 ```
 
-### Provider Types Support
 
-Jet's refreshable widgets support different provider types with optimized refresh strategies:
-
-#### AutoDisposeFutureProvider (Recommended)
-
-```dart
-final postsProvider = AutoDisposeFutureProvider<List<Post>>((ref) async {
-  final api = ref.read(apiServiceProvider);
-  return await api.getPosts();
-});
-
-// Usage
-JetAsyncRefreshableWidget.autoDisposeFutureProvider<List<Post>>(
-  provider: postsProvider,
-  builder: (posts, ref) => PostsList(posts: posts),
-);
-```
-
-#### FutureProvider
-
-```dart
-final userProvider = FutureProvider<User>((ref) async {
-  final api = ref.read(apiServiceProvider);
-  return await api.getCurrentUser();
-});
-
-// Usage
-JetAsyncRefreshableWidget.futureProvider<User>(
-  provider: userProvider,
-  builder: (user, ref) => UserProfile(user: user),
-);
-```
-
-#### StateNotifier (Legacy Support)
-
-```dart
-class PostsNotifier extends StateNotifier<AsyncValue<List<Post>>> {
-  PostsNotifier(this._api) : super(const AsyncValue.loading());
-  
-  final ApiService _api;
-
-  Future<void> loadPosts() async {
-    state = const AsyncValue.loading();
-    try {
-      final posts = await _api.getPosts();
-      state = AsyncValue.data(posts);
-    } catch (error, stackTrace) {
-      state = AsyncValue.error(error, stackTrace);
-    }
-  }
-  
-  Future<void> refresh() => loadPosts();
-}
-
-final postsProvider = StateNotifierProvider<PostsNotifier, AsyncValue<List<Post>>>((ref) {
-  return PostsNotifier(ref.read(apiServiceProvider));
-});
-
-// Usage
-JetAsyncRefreshableWidget.notifier<List<Post>>(
-  provider: postsProvider,
-  refreshMethod: () => ref.read(postsProvider.notifier).refresh(),
-  builder: (posts, ref) => PostsList(posts: posts),
-);
-```
 
 ### Performance Optimizations
 
-Jet's refreshable widgets include several performance optimizations:
+Jet's state management includes several performance optimizations:
 
 #### Smart Loading States
 
 ```dart
-// Prevents double loading indicators during refresh
-JetRefreshableWidget<List<Post>>(
-  asyncValue: (ref) => ref.watch(postsProvider),
-  onRefresh: () => ref.refresh(postsProvider.future),
-  builder: (posts, ref) => PostsList(posts: posts),
-  // These optimizations are built-in:
+// JetBuilder prevents double loading indicators during refresh
+JetBuilder.list<Post>(
+  provider: postsProvider,
+  itemBuilder: (post, index) => PostCard(post: post),
+  // Built-in optimizations:
   // - skipLoadingOnReload: true
   // - skipLoadingOnRefresh: true
 );
@@ -2466,41 +2227,112 @@ class OptimizedPostsList extends JetConsumerWidget {
     // Only this widget rebuilds when posts change
     final posts = ref.watch(postsProvider);
     
-    // Theme and other providers are watched separately
-    final theme = ref.watch(themeSwitcherProvider);
-    
-    return posts.when(
-      data: (postList) => ListView.builder(
-        itemCount: postList.length,
-        itemBuilder: (context, index) {
-          // Each item can watch its own specific data
-          return Consumer(
-            builder: (context, ref, child) {
-              final isLiked = ref.watch(postLikeProvider(postList[index].id));
-              return PostCard(
-                post: postList[index],
-                isLiked: isLiked,
-              );
-            },
-          );
-        },
-      ),
-      loading: () => jet.config.loader,
-      error: (error, stack) => ErrorWidget(error),
+    return JetBuilder.list<Post>(
+      provider: postsProvider,
+      itemBuilder: (post, index) {
+        // Each item can watch its own specific data
+        return Consumer(
+          builder: (context, ref, child) {
+            final isLiked = ref.watch(postLikeProvider(post.id));
+            return PostCard(
+              post: post,
+              isLiked: isLiked,
+            );
+          },
+        );
+      },
     );
   }
 }
 ```
 
-#### Key Features
+### Complete Example
 
-- **Riverpod Integration** - Built on top of Flutter's most powerful state management solution
-- **Refreshable Widgets** - Pull-to-refresh functionality with proper state handling
-- **Multiple Provider Support** - Works with FutureProvider, StateNotifier, and more
-- **Performance Optimized** - Smart loading states and minimal rebuilds
+Here's a complete example showing how all pieces work together:
+
+```dart
+// Provider definitions
+final postsProvider = AutoDisposeFutureProvider<List<Post>>((ref) async {
+  final api = ref.read(apiServiceProvider);
+  return await api.getAllPosts();
+});
+
+final postsByCategoryProvider = AutoDisposeFutureProvider.family<List<Post>, String>((ref, categoryId) async {
+  final api = ref.read(apiServiceProvider);
+  return await api.getPostsByCategory(categoryId);
+});
+
+// Main posts page with tabs
+class PostsPage extends JetConsumerWidget {
+  @override
+  Widget jetBuild(BuildContext context, WidgetRef ref, Jet jet) {
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Posts'),
+          bottom: TabBar(
+            tabs: [
+              Tab(text: 'All'),
+              Tab(text: 'Tech'),
+              Tab(text: 'Lifestyle'),
+            ],
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            // All posts - simple list
+            JetBuilder.list<Post>(
+              provider: postsProvider,
+              itemBuilder: (post, index) => PostCard(post: post),
+              padding: EdgeInsets.all(16),
+            ),
+            
+            // Tech posts - family provider
+            JetBuilder.familyList<Post, String>(
+              provider: postsByCategoryProvider,
+              param: 'tech',
+              itemBuilder: (post, index) => PostCard(post: post),
+              padding: EdgeInsets.all(16),
+            ),
+            
+            // Lifestyle posts with pagination
+            JetPaginator.list<Post, Map<String, dynamic>>(
+              fetchPage: (pageKey) async {
+                return await api.getPostsByCategory('lifestyle', skip: pageKey, limit: 20);
+              },
+              parseResponse: (response, pageKey) => PageInfo(
+                items: (response['posts'] as List)
+                    .map((json) => Post.fromJson(json))
+                    .toList(),
+                nextPageKey: response['skip'] + response['limit'] < response['total']
+                    ? response['skip'] + response['limit']
+                    : null,
+              ),
+              itemBuilder: (post, index) => PostCard(post: post),
+              firstPageKey: 0,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+### Key Features
+
+- **Unified API** - Single `JetBuilder` handles lists, grids, single items, and custom builders
+- **Riverpod Integration** - Built on top of Flutter's most powerful state management solution  
+- **Family Provider Support** - Full support for parameterized providers with dedicated family methods
+- **Pull-to-Refresh** - Built-in refresh functionality with proper state handling using `custom_refresh_indicator`
+- **Infinite Scroll** - `JetPaginator` built on official `infinite_scroll_pagination` package
+- **Universal Pagination** - Works with any API format through `fetchPage` and `parseResponse` functions
+- **Performance Optimized** - Smart loading states, minimal rebuilds, and efficient `PagingController`
 - **Error Handling** - Built-in error widgets with retry functionality
 - **Type Safety** - Full type safety with automatic Dart type inference
 - **JetConsumer Widgets** - Enhanced consumer widgets with Jet instance access
-- **State Helpers** - Convenient methods for common patterns (lists, grids, single items)
+- **Provider Extensions** - Comprehensive utility extensions for refresh and retry functionality
+- **Flexible Pagination Models** - Support for DummyJSON, cursor-based, page-based, and Laravel APIs
 - **Automatic Resource Management** - AutoDispose providers for memory efficiency
-- **Customizable UI** - Full control over loading, error, and refresh indicators
+- **Customizable UI** - Full control over loading, error, refresh indicators, and empty states
