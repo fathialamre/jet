@@ -68,4 +68,31 @@ class JetLocalizationsImplEn extends JetLocalizationsImpl {
 
   @override
   String get loadingMore => 'Loading more';
+
+  @override
+  String get noInternetConnection => 'No internet connection';
+
+  @override
+  String get unknownError => 'Unknown error occurred';
+
+  @override
+  String get connectionTimeout => 'Connection timeout';
+
+  @override
+  String get sendTimeout => 'Send timeout';
+
+  @override
+  String get receiveTimeout => 'Receive timeout';
+
+  @override
+  String get badCertificate => 'Bad certificate';
+
+  @override
+  String get badResponse => 'Bad response';
+
+  @override
+  String get requestCancelled => 'Request cancelled';
+
+  @override
+  String get someFieldsAreInvalid => 'Some fields are invalid';
 }

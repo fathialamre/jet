@@ -4,13 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:jet/jet_framework.dart';
 import 'package:jet/resources/state.dart';
 
-/// Posts page showcasing the new unified JetState API
+/// Posts page showcasing the new unified JetState API with enhanced error handling
 ///
 /// This example demonstrates:
 /// - Using JetState.listFamily for lists with parameters
 /// - Automatic pull-to-refresh functionality
-/// - Built-in error handling and loading states
-/// - Clean, simple syntax
+/// - Built-in error handling with new JetErrorHandler
+/// - Clean, simple syntax with improved error messages
+/// - Automatic conversion of exceptions to JetExceptions
 class PostsPage extends ConsumerWidget {
   const PostsPage({super.key});
 
@@ -62,10 +63,17 @@ class PostsPage extends ConsumerWidget {
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
           ),
         ),
+        // JetBuilder now automatically handles all errors using the new JetErrorHandler:
+        // - Network timeouts are shown with appropriate timeout messages
+        // - Connection errors display network-specific error messages
+        // - Server errors (5xx) show server-related error messages
+        // - Client errors (4xx) display client-specific error messages
+        // - All errors include retry functionality and proper error categorization
+
         // Optional: Custom loading indicator
         // loading: const Center(child: CircularProgressIndicator()),
 
-        // Optional: Custom error handler
+        // Optional: Custom error handler (overrides the automatic error handling)
         // error: (error, stack) => Center(
         //   child: Column(
         //     mainAxisAlignment: MainAxisAlignment.center,

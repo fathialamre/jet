@@ -67,4 +67,31 @@ class JetLocalizationsImplAr extends JetLocalizationsImpl {
 
   @override
   String get loadingMore => 'تحميل المزيد';
+
+  @override
+  String get noInternetConnection => 'لا يوجد اتصال بالإنترنت';
+
+  @override
+  String get unknownError => 'حدث خطأ غير معروف';
+
+  @override
+  String get connectionTimeout => 'انتهت مهلة الاتصال';
+
+  @override
+  String get sendTimeout => 'انتهت مهلة الإرسال';
+
+  @override
+  String get receiveTimeout => 'انتهت مهلة الاستقبال';
+
+  @override
+  String get badCertificate => 'شهادة غير صحيحة';
+
+  @override
+  String get badResponse => 'استجابة غير صحيحة';
+
+  @override
+  String get requestCancelled => 'تم إلغاء الطلب';
+
+  @override
+  String get someFieldsAreInvalid => 'بعض الحقول غير صحيحة';
 }

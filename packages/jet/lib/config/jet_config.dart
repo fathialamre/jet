@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jet/adapters/jet_adapter.dart';
+import 'package:jet/exceptions/errors/jet_error_handler.dart';
 import 'package:jet/jet.dart';
 import 'package:jet/localization/models/locale_info.dart';
 import 'package:jet/resources/components/jet_error_widget.dart';
@@ -87,4 +88,11 @@ abstract class JetConfig {
   /// Returns null by default, meaning no custom loader is applied.
   /// Example: `JetLoader(color: Colors.blue)`
   JetLoader get loader => JetLoader();
+
+  /// The error handler for the application.
+  ///
+  /// Handles and converts errors to JetExceptions for consistent error management.
+  /// Can be overridden to provide custom error handling logic.
+  /// Example: `CustomErrorHandler()` or `JetErrorHandler()`
+  JetErrorHandler get errorHandler => JetErrorHandler();
 }

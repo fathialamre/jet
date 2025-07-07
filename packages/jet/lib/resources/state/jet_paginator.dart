@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:jet/bootstrap/boot.dart';
+import 'package:jet/exceptions/errors/jet_exception.dart';
 import 'package:jet/extensions/build_context.dart';
 import 'package:jet/resources/components/jet_empty_widget.dart';
 import 'package:jet/resources/components/jet_error_widget.dart';
+import 'package:jet/resources/components/jet_fetch_more_error_widget.dart';
 import 'package:jet/resources/components/jet_loading_more_widget.dart';
 import 'package:jet/resources/components/jet_no_more_items_widget.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -51,10 +53,12 @@ class PageInfo<T> {
 /// - **Official Package**: Built on `infinite_scroll_pagination` for robust state management
 /// - Works with ANY API response format
 /// - Support for offset-based, page-based, cursor-based, and custom pagination
-/// - Automatic error handling and retry functionality
+/// - **Smart Error Handling**: Integrated with JetErrorHandler for consistent error management
+/// - Automatic error handling and retry functionality with proper error parsing
 /// - Pull-to-refresh integration with Riverpod invalidate support
 /// - **Optimized builds**: Efficient state management through PagingController
-/// - Customizable loading and error indicators
+/// - Customizable loading and error indicators with error context and ref access
+/// - Separate error handling for initial load vs. pagination errors
 /// - List and grid layouts
 ///
 /// ## Performance Optimizations
@@ -197,6 +201,8 @@ class JetPaginator {
   /// - [refreshIndicatorBackgroundColor]: Background color of the refresh indicator
   /// - [refreshIndicatorStrokeWidth]: Stroke width of the refresh indicator (default: 2.0)
   /// - [refreshIndicatorDisplacement]: Distance to trigger refresh (default: 40.0)
+  /// - [errorIndicator]: Custom error widget builder for initial page load errors (receives raw error + ref)
+  /// - [fetchMoreErrorIndicator]: Custom error widget builder for pagination errors (receives raw error + ref)
   static Widget list<T, TResponse>({
     required Future<TResponse> Function(dynamic pageKey) fetchPage,
     required PageInfo<T> Function(TResponse response, dynamic currentPageKey)
@@ -218,7 +224,8 @@ class JetPaginator {
 
     // Customization
     Widget? loadingIndicator,
-    Widget? errorIndicator,
+    Widget Function(Object error, WidgetRef ref)? errorIndicator,
+    Widget Function(Object error, WidgetRef ref)? fetchMoreErrorIndicator,
     Widget? noItemsIndicator,
     Widget? noMoreItemsIndicator,
 
@@ -259,6 +266,7 @@ class JetPaginator {
       refreshIndicatorDisplacement: refreshIndicatorDisplacement,
       loadingIndicator: loadingIndicator,
       errorIndicator: errorIndicator,
+      fetchMoreErrorIndicator: fetchMoreErrorIndicator,
       noItemsIndicator: noItemsIndicator,
       noMoreItemsIndicator: noMoreItemsIndicator,
       padding: padding,
@@ -280,6 +288,8 @@ class JetPaginator {
   /// Creates an infinite scroll grid that works with any API format
   ///
   /// Similar to [list] but renders items in a grid layout.
+  /// **Note**: Due to grid constraints, loading and error indicators are sized as grid items.
+  /// For full-width indicators, consider using [list] with custom itemBuilder for grid-like layouts.
   static Widget grid<T, TResponse>({
     required Future<TResponse> Function(dynamic pageKey) fetchPage,
     required PageInfo<T> Function(TResponse response, dynamic currentPageKey)
@@ -307,7 +317,8 @@ class JetPaginator {
 
     // Customization
     Widget? loadingIndicator,
-    Widget? errorIndicator,
+    Widget Function(Object error, WidgetRef ref)? errorIndicator,
+    Widget Function(Object error, WidgetRef ref)? fetchMoreErrorIndicator,
     Widget? noItemsIndicator,
     Widget? noMoreItemsIndicator,
 
@@ -352,6 +363,7 @@ class JetPaginator {
       childAspectRatio: childAspectRatio,
       loadingIndicator: loadingIndicator,
       errorIndicator: errorIndicator,
+      fetchMoreErrorIndicator: fetchMoreErrorIndicator,
       noItemsIndicator: noItemsIndicator,
       noMoreItemsIndicator: noMoreItemsIndicator,
       padding: padding,
@@ -391,6 +403,7 @@ class _PaginationListWidget<T, TResponse> extends ConsumerStatefulWidget {
     this.refreshIndicatorDisplacement,
     this.loadingIndicator,
     this.errorIndicator,
+    this.fetchMoreErrorIndicator,
     this.noItemsIndicator,
     this.noMoreItemsIndicator,
     this.padding,
@@ -422,7 +435,8 @@ class _PaginationListWidget<T, TResponse> extends ConsumerStatefulWidget {
   final double? refreshIndicatorStrokeWidth;
   final double? refreshIndicatorDisplacement;
   final Widget? loadingIndicator;
-  final Widget? errorIndicator;
+  final Widget Function(Object error, WidgetRef ref)? errorIndicator;
+  final Widget Function(Object error, WidgetRef ref)? fetchMoreErrorIndicator;
   final Widget? noItemsIndicator;
   final Widget? noMoreItemsIndicator;
   final EdgeInsets? padding;
@@ -487,17 +501,19 @@ class _PaginationListWidgetState<T, TResponse>
 
   void _handlePagingStatus() {
     if (_pagingController.value.status == PagingStatus.subsequentPageError) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            context.jetI10n.somethingWentWrongWhileFetchingNewPage,
+      final error = _pagingController.value.error;
+      if (error != null && context.mounted) {
+        final jetException = _getJetException(error);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(jetException.message),
+            action: SnackBarAction(
+              label: context.jetI10n.retry,
+              onPressed: () => _pagingController.fetchNextPage(),
+            ),
           ),
-          action: SnackBarAction(
-            label: context.jetI10n.retry,
-            onPressed: () => _pagingController.fetchNextPage(),
-          ),
-        ),
-      );
+        );
+      }
     }
   }
 
@@ -537,11 +553,13 @@ class _PaginationListWidgetState<T, TResponse>
             newPageProgressIndicatorBuilder: (context) =>
                 widget.loadingIndicator ?? JetLoadingMoreWidget(),
             firstPageErrorIndicatorBuilder: (context) =>
-                widget.errorIndicator ??
-                _buildErrorIndicator(context, state.error),
+                (widget.errorIndicator != null && state.error != null)
+                ? widget.errorIndicator!.call(state.error!, ref)
+                : _buildErrorIndicator(context, state.error),
             newPageErrorIndicatorBuilder: (context) =>
-                widget.errorIndicator ??
-                _buildErrorIndicator(context, state.error),
+                (widget.fetchMoreErrorIndicator != null && state.error != null)
+                ? widget.fetchMoreErrorIndicator!.call(state.error!, ref)
+                : _buildFetchMoreErrorIndicator(context, state.error),
             noItemsFoundIndicatorBuilder: (context) =>
                 widget.noItemsIndicator ??
                 JetEmptyWidget(
@@ -599,11 +617,52 @@ class _PaginationListWidgetState<T, TResponse>
     return child;
   }
 
+  /// Helper method to get JetException from any error object
+  JetException _getJetException(Object error) {
+    final jet = ref.read(jetProvider);
+    return jet.config.errorHandler.handleError(
+      error,
+      context,
+      stackTrace: StackTrace.current,
+    );
+  }
+
   Widget _buildErrorIndicator(BuildContext context, Object? error) {
+    if (error == null) {
+      return JetErrorWidget(
+        icon: LucideIcons.info,
+        title: context.jetI10n.somethingWentWrongWhileFetchingNewPage,
+        message: context.jetI10n.unknownError,
+        onTap: () => _pagingController.fetchNextPage(),
+      );
+    }
+
+    final jetException = _getJetException(error);
+
     return JetErrorWidget(
       icon: LucideIcons.info,
       title: context.jetI10n.somethingWentWrongWhileFetchingNewPage,
-      message: error.toString(),
+      message: jetException.message,
+      onTap: () => _pagingController.fetchNextPage(),
+    );
+  }
+
+  Widget _buildFetchMoreErrorIndicator(BuildContext context, Object? error) {
+    if (error == null) {
+      return JetFetchMoreErrorWidget(
+        showAction: true,
+        actionText: context.jetI10n.retry,
+        onTap: () => _pagingController.fetchNextPage(),
+      );
+    }
+
+    final jetException = _getJetException(error);
+
+    return JetFetchMoreErrorWidget(
+      showAction: true,
+      actionText: context.jetI10n.retry,
+      title: context.jetI10n.somethingWentWrongWhileFetchingNewPage,
+      message: jetException.message,
       onTap: () => _pagingController.fetchNextPage(),
     );
   }
@@ -633,6 +692,7 @@ class _PaginationGridWidget<T, TResponse> extends ConsumerStatefulWidget {
     this.refreshIndicatorDisplacement,
     this.loadingIndicator,
     this.errorIndicator,
+    this.fetchMoreErrorIndicator,
     this.noItemsIndicator,
     this.noMoreItemsIndicator,
     this.padding,
@@ -668,7 +728,8 @@ class _PaginationGridWidget<T, TResponse> extends ConsumerStatefulWidget {
   final double mainAxisSpacing;
   final double childAspectRatio;
   final Widget? loadingIndicator;
-  final Widget? errorIndicator;
+  final Widget Function(Object error, WidgetRef ref)? errorIndicator;
+  final Widget Function(Object error, WidgetRef ref)? fetchMoreErrorIndicator;
   final Widget? noItemsIndicator;
   final Widget? noMoreItemsIndicator;
   final EdgeInsets? padding;
@@ -732,17 +793,19 @@ class _PaginationGridWidgetState<T, TResponse>
 
   void _handlePagingStatus() {
     if (_pagingController.value.status == PagingStatus.subsequentPageError) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            context.jetI10n.somethingWentWrongWhileFetchingNewPage,
+      final error = _pagingController.value.error;
+      if (error != null && context.mounted) {
+        final jetException = _getJetException(error);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(jetException.message),
+            action: SnackBarAction(
+              label: context.jetI10n.retry,
+              onPressed: () => _pagingController.fetchNextPage(),
+            ),
           ),
-          action: SnackBarAction(
-            label: context.jetI10n.retry,
-            onPressed: () => _pagingController.fetchNextPage(),
-          ),
-        ),
-      );
+        );
+      }
     }
   }
 
@@ -786,13 +849,15 @@ class _PaginationGridWidgetState<T, TResponse>
             firstPageProgressIndicatorBuilder: (context) =>
                 widget.loadingIndicator ?? jet.config.loader,
             newPageProgressIndicatorBuilder: (context) =>
-                widget.loadingIndicator ?? jet.config.loader,
+                widget.loadingIndicator ?? JetLoadingMoreWidget(),
             firstPageErrorIndicatorBuilder: (context) =>
-                widget.errorIndicator ??
-                _buildErrorIndicator(context, state.error),
+                (widget.errorIndicator != null && state.error != null)
+                ? widget.errorIndicator!.call(state.error!, ref)
+                : _buildErrorIndicator(context, state.error),
             newPageErrorIndicatorBuilder: (context) =>
-                widget.errorIndicator ??
-                _buildErrorIndicator(context, state.error),
+                (widget.fetchMoreErrorIndicator != null && state.error != null)
+                ? widget.fetchMoreErrorIndicator!.call(state.error!, ref)
+                : _buildFetchMoreErrorIndicator(context, state.error),
             noItemsFoundIndicatorBuilder: (context) =>
                 widget.noItemsIndicator ??
                 JetEmptyWidget(
@@ -851,15 +916,59 @@ class _PaginationGridWidgetState<T, TResponse>
     return child;
   }
 
+  /// Helper method to get JetException from any error object
+  JetException _getJetException(Object error) {
+    final jet = ref.read(jetProvider);
+    return jet.config.errorHandler.handleError(
+      error,
+      context,
+      stackTrace: StackTrace.current,
+    );
+  }
+
   Widget _buildErrorIndicator(BuildContext context, Object? error) {
+    if (error == null) {
+      return JetErrorWidget(
+        icon: LucideIcons.info,
+        title: context.jetI10n.somethingWentWrongWhileFetchingNewPage,
+        message: context.jetI10n.unknownError,
+        onTap: () {
+          widget.onRetry?.call();
+          _pagingController.fetchNextPage();
+        },
+      );
+    }
+
+    final jetException = _getJetException(error);
+
     return JetErrorWidget(
       icon: LucideIcons.info,
       title: context.jetI10n.somethingWentWrongWhileFetchingNewPage,
-      message: error.toString(),
+      message: jetException.message,
       onTap: () {
         widget.onRetry?.call();
         _pagingController.fetchNextPage();
       },
+    );
+  }
+
+  Widget _buildFetchMoreErrorIndicator(BuildContext context, Object? error) {
+    if (error == null) {
+      return JetFetchMoreErrorWidget(
+        showAction: true,
+        actionText: context.jetI10n.retry,
+        onTap: () => _pagingController.fetchNextPage(),
+      );
+    }
+
+    final jetException = _getJetException(error);
+
+    return JetFetchMoreErrorWidget(
+      showAction: true,
+      actionText: context.jetI10n.retry,
+      title: context.jetI10n.somethingWentWrongWhileFetchingNewPage,
+      message: jetException.message,
+      onTap: () => _pagingController.fetchNextPage(),
     );
   }
 }

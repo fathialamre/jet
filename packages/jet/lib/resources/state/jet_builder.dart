@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:jet/jet.dart';
 import 'package:jet/resources/state/jet_consumer.dart';
+import 'package:jet/exceptions/errors/jet_exception.dart';
 
 /// Unified state management for Jet framework
 ///
@@ -11,6 +12,7 @@ import 'package:jet/resources/state/jet_consumer.dart';
 /// - Loading and error states
 /// - Lists, grids, and single items
 /// - Provider families
+/// - Integrated error handling with JetErrorHandler
 /// - Pagination (see JetPaginator for infinite scroll)
 ///
 /// ## Basic Usage
@@ -392,7 +394,7 @@ class _StateWidget<T> extends JetConsumerWidget {
         data: (data) => builder(data, ref),
         error: (err, stack) =>
             error?.call(err, stack) ??
-            _buildDefaultErrorWidget(err, stack, jet, ref),
+            _buildDefaultErrorWidget(err, stack, jet, ref, context),
         loading: () => loading ?? jet.config.loader,
       ),
     );
@@ -426,7 +428,10 @@ class _StateWidget<T> extends JetConsumerWidget {
     StackTrace? stackTrace,
     Jet jet,
     WidgetRef ref,
+    BuildContext context,
   ) {
+    final jetException = _getJetException(error, jet, ref, context);
+
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       child: Container(
@@ -443,7 +448,7 @@ class _StateWidget<T> extends JetConsumerWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              _getErrorMessage(error),
+              jetException.message,
               textAlign: TextAlign.center,
               style: const TextStyle(color: Colors.grey),
             ),
@@ -458,11 +463,18 @@ class _StateWidget<T> extends JetConsumerWidget {
     );
   }
 
-  String _getErrorMessage(Object error) {
-    if (error is Exception) {
-      return error.toString().replaceFirst('Exception: ', '');
-    }
-    return error.toString();
+  /// Helper method to get JetException from any error object
+  JetException _getJetException(
+    Object error,
+    Jet jet,
+    WidgetRef ref,
+    BuildContext context,
+  ) {
+    return jet.config.errorHandler.handleError(
+      error,
+      context,
+      stackTrace: StackTrace.current,
+    );
   }
 }
 
@@ -508,7 +520,7 @@ class _StateFamilyWidget<T, Param> extends JetConsumerWidget {
         data: (data) => builder(data, ref),
         error: (err, stack) =>
             error?.call(err, stack) ??
-            _buildDefaultErrorWidget(err, stack, jet, ref),
+            _buildDefaultErrorWidget(err, stack, jet, ref, context),
         loading: () => loading ?? jet.config.loader,
       ),
     );
@@ -542,8 +554,10 @@ class _StateFamilyWidget<T, Param> extends JetConsumerWidget {
     StackTrace? stackTrace,
     Jet jet,
     WidgetRef ref,
+    BuildContext context,
   ) {
     final familyProvider = provider(param);
+    final jetException = _getJetException(error, jet, ref, context);
 
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
@@ -561,7 +575,7 @@ class _StateFamilyWidget<T, Param> extends JetConsumerWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              _getErrorMessage(error),
+              jetException.message,
               textAlign: TextAlign.center,
               style: const TextStyle(color: Colors.grey),
             ),
@@ -576,10 +590,17 @@ class _StateFamilyWidget<T, Param> extends JetConsumerWidget {
     );
   }
 
-  String _getErrorMessage(Object error) {
-    if (error is Exception) {
-      return error.toString().replaceFirst('Exception: ', '');
-    }
-    return error.toString();
+  /// Helper method to get JetException from any error object
+  JetException _getJetException(
+    Object error,
+    Jet jet,
+    WidgetRef ref,
+    BuildContext context,
+  ) {
+    return jet.config.errorHandler.handleError(
+      error,
+      context,
+      stackTrace: StackTrace.current,
+    );
   }
 }

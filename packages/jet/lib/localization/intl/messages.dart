@@ -59,6 +59,17 @@ abstract class JetLocalizationsImpl {
   String get loadMore;
   String get somethingWentWrongWhileFetchingNewPage;
   String get loadingMore;
+
+  // Error handling related translations
+  String get noInternetConnection;
+  String get unknownError;
+  String get connectionTimeout;
+  String get sendTimeout;
+  String get receiveTimeout;
+  String get badCertificate;
+  String get badResponse;
+  String get requestCancelled;
+  String get someFieldsAreInvalid;
 }
 
 class JetLocalizationsDelegate
