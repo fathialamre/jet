@@ -1171,657 +1171,6 @@ The `ThemeSwitcherNotifier` provides several convenient methods:
 - **Custom Styling** - Full control over UI appearance and behavior
 - **Theme Detection** - Utility providers for checking current effective theme
 
-## ⚠️ Exception Handling
-
-Jet Framework provides a comprehensive, type-safe exception handling system designed to simplify error management across your entire application. Built with modern Dart language features like sealed classes and pattern matching, the system offers compile-time safety, centralized error handling, and seamless integration with the framework's components.
-
-**Key Philosophy**: Jet's exception system is designed around **consistency and type safety**. Instead of scattered error handling throughout your app, we provide a unified exception hierarchy with centralized handling that can be easily customized and extended.
-
-### Exception System Overview
-
-The Jet exception system consists of several key components that work together to provide robust error handling:
-
-| Component | Description |
-|-----------|-------------|
-| `JetException` | Sealed class hierarchy for all framework exceptions |
-| `JetResult<T>` | Result pattern for functional error handling |
-| `JetErrorHandler` | Centralized error processing and user message generation |
-| `JetConfig.errorHandler` | Configuration point for custom error handling |
-| Framework Integration | Automatic error handling in JetBuilder, JetPaginator, etc. |
-
-### Exception Hierarchy
-
-Jet uses a sealed class hierarchy that provides compile-time safety and exhaustive pattern matching:
-
-```dart
-// All exceptions extend this sealed class
-sealed class JetException implements Exception {
-  final String message;
-  final String? userMessage;
-  final Map<String, dynamic>? details;
-  final Object? originalError;
-  final StackTrace? stackTrace;
-  
-  const JetException({
-    required this.message,
-    this.userMessage,
-    this.details,
-    this.originalError,
-    this.stackTrace,
-  });
-}
-
-// Network-related exceptions
-sealed class JetNetworkException extends JetException {
-  // Connection issues
-  factory JetNetworkException.connectionError({String? message, Object? originalError}) = ConnectionError;
-  
-  // Request timeout
-  factory JetNetworkException.timeout({String? message, Object? originalError}) = TimeoutError;
-  
-  // Server errors (5xx)
-  factory JetNetworkException.serverError({String? message, int? statusCode, Object? originalError}) = ServerError;
-  
-  // Client errors (4xx)
-  factory JetNetworkException.clientError({String? message, int? statusCode, Object? originalError}) = ClientError;
-}
-
-// Validation-related exceptions
-sealed class JetValidationException extends JetException {
-  // Single field validation error
-  factory JetValidationException.fieldError({String? field, String? message}) = FieldValidationError;
-  
-  // Multiple field validation errors
-  factory JetValidationException.formError({Map<String, String>? errors, String? message}) = FormValidationError;
-}
-
-// Authentication-related exceptions
-sealed class JetAuthException extends JetException {
-  // User not authenticated
-  factory JetAuthException.unauthorized({String? message}) = UnauthorizedError;
-  
-  // User doesn't have permission
-  factory JetAuthException.forbidden({String? message}) = ForbiddenError;
-}
-
-// General application exceptions
-sealed class JetAppException extends JetException {
-  // Resource not found
-  factory JetAppException.notFound({String? resource, String? message}) = NotFoundError;
-  
-  // Unknown/unexpected errors
-  factory JetAppException.unknown({String? message, Object? originalError}) = UnknownError;
-}
-```
-
-#### Exception Types and Use Cases
-
-| Exception Type | Use Cases | Factory Methods |
-|----------------|-----------|-----------------|
-| `JetNetworkException` | API calls, connectivity issues | `connectionError()`, `timeout()`, `serverError()`, `clientError()` |
-| `JetValidationException` | Form validation, input checking | `fieldError()`, `formError()` |
-| `JetAuthException` | Login, permissions, access control | `unauthorized()`, `forbidden()` |
-| `JetAppException` | General app errors, not found | `notFound()`, `unknown()` |
-
-### JetResult Pattern
-
-The `JetResult<T>` pattern provides functional error handling, eliminating the need for try-catch blocks in many cases:
-
-#### Basic JetResult Usage
-
-```dart
-// Function that returns a JetResult
-Future<JetResult<User>> loginUser(String email, String password) async {
-  try {
-    final user = await api.login(email, password);
-    return JetResult.success(user);
-  } on UnauthorizedException {
-    return JetResult.failure(
-      JetAuthException.unauthorized(message: 'Invalid credentials')
-    );
-  } catch (error) {
-    return JetResult.failure(
-      JetAppException.unknown(message: 'Login failed', originalError: error)
-    );
-  }
-}
-
-// Using the result with pattern matching
-final result = await loginUser(email, password);
-result.when(
-  success: (user) {
-    // Handle successful login
-    Navigator.pushReplacement(context, MaterialPageRoute(
-      builder: (_) => DashboardPage(user: user),
-    ));
-  },
-  failure: (exception) {
-    // Handle login failure
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(exception.userMessage ?? 'Login failed')),
-    );
-  },
-);
-```
-
-#### JetResult Extension Methods
-
-```dart
-// Functional operations on results
-final result = await getUserProfile(userId);
-
-// Map success value
-final nameResult = result.map((user) => user.fullName);
-
-// Map failure
-final handledResult = result.mapFailure((exception) => 
-  JetAppException.unknown(message: 'Profile load failed')
-);
-
-// Chain operations
-final chainedResult = result.flatMap((user) async {
-  return await updateUserLastSeen(user.id);
-});
-
-// Get value with fallback
-final user = result.getOrElse(() => User.guest());
-
-// Convert to nullable
-final userOrNull = result.getOrNull();
-
-// Check state
-if (result.isSuccess) {
-  print('Success: ${result.successValue}');
-}
-
-if (result.isFailure) {
-  print('Error: ${result.failureValue.message}');
-}
-```
-
-### Error Handler Configuration
-
-The error handler is configured through your `JetConfig` and provides centralized error processing:
-
-#### Basic Error Handler Setup
-
-```dart
-class AppConfig extends JetConfig {
-  @override
-  List<JetAdapter> get adapters => [
-    RouterAdapter(),
-  ];
-
-  @override
-  JetErrorHandler get errorHandler => AppErrorHandler();
-  
-  // Other configuration...
-}
-
-// Using default error handler (no customization needed)
-class SimpleAppConfig extends JetConfig {
-  // The framework provides a default JetErrorHandler instance
-  // No need to override errorHandler unless you want custom behavior
-}
-```
-
-#### Default Error Handler Behavior
-
-The default `JetErrorHandler` provides intelligent error processing:
-
-```dart
-// The default handler automatically converts common errors
-try {
-  await api.fetchData();
-} catch (error) {
-  final jetException = jet.config.errorHandler.handleError(error, context);
-  
-  // Automatically converts:
-  // - SocketException -> JetNetworkException.connectionError()
-  // - TimeoutException -> JetNetworkException.timeout()
-  // - HttpException with 404 -> JetAppException.notFound()
-  // - HttpException with 401 -> JetAuthException.unauthorized()
-  // - HttpException with 403 -> JetAuthException.forbidden()
-  // - HttpException with 5xx -> JetNetworkException.serverError()
-  // - HttpException with 4xx -> JetNetworkException.clientError()
-  // - FormatException -> JetValidationException.fieldError()
-  // - Unknown errors -> JetAppException.unknown()
-}
-```
-
-### Custom Error Handlers
-
-Create custom error handlers to implement app-specific error processing:
-
-#### Custom Error Handler Example
-
-```dart
-class AppErrorHandler extends JetErrorHandler {
-  @override
-  JetException handleErrorInternal(
-    Object error, 
-    BuildContext context, {
-    StackTrace? stackTrace,
-  }) {
-    // Handle custom API exceptions
-    if (error is ApiException) {
-      return _handleApiException(error, context);
-    }
-    
-    // Handle custom business logic exceptions
-    if (error is BusinessRuleException) {
-      return _handleBusinessException(error, context);
-    }
-    
-    // Handle custom validation exceptions
-    if (error is CustomValidationException) {
-      return JetValidationException.formError(
-        errors: error.fieldErrors,
-        message: context.l10n.validationError,
-      );
-    }
-    
-    // Fall back to default handling
-    return super.handleErrorInternal(error, context, stackTrace: stackTrace);
-  }
-  
-  JetException _handleApiException(ApiException error, BuildContext context) {
-    switch (error.code) {
-      case 'RATE_LIMIT_EXCEEDED':
-        return JetNetworkException.clientError(
-          message: 'Too many requests',
-          statusCode: 429,
-          originalError: error,
-        );
-      
-      case 'MAINTENANCE_MODE':
-        return JetNetworkException.serverError(
-          message: context.l10n.maintenanceMessage,
-          statusCode: 503,
-          originalError: error,
-        );
-      
-      case 'SUBSCRIPTION_EXPIRED':
-        return JetAuthException.forbidden(
-          message: context.l10n.subscriptionExpired,
-        );
-      
-      default:
-        return JetNetworkException.serverError(
-          message: error.message,
-          originalError: error,
-        );
-    }
-  }
-  
-  JetException _handleBusinessException(BusinessRuleException error, BuildContext context) {
-    return JetValidationException.fieldError(
-      field: error.field,
-      message: _getLocalizedBusinessMessage(error.rule, context),
-    );
-  }
-  
-  String _getLocalizedBusinessMessage(String rule, BuildContext context) {
-    switch (rule) {
-      case 'INSUFFICIENT_BALANCE':
-        return context.l10n.insufficientBalance;
-      case 'PRODUCT_OUT_OF_STOCK':
-        return context.l10n.productOutOfStock;
-      case 'INVALID_COUPON':
-        return context.l10n.invalidCoupon;
-      default:
-        return context.l10n.businessRuleViolation;
-    }
-  }
-}
-```
-
-### Framework Integration
-
-The exception system is automatically integrated throughout the Jet framework:
-
-#### JetBuilder Integration
-
-```dart
-class PostsList extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return JetBuilder.list<Post>(
-      provider: postsProvider,
-      itemBuilder: (post, index) => PostCard(post: post),
-      
-      // Custom error handling (optional)
-      error: (error, stackTrace) {
-        // error is automatically converted to JetException
-        if (error is JetNetworkException) {
-          return NetworkErrorWidget(exception: error);
-        }
-        
-        if (error is JetAuthException) {
-          return AuthErrorWidget(exception: error);
-        }
-        
-        return GenericErrorWidget(exception: error);
-      },
-    );
-  }
-}
-```
-
-#### JetPaginator Integration
-
-```dart
-class ProductsPaginator extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return JetPaginator.list<Product, Map<String, dynamic>>(
-      fetchPage: (pageKey) async {
-        try {
-          return await api.getProducts(skip: pageKey, limit: 20);
-        } catch (error) {
-          // Automatically converted to JetException by the framework
-          throw error;
-        }
-      },
-      parseResponse: (response, pageKey) => PageInfo(
-        items: (response['products'] as List)
-            .map((json) => Product.fromJson(json))
-            .toList(),
-        nextPageKey: response['skip'] + response['limit'] < response['total']
-            ? response['skip'] + response['limit']
-            : null,
-      ),
-      itemBuilder: (product, index) => ProductCard(product: product),
-      
-      // Error widget receives JetException
-      errorBuilder: (context, exception) {
-        return PaginationErrorWidget(
-          exception: exception,
-          onRetry: () {
-            // Retry logic
-          },
-        );
-      },
-    );
-  }
-}
-```
-
-### Migration Guide
-
-If you're migrating from the old error system, here's what you need to know:
-
-#### Old vs New API Comparison
-
-| Old API | New API | Notes |
-|---------|---------|-------|
-| `JetError` | `JetException` | Complete redesign with sealed classes |
-| `JetErrorHandler.handle()` | `JetErrorHandler.handleError()` | Consistent method naming |
-| Manual error categorization | Automatic categorization | Built-in type checking |
-| `JetFormValidationError` | `JetValidationException.formError()` | Factory constructor pattern |
-
-#### Migration Steps
-
-1. **Update Error Handling Code:**
-```dart
-// Old way
-try {
-  await operation();
-} catch (error) {
-  final jetError = JetErrorHandler.handle(error, context);
-  // Handle jetError...
-}
-
-// New way
-try {
-  await operation();
-} catch (error) {
-  final jetException = jet.config.errorHandler.handleError(error, context);
-  // Handle jetException with pattern matching...
-}
-```
-
-2. **Update Custom Error Handlers:**
-```dart
-// Old way
-class CustomHandler extends JetErrorHandler {
-  @override
-  JetError handleError(Object error, BuildContext context) {
-    // Old implementation...
-  }
-}
-
-// New way
-class CustomHandler extends JetErrorHandler {
-  @override
-  JetException handleErrorInternal(Object error, BuildContext context, {StackTrace? stackTrace}) {
-    // New implementation with better typing...
-  }
-}
-```
-
-### Exception Handling Examples
-
-#### API Service with Result Pattern
-
-```dart
-class PostService {
-  final ApiClient api;
-  
-  PostService(this.api);
-  
-  Future<JetResult<List<Post>>> getAllPosts() async {
-    try {
-      final response = await api.get('/posts');
-      final posts = (response.data as List)
-          .map((json) => Post.fromJson(json))
-          .toList();
-      return JetResult.success(posts);
-    } on SocketException {
-      return JetResult.failure(
-        JetNetworkException.connectionError(
-          message: 'No internet connection'
-        )
-      );
-    } on TimeoutException {
-      return JetResult.failure(
-        JetNetworkException.timeout(
-          message: 'Request timed out'
-        )
-      );
-    } catch (error) {
-      return JetResult.failure(
-        JetAppException.unknown(
-          message: 'An unexpected error occurred',
-          originalError: error
-        )
-      );
-    }
-  }
-  
-  Future<JetResult<Post>> createPost(PostCreateRequest request) async {
-    // Validate input
-    final validation = _validatePostRequest(request);
-    if (validation.isFailure) {
-      return validation.cast<Post>();
-    }
-    
-    try {
-      final response = await api.post('/posts', request.toJson());
-      final post = Post.fromJson(response.data);
-      return JetResult.success(post);
-    } catch (error) {
-      return JetResult.failure(
-        JetNetworkException.serverError(
-          message: 'Failed to create post',
-          originalError: error
-        )
-      );
-    }
-  }
-  
-  JetResult<void> _validatePostRequest(PostCreateRequest request) {
-    final errors = <String, String>{};
-    
-    if (request.title.trim().isEmpty) {
-      errors['title'] = 'Title is required';
-    }
-    
-    if (request.content.trim().isEmpty) {
-      errors['content'] = 'Content is required';
-    }
-    
-    if (request.title.length > 100) {
-      errors['title'] = 'Title must be less than 100 characters';
-    }
-    
-    if (errors.isNotEmpty) {
-      return JetResult.failure(
-        JetValidationException.formError(
-          errors: errors,
-          message: 'Please fix validation errors'
-        )
-      );
-    }
-    
-    return JetResult.success(null);
-  }
-}
-```
-
-#### Form Validation Example
-
-```dart
-class CreatePostForm extends StatefulWidget {
-  @override
-  State<CreatePostForm> createState() => _CreatePostFormState();
-}
-
-class _CreatePostFormState extends State<CreatePostForm> {
-  final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
-  final _contentController = TextEditingController();
-  Map<String, String> _fieldErrors = {};
-  
-  @override
-  Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Column(
-        children: [
-          TextFormField(
-            controller: _titleController,
-            decoration: InputDecoration(
-              labelText: 'Title',
-              errorText: _fieldErrors['title'],
-            ),
-            onChanged: (_) => _clearFieldError('title'),
-          ),
-          SizedBox(height: 16),
-          TextFormField(
-            controller: _contentController,
-            decoration: InputDecoration(
-              labelText: 'Content',
-              errorText: _fieldErrors['content'],
-            ),
-            maxLines: 5,
-            onChanged: (_) => _clearFieldError('content'),
-          ),
-          SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: _submitForm,
-            child: Text('Create Post'),
-          ),
-        ],
-      ),
-    );
-  }
-  
-  Future<void> _submitForm() async {
-    final request = PostCreateRequest(
-      title: _titleController.text,
-      content: _contentController.text,
-    );
-    
-    final service = context.read(postsServiceProvider);
-    final result = await service.createPost(request);
-    
-    result.when(
-      success: (post) {
-        // Success handling
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Post created successfully!')),
-        );
-        Navigator.pop(context, post);
-      },
-      failure: (exception) {
-        // Error handling based on exception type
-        switch (exception) {
-          case FormValidationError(errors: final errors) when errors != null:
-            setState(() {
-              _fieldErrors = errors;
-            });
-          case JetValidationException():
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(exception.userMessage ?? 'Validation failed')),
-            );
-          case JetNetworkException():
-            _showNetworkErrorDialog(exception);
-          default:
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(exception.userMessage ?? 'An error occurred')),
-            );
-        }
-      },
-    );
-  }
-  
-  void _clearFieldError(String field) {
-    if (_fieldErrors.containsKey(field)) {
-      setState(() {
-        _fieldErrors.remove(field);
-      });
-    }
-  }
-  
-  void _showNetworkErrorDialog(JetNetworkException exception) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Network Error'),
-        content: Text(exception.userMessage ?? 'Please check your connection'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('OK'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _submitForm(); // Retry
-            },
-            child: Text('Retry'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-```
-
-### Key Features
-
-- **Type Safety** - Sealed class hierarchy with compile-time exhaustive pattern matching
-- **Centralized Handling** - Single point of configuration through JetConfig.errorHandler
-- **Result Pattern** - Functional error handling with JetResult<T> eliminates many try-catch blocks
-- **Framework Integration** - Automatic error conversion in JetBuilder, JetPaginator, and other components
-- **Customizable** - Easy to extend and customize error handling behavior
-- **User-Friendly Messages** - Built-in user message generation with localization support
-- **Performance Optimized** - Efficient error processing with minimal overhead
-- **Backward Compatible** - Smooth migration path from old error system
-- **Rich Context** - Detailed error information including original errors, stack traces, and metadata
-- **Factory Constructors** - Clean, readable error creation with sensible defaults
-
 ## 🌍 Using Localization
 
 Jet Framework provides comprehensive internationalization (i18n) support with built-in language switching capabilities. The localization system includes persistent locale storage, a beautiful language switcher interface, and seamless integration with Flutter's localization delegates.
@@ -2177,6 +1526,704 @@ class AppConfig extends JetConfig {
 - **Flexible Configuration** - Easy integration with app configuration system
 - **Custom Styling** - Full control over UI appearance and behavior
 
+## ⚠️ Exception Handling
+
+Jet Framework provides a comprehensive error handling system designed to standardize error processing across your entire application. The system automatically categorizes errors, provides user-friendly messages, handles validation errors, and integrates seamlessly with Jet's state management components.
+
+**Key Philosophy**: All errors should be processed through a centralized system that provides consistent, user-friendly messages while preserving technical details for debugging.
+
+### Exception System Overview
+
+The error handling system consists of three main components:
+
+| Component | Description |
+|-----------|-------------|
+| `JetError` | Standardized error class with comprehensive error information |
+| `JetBaseErrorHandler` | Abstract base class for implementing custom error handlers |
+| `JetErrorHandler` | Default implementation that handles all common error scenarios |
+
+### Exception Hierarchy
+
+#### JetError Structure
+
+The `JetError` class provides a unified error structure with rich information:
+
+```dart
+class JetError {
+  final String message;                      // User-friendly error message
+  final Map<String, List<String>>? errors;   // Validation errors (field-specific)
+  final Object? rawError;                    // Original error object for debugging
+  final StackTrace? stackTrace;             // Stack trace for debugging
+  final JetErrorType type;                  // Error category
+  final int? statusCode;                    // HTTP status code (if applicable)
+  final Map<String, dynamic>? metadata;     // Additional error context
+}
+```
+
+#### JetErrorType Categories
+
+| Type | Description | Examples |
+|------|-------------|----------|
+| `noInternet` | Network connectivity issues | No internet connection, DNS failures |
+| `server` | Server errors (5xx status codes) | Internal server error, service unavailable |
+| `client` | Client errors (4xx status codes) | Bad request, unauthorized, not found |
+| `validation` | Form validation failures | Invalid email format, required fields |
+| `timeout` | Request timeout errors | Connection timeout, receive timeout |
+| `cancelled` | Request cancellation | User cancelled request |
+| `unknown` | Unhandled/unexpected errors | Unexpected exceptions |
+
+#### JetError Factory Methods
+
+```dart
+// Network connectivity error
+final noInternetError = JetError.noInternet();
+
+// Server error with details
+final serverError = JetError.server(
+  message: 'Database connection failed',
+  statusCode: 500,
+  rawError: originalException,
+  stackTrace: stackTrace,
+);
+
+// Client error
+final clientError = JetError.client(
+  message: 'Invalid request format',
+  statusCode: 400,
+);
+
+// Validation error with field-specific messages
+final validationError = JetError.validation(
+  message: 'Form validation failed',
+  errors: {
+    'email': ['Email is required', 'Invalid email format'],
+    'password': ['Password must be at least 8 characters'],
+  },
+);
+
+// Timeout error
+final timeoutError = JetError.timeout(
+  message: 'Request took too long to complete',
+);
+
+// Cancelled request
+final cancelledError = JetError.cancelled(
+  message: 'User cancelled the operation',
+);
+
+// Unknown error
+final unknownError = JetError.unknown(
+  message: 'An unexpected error occurred',
+  rawError: originalException,
+);
+```
+
+#### JetError Utility Methods
+
+```dart
+// Check error type
+if (jetError.isValidation) {
+  // Handle validation-specific logic
+}
+
+if (jetError.isNoInternet) {
+  // Show network error UI
+}
+
+if (jetError.isServerError) {
+  // Log server error and show generic message
+}
+
+// Access validation errors
+String? firstError = jetError.firstValidationError;
+String allErrors = jetError.allValidationErrors;
+
+// Convert to string for display
+String displayMessage = jetError.toString();
+
+// Serialize for logging
+Map<String, dynamic> errorData = jetError.toMap();
+```
+
+### JetResult Pattern
+
+For functions that may fail, use the `JetResult` pattern to handle success and error states elegantly:
+
+```dart
+// Function that returns JetResult
+Future<JetResult<User, JetError>> login(String email, String password) async {
+  try {
+    final user = await authService.login(email, password);
+    return JetResult.success(user);
+  } catch (error, stackTrace) {
+    final jetError = errorHandler.handle(error, stackTrace);
+    return JetResult.failure(jetError);
+  }
+}
+
+// Using JetResult
+final result = await login('user@example.com', 'password');
+
+result.when(
+  success: (user) {
+    // Handle successful login
+    print('Welcome, ${user.name}!');
+  },
+  failure: (error) {
+    // Handle error
+    if (error.isValidation) {
+      showValidationErrors(error.errors);
+    } else {
+      showErrorMessage(error.message);
+    }
+  },
+);
+
+// Or use pattern matching
+switch (result) {
+  case JetSuccess(data: final user):
+    navigateToHome(user);
+    break;
+  case JetFailure(error: final error):
+    handleError(error);
+    break;
+}
+```
+
+### Error Handler Configuration
+
+#### Using the Default Error Handler
+
+The simplest way to use error handling is with the default `JetErrorHandler`:
+
+```dart
+import 'package:jet/networking/errors/errors.dart';
+
+class ApiService {
+  final errorHandler = JetErrorHandler.instance;
+
+  Future<List<Post>> getPosts() async {
+    try {
+      final response = await dio.get('/posts');
+      return (response.data as List)
+          .map((json) => Post.fromJson(json))
+          .toList();
+    } catch (error, stackTrace) {
+      final jetError = errorHandler.handle(error, stackTrace);
+      throw jetError; // Or handle as appropriate
+    }
+  }
+}
+```
+
+#### Configuring Error Handler in JetConfig
+
+Configure a global error handler in your app configuration:
+
+```dart
+import 'package:jet/jet.dart';
+import 'package:jet/networking/errors/errors.dart';
+
+class AppConfig extends JetConfig {
+  @override
+  JetBaseErrorHandler get errorHandler => JetErrorHandler.instance;
+  
+  // Or use a custom error handler
+  @override
+  JetBaseErrorHandler get errorHandler => MyCustomErrorHandler();
+
+  @override
+  List<JetAdapter> get adapters => [
+    RouterAdapter(),
+  ];
+
+  // ... other configuration
+}
+```
+
+### Custom Error Handlers
+
+Create custom error handlers by extending `JetBaseErrorHandler`:
+
+```dart
+class MyCustomErrorHandler extends JetBaseErrorHandler {
+  @override
+  JetError handle(Object error, [StackTrace? stackTrace]) {
+    // Add custom logic for specific error types
+    if (error.toString().contains('payment_failed')) {
+      return JetError.client(
+        message: 'Payment could not be processed. Please check your payment method.',
+        statusCode: 402,
+        rawError: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    if (error.toString().contains('subscription_expired')) {
+      return JetError.client(
+        message: 'Your subscription has expired. Please renew to continue.',
+        statusCode: 403,
+        rawError: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    // Fall back to default handling
+    return super.handle(error, stackTrace);
+  }
+
+  @override
+  String getErrorMessage(Object error) {
+    // Customize error messages
+    if (error is DioException && error.response?.statusCode == 429) {
+      return 'You\'re doing that too often. Please wait a moment and try again.';
+    }
+
+    return super.getErrorMessage(error);
+  }
+
+  @override
+  bool isNoInternetError(Object error) {
+    // Custom no-internet detection
+    if (error.toString().toLowerCase().contains('offline')) {
+      return true;
+    }
+
+    return super.isNoInternetError(error);
+  }
+
+  @override
+  Map<String, List<String>>? extractValidationErrors(Object error) {
+    // Handle custom validation error formats
+    if (error is DioException && error.response?.data is Map) {
+      final data = error.response!.data as Map<String, dynamic>;
+      
+      // Handle custom API validation format
+      if (data.containsKey('field_errors')) {
+        final fieldErrors = data['field_errors'] as Map<String, dynamic>;
+        final result = <String, List<String>>{};
+        
+        fieldErrors.forEach((key, value) {
+          if (value is String) {
+            result[key] = [value];
+          } else if (value is List) {
+            result[key] = value.map((e) => e.toString()).toList();
+          }
+        });
+        
+        return result.isNotEmpty ? result : null;
+      }
+    }
+
+    return super.extractValidationErrors(error);
+  }
+}
+```
+
+### Framework Integration
+
+#### Automatic Integration with JetBuilder
+
+`JetBuilder` automatically uses the configured error handler:
+
+```dart
+class PostsList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return JetBuilder.list<Post>(
+      provider: postsProvider,
+      itemBuilder: (post, index) => PostCard(post: post),
+      // Error handling is automatic!
+      // The framework processes errors through the configured error handler
+    );
+  }
+}
+
+// The provider can throw any type of error
+final postsProvider = AutoDisposeFutureProvider<List<Post>>((ref) async {
+  try {
+    final api = ref.read(apiServiceProvider);
+    return await api.getAllPosts();
+  } catch (error, stackTrace) {
+    // This will be automatically processed by the error handler
+    rethrow;
+  }
+});
+```
+
+#### Custom Error Widgets with JetBuilder
+
+Override the default error widget while still using the error handler:
+
+```dart
+class PostsListWithCustomError extends JetConsumerWidget {
+  @override
+  Widget jetBuild(BuildContext context, WidgetRef ref, Jet jet) {
+    return JetBuilder.list<Post>(
+      provider: postsProvider,
+      itemBuilder: (post, index) => PostCard(post: post),
+      error: (error, stackTrace) {
+        // Process the error through the configured handler
+        final jetError = jet.config.errorHandler.handle(error, stackTrace);
+        
+        return CustomErrorWidget(
+          title: _getErrorTitle(jetError),
+          message: jetError.message,
+          icon: _getErrorIcon(jetError),
+          onRetry: () => ref.refresh(postsProvider),
+          showDetails: jetError.type == JetErrorType.unknown,
+          details: jetError.rawError?.toString(),
+        );
+      },
+    );
+  }
+
+  String _getErrorTitle(JetError error) {
+    switch (error.type) {
+      case JetErrorType.noInternet:
+        return 'No Internet Connection';
+      case JetErrorType.server:
+        return 'Server Error';
+      case JetErrorType.client:
+        return 'Request Error';
+      case JetErrorType.validation:
+        return 'Validation Error';
+      case JetErrorType.timeout:
+        return 'Request Timeout';
+      case JetErrorType.cancelled:
+        return 'Request Cancelled';
+      default:
+        return 'Something Went Wrong';
+    }
+  }
+
+  IconData _getErrorIcon(JetError error) {
+    switch (error.type) {
+      case JetErrorType.noInternet:
+        return Icons.wifi_off;
+      case JetErrorType.server:
+        return Icons.error;
+      case JetErrorType.client:
+        return Icons.warning;
+      case JetErrorType.validation:
+        return Icons.info;
+      case JetErrorType.timeout:
+        return Icons.access_time;
+      case JetErrorType.cancelled:
+        return Icons.cancel;
+      default:
+        return Icons.help_outline;
+    }
+  }
+}
+```
+
+#### Integration with JetPaginator
+
+`JetPaginator` automatically handles errors during pagination:
+
+```dart
+class ProductsPagination extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return JetPaginator.list<Product, Map<String, dynamic>>(
+      fetchPage: (pageKey) async {
+        // Any errors thrown here will be processed by the error handler
+        final response = await api.getProducts(skip: pageKey, limit: 20);
+        return response;
+      },
+      parseResponse: (response, pageKey) => PageInfo(
+        items: (response['products'] as List)
+            .map((json) => Product.fromJson(json))
+            .toList(),
+        nextPageKey: response['skip'] + response['limit'] < response['total']
+            ? response['skip'] + response['limit']
+            : null,
+      ),
+      itemBuilder: (product, index) => ProductCard(product: product),
+      
+      // Custom error handling for pagination
+      errorBuilder: (context, error, retryCallback) {
+        final jetError = context.jet.config.errorHandler.handle(error);
+        
+        return PaginationErrorWidget(
+          message: jetError.message,
+          isNoInternet: jetError.isNoInternet,
+          onRetry: retryCallback,
+        );
+      },
+    );
+  }
+}
+```
+
+### Migration Guide
+
+#### From Manual Error Handling
+
+**Before:**
+```dart
+// Manual error handling
+Future<List<Post>> getPosts() async {
+  try {
+    final response = await dio.get('/posts');
+    return parsePostsResponse(response.data);
+  } on DioException catch (e) {
+    if (e.type == DioExceptionType.connectionTimeout) {
+      throw Exception('Connection timeout');
+    } else if (e.response?.statusCode == 500) {
+      throw Exception('Server error');
+    } else {
+      throw Exception('Something went wrong');
+    }
+  } catch (e) {
+    throw Exception('Unexpected error: $e');
+  }
+}
+```
+
+**After:**
+```dart
+// Using Jet Error Handler
+Future<List<Post>> getPosts() async {
+  try {
+    final response = await dio.get('/posts');
+    return parsePostsResponse(response.data);
+  } catch (error, stackTrace) {
+    final jetError = JetErrorHandler.instance.handle(error, stackTrace);
+    throw jetError;
+  }
+}
+```
+
+#### From Custom Error Classes
+
+**Before:**
+```dart
+// Multiple custom error classes
+class NetworkError extends Error {
+  final String message;
+  NetworkError(this.message);
+}
+
+class ValidationError extends Error {
+  final Map<String, String> errors;
+  ValidationError(this.errors);
+}
+
+class ServerError extends Error {
+  final int statusCode;
+  ServerError(this.statusCode);
+}
+```
+
+**After:**
+```dart
+// Single JetError class with type differentiation
+final networkError = JetError.noInternet();
+final validationError = JetError.validation(errors: validationMap);
+final serverError = JetError.server(statusCode: 500);
+```
+
+### Exception Handling Examples
+
+#### Basic API Service with Error Handling
+
+```dart
+class UserService {
+  final Dio _dio;
+  final JetBaseErrorHandler _errorHandler;
+
+  UserService(this._dio, this._errorHandler);
+
+  Future<User> getUser(String userId) async {
+    try {
+      final response = await _dio.get('/users/$userId');
+      return User.fromJson(response.data);
+    } catch (error, stackTrace) {
+      final jetError = _errorHandler.handle(error, stackTrace);
+      throw jetError;
+    }
+  }
+
+  Future<User> updateUser(String userId, Map<String, dynamic> data) async {
+    try {
+      final response = await _dio.put('/users/$userId', data: data);
+      return User.fromJson(response.data);
+    } catch (error, stackTrace) {
+      final jetError = _errorHandler.handle(error, stackTrace);
+      
+      // Handle validation errors specifically
+      if (jetError.isValidation) {
+        print('Validation errors: ${jetError.allValidationErrors}');
+      }
+      
+      throw jetError;
+    }
+  }
+}
+```
+
+#### Form Validation with Error Display
+
+```dart
+class UserForm extends JetConsumerWidget {
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  Widget jetBuild(BuildContext context, WidgetRef ref, Jet jet) {
+    return Form(
+      key: _formKey,
+      child: Column(
+        children: [
+          TextFormField(
+            decoration: InputDecoration(labelText: 'Email'),
+            validator: (value) => _validateField('email', value, ref),
+          ),
+          TextFormField(
+            decoration: InputDecoration(labelText: 'Password'),
+            validator: (value) => _validateField('password', value, ref),
+            obscureText: true,
+          ),
+          ElevatedButton(
+            onPressed: () => _submitForm(context, ref, jet),
+            child: Text('Submit'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String? _validateField(String field, String? value, WidgetRef ref) {
+    final validationState = ref.watch(formValidationProvider);
+    return validationState.when(
+      data: (errors) => errors?[field]?.first,
+      loading: () => null,
+      error: (error, _) {
+        if (error is JetError && error.isValidation) {
+          return error.errors?[field]?.first;
+        }
+        return null;
+      },
+    );
+  }
+
+  Future<void> _submitForm(BuildContext context, WidgetRef ref, Jet jet) async {
+    if (!_formKey.currentState!.validate()) return;
+
+    try {
+      await ref.read(userServiceProvider).createUser({
+        'email': emailController.text,
+        'password': passwordController.text,
+      });
+      
+      // Success handling
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('User created successfully!')),
+      );
+    } catch (error) {
+      if (error is JetError && error.isValidation) {
+        // Trigger form validation state update
+        ref.read(formValidationProvider.notifier).setErrors(error.errors);
+        _formKey.currentState!.validate();
+      } else {
+        // Show general error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error.toString()),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+}
+```
+
+#### Comprehensive Error Handling in Repository
+
+```dart
+class PostRepository {
+  final ApiClient _apiClient;
+  final JetBaseErrorHandler _errorHandler;
+
+  PostRepository(this._apiClient, this._errorHandler);
+
+  Future<List<Post>> getPosts({int page = 1, int limit = 20}) async {
+    try {
+      final response = await _apiClient.get('/posts', queryParameters: {
+        'page': page,
+        'limit': limit,
+      });
+
+      return (response.data['data'] as List)
+          .map((json) => Post.fromJson(json))
+          .toList();
+    } catch (error, stackTrace) {
+      final jetError = _errorHandler.handle(error, stackTrace);
+      
+      // Log error for analytics/monitoring
+      _logError('getPosts', jetError);
+      
+      throw jetError;
+    }
+  }
+
+  Future<Post> createPost(CreatePostRequest request) async {
+    try {
+      final response = await _apiClient.post('/posts', data: request.toJson());
+      return Post.fromJson(response.data);
+    } catch (error, stackTrace) {
+      final jetError = _errorHandler.handle(error, stackTrace);
+      
+      // Handle specific error types
+      if (jetError.isValidation) {
+        _logValidationError('createPost', jetError.errors);
+      } else if (jetError.isNoInternet) {
+        _showOfflineMessage();
+      }
+      
+      throw jetError;
+    }
+  }
+
+  void _logError(String operation, JetError error) {
+    // Log to your preferred logging/analytics service
+    logger.error('$operation failed', extra: {
+      'error_type': error.type.name,
+      'message': error.message,
+      'status_code': error.statusCode,
+      'metadata': error.metadata,
+    });
+  }
+
+  void _logValidationError(String operation, Map<String, List<String>>? errors) {
+    if (errors == null) return;
+    
+    logger.warning('$operation validation failed', extra: {
+      'validation_errors': errors,
+    });
+  }
+
+  void _showOfflineMessage() {
+    // Show offline indicator or cache data
+  }
+}
+```
+
+### Key Features
+
+- **Comprehensive Error Categorization** - Automatic classification of errors into meaningful types
+- **User-Friendly Messages** - Automatic conversion of technical errors to user-friendly messages
+- **Validation Error Support** - Built-in handling of form validation errors with field-specific messages
+- **Dio Integration** - Full support for all Dio exception types and HTTP status codes
+- **Network Detection** - Intelligent detection of network connectivity issues
+- **Extensible Architecture** - Easy to create custom error handlers for specific requirements
+- **Framework Integration** - Seamless integration with JetBuilder, JetPaginator, and other Jet components
+- **Rich Error Information** - Preserves technical details while providing clean user messages
+- **Debugging Support** - Includes stack traces, raw errors, and metadata for development
+- **Consistent API** - Unified error handling approach across the entire application
+
 ## 🔄 State Management
 
 Jet Framework provides powerful, unified state management built on top of **[Riverpod](https://pub.dev/packages/hooks_riverpod)**, one of Flutter's most robust state management solutions. Jet enhances Riverpod with specialized widgets that eliminate boilerplate and provide common patterns like pull-to-refresh, error handling, and pagination out of the box.
@@ -2230,7 +2277,10 @@ class PostsList extends StatelessWidget {
       ),
       padding: EdgeInsets.all(16),
       loading: Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) => ErrorMessage(error: error),
+      
+      // Built-in error handling with smart retry buttons
+      // Includes loading states, error categorization, and automatic retry
+      error: (error, stackTrace) => ErrorMessage(error: error), // Optional custom error widget
     );
   }
 }
@@ -2990,7 +3040,8 @@ class PostsPage extends JetConsumerWidget {
 - **Infinite Scroll** - `JetPaginator` built on official `infinite_scroll_pagination` package
 - **Universal Pagination** - Works with any API format through `fetchPage` and `parseResponse` functions
 - **Performance Optimized** - Smart loading states, minimal rebuilds, and efficient `PagingController`
-- **Error Handling** - Built-in error widgets with retry functionality
+- **Smart Error Handling** - Built-in error widgets with loading-aware retry buttons and automatic error categorization
+- **Unified Error Experience** - Consistent error handling across regular and family providers
 - **Type Safety** - Full type safety with automatic Dart type inference
 - **JetConsumer Widgets** - Enhanced consumer widgets with Jet instance access
 - **Provider Extensions** - Comprehensive utility extensions for refresh and retry functionality

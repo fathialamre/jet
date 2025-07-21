@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:jet/bootstrap/boot.dart';
-import 'package:jet/exceptions/errors/jet_exception.dart';
 import 'package:jet/extensions/build_context.dart';
 import 'package:jet/resources/components/jet_empty_widget.dart';
 import 'package:jet/resources/components/jet_error_widget.dart';
@@ -13,6 +12,7 @@ import 'package:jet/resources/components/jet_loading_more_widget.dart';
 import 'package:jet/resources/components/jet_no_more_items_widget.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
+import 'package:jet/networking/errors/errors.dart';
 
 /// Information about a page of data from any API
 ///
@@ -53,7 +53,7 @@ class PageInfo<T> {
 /// - **Official Package**: Built on `infinite_scroll_pagination` for robust state management
 /// - Works with ANY API response format
 /// - Support for offset-based, page-based, cursor-based, and custom pagination
-/// - **Smart Error Handling**: Integrated with JetErrorHandler for consistent error management
+/// - **Smart Error Handling**: Built-in error handling with custom error widgets
 /// - Automatic error handling and retry functionality with proper error parsing
 /// - Pull-to-refresh integration with Riverpod invalidate support
 /// - **Optimized builds**: Efficient state management through PagingController
@@ -503,10 +503,9 @@ class _PaginationListWidgetState<T, TResponse>
     if (_pagingController.value.status == PagingStatus.subsequentPageError) {
       final error = _pagingController.value.error;
       if (error != null && context.mounted) {
-        final jetException = _getJetException(error);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(jetException.message),
+            content: Text(error.toString()),
             action: SnackBarAction(
               label: context.jetI10n.retry,
               onPressed: () => _pagingController.fetchNextPage(),
@@ -617,16 +616,6 @@ class _PaginationListWidgetState<T, TResponse>
     return child;
   }
 
-  /// Helper method to get JetException from any error object
-  JetException _getJetException(Object error) {
-    final jet = ref.read(jetProvider);
-    return jet.config.errorHandler.handleError(
-      error,
-      context,
-      stackTrace: StackTrace.current,
-    );
-  }
-
   Widget _buildErrorIndicator(BuildContext context, Object? error) {
     if (error == null) {
       return JetErrorWidget(
@@ -637,12 +626,13 @@ class _PaginationListWidgetState<T, TResponse>
       );
     }
 
-    final jetException = _getJetException(error);
+    final jet = ref.read(jetProvider);
+    final jetError = jet.config.errorHandler.handle(error);
 
     return JetErrorWidget(
-      icon: LucideIcons.info,
-      title: context.jetI10n.somethingWentWrongWhileFetchingNewPage,
-      message: jetException.message,
+      icon: _getErrorIconData(jetError),
+      title: _getErrorTitle(jetError, context),
+      message: jetError.message,
       onTap: () => _pagingController.fetchNextPage(),
     );
   }
@@ -656,15 +646,70 @@ class _PaginationListWidgetState<T, TResponse>
       );
     }
 
-    final jetException = _getJetException(error);
+    final jet = ref.read(jetProvider);
+    final jetError = jet.config.errorHandler.handle(error);
 
     return JetFetchMoreErrorWidget(
       showAction: true,
-      actionText: context.jetI10n.retry,
-      title: context.jetI10n.somethingWentWrongWhileFetchingNewPage,
-      message: jetException.message,
+      actionText: _getRetryButtonText(jetError, context),
+      title: _getErrorTitle(jetError, context),
+      message: jetError.message,
       onTap: () => _pagingController.fetchNextPage(),
     );
+  }
+
+  /// Get error icon data based on JetError type
+  IconData _getErrorIconData(JetError jetError) {
+    switch (jetError.type) {
+      case JetErrorType.noInternet:
+        return LucideIcons.wifiOff;
+      case JetErrorType.server:
+        return LucideIcons.server;
+      case JetErrorType.client:
+        return LucideIcons.info;
+      case JetErrorType.validation:
+        return LucideIcons.info;
+      case JetErrorType.timeout:
+        return LucideIcons.clock;
+      case JetErrorType.cancelled:
+        return LucideIcons.x;
+      case JetErrorType.unknown:
+      default:
+        return LucideIcons.info;
+    }
+  }
+
+  /// Get error title based on JetError type
+  String _getErrorTitle(JetError jetError, BuildContext context) {
+    switch (jetError.type) {
+      case JetErrorType.noInternet:
+        return 'No Internet Connection';
+      case JetErrorType.server:
+        return 'Server Error';
+      case JetErrorType.client:
+        return 'Request Error';
+      case JetErrorType.validation:
+        return 'Validation Error';
+      case JetErrorType.timeout:
+        return 'Request Timeout';
+      case JetErrorType.cancelled:
+        return 'Request Cancelled';
+      case JetErrorType.unknown:
+      default:
+        return context.jetI10n.somethingWentWrongWhileFetchingNewPage;
+    }
+  }
+
+  /// Get retry button text based on JetError type
+  String _getRetryButtonText(JetError jetError, BuildContext context) {
+    switch (jetError.type) {
+      case JetErrorType.noInternet:
+        return 'Check Connection';
+      case JetErrorType.cancelled:
+        return 'Restart';
+      default:
+        return context.jetI10n.retry;
+    }
   }
 }
 
@@ -795,10 +840,9 @@ class _PaginationGridWidgetState<T, TResponse>
     if (_pagingController.value.status == PagingStatus.subsequentPageError) {
       final error = _pagingController.value.error;
       if (error != null && context.mounted) {
-        final jetException = _getJetException(error);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(jetException.message),
+            content: Text(error.toString()),
             action: SnackBarAction(
               label: context.jetI10n.retry,
               onPressed: () => _pagingController.fetchNextPage(),
@@ -916,16 +960,6 @@ class _PaginationGridWidgetState<T, TResponse>
     return child;
   }
 
-  /// Helper method to get JetException from any error object
-  JetException _getJetException(Object error) {
-    final jet = ref.read(jetProvider);
-    return jet.config.errorHandler.handleError(
-      error,
-      context,
-      stackTrace: StackTrace.current,
-    );
-  }
-
   Widget _buildErrorIndicator(BuildContext context, Object? error) {
     if (error == null) {
       return JetErrorWidget(
@@ -939,17 +973,72 @@ class _PaginationGridWidgetState<T, TResponse>
       );
     }
 
-    final jetException = _getJetException(error);
+    final jet = ref.read(jetProvider);
+    final jetError = jet.config.errorHandler.handle(error);
 
     return JetErrorWidget(
-      icon: LucideIcons.info,
-      title: context.jetI10n.somethingWentWrongWhileFetchingNewPage,
-      message: jetException.message,
+      icon: _getErrorIconData(jetError),
+      title: _getErrorTitle(jetError, context),
+      message: jetError.message,
       onTap: () {
         widget.onRetry?.call();
         _pagingController.fetchNextPage();
       },
     );
+  }
+
+  /// Get error icon data based on JetError type
+  IconData _getErrorIconData(JetError jetError) {
+    switch (jetError.type) {
+      case JetErrorType.noInternet:
+        return LucideIcons.wifiOff;
+      case JetErrorType.server:
+        return LucideIcons.server;
+      case JetErrorType.client:
+        return LucideIcons.info;
+      case JetErrorType.validation:
+        return LucideIcons.triangleAlert;
+      case JetErrorType.timeout:
+        return LucideIcons.clock;
+      case JetErrorType.cancelled:
+        return LucideIcons.x;
+      case JetErrorType.unknown:
+      default:
+        return LucideIcons.info;
+    }
+  }
+
+  /// Get error title based on JetError type
+  String _getErrorTitle(JetError jetError, BuildContext context) {
+    switch (jetError.type) {
+      case JetErrorType.noInternet:
+        return 'No Internet Connection';
+      case JetErrorType.server:
+        return 'Server Error';
+      case JetErrorType.client:
+        return 'Request Error';
+      case JetErrorType.validation:
+        return 'Validation Error';
+      case JetErrorType.timeout:
+        return 'Request Timeout';
+      case JetErrorType.cancelled:
+        return 'Request Cancelled';
+      case JetErrorType.unknown:
+      default:
+        return context.jetI10n.somethingWentWrongWhileFetchingNewPage;
+    }
+  }
+
+  /// Get retry button text based on JetError type
+  String _getRetryButtonText(JetError jetError, BuildContext context) {
+    switch (jetError.type) {
+      case JetErrorType.noInternet:
+        return 'Check Connection';
+      case JetErrorType.cancelled:
+        return 'Restart';
+      default:
+        return context.jetI10n.retry;
+    }
   }
 
   Widget _buildFetchMoreErrorIndicator(BuildContext context, Object? error) {
@@ -961,13 +1050,14 @@ class _PaginationGridWidgetState<T, TResponse>
       );
     }
 
-    final jetException = _getJetException(error);
+    final jet = ref.read(jetProvider);
+    final jetError = jet.config.errorHandler.handle(error);
 
     return JetFetchMoreErrorWidget(
       showAction: true,
-      actionText: context.jetI10n.retry,
-      title: context.jetI10n.somethingWentWrongWhileFetchingNewPage,
-      message: jetException.message,
+      actionText: _getRetryButtonText(jetError, context),
+      title: _getErrorTitle(jetError, context),
+      message: jetError.message,
       onTap: () => _pagingController.fetchNextPage(),
     );
   }

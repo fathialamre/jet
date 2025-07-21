@@ -419,12 +419,7 @@ abstract class JetApiService {
       } else if (fallback != null) {
         return fallback;
       } else if (throwOnError) {
-        throw JetApiError(
-          type: JetErrorType.serverError,
-          message: responseModel.message ?? 'Request failed',
-          statusCode: responseModel.statusCode,
-          data: responseModel.data,
-        );
+        throw Exception(responseModel.message ?? 'Request failed');
       } else {
         return responseModel.data!;
       }
@@ -529,15 +524,8 @@ abstract class JetApiService {
   Interceptor _createErrorInterceptor() {
     return InterceptorsWrapper(
       onError: (DioException error, ErrorInterceptorHandler handler) {
-        final jetError = _createJetError(error);
-        handler.next(
-          DioException(
-            requestOptions: error.requestOptions,
-            error: jetError,
-            type: error.type,
-            response: error.response,
-          ),
-        );
+        // Just pass through the DioException without modification
+        handler.next(error);
       },
     );
   }
@@ -566,81 +554,12 @@ abstract class JetApiService {
     );
   }
 
-  /// Create standardized error from DioException
-  JetApiError _createJetError(DioException dioError) {
-    switch (dioError.type) {
-      case DioExceptionType.connectionTimeout:
-        return JetApiError(
-          type: JetErrorType.connectionTimeout,
-          message: 'Connection timeout',
-          statusCode: null,
-          data: dioError.response?.data,
-        );
-      case DioExceptionType.sendTimeout:
-        return JetApiError(
-          type: JetErrorType.sendTimeout,
-          message: 'Send timeout',
-          statusCode: null,
-          data: dioError.response?.data,
-        );
-      case DioExceptionType.receiveTimeout:
-        return JetApiError(
-          type: JetErrorType.receiveTimeout,
-          message: 'Receive timeout',
-          statusCode: null,
-          data: dioError.response?.data,
-        );
-      case DioExceptionType.badResponse:
-        return JetApiError(
-          type: JetErrorType.serverError,
-          message: dioError.response?.statusMessage ?? 'Server error',
-          statusCode: dioError.response?.statusCode,
-          data: dioError.response?.data,
-        );
-      case DioExceptionType.cancel:
-        return JetApiError(
-          type: JetErrorType.cancelled,
-          message: 'Request cancelled',
-          statusCode: null,
-          data: null,
-        );
-      case DioExceptionType.connectionError:
-        return JetApiError(
-          type: JetErrorType.connectionError,
-          message: 'Connection error',
-          statusCode: null,
-          data: null,
-        );
-      case DioExceptionType.badCertificate:
-        return JetApiError(
-          type: JetErrorType.certificateError,
-          message: 'Certificate error',
-          statusCode: null,
-          data: null,
-        );
-      case DioExceptionType.unknown:
-        return JetApiError(
-          type: JetErrorType.unknown,
-          message: dioError.message ?? 'Unknown error',
-          statusCode: null,
-          data: dioError.response?.data,
-        );
-    }
-  }
-
   /// Handle and transform errors
   Exception _handleError(dynamic error) {
-    if (error is DioException && error.error is JetApiError) {
-      return error.error as JetApiError;
-    } else if (error is DioException) {
-      return _createJetError(error);
+    if (error is DioException) {
+      return error;
     } else {
-      return JetApiError(
-        type: JetErrorType.unknown,
-        message: error.toString(),
-        statusCode: null,
-        data: null,
-      );
+      return Exception(error.toString());
     }
   }
 
@@ -650,53 +569,4 @@ abstract class JetApiService {
     // For now, using print for simplicity
     print('[JetApi] $message');
   }
-}
-
-/// Custom error types for better error handling
-enum JetErrorType {
-  connectionTimeout,
-  sendTimeout,
-  receiveTimeout,
-  serverError,
-  connectionError,
-  certificateError,
-  cancelled,
-  unknown,
-}
-
-/// Custom error class for standardized error handling
-class JetApiError implements Exception {
-  final JetErrorType type;
-  final String message;
-  final int? statusCode;
-  final dynamic data;
-
-  JetApiError({
-    required this.type,
-    required this.message,
-    this.statusCode,
-    this.data,
-  });
-
-  @override
-  String toString() {
-    return 'JetApiError{type: $type, message: $message, statusCode: $statusCode, data: $data}';
-  }
-
-  /// Check if the error is a specific HTTP status code
-  bool isStatusCode(int code) => statusCode == code;
-
-  /// Check if the error is a client error (4xx)
-  bool get isClientError =>
-      statusCode != null && statusCode! >= 400 && statusCode! < 500;
-
-  /// Check if the error is a server error (5xx)
-  bool get isServerError => statusCode != null && statusCode! >= 500;
-
-  /// Check if the error is a network-related error
-  bool get isNetworkError =>
-      type == JetErrorType.connectionError ||
-      type == JetErrorType.connectionTimeout ||
-      type == JetErrorType.sendTimeout ||
-      type == JetErrorType.receiveTimeout;
 }

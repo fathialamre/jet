@@ -63,33 +63,6 @@ class PostsPage extends ConsumerWidget {
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
           ),
         ),
-        // JetBuilder now automatically handles all errors using the new JetErrorHandler:
-        // - Network timeouts are shown with appropriate timeout messages
-        // - Connection errors display network-specific error messages
-        // - Server errors (5xx) show server-related error messages
-        // - Client errors (4xx) display client-specific error messages
-        // - All errors include retry functionality and proper error categorization
-
-        // Optional: Custom loading indicator
-        // loading: const Center(child: CircularProgressIndicator()),
-
-        // Optional: Custom error handler (overrides the automatic error handling)
-        // error: (error, stack) => Center(
-        //   child: Column(
-        //     mainAxisAlignment: MainAxisAlignment.center,
-        //     children: [
-        //       const Icon(Icons.error, color: Colors.red, size: 48),
-        //       const SizedBox(height: 16),
-        //       Text('Failed to load posts: ${error.toString()}'),
-        //     ],
-        //   ),
-        // ),
-
-        // Optional: Custom refresh handler
-        // onRefresh: () async {
-        //   print('Custom refresh logic here');
-        //   ref.invalidate(postsProvider('1'));
-        // },
       ),
     );
   }

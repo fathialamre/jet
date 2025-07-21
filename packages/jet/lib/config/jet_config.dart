@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:jet/adapters/jet_adapter.dart';
-import 'package:jet/exceptions/errors/jet_error_handler.dart';
-import 'package:jet/jet.dart';
 import 'package:jet/localization/models/locale_info.dart';
-import 'package:jet/resources/components/jet_error_widget.dart';
 import 'package:jet/resources/components/jet_loader.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:jet/networking/errors/errors.dart';
 
 /// Configuration class for Jet framework that defines app-wide settings.
 ///
@@ -91,8 +88,8 @@ abstract class JetConfig {
 
   /// The error handler for the application.
   ///
-  /// Handles and converts errors to JetExceptions for consistent error management.
-  /// Can be overridden to provide custom error handling logic.
-  /// Example: `CustomErrorHandler()` or `JetErrorHandler()`
-  JetErrorHandler get errorHandler => JetErrorHandler();
+  /// Returns the default JetErrorHandler by default.
+  /// Override this to provide custom error handling logic.
+  /// Example: `MyCustomErrorHandler()`
+  JetBaseErrorHandler get errorHandler => JetErrorHandler.instance;
 }

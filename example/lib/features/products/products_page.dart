@@ -35,9 +35,9 @@ class ProductsPage extends JetConsumerWidget {
           ),
         ],
       ),
-      body: JetPaginator.grid<Product, PaginationResponse<Product>>(
+      body: JetPaginator.list<Product, PaginationResponse<Product>>(
         firstPageKey: 0,
-        crossAxisCount: 2,
+        enablePullToRefresh: true,
         fetchPage: (pageKey) async {
           // Use the existing provider family
           final int skip = pageKey as int;

@@ -3,7 +3,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:jet/jet.dart';
 import 'package:jet/resources/state/jet_consumer.dart';
-import 'package:jet/exceptions/errors/jet_exception.dart';
+import 'package:jet/networking/errors/errors.dart';
+import 'package:jet/widgets/widgets/buttons/jet_button.dart';
 
 /// Unified state management for Jet framework
 ///
@@ -12,7 +13,7 @@ import 'package:jet/exceptions/errors/jet_exception.dart';
 /// - Loading and error states
 /// - Lists, grids, and single items
 /// - Provider families
-/// - Integrated error handling with JetErrorHandler
+/// - Built-in error handling with custom error widgets
 /// - Pagination (see JetPaginator for infinite scroll)
 ///
 /// ## Basic Usage
@@ -352,6 +353,134 @@ class JetBuilder {
 }
 
 // =============================================================================
+// ERROR HANDLING HELPER FUNCTIONS
+// =============================================================================
+
+/// Build a retry button with loading state management
+Widget _buildRetryButton<T>({
+  required JetError jetError,
+  required WidgetRef ref,
+  required VoidCallback? onRetry,
+  required AutoDisposeFutureProvider<T> provider,
+}) {
+  return JetConsumer(
+    builder: (context, ref, jet) {
+      final isLoading = ref.watch(provider).isLoading;
+      final loader = jet.config.loader;
+      return ElevatedButton(
+        onPressed: isLoading ? null : onRetry,
+        child: isLoading
+            ? SizedBox(
+                width: 20,
+                height: 20,
+                child: loader,
+              )
+            : Text(_getRetryButtonText(jetError)),
+      );
+    },
+  );
+}
+
+/// Build error icon based on JetError type
+Widget _buildErrorIcon(JetError jetError) {
+  IconData iconData;
+  Color color;
+
+  switch (jetError.type) {
+    case JetErrorType.noInternet:
+      iconData = Icons.wifi_off;
+      color = Colors.orange;
+      break;
+    case JetErrorType.server:
+      iconData = Icons.dns;
+      color = Colors.red;
+      break;
+    case JetErrorType.client:
+      iconData = Icons.error_outline;
+      color = Colors.red;
+      break;
+    case JetErrorType.validation:
+      iconData = Icons.warning;
+      color = Colors.amber;
+      break;
+    case JetErrorType.timeout:
+      iconData = Icons.access_time;
+      color = Colors.orange;
+      break;
+    case JetErrorType.cancelled:
+      iconData = Icons.cancel;
+      color = Colors.grey;
+      break;
+    case JetErrorType.unknown:
+      iconData = Icons.error_outline;
+      color = Colors.red;
+      break;
+  }
+
+  return Icon(iconData, size: 48, color: color);
+}
+
+/// Get error title based on JetError type
+String _getErrorTitle(JetError jetError) {
+  switch (jetError.type) {
+    case JetErrorType.noInternet:
+      return 'No Internet Connection';
+    case JetErrorType.server:
+      return 'Server Error';
+    case JetErrorType.client:
+      return 'Request Error';
+    case JetErrorType.validation:
+      return 'Validation Error';
+    case JetErrorType.timeout:
+      return 'Request Timeout';
+    case JetErrorType.cancelled:
+      return 'Request Cancelled';
+    case JetErrorType.unknown:
+    default:
+      return 'Something went wrong';
+  }
+}
+
+/// Get retry button text based on JetError type
+String _getRetryButtonText(JetError jetError) {
+  switch (jetError.type) {
+    case JetErrorType.noInternet:
+      return 'Check Connection';
+    case JetErrorType.cancelled:
+      return 'Restart';
+    default:
+      return 'Retry';
+  }
+}
+
+/// Build validation errors widget
+Widget _buildValidationErrors(Map<String, List<String>> errors) {
+  return Container(
+    padding: const EdgeInsets.all(12.0),
+    decoration: BoxDecoration(
+      color: Colors.red.shade50,
+      border: Border.all(color: Colors.red.shade300),
+      borderRadius: BorderRadius.circular(8.0),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: errors.entries.map((entry) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 4.0),
+          child: Text(
+            '${entry.key}: ${entry.value.join(', ')}',
+            style: TextStyle(
+              color: Colors.red.shade700,
+              fontSize: 12,
+            ),
+          ),
+        );
+      }).toList(),
+    ),
+  );
+}
+
+// =============================================================================
 // INTERNAL IMPLEMENTATION WIDGETS
 // =============================================================================
 
@@ -430,50 +559,58 @@ class _StateWidget<T> extends JetConsumerWidget {
     WidgetRef ref,
     BuildContext context,
   ) {
-    final jetException = _getJetException(error, jet, ref, context);
+    // Use the error handler to process the error
+    final jetError = jet.config.errorHandler.handle(error, stackTrace);
 
-    return SingleChildScrollView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      child: Container(
-        constraints: const BoxConstraints(minHeight: 300),
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 48, color: Colors.red),
-            const SizedBox(height: 16),
-            const Text(
-              'Something went wrong',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: constraints.maxHeight,
             ),
-            const SizedBox(height: 8),
-            Text(
-              jetException.message,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.grey),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: onRetry ?? () => ref.invalidate(provider),
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    _buildErrorIcon(jetError),
+                    const SizedBox(height: 16),
+                    Text(
+                      _getErrorTitle(jetError),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      jetError.message,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+                    if (jetError.isValidation && jetError.errors != null) ...[
+                      const SizedBox(height: 12),
+                      _buildValidationErrors(jetError.errors!),
+                    ],
+                    const SizedBox(height: 16),
 
-  /// Helper method to get JetException from any error object
-  JetException _getJetException(
-    Object error,
-    Jet jet,
-    WidgetRef ref,
-    BuildContext context,
-  ) {
-    return jet.config.errorHandler.handleError(
-      error,
-      context,
-      stackTrace: StackTrace.current,
+                    _buildRetryButton(
+                      jetError: jetError,
+                      ref: ref,
+                      onRetry: onRetry ?? () => ref.invalidate(provider),
+                      provider: provider,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -557,50 +694,59 @@ class _StateFamilyWidget<T, Param> extends JetConsumerWidget {
     BuildContext context,
   ) {
     final familyProvider = provider(param);
-    final jetException = _getJetException(error, jet, ref, context);
 
-    return SingleChildScrollView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      child: Container(
-        constraints: const BoxConstraints(minHeight: 300),
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 48, color: Colors.red),
-            const SizedBox(height: 16),
-            const Text(
-              'Something went wrong',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              jetException.message,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.grey),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: onRetry ?? () => ref.invalidate(familyProvider),
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+    // Use the error handler to process the error
+    final jetError = jet.config.errorHandler.handle(error, stackTrace);
 
-  /// Helper method to get JetException from any error object
-  JetException _getJetException(
-    Object error,
-    Jet jet,
-    WidgetRef ref,
-    BuildContext context,
-  ) {
-    return jet.config.errorHandler.handleError(
-      error,
-      context,
-      stackTrace: StackTrace.current,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: constraints.maxHeight,
+            ),
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    _buildErrorIcon(jetError),
+                    const SizedBox(height: 16),
+                    Text(
+                      _getErrorTitle(jetError),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      jetError.message,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+                    if (jetError.isValidation && jetError.errors != null) ...[
+                      const SizedBox(height: 12),
+                      _buildValidationErrors(jetError.errors!),
+                    ],
+                    const SizedBox(height: 16),
+
+                    _buildRetryButton<T>(
+                      jetError: jetError,
+                      ref: ref,
+                      onRetry: onRetry ?? () => ref.invalidate(familyProvider),
+                      provider: familyProvider,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
