@@ -39,6 +39,19 @@ class FormBuilderPhoneNumberField extends HookWidget {
       decoration: InputDecoration(
         prefixIcon: showPrefixIcon ? Icon(LucideIcons.phone) : prefixIcon,
         hintText: hintText,
+        border: UnderlineInputBorder(),
+        enabledBorder: UnderlineInputBorder(),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.primary,
+            width: 2.0,
+          ),
+        ),
+        errorBorder: UnderlineInputBorder(
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.error,
+          ),
+        ),
       ),
       validator: validator ??
           FormBuilderValidators.compose([

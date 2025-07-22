@@ -56,6 +56,19 @@ class FormBuilderPasswordField extends HookWidget {
       decoration: InputDecoration(
         prefixIcon: showPrefixIcon ? Icon(LucideIcons.lock) : prefixIcon,
         hintText: hintText,
+        border: UnderlineInputBorder(),
+        enabledBorder: UnderlineInputBorder(),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.primary,
+            width: 2.0,
+          ),
+        ),
+        errorBorder: UnderlineInputBorder(
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.error,
+          ),
+        ),
         suffixIcon: IconButton(
           icon: Icon(
             obscureText.value ? LucideIcons.eye : LucideIcons.eyeClosed,
