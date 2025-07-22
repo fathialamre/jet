@@ -166,6 +166,15 @@ flutter run
   - [Migration Guide](#migration-guide)
   - [Exception Handling Examples](#exception-handling-examples)
   - [Key Features](#key-features-4)
+- [Forms](#-forms)
+  - [Core Components](#core-components-2)
+  - [AsyncFormValue - Form State Management](#asyncformvalue---form-state-management)
+  - [JetFormNotifier - Form Controller](#jetformnotifier---form-controller)
+  - [JetFormBuilder - Form Widget](#jetformbuilder---form-widget)
+  - [Form Input Components](#form-input-components)
+  - [Form Examples](#form-examples)
+  - [Error Handling in Forms](#error-handling-in-forms)
+  - [Key Features](#key-features-6)
 - [State Management](#-state-management)
   - [Core Components](#core-components-1)
   - [JetBuilder - Unified State Management](#jetbuilder---unified-state-management)
@@ -2223,6 +2232,637 @@ class PostRepository {
 - **Rich Error Information** - Preserves technical details while providing clean user messages
 - **Debugging Support** - Includes stack traces, raw errors, and metadata for development
 - **Consistent API** - Unified error handling approach across the entire application
+
+## 📝 Forms
+
+Jet Framework provides a powerful, type-safe form management system built on top of **[Flutter Form Builder](https://pub.dev/packages/flutter_form_builder)** with seamless integration with Riverpod state management. The forms system includes automatic error handling, validation, field invalidation, and specialized input components for common use cases.
+
+**Key Philosophy**: Forms should be simple to create, type-safe, and handle all common scenarios (loading, validation errors, success states) with minimal boilerplate while providing maximum flexibility for customization.
+
+### Core Components
+
+The Jet forms system consists of several key components that work together:
+
+| Component | Description |
+|-----------|-------------|
+| `AsyncFormValue<Request, Response>` | Type-safe form state management inspired by Riverpod's AsyncValue |
+| `JetFormNotifier<Request, Response>` | Abstract form controller with built-in error handling and validation |
+| `JetFormBuilder<Request, Response>` | Main widget for building forms with automatic state management |
+| `FormBuilderPasswordField` | Enhanced password field with visibility toggle |
+| `FormBuilderPhoneNumberField` | Phone number field with built-in validation |
+| `JetPinField` | Customizable PIN/OTP input field with theme support |
+
+### AsyncFormValue - Form State Management
+
+`AsyncFormValue` provides type-safe state management for forms, handling the complete form lifecycle from initial state to success or error states.
+
+#### AsyncFormValue States
+
+| State | Description | Use Case |
+|-------|-------------|----------|
+| `AsyncFormData<Request, Response>` | Form has completed successfully with request and response data | Show success message, redirect, or update UI |
+| `AsyncFormError<Request, Response>` | Form submission failed with error details | Display errors, highlight invalid fields |
+| `AsyncFormLoading<Request, Response>` | Form is currently submitting | Show loading spinner, disable submit button |
+
+#### AsyncFormValue API
+
+```dart
+// Creating form states
+final loadingState = AsyncFormValue<LoginRequest, User>.loading();
+final successState = AsyncFormValue<LoginRequest, User>.data(
+  request: loginRequest,
+  response: user,
+);
+final errorState = AsyncFormValue<LoginRequest, User>.error(
+  error,
+  stackTrace,
+  request: loginRequest, // Optional: preserve request data
+);
+
+// Checking state
+bool isSubmitting = formState.isLoading;
+bool hasData = formState.hasValue;
+bool hasError = formState.hasError;
+
+// Pattern matching
+formState.map(
+  data: (data) => print('Success: ${data.response.name}'),
+  error: (error) => print('Error: ${error.error}'),
+  loading: (loading) => print('Submitting...'),
+);
+```
+
+### JetFormNotifier - Form Controller
+
+`JetFormNotifier` is an abstract class that provides the foundation for form controllers. It handles form submission, validation, error processing, and field invalidation automatically.
+
+#### Creating a Form Controller
+
+```dart
+class LoginFormNotifier extends JetFormNotifier<LoginRequest, User> {
+  LoginFormNotifier(super.ref);
+
+  @override
+  LoginRequest decoder(Map<String, dynamic> formData) {
+    return LoginRequest(
+      email: formData['email'] as String,
+      password: formData['password'] as String,
+      rememberMe: formData['remember_me'] as bool? ?? false,
+    );
+  }
+
+  @override
+  Future<User> action(LoginRequest data) async {
+    final authService = ref.read(authServiceProvider);
+    return await authService.login(data.email, data.password);
+  }
+}
+
+// Provider definition
+final loginFormProvider = AutoDisposeStateNotifierProvider<
+  LoginFormNotifier,
+  AsyncFormValue<LoginRequest, User>
+>((ref) => LoginFormNotifier(ref));
+```
+
+#### Form Controller Methods
+
+| Method | Description |
+|--------|-------------|
+| `submit()` | Validates and submits the form with automatic error handling |
+| `reset()` | Resets the form to initial state |
+| `invalidateFields()` | Invalidates specific form fields with error messages |
+| `invalidateFieldsFromJetError()` | Automatically invalidates fields from JetError validation errors |
+| `decoder()` | **Abstract** - Convert form data to request object |
+| `action()` | **Abstract** - Perform form submission with request data |
+
+### JetFormBuilder - Form Widget
+
+`JetFormBuilder` is the main widget for creating forms. It automatically handles state management, error display, field validation, and success callbacks.
+
+#### Basic Form Example
+
+```dart
+class LoginForm extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return JetFormBuilder<LoginRequest, User>(
+      provider: loginFormProvider,
+      onSuccess: (user, request) {
+        // Handle successful login
+        context.router.pushNamed('/dashboard');
+        context.showToast('Welcome back, ${user.name}!');
+      },
+      builder: (context, ref, form, formState) => [
+        // Email field
+        FormBuilderTextField(
+          name: 'email',
+          decoration: InputDecoration(
+            labelText: 'Email',
+            prefixIcon: Icon(Icons.email),
+          ),
+          validator: FormBuilderValidators.compose([
+            FormBuilderValidators.required(),
+            FormBuilderValidators.email(),
+          ]),
+        ),
+        
+        // Password field with enhanced component
+        FormBuilderPasswordField(
+          name: 'password',
+          hintText: 'Enter your password',
+          isRequired: true,
+        ),
+        
+        // Remember me checkbox
+        FormBuilderCheckbox(
+          name: 'remember_me',
+          title: Text('Remember me'),
+          initialValue: false,
+        ),
+        
+        // Submit button shows loading state automatically
+        if (formState.isLoading)
+          CircularProgressIndicator()
+        else
+          JetButton(
+            text: 'Sign In',
+            onTap: form.submit,
+          ),
+      ],
+    );
+  }
+}
+```
+
+#### JetFormBuilder Configuration
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `provider` | `JetFormProvider<Request, Response>` | The form state provider |
+| `builder` | `Function` | Builder function that returns list of form widgets |
+| `onSuccess` | `Function?` | Callback when form submission succeeds |
+| `onError` | `Function?` | Custom error handling callback |
+| `initialValues` | `Map<String, dynamic>` | Initial form field values |
+| `useDefaultErrorHandler` | `bool` | Whether to use Jet's error handler (default: true) |
+| `showErrorSnackBar` | `bool` | Show error messages as toast (default: true) |
+| `submitButtonText` | `String` | Text for default submit button |
+| `showDefaultSubmitButton` | `bool` | Whether to show default submit button |
+| `fieldSpacing` | `double` | Spacing between form fields |
+
+### Form Input Components
+
+Jet provides specialized input components that integrate seamlessly with the form system:
+
+#### FormBuilderPasswordField
+
+Enhanced password field with visibility toggle and validation:
+
+```dart
+FormBuilderPasswordField(
+  name: 'password',
+  hintText: 'Enter your password',
+  isRequired: true,
+  showPrefixIcon: true,
+  validator: FormBuilderValidators.compose([
+    FormBuilderValidators.required(),
+    FormBuilderValidators.minLength(8),
+  ]),
+  
+  // Password confirmation
+  identicalWith: 'confirm_password', // Must match another field
+  formKey: formKey, // Required when using identicalWith
+),
+
+FormBuilderPasswordField(
+  name: 'confirm_password',
+  hintText: 'Confirm your password',
+  isRequired: true,
+  identicalWith: 'password',
+  formKey: formKey,
+),
+```
+
+#### FormBuilderPhoneNumberField  
+
+Phone number field with built-in validation:
+
+```dart
+FormBuilderPhoneNumberField(
+  name: 'phone',
+  hintText: 'Enter phone number',
+  isRequired: true,
+  showPrefixIcon: true,
+  validator: FormBuilderValidators.compose([
+    FormBuilderValidators.required(),
+    FormBuilderValidators.minLength(10),
+    FormBuilderValidators.maxLength(15),
+    FormBuilderValidators.numeric(),
+  ]),
+),
+```
+
+#### JetPinField
+
+Customizable PIN/OTP input field:
+
+```dart
+JetPinField(
+  name: 'otp_code',
+  length: 6,
+  autofocus: true,
+  borderRadius: 12,
+  onCompleted: (pin) {
+    // Auto-submit when PIN is complete
+    form.submit();
+  },
+  onChanged: (value) {
+    print('PIN: $value');
+  },
+  validator: FormBuilderValidators.compose([
+    FormBuilderValidators.required(),
+    FormBuilderValidators.exactLength(6),
+    FormBuilderValidators.numeric(),
+  ]),
+  
+  // Custom theme
+  defaultPinTheme: PinTheme(
+    width: 56,
+    height: 56,
+    textStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+    decoration: BoxDecoration(
+      color: Colors.grey[100],
+      borderRadius: BorderRadius.circular(12),
+    ),
+  ),
+  focusedPinTheme: PinTheme(
+    decoration: BoxDecoration(
+      color: Colors.blue[50],
+      border: Border.all(color: Colors.blue, width: 2),
+      borderRadius: BorderRadius.circular(12),
+    ),
+  ),
+),
+```
+
+### Form Examples
+
+#### Registration Form with Validation
+
+```dart
+class RegistrationFormNotifier extends JetFormNotifier<RegistrationRequest, User> {
+  RegistrationFormNotifier(super.ref);
+
+  @override
+  RegistrationRequest decoder(Map<String, dynamic> formData) {
+    return RegistrationRequest(
+      name: formData['name'] as String,
+      email: formData['email'] as String,
+      password: formData['password'] as String,
+      phone: formData['phone'] as String,
+      agreeToTerms: formData['agree_terms'] as bool,
+    );
+  }
+
+  @override
+  Future<User> action(RegistrationRequest data) async {
+    final authService = ref.read(authServiceProvider);
+    return await authService.register(data);
+  }
+}
+
+class RegistrationForm extends StatelessWidget {
+  final _formKey = GlobalKey<FormBuilderState>();
+
+  @override
+  Widget build(BuildContext context) {
+    return JetFormBuilder<RegistrationRequest, User>(
+      provider: registrationFormProvider,
+      initialValues: {
+        'agree_terms': false,
+      },
+      onSuccess: (user, request) {
+        context.router.pushNamed('/verify-email');
+        context.showToast('Account created! Please verify your email.');
+      },
+      onError: (error, stackTrace, invalidateFields) {
+        // Custom error handling
+        if (error is JetError && error.statusCode == 409) {
+          context.showToast('Email already exists. Please try signing in.');
+        }
+      },
+      builder: (context, ref, form, formState) => [
+        // Name field
+        FormBuilderTextField(
+          name: 'name',
+          decoration: InputDecoration(
+            labelText: 'Full Name',
+            prefixIcon: Icon(Icons.person),
+          ),
+          validator: FormBuilderValidators.compose([
+            FormBuilderValidators.required(),
+            FormBuilderValidators.minLength(2),
+          ]),
+        ),
+        
+        // Email field
+        FormBuilderTextField(
+          name: 'email',
+          decoration: InputDecoration(
+            labelText: 'Email Address',
+            prefixIcon: Icon(Icons.email),
+          ),
+          validator: FormBuilderValidators.compose([
+            FormBuilderValidators.required(),
+            FormBuilderValidators.email(),
+          ]),
+        ),
+        
+        // Phone field
+        FormBuilderPhoneNumberField(
+          name: 'phone',
+          hintText: 'Phone Number',
+          isRequired: true,
+        ),
+        
+        // Password field
+        FormBuilderPasswordField(
+          name: 'password',
+          hintText: 'Password',
+          formKey: _formKey,
+        ),
+        
+        // Confirm password
+        FormBuilderPasswordField(
+          name: 'confirm_password',
+          hintText: 'Confirm Password',
+          identicalWith: 'password',
+          formKey: _formKey,
+        ),
+        
+        // Terms checkbox
+        FormBuilderCheckbox(
+          name: 'agree_terms',
+          title: Text('I agree to the Terms of Service and Privacy Policy'),
+          validator: FormBuilderValidators.equal(
+            true,
+            errorText: 'You must agree to the terms',
+          ),
+        ),
+        
+        // Submit button with loading state
+        SizedBox(
+          width: double.infinity,
+          child: formState.isLoading
+              ? Center(child: CircularProgressIndicator())
+              : JetButton(
+                  text: 'Create Account',
+                  onTap: form.submit,
+                ),
+        ),
+      ],
+    );
+  }
+}
+```
+
+#### OTP Verification Form
+
+```dart
+class OTPFormNotifier extends JetFormNotifier<OTPRequest, VerificationResponse> {
+  OTPFormNotifier(super.ref);
+
+  @override
+  OTPRequest decoder(Map<String, dynamic> formData) {
+    return OTPRequest(
+      code: formData['otp_code'] as String,
+      email: formData['email'] as String,
+    );
+  }
+
+  @override
+  Future<VerificationResponse> action(OTPRequest data) async {
+    final authService = ref.read(authServiceProvider);
+    return await authService.verifyOTP(data.email, data.code);
+  }
+}
+
+class OTPForm extends StatelessWidget {
+  final String email;
+  
+  const OTPForm({required this.email});
+
+  @override
+  Widget build(BuildContext context) {
+    return JetFormBuilder<OTPRequest, VerificationResponse>(
+      provider: otpFormProvider,
+      initialValues: {
+        'email': email,
+      },
+      onSuccess: (response, request) {
+        context.router.pushNamed('/dashboard');
+        context.showToast('Email verified successfully!');
+      },
+      showDefaultSubmitButton: false,
+      builder: (context, ref, form, formState) => [
+        // Hidden email field
+        FormBuilderTextField(
+          name: 'email',
+          decoration: InputDecoration.collapsed(hintText: ''),
+          style: TextStyle(height: 0, color: Colors.transparent),
+          enabled: false,
+        ),
+        
+        Text(
+          'Enter the verification code sent to $email',
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
+        
+        // PIN input field
+        JetPinField(
+          name: 'otp_code',
+          length: 6,
+          autofocus: true,
+          onCompleted: (pin) {
+            // Auto-submit when complete
+            form.submit();
+          },
+          validator: FormBuilderValidators.compose([
+            FormBuilderValidators.required(),
+            FormBuilderValidators.exactLength(6),
+            FormBuilderValidators.numeric(),
+          ]),
+        ),
+        
+        if (formState.isLoading) ...[
+          SizedBox(height: 20),
+          Center(child: CircularProgressIndicator()),
+          Text(
+            'Verifying code...',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+        ],
+        
+        SizedBox(height: 20),
+        
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            TextButton(
+              onPressed: () => form.reset(),
+              child: Text('Clear'),
+            ),
+            TextButton(
+              onPressed: formState.isLoading ? null : _resendCode,
+              child: Text('Resend Code'),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+  
+  void _resendCode() {
+    // Resend code logic
+  }
+}
+```
+
+### Error Handling in Forms
+
+Jet forms integrate seamlessly with the framework's error handling system to provide comprehensive error management:
+
+#### Automatic Error Processing
+
+```dart
+class ContactFormNotifier extends JetFormNotifier<ContactRequest, ContactResponse> {
+  ContactFormNotifier(super.ref);
+
+  @override
+  Future<ContactResponse> action(ContactRequest data) async {
+    try {
+      final response = await api.submitContact(data);
+      return response;
+    } catch (error, stackTrace) {
+      // Error is automatically processed by JetFormNotifier
+      // using the configured JetErrorHandler
+      rethrow;
+    }
+  }
+  
+  // ... decoder implementation
+}
+```
+
+#### Field-Level Error Handling
+
+The form system automatically handles field-level validation errors:
+
+```dart
+// When the API returns validation errors in this format:
+// {
+//   "message": "Validation failed",
+//   "errors": {
+//     "email": ["Email is required", "Invalid email format"],
+//     "password": ["Password must be at least 8 characters"]
+//   }
+// }
+
+// JetFormBuilder automatically:
+// 1. Processes the error through JetErrorHandler
+// 2. Extracts field-level validation errors
+// 3. Invalidates specific form fields
+// 4. Displays field errors under respective inputs
+// 5. Shows general error message as toast
+```
+
+#### Custom Error Handling
+
+```dart
+JetFormBuilder<LoginRequest, User>(
+  provider: loginFormProvider,
+  useDefaultErrorHandler: false, // Disable automatic error processing
+  onError: (error, stackTrace, invalidateFields) {
+    // Handle specific error scenarios
+    if (error.toString().contains('invalid_credentials')) {
+      invalidateFields({
+        'email': ['Invalid email or password'],
+        'password': ['Invalid email or password'],
+      });
+      context.showToast('Please check your credentials');
+    } else if (error.toString().contains('account_locked')) {
+      context.router.pushNamed('/account-locked');
+    } else {
+      // Fall back to default error display
+      context.showToast('Something went wrong. Please try again.');
+    }
+  },
+  builder: (context, ref, form, formState) => [
+    // Form fields...
+  ],
+)
+```
+
+#### Error State Management
+
+```dart
+class MyFormWidget extends JetConsumerWidget {
+  @override
+  Widget jetBuild(BuildContext context, WidgetRef ref, Jet jet) {
+    final formState = ref.watch(myFormProvider);
+    
+    return Column(
+      children: [
+        // Show global error message
+        if (formState.hasError)
+          Container(
+            padding: EdgeInsets.all(12),
+            margin: EdgeInsets.only(bottom: 16),
+            decoration: BoxDecoration(
+              color: Colors.red[50],
+              border: Border.all(color: Colors.red),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: formState.map(
+              data: (_) => SizedBox.shrink(),
+              loading: (_) => SizedBox.shrink(),
+              error: (error) => Text(
+                error.error.toString(),
+                style: TextStyle(color: Colors.red[700]),
+              ),
+            ),
+          ),
+        
+        // Form content
+        JetFormBuilder<MyRequest, MyResponse>(
+          provider: myFormProvider,
+          builder: (context, ref, form, state) => [
+            // Form fields...
+          ],
+        ),
+      ],
+    );
+  }
+}
+```
+
+### Key Features
+
+- **Type-Safe Forms** - Full type safety with Request/Response generic types
+- **AsyncFormValue State Management** - Inspired by Riverpod's AsyncValue for predictable form states  
+- **Automatic Error Handling** - Built-in integration with Jet's error handling system
+- **Field-Level Validation** - Automatic field invalidation with server-side validation errors
+- **Form Builder Integration** - Built on top of Flutter Form Builder for maximum compatibility
+- **Specialized Input Components** - Enhanced password, phone, and PIN input fields
+- **Loading State Management** - Automatic loading states with customizable indicators
+- **Success/Error Callbacks** - Flexible callback system for handling form results
+- **Form Reset/Clear** - Built-in form reset and field clearing functionality
+- **Riverpod Integration** - Seamless state management with Riverpod providers
+- **Customizable UI** - Full control over form layout, spacing, and styling
+- **Automatic Field Focus** - Smart focus management for better user experience
+- **Toast Integration** - Built-in toast notifications for errors and success states
 
 ## 🔄 State Management
 

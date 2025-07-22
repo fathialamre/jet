@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:jet/jet_framework.dart';
 import 'package:jet/localization/notifiers/language_switcher_notifier.dart';
+import '../notifiers/login_form_notifier.dart';
+import '../models/login_request.dart';
+import '../models/login_response.dart';
 
 class LoginPage extends ConsumerWidget {
   const LoginPage({super.key});
@@ -46,59 +49,42 @@ class LoginPage extends ConsumerWidget {
 
             const SizedBox(height: 48),
 
-            // Email field
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Email',
-                border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.email),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Password field
-            TextField(
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.lock),
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Login button
-            ElevatedButton(
-              onPressed: () {
-                // Login logic here
+            // Login form using JetFormBuilder
+            JetFormBuilder<LoginRequest, LoginResponse>(
+              initialValues: {
+                'phone': '0913335396',
+                'password': '12345678',
+              },
+              provider: loginFormProvider,
+              onSuccess: (response, request) {
+                // Handle successful login
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      'Login attempted in ${currentLocale.languageCode}',
+                      'Login successful! Token: ${response.token.substring(0, 10)}...',
                     ),
+                    backgroundColor: Colors.green,
                   ),
                 );
               },
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-              child: const Text('Login'),
-            ),
-
-            const SizedBox(height: 16),
-
-            ThemeSwitcher.segmentedButton(context),
-            TextButton(
-              onPressed: () => ThemeSwitcher.show(context),
-              child: const Text('Show Theme Switcher'),
-            ),
-            // Manual bottom sheet trigger
-            OutlinedButton.icon(
-              onPressed: () => LanguageSwitcher.show(context),
-              icon: const Icon(Icons.language),
-              label: const Text('Change Language'),
+              submitButtonText: 'Login',
+              builder: (context, ref, form, formState) {
+                return [
+                  // Phone field using FormBuilderPhoneNumberField
+                  FormBuilderPhoneNumberField(
+                    name: 'phone',
+                    hintText: 'Enter your phone number',
+                    isRequired: true,
+                  ),
+                  // Password field using FormBuilderPasswordField
+                  FormBuilderPasswordField(
+                    name: 'password',
+                    hintText: 'Enter your password',
+                    isRequired: true,
+                    formKey: form.formKey,
+                  ),
+                ];
+              },
             ),
           ],
         ),

@@ -94,4 +94,7 @@ class JetLocalizationsImplAr extends JetLocalizationsImpl {
 
   @override
   String get someFieldsAreInvalid => 'بعض الحقول غير صحيحة';
+
+  @override
+  String get passwordNotIdentical => 'كلمة المرور غير متطابقة';
 }

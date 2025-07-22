@@ -1,3 +1,5 @@
+import 'package:jet/helpers/jet_logger.dart';
+
 import 'jet_base_error_handler.dart';
 import 'jet_error.dart';
 

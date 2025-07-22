@@ -12,12 +12,18 @@ dependencies:
   cupertino_icons: ^1.0.8
   jet:
     path: ../packages/jet
+  retrofit: ^4.6.0
+  riverpod_annotation: ^2.6.1
+
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
-
+  retrofit_generator: ^9.7.0
+  riverpod_generator: ^2.6.5
+  build_runner: 
+  
 flutter:
   uses-material-design: true

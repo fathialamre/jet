@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:jet/helpers/jet_logger.dart';
 import 'jet_error.dart';
 
 /// Abstract base class for handling errors in the Jet framework
@@ -15,7 +16,8 @@ abstract class JetBaseErrorHandler {
   ///
   /// Override this method to customize no-internet detection logic
   bool isNoInternetError(Object error) {
-    if (error is DioException) {
+    if (error is DioException &&
+        error.type == DioExceptionType.connectionError) {
       // Check for socket exceptions that indicate no internet
       if (error.error is SocketException) {
         final socketException = error.error as SocketException;
@@ -118,6 +120,13 @@ abstract class JetBaseErrorHandler {
   /// Override this method to customize error messages
   String getErrorMessage(Object error) {
     if (error is DioException) {
+      if (error.response?.data is Map<String, dynamic>) {
+        final data = error.response!.data as Map<String, dynamic>;
+        if (data.containsKey('message')) {
+          return data['message'] as String;
+        }
+      }
+
       // Handle different types of Dio exceptions
       switch (error.type) {
         case DioExceptionType.connectionTimeout:

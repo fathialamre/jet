@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:jet/networking/interceptors/jet_dio_logger_interceptor.dart';
 
 /// Response wrapper model for standardized API responses
 /// Inspired by clean architecture patterns for consistent response handling
@@ -128,7 +129,7 @@ abstract class JetApiService {
     _dio.interceptors.add(_createErrorInterceptor());
 
     // Add logging interceptor in debug mode
-    _dio.interceptors.add(_createLoggingInterceptor());
+    _dio.interceptors.add(JetDioLoggerInterceptor());
 
     // Add custom interceptors
     _dio.interceptors.addAll(interceptors);
@@ -405,7 +406,6 @@ abstract class JetApiService {
     }
   }
 
-  /// Network utility method inspired by Nylo framework
   /// Provides a clean interface for making requests with automatic response handling
   Future<T> network<T>({
     required Future<ResponseModel<T>> Function() request,
@@ -476,7 +476,6 @@ abstract class JetApiService {
   /// Access to the underlying Dio instance for advanced usage
   Dio get dio => _dio;
 
-  /// Merge cache options with request options - inspired by Nylo caching patterns
   Options? _mergeOptions(Options? options) {
     if (options == null && globalCacheOptions == null) {
       return null;
@@ -525,30 +524,6 @@ abstract class JetApiService {
     return InterceptorsWrapper(
       onError: (DioException error, ErrorInterceptorHandler handler) {
         // Just pass through the DioException without modification
-        handler.next(error);
-      },
-    );
-  }
-
-  /// Create logging interceptor for debugging
-  Interceptor _createLoggingInterceptor() {
-    return InterceptorsWrapper(
-      onRequest: (RequestOptions options, RequestInterceptorHandler handler) {
-        _log('🚀 ${options.method} ${options.path}');
-        _log('Headers: ${options.headers}');
-        if (options.data != null) {
-          _log('Data: ${options.data}');
-        }
-        handler.next(options);
-      },
-      onResponse: (Response response, ResponseInterceptorHandler handler) {
-        _log('✅ ${response.statusCode} ${response.requestOptions.path}');
-        _log('Response: ${response.data}');
-        handler.next(response);
-      },
-      onError: (DioException error, ErrorInterceptorHandler handler) {
-        _log('❌ ${error.requestOptions.method} ${error.requestOptions.path}');
-        _log('Error: ${error.message}');
         handler.next(error);
       },
     );

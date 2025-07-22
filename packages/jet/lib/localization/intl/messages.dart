@@ -70,6 +70,7 @@ abstract class JetLocalizationsImpl {
   String get badResponse;
   String get requestCancelled;
   String get someFieldsAreInvalid;
+  String get passwordNotIdentical;
 }
 
 class JetLocalizationsDelegate

@@ -10,11 +10,12 @@ class AppRouter extends RootStackRouter {
     NamedRouteDef(
       name: 'LoginRoute',
       builder: (context, args) => LoginPage(),
+            initial: true,
+
     ),
     NamedRouteDef(
       name: 'PostsRoute',
       builder: (context, args) => PostsPage(),
-      initial: true,
     ),
     NamedRouteDef(
       name: 'PostDetailsRoute',

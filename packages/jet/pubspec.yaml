@@ -14,6 +14,10 @@ dependencies:
   dio: ^5.8.0+1
   auto_route: ^10.1.0+1
   lucide_icons_flutter: ^3.0.6
+  flutter_form_builder: ^10.1.0
+  flutter_hooks: ^0.21.2
+  form_builder_validators: ^11.1.2
+  pinput: ^5.0.1
 
   flutter_secure_storage: ^9.2.4
   shared_preferences: ^2.5.3
@@ -27,8 +31,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
-  
+  flutter_lints: ^6.0.0
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

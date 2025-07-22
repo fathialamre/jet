@@ -3,13 +3,7 @@ import 'package:jet/jet_framework.dart';
 import 'package:jet/resources/state/models.dart';
 import '../../../models/product.dart';
 
-/// Products provider with comprehensive error handling
-///
-/// This example demonstrates:
-/// - Proper error handling around raw Dio HTTP calls
-/// - Converting errors to JetExceptions for consistent error handling
-/// - Graceful error recovery with retry functionality
-/// - Integration with JetPaginator for infinite scroll
+
 final productsProvider =
     AutoDisposeFutureProvider.family<PaginationResponse<Product>, int>(
       (ref, skip) async {

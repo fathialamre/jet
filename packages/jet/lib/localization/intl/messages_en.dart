@@ -95,4 +95,7 @@ class JetLocalizationsImplEn extends JetLocalizationsImpl {
 
   @override
   String get someFieldsAreInvalid => 'Some fields are invalid';
+
+  @override
+  String get passwordNotIdentical => 'Password not identical';
 }
