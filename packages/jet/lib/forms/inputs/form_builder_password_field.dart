@@ -56,19 +56,6 @@ class FormBuilderPasswordField extends HookWidget {
       decoration: InputDecoration(
         prefixIcon: showPrefixIcon ? Icon(LucideIcons.lock) : prefixIcon,
         hintText: hintText,
-        border: UnderlineInputBorder(),
-        enabledBorder: UnderlineInputBorder(),
-        focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.primary,
-            width: 2.0,
-          ),
-        ),
-        errorBorder: UnderlineInputBorder(
-          borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.error,
-          ),
-        ),
         suffixIcon: IconButton(
           icon: Icon(
             obscureText.value ? LucideIcons.eye : LucideIcons.eyeClosed,
@@ -76,7 +63,8 @@ class FormBuilderPasswordField extends HookWidget {
           onPressed: toggleVisibility,
         ),
       ),
-      validator: validator ??
+      validator:
+          validator ??
           FormBuilderValidators.compose([
             if (isRequired) FormBuilderValidators.required(),
             (value) {
@@ -92,7 +80,7 @@ class FormBuilderPasswordField extends HookWidget {
                 }
               }
               return null;
-            }
+            },
           ]),
     );
   }

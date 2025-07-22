@@ -2250,7 +2250,8 @@ The Jet forms system consists of several key components that work together:
 | `JetFormBuilder<Request, Response>` | Main widget for building forms with automatic state management |
 | `FormBuilderPasswordField` | Enhanced password field with visibility toggle |
 | `FormBuilderPhoneNumberField` | Phone number field with built-in validation |
-| `JetPinField` | Customizable PIN/OTP input field with theme support |
+| `JetPinField` | Customizable PIN/OTP input field using Pinput package |
+| `JetOtpField` | Custom OTP field built from scratch with individual input boxes |
 
 ### AsyncFormValue - Form State Management
 
@@ -2464,7 +2465,7 @@ FormBuilderPhoneNumberField(
 
 #### JetPinField
 
-Customizable PIN/OTP input field:
+Customizable PIN/OTP input field using the Pinput package:
 
 ```dart
 JetPinField(
@@ -2504,6 +2505,61 @@ JetPinField(
   ),
 ),
 ```
+
+#### JetOtpField
+
+Custom OTP field built from scratch with individual input boxes and smart theme integration:
+
+```dart
+JetOtpField(
+  name: 'verification_code',
+  length: 6,
+  onCompleted: (otp) {
+    // Auto-submit when OTP is complete
+    form.submit();
+  },
+  onChanged: (value) {
+    print('Current OTP: $value');
+  },
+  validator: (value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter the verification code';
+    }
+    if (value.length < 6) {
+      return 'Please enter all 6 digits';
+    }
+    return null;
+  },
+  
+  // Customizable appearance
+  fieldWidth: 56.0,
+  fieldHeight: 56.0,
+  borderRadius: 12.0,
+  
+  // Uses app's theme borders by default
+  // Override only when needed
+  focusedBorderColor: Colors.blue,
+  errorBorderColor: Colors.red,
+  
+  // Advanced features
+  obscureText: false,
+  obscuringCharacter: '•',
+  autofocus: true,
+  keyboardType: TextInputType.number,
+),
+```
+
+**JetOtpField Key Features:**
+- **Built from scratch** - No external OTP library dependencies
+- **Individual input boxes** - Each digit has its own styled field
+- **Smart focus management** - Auto-advance on input, backspace navigation
+- **Paste support** - Tap or long press to paste complete OTP codes
+- **Theme integration** - Uses app's default InputDecorationTheme borders
+- **Smart field distribution** - Automatic spacing using MainAxisAlignment
+- **Responsive design** - LayoutBuilder ensures proper display on all screen sizes
+- **Form Builder compatible** - Full integration with validation and state management
+- **Customizable styling** - Override theme properties only when needed
+- **Accessibility ready** - Proper keyboard navigation and screen reader support
 
 ### Form Examples
 
@@ -2679,12 +2735,14 @@ class OTPForm extends StatelessWidget {
           style: Theme.of(context).textTheme.bodyLarge,
         ),
         
-        // PIN input field
-        JetPinField(
+        // OTP input field - Choose between JetPinField or JetOtpField
+        
+        // Option 1: JetOtpField (built from scratch, individual boxes)
+        JetOtpField(
           name: 'otp_code',
           length: 6,
           autofocus: true,
-          onCompleted: (pin) {
+          onCompleted: (otp) {
             // Auto-submit when complete
             form.submit();
           },
@@ -2694,6 +2752,19 @@ class OTPForm extends StatelessWidget {
             FormBuilderValidators.numeric(),
           ]),
         ),
+        
+        // Option 2: JetPinField (using Pinput package)
+        // JetPinField(
+        //   name: 'otp_code',
+        //   length: 6,
+        //   autofocus: true,
+        //   onCompleted: (pin) => form.submit(),
+        //   validator: FormBuilderValidators.compose([
+        //     FormBuilderValidators.required(),
+        //     FormBuilderValidators.exactLength(6),
+        //     FormBuilderValidators.numeric(),
+        //   ]),
+        // ),
         
         if (formState.isLoading) ...[
           SizedBox(height: 20),
@@ -2855,11 +2926,14 @@ class MyFormWidget extends JetConsumerWidget {
 - **Automatic Error Handling** - Built-in integration with Jet's error handling system
 - **Field-Level Validation** - Automatic field invalidation with server-side validation errors
 - **Form Builder Integration** - Built on top of Flutter Form Builder for maximum compatibility
-- **Specialized Input Components** - Enhanced password, phone, and PIN input fields
+- **Specialized Input Components** - Enhanced password, phone, PIN, and custom OTP input fields
+- **Custom OTP Field** - JetOtpField built from scratch with individual input boxes and theme integration
 - **Loading State Management** - Automatic loading states with customizable indicators
 - **Success/Error Callbacks** - Flexible callback system for handling form results
 - **Form Reset/Clear** - Built-in form reset and field clearing functionality
 - **Riverpod Integration** - Seamless state management with Riverpod providers
+- **Theme-Aware Components** - Input fields automatically adapt to app theme
+- **Responsive Design** - Forms and input fields adapt to different screen sizes
 - **Customizable UI** - Full control over form layout, spacing, and styling
 - **Automatic Field Focus** - Smart focus management for better user experience
 - **Toast Integration** - Built-in toast notifications for errors and success states

@@ -67,10 +67,9 @@ class LoginPage extends ConsumerWidget {
                   ),
                 );
               },
-              submitButtonText: 'Login',
+              submitButtonText: 'Login now',
               builder: (context, ref, form, formState) {
                 return [
-                  // Phone field using FormBuilderPhoneNumberField
                   FormBuilderPhoneNumberField(
                     name: 'phone',
                     hintText: 'Enter your phone number',
@@ -82,6 +81,36 @@ class LoginPage extends ConsumerWidget {
                     hintText: 'Enter your password',
                     isRequired: true,
                     formKey: form.formKey,
+                  ),
+
+                  const SizedBox(height: 16),
+                  // Custom OTP field built from scratch
+                  Text(
+                    'OTP Verification (Custom Field)',
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                  const SizedBox(height: 8),
+                  JetOtpField(
+                    name: 'otp',
+                    length: 6,
+                    fieldWidth: 40,
+                    onCompleted: (otp) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('OTP completed: $otp'),
+                          backgroundColor: Colors.blue,
+                        ),
+                      );
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter the OTP';
+                      }
+                      if (value.length < 6) {
+                        return 'Please enter all 6 digits';
+                      }
+                      return null;
+                    },
                   ),
                 ];
               },
