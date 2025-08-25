@@ -5,6 +5,7 @@ import 'package:jet/localization/i10n.dart';
 
 import 'messages_ar.dart';
 import 'messages_en.dart';
+import 'messages_fr.dart';
 
 abstract class JetLocalizationsImpl {
   static JetLocalizationsImpl of(BuildContext context) {
@@ -28,6 +29,7 @@ abstract class JetLocalizationsImpl {
   static const List<Locale> supportedLocales = [
     Locale('ar'),
     Locale('en'),
+    Locale('fr'),
   ];
 
   static final JetLocalizationsImpl _default = JetLocalizationsImplEn();
@@ -103,6 +105,8 @@ JetLocalizationsImpl lookupJetLocalizationsImpl(Locale locale) {
       return JetLocalizationsImplAr();
     case 'en':
       return JetLocalizationsImplEn();
+    case 'fr':
+      return JetLocalizationsImplFr();
     default:
       return JetLocalizationsImplEn();
   }

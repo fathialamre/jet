@@ -49,6 +49,8 @@ class JetLocalizations {
     switch (locale.languageCode) {
       case 'ar':
         return TextDirection.rtl;
+      case 'fr':
+        return TextDirection.ltr;
       default:
         return TextDirection.ltr;
     }
