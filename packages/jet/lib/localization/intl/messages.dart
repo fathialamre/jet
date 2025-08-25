@@ -71,6 +71,7 @@ abstract class JetLocalizationsImpl {
   String get requestCancelled;
   String get someFieldsAreInvalid;
   String get passwordNotIdentical;
+  String get submit;
 }
 
 class JetLocalizationsDelegate

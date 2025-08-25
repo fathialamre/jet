@@ -4,7 +4,6 @@ import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:jet/jet.dart';
 import 'package:jet/resources/state/jet_consumer.dart';
 import 'package:jet/networking/errors/errors.dart';
-import 'package:jet/widgets/widgets/buttons/jet_button.dart';
 
 /// Unified state management for Jet framework
 ///

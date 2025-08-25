@@ -1,30 +1,13 @@
-import 'package:example/features/login/pages/login_page.dart';
-import 'package:example/features/posts/post_details/pages/post_details_page.dart';
-import 'package:example/features/posts/posts_page.dart';
-import 'package:example/features/products/products_page.dart';
+import 'package:example/core/router/app_router.gr.dart';
 import 'package:jet/jet_framework.dart';
 
+@AutoRouterConfig()
 class AppRouter extends RootStackRouter {
   @override
   List<AutoRoute> get routes => [
-    NamedRouteDef(
-      name: 'LoginRoute',
-      builder: (context, args) => LoginPage(),
-            initial: true,
-
-    ),
-    NamedRouteDef(
-      name: 'PostsRoute',
-      builder: (context, args) => PostsPage(),
-    ),
-    NamedRouteDef(
-      name: 'PostDetailsRoute',
-      builder: (context, args) => PostDetailsPage(),
-    ),
-    NamedRouteDef(
-      name: 'InfiniteScrollExampleRoute',
-      builder: (context, args) => ProductsPage(),
-    ),
+    AutoRoute(page: LoginRoute.page),
+    AutoRoute(page: RegisterRoute.page, initial: true),
+    AutoRoute(page: VerifyRegisterRoute.page),
   ];
 }
 

@@ -30,8 +30,8 @@ class JetApp extends BaseJetApp {
       ],
       supportedLocales: config.supportedLocales.map((e) => e.locale).toList(),
       locale: locale,
-      theme: config.theme,
-      darkTheme: config.darkTheme,
+      theme: config.getTheme(),
+      darkTheme: config.getDarkTheme(),
       themeMode: themeMode,
     );
   }

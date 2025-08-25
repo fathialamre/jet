@@ -1,3 +1,4 @@
+import 'package:example/core/utilities/environments/prod.dart';
 import 'package:example/features/posts/data/models/post_response.dart';
 import 'package:jet/jet_framework.dart';
 
@@ -9,7 +10,7 @@ import 'package:jet/jet_framework.dart';
 /// - Graceful error recovery
 class AppNetwork extends JetApiService {
   @override
-  String get baseUrl => 'https://jsonplaceholder.typicode.com';
+  String get baseUrl => isDebugMode ? ProdEnv.baseUrl : ProdEnv.baseUrl;
 
   /// Fetch posts with automatic error handling
   ///

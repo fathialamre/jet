@@ -537,11 +537,4 @@ abstract class JetApiService {
       return Exception(error.toString());
     }
   }
-
-  /// Logging utility
-  void _log(String message) {
-    // In debug mode, you might want to use a proper logger
-    // For now, using print for simplicity
-    print('[JetApi] $message');
-  }
 }

@@ -10,7 +10,7 @@ class JetLocalizationsImplAr extends JetLocalizationsImpl {
   @override
   String get confirm => 'تأكيد';
 
-  @override
+  @override 
   String get ok => 'موافق';
 
   @override
@@ -97,4 +97,7 @@ class JetLocalizationsImplAr extends JetLocalizationsImpl {
 
   @override
   String get passwordNotIdentical => 'كلمة المرور غير متطابقة';
+
+  @override
+  String get submit => 'إرسال';
 }

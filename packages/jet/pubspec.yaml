@@ -1,36 +1,49 @@
 name: jet
-description: "A new Flutter package project."
+description: "A comprehensive Flutter framework providing networking, state management, forms, theming, and more."
 version: 0.0.1
-homepage:
+homepage: https://github.com/your-org/jet
+repository: https://github.com/your-org/jet
+issue_tracker: https://github.com/your-org/jet/issues
 
 environment:
-  sdk: ^3.8.1
-  flutter: ">=1.17.0"
+  sdk: ">=3.8.1 <4.0.0"
+  flutter: ">=3.16.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  
-  dio: ^5.8.0+1
-  auto_route: ^10.1.0+1
-  lucide_icons_flutter: ^3.0.6
-  flutter_form_builder: ^10.1.0
-  flutter_hooks: ^0.21.2
-  form_builder_validators: ^11.1.2
-
-  flutter_secure_storage: ^9.2.4
-  shared_preferences: ^2.5.3
-  custom_refresh_indicator: ^4.0.1
-
-  hooks_riverpod: ^2.6.1
-  intl: ^0.20.2
-  infinite_scroll_pagination: ^5.1.0
   flutter_localizations:
     sdk: flutter
+
+  # Networking
+  dio: "^5.8.0+1"
+  
+  # State Management
+  hooks_riverpod: "^2.6.1"
+  flutter_hooks: "^0.21.2"
+  
+  # Routing
+  auto_route: "^10.1.0+1"
+  
+  # Forms & Validation
+  flutter_form_builder: "^10.1.0"
+  form_builder_validators: "^11.1.2"
+  
+  # UI Components
+  lucide_icons_flutter: "^3.0.6"
+  custom_refresh_indicator: "^4.0.1"
+  infinite_scroll_pagination: "^5.1.0"
+  
+  # Storage
+  flutter_secure_storage: "^9.2.4"
+  shared_preferences: "^2.5.3"
+  
+  # Localization
+  intl: "^0.20.2"
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^6.0.0
+  flutter_lints: "^6.0.0"
 
 
 # For information on the generic Dart part of this file, see the
@@ -38,6 +51,8 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  generate: true # Add this line
+
 
   # To add assets to your package, add an assets section, like this:
   # assets:

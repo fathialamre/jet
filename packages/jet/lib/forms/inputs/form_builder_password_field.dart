@@ -3,8 +3,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:jet/extensions/build_context.dart';
 import 'package:jet/jet_framework.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class FormBuilderPasswordField extends HookWidget {
   final String name;

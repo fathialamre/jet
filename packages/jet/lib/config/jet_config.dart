@@ -92,4 +92,22 @@ abstract class JetConfig {
   /// Override this to provide custom error handling logic.
   /// Example: `MyCustomErrorHandler()`
   JetBaseErrorHandler get errorHandler => JetErrorHandler.instance;
+
+  String get fontFamily => 'inter';
+
+  ThemeData? getTheme() {
+    return theme?.copyWith(
+      textTheme: theme?.textTheme.apply(
+        fontFamily: fontFamily,
+      ),
+    );
+  }
+
+  ThemeData? getDarkTheme() {
+    return darkTheme?.copyWith(
+      textTheme: darkTheme?.textTheme.apply(
+        fontFamily: fontFamily,
+      ),
+    );
+  }
 }

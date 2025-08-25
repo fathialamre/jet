@@ -3,12 +3,10 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jet/bootstrap/boot.dart';
 import 'package:jet/extensions/build_context.dart';
-import 'package:jet/helpers/jet_logger.dart';
+import 'package:jet/forms/common.dart';
+import 'package:jet/forms/notifiers/jet_form_notifier.dart';
+import 'package:jet/networking/errors/jet_error.dart';
 import 'package:jet/widgets/widgets/buttons/jet_button.dart';
-
-import '../../networking/errors/jet_error.dart';
-import '../common.dart';
-import '../notifiers/jet_form_notifier.dart';
 
 class JetFormBuilder<Request, Response> extends ConsumerWidget {
   final JetFormProvider<Request, Response> provider;
@@ -28,7 +26,7 @@ class JetFormBuilder<Request, Response> extends ConsumerWidget {
   onError;
   final Map<String, dynamic> initialValues;
   final bool useDefaultErrorHandler;
-  final String submitButtonText;
+  final String? submitButtonText;
   final bool showDefaultSubmitButton;
   final bool showErrorSnackBar;
   final double fieldSpacing;
@@ -42,7 +40,7 @@ class JetFormBuilder<Request, Response> extends ConsumerWidget {
     this.onError,
     this.useDefaultErrorHandler = true,
     this.initialValues = const {},
-    this.submitButtonText = 'Submit',
+    this.submitButtonText,
     this.showDefaultSubmitButton = true,
     this.fieldSpacing = 12,
   });
@@ -118,7 +116,7 @@ class JetFormBuilder<Request, Response> extends ConsumerWidget {
           ...builder(context, ref, form, formState),
           if (showDefaultSubmitButton)
             JetButton(
-              text: submitButtonText,
+              text: submitButtonText ?? context.jetI10n.submit,
               onTap: form.submit,
             ),
         ],

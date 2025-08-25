@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:jet/helpers/jet_logger.dart';
 import 'jet_error.dart';
 
 /// Abstract base class for handling errors in the Jet framework

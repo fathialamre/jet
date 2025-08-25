@@ -156,6 +156,18 @@ flutter run
   - [Integration with App Configuration](#integration-with-app-configuration)
   - [Complete Integration Example](#complete-integration-example-2)
   - [Key Features](#key-features-3)
+- [Networking](#-networking)
+  - [Core Components](#core-components)
+  - [JetApiService - HTTP Client](#jetapiservice---http-client)
+  - [ResponseModel - Standardized Responses](#responsemodel---standardized-responses)
+  - [HTTP Methods](#http-methods)
+  - [File Operations](#file-operations)
+  - [Error Handling Integration](#error-handling-integration)
+  - [Custom Interceptors](#custom-interceptors)
+  - [Request Management](#request-management)
+  - [Authentication Integration](#authentication-integration)
+  - [Complete Examples](#complete-examples)
+  - [Key Features](#key-features-7)
 - [Exception Handling](#-exception-handling)
   - [Exception System Overview](#exception-system-overview)
   - [Exception Hierarchy](#exception-hierarchy)
@@ -1535,6 +1547,997 @@ class AppConfig extends JetConfig {
 - **Flexible Configuration** - Easy integration with app configuration system
 - **Custom Styling** - Full control over UI appearance and behavior
 
+## 🌐 Networking
+
+Jet Framework provides a powerful, type-safe HTTP client built on top of **[Dio](https://pub.dev/packages/dio)**, one of Flutter's most popular and robust networking libraries. The networking layer includes automatic error handling, request/response logging, standardized response models, and seamless integration with Jet's error handling system.
+
+**Key Philosophy**: Networking should be simple, consistent, and reliable. Jet provides a clean abstraction over Dio while maintaining full access to its powerful features when needed.
+
+### Core Components
+
+The Jet networking system consists of several key components:
+
+| Component | Description |
+|-----------|-------------|
+| `JetApiService` | Abstract base class for creating HTTP API clients with built-in configuration |
+| `ResponseModel<T>` | Standardized response wrapper with metadata, status, and type-safe data |
+| `JetDioLoggerInterceptor` | Enhanced request/response logger with pretty formatting |
+| `JetErrorHandler` | Automatic error processing and user-friendly message generation |
+| Singleton Pattern | Efficient resource management with automatic instance reuse |
+
+### JetApiService - HTTP Client
+
+`JetApiService` is an abstract base class that provides a comprehensive HTTP client with all common features built-in. It uses the singleton pattern for efficient resource management and provides a clean, type-safe API.
+
+#### Creating an API Service
+
+```dart
+import 'package:jet/networking/networking.dart';
+
+class UserApiService extends JetApiService {
+  @override
+  String get baseUrl => 'https://api.example.com/v1';
+
+  @override
+  Map<String, dynamic> get defaultHeaders => {
+    ...super.defaultHeaders,
+    'Authorization': 'Bearer ${getToken()}',
+    'X-App-Version': '1.0.0',
+  };
+
+  @override
+  Duration get connectTimeout => const Duration(seconds: 30);
+  
+  @override
+  Duration get receiveTimeout => const Duration(seconds: 30);
+
+  // Get singleton instance
+  static UserApiService get instance => getInstance(
+    'UserApiService',
+    () => UserApiService(),
+  );
+
+  // API methods
+  Future<ResponseModel<List<User>>> getUsers({int page = 1, int limit = 20}) async {
+    return await get<List<User>>(
+      '/users',
+      queryParameters: {'page': page, 'limit': limit},
+      decoder: (data) => (data as List).map((json) => User.fromJson(json)).toList(),
+    );
+  }
+
+  Future<ResponseModel<User>> getUserById(String userId) async {
+    return await get<User>(
+      '/users/$userId',
+      decoder: (data) => User.fromJson(data),
+    );
+  }
+
+  Future<ResponseModel<User>> createUser(CreateUserRequest request) async {
+    return await post<User>(
+      '/users',
+      data: request.toJson(),
+      decoder: (data) => User.fromJson(data),
+    );
+  }
+
+  Future<ResponseModel<User>> updateUser(String userId, UpdateUserRequest request) async {
+    return await put<User>(
+      '/users/$userId',
+      data: request.toJson(),
+      decoder: (data) => User.fromJson(data),
+    );
+  }
+
+  Future<ResponseModel<void>> deleteUser(String userId) async {
+    return await delete<void>('/users/$userId');
+  }
+}
+```
+
+#### Advanced Configuration
+
+```dart
+class AdvancedApiService extends JetApiService {
+  @override
+  String get baseUrl => Environment.apiBaseUrl;
+
+  @override
+  List<Interceptor> get interceptors => [
+    // Custom auth interceptor
+    AuthInterceptor(),
+    // Cache interceptor
+    CacheInterceptor(),
+    // Retry interceptor
+    RetryInterceptor(),
+  ];
+
+  @override
+  HttpClientAdapter? get httpClientAdapter => 
+    Environment.useHttp2 ? Http2Adapter() : null;
+
+  @override
+  Options? get globalCacheOptions => Options(
+    extra: {
+      'cache_ttl': Duration(minutes: 5).inMilliseconds,
+      'cache_strategy': 'cache_first',
+    },
+  );
+}
+```
+
+### ResponseModel - Standardized Responses
+
+`ResponseModel<T>` provides a consistent response structure across all API calls, making it easier to handle success states, errors, and metadata.
+
+#### ResponseModel Structure
+
+```dart
+class ResponseModel<T> {
+  final T? data;              // The actual response data
+  final String? message;      // Response message from server
+  final bool success;         // Whether the request was successful
+  final int? statusCode;      // HTTP status code
+  final Map<String, dynamic>? meta; // Additional metadata (headers, etc.)
+}
+```
+
+#### Using ResponseModel
+
+```dart
+class PostService extends JetApiService {
+  @override
+  String get baseUrl => 'https://jsonplaceholder.typicode.com';
+
+  static PostService get instance => getInstance('PostService', () => PostService());
+
+  Future<ResponseModel<List<Post>>> getAllPosts() async {
+    return await get<List<Post>>(
+      '/posts',
+      decoder: (data) => (data as List).map((json) => Post.fromJson(json)).toList(),
+    );
+  }
+
+  Future<List<Post>> getPostsData() async {
+    // Use the network helper method for direct data access
+    return await network<List<Post>>(
+      request: () => getAllPosts(),
+      fallback: [], // Fallback value if request fails
+      throwOnError: false, // Don't throw, use fallback instead
+    );
+  }
+}
+
+// Usage in your app
+class PostsRepository {
+  final _postService = PostService.instance;
+
+  Future<List<Post>> fetchPosts() async {
+    try {
+      final response = await _postService.getAllPosts();
+      
+      if (response.success && response.data != null) {
+        return response.data!;
+      } else {
+        throw Exception(response.message ?? 'Failed to load posts');
+      }
+    } catch (error) {
+      // Error is automatically processed by Jet's error handling
+      rethrow;
+    }
+  }
+
+  // Or use the simplified network method
+  Future<List<Post>> fetchPostsSimple() async {
+    return await _postService.getPostsData();
+  }
+}
+```
+
+### HTTP Methods
+
+`JetApiService` provides all standard HTTP methods with consistent APIs and built-in error handling:
+
+#### GET Requests
+
+```dart
+// Basic GET
+final response = await api.get<List<User>>('/users');
+
+// GET with query parameters
+final response = await api.get<List<Post>>(
+  '/posts',
+  queryParameters: {
+    'userId': 1,
+    'limit': 10,
+    'offset': 0,
+  },
+);
+
+// GET with custom decoder
+final response = await api.get<UserProfile>(
+  '/profile',
+  decoder: (data) => UserProfile.fromJson(data),
+);
+
+// GET with progress tracking
+final response = await api.get<LargeDataSet>(
+  '/large-dataset',
+  onReceiveProgress: (received, total) {
+    print('Download progress: ${(received / total * 100).toStringAsFixed(0)}%');
+  },
+);
+```
+
+#### POST Requests
+
+```dart
+// Basic POST
+final response = await api.post<User>(
+  '/users',
+  data: {
+    'name': 'John Doe',
+    'email': 'john@example.com',
+  },
+);
+
+// POST with custom model
+final response = await api.post<User>(
+  '/users',
+  data: CreateUserRequest(
+    name: 'John Doe',
+    email: 'john@example.com',
+  ).toJson(),
+  decoder: (data) => User.fromJson(data),
+);
+
+// POST with upload progress
+final response = await api.post<UploadResult>(
+  '/upload',
+  data: formData,
+  onSendProgress: (sent, total) {
+    print('Upload progress: ${(sent / total * 100).toStringAsFixed(0)}%');
+  },
+);
+```
+
+#### PUT, PATCH, DELETE Requests
+
+```dart
+// PUT request (full update)
+final response = await api.put<User>(
+  '/users/$userId',
+  data: updatedUser.toJson(),
+  decoder: (data) => User.fromJson(data),
+);
+
+// PATCH request (partial update)
+final response = await api.patch<User>(
+  '/users/$userId',
+  data: {'name': 'Updated Name'},
+  decoder: (data) => User.fromJson(data),
+);
+
+// DELETE request
+final response = await api.delete<void>('/users/$userId');
+
+// DELETE with data body
+final response = await api.delete<DeleteResult>(
+  '/users/bulk',
+  data: {'userIds': [1, 2, 3]},
+);
+```
+
+#### HEAD and OPTIONS Requests
+
+```dart
+// HEAD request (check if resource exists)
+final response = await api.head('/users/$userId');
+print('User exists: ${response.statusCode == 200}');
+
+// OPTIONS request (check available methods)
+final response = await api.optionsRequest('/users');
+final allowedMethods = response.headers['allow'];
+```
+
+### File Operations
+
+Jet provides specialized methods for file uploads and downloads:
+
+#### File Downloads
+
+```dart
+class FileService extends JetApiService {
+  @override
+  String get baseUrl => 'https://api.example.com';
+
+  static FileService get instance => getInstance('FileService', () => FileService());
+
+  Future<void> downloadFile(
+    String fileUrl,
+    String savePath, {
+    Function(int received, int total)? onProgress,
+  }) async {
+    await download(
+      fileUrl,
+      savePath,
+      onReceiveProgress: onProgress,
+      options: Options(
+        headers: {'Accept': 'application/octet-stream'},
+      ),
+    );
+  }
+
+  Future<void> downloadImage(String imageId, String savePath) async {
+    await download(
+      '/images/$imageId/download',
+      savePath,
+      onReceiveProgress: (received, total) {
+        final progress = (received / total * 100).toStringAsFixed(1);
+        print('Downloading image: $progress%');
+      },
+    );
+  }
+}
+```
+
+#### File Uploads
+
+```dart
+import 'dart:io';
+
+class UploadService extends JetApiService {
+  @override
+  String get baseUrl => 'https://api.example.com';
+
+  static UploadService get instance => getInstance('UploadService', () => UploadService());
+
+  Future<ResponseModel<UploadResult>> uploadFile(
+    File file, {
+    String? description,
+    Map<String, String>? metadata,
+  }) async {
+    final formData = FormData.fromMap({
+      'file': await MultipartFile.fromFile(
+        file.path,
+        filename: file.path.split('/').last,
+      ),
+      if (description != null) 'description': description,
+      if (metadata != null) ...metadata,
+    });
+
+    return await upload<UploadResult>(
+      '/upload',
+      formData,
+      decoder: (data) => UploadResult.fromJson(data),
+      onSendProgress: (sent, total) {
+        final progress = (sent / total * 100).toStringAsFixed(1);
+        print('Upload progress: $progress%');
+      },
+    );
+  }
+
+  Future<ResponseModel<List<UploadResult>>> uploadMultipleFiles(
+    List<File> files,
+  ) async {
+    final formData = FormData();
+    
+    for (int i = 0; i < files.length; i++) {
+      formData.files.add(MapEntry(
+        'files[$i]',
+        await MultipartFile.fromFile(
+          files[i].path,
+          filename: files[i].path.split('/').last,
+        ),
+      ));
+    }
+
+    return await upload<List<UploadResult>>(
+      '/upload/multiple',
+      formData,
+      decoder: (data) => (data as List)
+          .map((json) => UploadResult.fromJson(json))
+          .toList(),
+    );
+  }
+}
+```
+
+### Error Handling Integration
+
+Jet's networking layer seamlessly integrates with the error handling system to provide consistent error processing:
+
+#### Automatic Error Processing
+
+```dart
+class ProductService extends JetApiService {
+  @override
+  String get baseUrl => 'https://api.shop.com/v1';
+
+  static ProductService get instance => getInstance('ProductService', () => ProductService());
+
+  Future<ResponseModel<List<Product>>> getProducts({
+    String? category,
+    double? minPrice,
+    double? maxPrice,
+  }) async {
+    try {
+      return await get<List<Product>>(
+        '/products',
+        queryParameters: {
+          if (category != null) 'category': category,
+          if (minPrice != null) 'min_price': minPrice,
+          if (maxPrice != null) 'max_price': maxPrice,
+        },
+        decoder: (data) => (data as List)
+            .map((json) => Product.fromJson(json))
+            .toList(),
+      );
+    } catch (error) {
+      // Error is automatically processed by JetErrorHandler
+      // DioException -> JetError with user-friendly messages
+      rethrow;
+    }
+  }
+}
+
+// Usage with automatic error handling
+class ProductRepository {
+  final _productService = ProductService.instance;
+
+  Future<List<Product>> loadProducts() async {
+    try {
+      final response = await _productService.getProducts();
+      return response.data ?? [];
+    } on JetError catch (jetError) {
+      // Handled error with user-friendly message
+      if (jetError.isNoInternet) {
+        throw JetError.noInternet(message: 'Please check your internet connection');
+      } else if (jetError.isServerError) {
+        throw JetError.server(message: 'Our servers are currently unavailable');
+      }
+      rethrow;
+    } catch (error) {
+      // Fallback for unexpected errors
+      throw JetError.unknown(message: 'Something went wrong loading products');
+    }
+  }
+}
+```
+
+### Custom Interceptors
+
+Add custom interceptors to extend functionality:
+
+#### Authentication Interceptor
+
+```dart
+class AuthInterceptor extends Interceptor {
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    // Add auth token to all requests
+    final token = AuthStorage.getToken();
+    if (token != null) {
+      options.headers['Authorization'] = 'Bearer $token';
+    }
+    handler.next(options);
+  }
+
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    if (err.response?.statusCode == 401) {
+      // Token expired, try to refresh
+      _handleTokenExpired();
+    }
+    handler.next(err);
+  }
+
+  void _handleTokenExpired() {
+    // Implement token refresh logic
+  }
+}
+```
+
+#### Cache Interceptor
+
+```dart
+class CacheInterceptor extends Interceptor {
+  final Map<String, CachedResponse> _cache = {};
+
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    if (options.method == 'GET') {
+      final cacheKey = _generateCacheKey(options);
+      final cachedResponse = _cache[cacheKey];
+      
+      if (cachedResponse != null && !cachedResponse.isExpired) {
+        // Return cached response
+        handler.resolve(cachedResponse.response);
+        return;
+      }
+    }
+    handler.next(options);
+  }
+
+  @override
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
+    if (response.requestOptions.method == 'GET') {
+      final cacheKey = _generateCacheKey(response.requestOptions);
+      _cache[cacheKey] = CachedResponse(
+        response: response,
+        timestamp: DateTime.now(),
+        ttl: Duration(minutes: 5),
+      );
+    }
+    handler.next(response);
+  }
+
+  String _generateCacheKey(RequestOptions options) {
+    return '${options.method}_${options.path}_${options.queryParameters}';
+  }
+}
+```
+
+#### Retry Interceptor
+
+```dart
+class RetryInterceptor extends Interceptor {
+  final int maxRetries;
+  final Duration retryDelay;
+
+  RetryInterceptor({
+    this.maxRetries = 3,
+    this.retryDelay = const Duration(seconds: 1),
+  });
+
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    final retryCount = err.requestOptions.extra['retry_count'] ?? 0;
+    
+    if (retryCount < maxRetries && _shouldRetry(err)) {
+      err.requestOptions.extra['retry_count'] = retryCount + 1;
+      
+      Future.delayed(retryDelay, () async {
+        try {
+          final response = await Dio().fetch(err.requestOptions);
+          handler.resolve(response);
+        } catch (e) {
+          handler.next(err);
+        }
+      });
+    } else {
+      handler.next(err);
+    }
+  }
+
+  bool _shouldRetry(DioException err) {
+    return err.type == DioExceptionType.connectionTimeout ||
+           err.type == DioExceptionType.sendTimeout ||
+           err.type == DioExceptionType.receiveTimeout ||
+           (err.response?.statusCode ?? 0) >= 500;
+  }
+}
+```
+
+### Request Management
+
+Jet provides utilities for managing requests and cancellation:
+
+#### Request Cancellation
+
+```dart
+class SearchService extends JetApiService {
+  @override
+  String get baseUrl => 'https://api.search.com';
+
+  static SearchService get instance => getInstance('SearchService', () => SearchService());
+
+  CancelToken? _currentSearchToken;
+
+  Future<ResponseModel<SearchResults>> search(String query) async {
+    // Cancel previous search
+    _currentSearchToken?.cancel('New search started');
+    
+    // Create new cancel token
+    _currentSearchToken = createCancelToken();
+
+    return await get<SearchResults>(
+      '/search',
+      queryParameters: {'q': query},
+      cancelToken: _currentSearchToken,
+      decoder: (data) => SearchResults.fromJson(data),
+    );
+  }
+
+  void cancelSearch() {
+    _currentSearchToken?.cancel('Search cancelled by user');
+  }
+}
+```
+
+#### Header Management
+
+```dart
+class ApiClient extends JetApiService {
+  @override
+  String get baseUrl => 'https://api.example.com';
+
+  static ApiClient get instance => getInstance('ApiClient', () => ApiClient());
+
+  void login(String token) {
+    // Add auth header for all subsequent requests
+    addHeader('Authorization', 'Bearer $token');
+  }
+
+  void logout() {
+    // Remove auth header
+    removeHeader('Authorization');
+  }
+
+  void setUserAgent(String userAgent) {
+    addHeader('User-Agent', userAgent);
+  }
+
+  void setApiVersion(String version) {
+    addHeader('X-API-Version', version);
+  }
+
+  void updateRequestId() {
+    addHeader('X-Request-ID', generateUuid());
+  }
+}
+```
+
+### Authentication Integration
+
+Here's how to integrate authentication with your API service:
+
+#### JWT Authentication Service
+
+```dart
+class AuthApiService extends JetApiService {
+  @override
+  String get baseUrl => 'https://auth.api.com/v1';
+
+  @override
+  Map<String, dynamic> get defaultHeaders => {
+    ...super.defaultHeaders,
+    'X-Client-Version': '1.0.0',
+  };
+
+  static AuthApiService get instance => getInstance('AuthApiService', () => AuthApiService());
+
+  Future<ResponseModel<AuthResponse>> login(String email, String password) async {
+    return await post<AuthResponse>(
+      '/auth/login',
+      data: {
+        'email': email,
+        'password': password,
+      },
+      decoder: (data) => AuthResponse.fromJson(data),
+    );
+  }
+
+  Future<ResponseModel<AuthResponse>> refreshToken(String refreshToken) async {
+    return await post<AuthResponse>(
+      '/auth/refresh',
+      data: {'refresh_token': refreshToken},
+      decoder: (data) => AuthResponse.fromJson(data),
+    );
+  }
+
+  Future<ResponseModel<void>> logout() async {
+    return await post<void>('/auth/logout');
+  }
+
+  // Set auth token for future requests
+  void setAuthToken(String token) {
+    addHeader('Authorization', 'Bearer $token');
+  }
+
+  void clearAuth() {
+    removeHeader('Authorization');
+  }
+}
+
+class AuthResponse {
+  final String accessToken;
+  final String refreshToken;
+  final User user;
+  final int expiresIn;
+
+  AuthResponse({
+    required this.accessToken,
+    required this.refreshToken,
+    required this.user,
+    required this.expiresIn,
+  });
+
+  factory AuthResponse.fromJson(Map<String, dynamic> json) {
+    return AuthResponse(
+      accessToken: json['access_token'],
+      refreshToken: json['refresh_token'],
+      user: User.fromJson(json['user']),
+      expiresIn: json['expires_in'],
+    );
+  }
+}
+```
+
+### Complete Examples
+
+#### E-commerce API Service
+
+```dart
+class EcommerceApiService extends JetApiService {
+  @override
+  String get baseUrl => 'https://api.shop.com/v2';
+
+  @override
+  Map<String, dynamic> get defaultHeaders => {
+    ...super.defaultHeaders,
+    'X-Shop-Version': '2.0',
+    'Accept-Language': 'en-US',
+  };
+
+  @override
+  List<Interceptor> get interceptors => [
+    AuthInterceptor(),
+    CacheInterceptor(),
+    RetryInterceptor(maxRetries: 2),
+  ];
+
+  static EcommerceApiService get instance => 
+    getInstance('EcommerceApiService', () => EcommerceApiService());
+
+  // Products
+  Future<ResponseModel<PaginatedResponse<Product>>> getProducts({
+    String? category,
+    String? searchQuery,
+    ProductSortBy? sortBy,
+    int page = 1,
+    int limit = 20,
+  }) async {
+    return await get<PaginatedResponse<Product>>(
+      '/products',
+      queryParameters: {
+        if (category != null) 'category': category,
+        if (searchQuery != null) 'search': searchQuery,
+        if (sortBy != null) 'sort': sortBy.value,
+        'page': page,
+        'limit': limit,
+      },
+      decoder: (data) => PaginatedResponse.fromJson(
+        data,
+        (json) => Product.fromJson(json),
+      ),
+    );
+  }
+
+  Future<ResponseModel<Product>> getProductById(String productId) async {
+    return await get<Product>(
+      '/products/$productId',
+      decoder: (data) => Product.fromJson(data),
+    );
+  }
+
+  // Cart operations
+  Future<ResponseModel<Cart>> getCart() async {
+    return await get<Cart>(
+      '/cart',
+      decoder: (data) => Cart.fromJson(data),
+    );
+  }
+
+  Future<ResponseModel<Cart>> addToCart(String productId, int quantity) async {
+    return await post<Cart>(
+      '/cart/items',
+      data: {
+        'product_id': productId,
+        'quantity': quantity,
+      },
+      decoder: (data) => Cart.fromJson(data),
+    );
+  }
+
+  Future<ResponseModel<Cart>> updateCartItem(String itemId, int quantity) async {
+    return await put<Cart>(
+      '/cart/items/$itemId',
+      data: {'quantity': quantity},
+      decoder: (data) => Cart.fromJson(data),
+    );
+  }
+
+  Future<ResponseModel<void>> removeFromCart(String itemId) async {
+    return await delete<void>('/cart/items/$itemId');
+  }
+
+  // Orders
+  Future<ResponseModel<Order>> createOrder(CreateOrderRequest request) async {
+    return await post<Order>(
+      '/orders',
+      data: request.toJson(),
+      decoder: (data) => Order.fromJson(data),
+    );
+  }
+
+  Future<ResponseModel<List<Order>>> getOrders({
+    OrderStatus? status,
+    int page = 1,
+    int limit = 10,
+  }) async {
+    return await get<List<Order>>(
+      '/orders',
+      queryParameters: {
+        if (status != null) 'status': status.value,
+        'page': page,
+        'limit': limit,
+      },
+      decoder: (data) => (data['orders'] as List)
+          .map((json) => Order.fromJson(json))
+          .toList(),
+    );
+  }
+
+  // Wishlist
+  Future<ResponseModel<Wishlist>> getWishlist() async {
+    return await get<Wishlist>(
+      '/wishlist',
+      decoder: (data) => Wishlist.fromJson(data),
+    );
+  }
+
+  Future<ResponseModel<void>> addToWishlist(String productId) async {
+    return await post<void>(
+      '/wishlist/items',
+      data: {'product_id': productId},
+    );
+  }
+
+  Future<ResponseModel<void>> removeFromWishlist(String productId) async {
+    return await delete<void>('/wishlist/items/$productId');
+  }
+}
+```
+
+#### Social Media API Service
+
+```dart
+class SocialApiService extends JetApiService {
+  @override
+  String get baseUrl => 'https://api.social.com/v1';
+
+  static SocialApiService get instance => 
+    getInstance('SocialApiService', () => SocialApiService());
+
+  // Posts
+  Future<ResponseModel<List<Post>>> getFeed({
+    String? cursor,
+    int limit = 20,
+  }) async {
+    return await get<List<Post>>(
+      '/feed',
+      queryParameters: {
+        if (cursor != null) 'cursor': cursor,
+        'limit': limit,
+      },
+      decoder: (data) => (data['posts'] as List)
+          .map((json) => Post.fromJson(json))
+          .toList(),
+    );
+  }
+
+  Future<ResponseModel<Post>> createPost(CreatePostRequest request) async {
+    return await post<Post>(
+      '/posts',
+      data: request.toJson(),
+      decoder: (data) => Post.fromJson(data),
+    );
+  }
+
+  Future<ResponseModel<Post>> likePost(String postId) async {
+    return await post<Post>(
+      '/posts/$postId/like',
+      decoder: (data) => Post.fromJson(data),
+    );
+  }
+
+  Future<ResponseModel<Post>> unlikePost(String postId) async {
+    return await delete<Post>(
+      '/posts/$postId/like',
+      decoder: (data) => Post.fromJson(data),
+    );
+  }
+
+  // Media uploads
+  Future<ResponseModel<MediaUploadResult>> uploadMedia(
+    File file,
+    MediaType type,
+  ) async {
+    final formData = FormData.fromMap({
+      'file': await MultipartFile.fromFile(
+        file.path,
+        filename: file.path.split('/').last,
+      ),
+      'type': type.value,
+    });
+
+    return await upload<MediaUploadResult>(
+      '/media/upload',
+      formData,
+      decoder: (data) => MediaUploadResult.fromJson(data),
+      onSendProgress: (sent, total) {
+        final progress = (sent / total * 100).toStringAsFixed(1);
+        print('Uploading media: $progress%');
+      },
+    );
+  }
+
+  // User profile
+  Future<ResponseModel<UserProfile>> getProfile(String userId) async {
+    return await get<UserProfile>(
+      '/users/$userId',
+      decoder: (data) => UserProfile.fromJson(data),
+    );
+  }
+
+  Future<ResponseModel<UserProfile>> updateProfile(
+    UpdateProfileRequest request,
+  ) async {
+    return await put<UserProfile>(
+      '/profile',
+      data: request.toJson(),
+      decoder: (data) => UserProfile.fromJson(data),
+    );
+  }
+
+  // Messaging
+  Future<ResponseModel<List<Message>>> getMessages({
+    String? conversationId,
+    String? cursor,
+    int limit = 50,
+  }) async {
+    return await get<List<Message>>(
+      '/messages',
+      queryParameters: {
+        if (conversationId != null) 'conversation_id': conversationId,
+        if (cursor != null) 'cursor': cursor,
+        'limit': limit,
+      },
+      decoder: (data) => (data['messages'] as List)
+          .map((json) => Message.fromJson(json))
+          .toList(),
+    );
+  }
+
+  Future<ResponseModel<Message>> sendMessage(SendMessageRequest request) async {
+    return await post<Message>(
+      '/messages',
+      data: request.toJson(),
+      decoder: (data) => Message.fromJson(data),
+    );
+  }
+}
+```
+
+### Key Features
+
+- **Dio Integration** - Built on top of the powerful and mature Dio HTTP client
+- **Singleton Pattern** - Efficient resource management with automatic instance reuse
+- **Type-Safe Responses** - Generic `ResponseModel<T>` for type-safe API responses
+- **All HTTP Methods** - Complete support for GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS
+- **File Operations** - Specialized upload and download methods with progress tracking
+- **Error Handling Integration** - Seamless integration with Jet's error handling system
+- **Custom Interceptors** - Support for authentication, caching, retry, and custom interceptors
+- **Request Management** - Built-in cancellation, header management, and request configuration
+- **Response Metadata** - Rich response information including headers, status codes, and timing
+- **Progress Tracking** - Upload and download progress callbacks for better UX
+- **Automatic Logging** - Beautiful request/response logging with `JetDioLoggerInterceptor`
+- **Timeout Configuration** - Customizable connection, send, and receive timeouts
+- **HTTP/2 Support** - Optional HTTP/2 client adapter integration
+- **Cache Support** - Built-in caching options with customizable TTL and strategies
+- **Network Helper** - Simplified `network()` method for direct data access with fallbacks
+
 ## ⚠️ Exception Handling
 
 Jet Framework provides a comprehensive error handling system designed to standardize error processing across your entire application. The system automatically categorizes errors, provides user-friendly messages, handles validation errors, and integrates seamlessly with Jet's state management components.
@@ -2250,7 +3253,6 @@ The Jet forms system consists of several key components that work together:
 | `JetFormBuilder<Request, Response>` | Main widget for building forms with automatic state management |
 | `FormBuilderPasswordField` | Enhanced password field with visibility toggle |
 | `FormBuilderPhoneNumberField` | Phone number field with built-in validation |
-| `JetPinField` | Customizable PIN/OTP input field using Pinput package |
 | `JetOtpField` | Custom OTP field built from scratch with individual input boxes |
 
 ### AsyncFormValue - Form State Management
@@ -2460,49 +3462,6 @@ FormBuilderPhoneNumberField(
     FormBuilderValidators.maxLength(15),
     FormBuilderValidators.numeric(),
   ]),
-),
-```
-
-#### JetPinField
-
-Customizable PIN/OTP input field using the Pinput package:
-
-```dart
-JetPinField(
-  name: 'otp_code',
-  length: 6,
-  autofocus: true,
-  borderRadius: 12,
-  onCompleted: (pin) {
-    // Auto-submit when PIN is complete
-    form.submit();
-  },
-  onChanged: (value) {
-    print('PIN: $value');
-  },
-  validator: FormBuilderValidators.compose([
-    FormBuilderValidators.required(),
-    FormBuilderValidators.exactLength(6),
-    FormBuilderValidators.numeric(),
-  ]),
-  
-  // Custom theme
-  defaultPinTheme: PinTheme(
-    width: 56,
-    height: 56,
-    textStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-    decoration: BoxDecoration(
-      color: Colors.grey[100],
-      borderRadius: BorderRadius.circular(12),
-    ),
-  ),
-  focusedPinTheme: PinTheme(
-    decoration: BoxDecoration(
-      color: Colors.blue[50],
-      border: Border.all(color: Colors.blue, width: 2),
-      borderRadius: BorderRadius.circular(12),
-    ),
-  ),
 ),
 ```
 
@@ -2735,9 +3694,7 @@ class OTPForm extends StatelessWidget {
           style: Theme.of(context).textTheme.bodyLarge,
         ),
         
-        // OTP input field - Choose between JetPinField or JetOtpField
-        
-        // Option 1: JetOtpField (built from scratch, individual boxes)
+        // OTP input field
         JetOtpField(
           name: 'otp_code',
           length: 6,
@@ -2752,19 +3709,6 @@ class OTPForm extends StatelessWidget {
             FormBuilderValidators.numeric(),
           ]),
         ),
-        
-        // Option 2: JetPinField (using Pinput package)
-        // JetPinField(
-        //   name: 'otp_code',
-        //   length: 6,
-        //   autofocus: true,
-        //   onCompleted: (pin) => form.submit(),
-        //   validator: FormBuilderValidators.compose([
-        //     FormBuilderValidators.required(),
-        //     FormBuilderValidators.exactLength(6),
-        //     FormBuilderValidators.numeric(),
-        //   ]),
-        // ),
         
         if (formState.isLoading) ...[
           SizedBox(height: 20),

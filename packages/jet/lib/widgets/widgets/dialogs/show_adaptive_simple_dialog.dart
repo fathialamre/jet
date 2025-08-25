@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jet/extensions/build_context.dart';
 
-showAdaptiveSimpleDialog({
+void showAdaptiveSimpleDialog({
   required BuildContext context,
   required String title,
   required String message,

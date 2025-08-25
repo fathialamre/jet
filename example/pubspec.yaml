@@ -1,29 +1,55 @@
 name: example
-description: "A new Flutter project."
+description: "Example app demonstrating the Jet Flutter framework."
 publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.8.1
+  sdk: ">=3.8.1 <4.0.0"
+  flutter: ">=3.16.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
+  flutter_localizations:
+    sdk: flutter
+    
+  # Local Package
   jet:
     path: ../packages/jet
-  retrofit: ^4.6.0
-  riverpod_annotation: ^2.6.1
+    
+  # UI
+  cupertino_icons: "^1.0.8"
+  
+  # Networking & API
+  retrofit: "^4.6.0"
+  
+  # Code Generation & Serialization
+  riverpod_annotation: "^2.6.1"
+  envied: "^1.1.1"
+  freezed_annotation: 
+  json_annotation: 
 
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
-  retrofit_generator: ^9.7.0
-  riverpod_generator: ^2.6.5
-  build_runner: 
-  
+  flutter_lints: "^6.0.0"
+  # Code Generation
+  build_runner: "^2.4.13"
+  retrofit_generator: 
+  riverpod_generator: 
+  envied_generator: "^1.1.1"
+  auto_route_generator: "^10.2.3"
+  freezed: "^2.5.7"
+  json_serializable: "^6.8.0" 
+
 flutter:
   uses-material-design: true
+  generate: true
+  fonts:
+    - family: inter
+      fonts:
+        - asset: assets/fonts/ibm.ttf
+  assets:
+    - assets/fonts/

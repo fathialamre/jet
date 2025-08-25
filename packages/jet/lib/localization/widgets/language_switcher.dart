@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jet/extensions/build_context.dart';
+import 'package:jet/helpers/jet_logger.dart';
 import 'package:jet/localization/models/locale_info.dart';
 import 'package:jet/localization/notifiers/language_switcher_notifier.dart';
 import 'package:jet/localization/widgets/base_language_switcher.dart';
@@ -141,7 +142,7 @@ class LanguageSwitcher extends BaseLanguageSwitcher {
                 onTap: () async {
                   if (!isSelected) {
                     HapticFeedback.lightImpact();
-                    await notifier.changeLocale(localeInfo.locale);
+                    await notifier.changeLocale(localeInfo.locale, ref);
                   }
                   if (context.mounted) {
                     Navigator.of(context).pop();

@@ -98,4 +98,7 @@ class JetLocalizationsImplEn extends JetLocalizationsImpl {
 
   @override
   String get passwordNotIdentical => 'Password not identical';
+
+  @override
+  String get submit => 'Submit';
 }
