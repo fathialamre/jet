@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:example/core/utilities/environments/prod.dart';
 import 'package:example/features/posts/data/models/post_response.dart';
 import 'package:jet/jet_framework.dart';
@@ -16,17 +18,13 @@ class AppNetwork extends JetApiService {
   ///
   /// The framework will handle errors automatically when used with JetBuilder
   Future<List<PostResponse>> posts() async {
-    return await network(
-      request: () async {
-        final response = await get<List<PostResponse>>(
-          '/posts',
-          decoder: (data) => (data as List<dynamic>)
-              .map((e) => PostResponse.fromJson(e))
-              .toList(),
-        );
-        return response;
-      },
+    await Future.delayed(const Duration(seconds: 4));
+    final response = await get<List<PostResponse>>(
+      '/posts',
+      decoder: (data) =>
+          (data as List<dynamic>).map((e) => PostResponse.fromJson(e)).toList(),
     );
+    return response.data ?? [];
   }
 
   /// Fetch single post with automatic error handling

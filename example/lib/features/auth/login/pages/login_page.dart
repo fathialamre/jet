@@ -1,6 +1,7 @@
 import 'package:example/core/extensions/build_context.dart';
 import 'package:flutter/material.dart';
 import 'package:jet/extensions/text_extensions.dart';
+import 'package:jet/helpers/jet_logger.dart';
 import 'package:jet/jet_framework.dart';
 import '../notifiers/login_form_notifier.dart';
 import '../data/models/login_request.dart';
@@ -38,40 +39,45 @@ class LoginPage extends ConsumerWidget {
             const SizedBox(height: 48),
 
             // Login form using JetFormBuilder
-            JetFormBuilder<LoginRequest, LoginResponse>(
-              initialValues: {
-                'phone': '0913335396',
-                'password': '12345678',
-                'otp': '123456',
-              },
-              provider: loginFormProvider,
-              onSuccess: (response, request) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Login successful! Token: ${response.token.substring(0, 10)}...',
-                    ),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-              },
-              builder: (context, ref, form, formState) {
-                return [
-                  FormBuilderPhoneNumberField(
-                    name: 'phone',
-                    hintText: context.localizations.enterPhoneNumber,
-                    isRequired: true,
-                  ),
-                  // Password field using FormBuilderPasswordField
-                  FormBuilderPasswordField(
-                    name: 'password',
-                    hintText: context.localizations.enterPassword,
-                    isRequired: true,
-                    formKey: form.formKey,
-                  ),
-                ];
-              },
-            ),
+            // JetFormBuilder<LoginRequest, LoginResponse>(
+            //   initialValues: {
+            //     'password': '12345678',
+            //     'otp': '123456',
+            //   },
+            //   useDefaultErrorHandler: false,
+            //   provider: loginFormProvider,
+            //   onSuccess: (response, request) {
+            //     ScaffoldMessenger.of(context).showSnackBar(
+            //       SnackBar(
+            //         content: Text(
+            //           'Login successful! Token: ${response.token.substring(0, 10)}...',
+            //         ),
+            //         backgroundColor: Colors.green,
+            //       ),
+            //     );
+            //   },
+            //   onError: (error, stackTrace, invalidateFields) {
+            //     dump(error);
+            //     invalidateFields({
+            //       'phone': ['phone is required'],
+            //     });
+            //   },
+            //   builder: (context, ref, form, formState) {
+            //     return [
+            //       FormBuilderPhoneNumberField(
+            //         name: 'phone',
+            //         hintText: context.localizations.enterPhoneNumber,
+            //         isRequired: true,
+            //       ),
+            //       // Password field using FormBuilderPasswordField
+            //       FormBuilderPasswordField(
+            //         name: 'password',
+            //         hintText: context.localizations.enterPassword,
+            //         isRequired: true,
+            //       ),
+            //     ];
+            //   },
+            // ),
           ],
         ),
       ),

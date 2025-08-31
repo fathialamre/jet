@@ -1,6 +1,7 @@
 import 'package:example/features/auth/login/data/models/login_request.dart';
 import 'package:example/features/auth/login/data/models/login_response.dart';
 import 'package:example/features/auth/shared/data/services/auth_service.dart';
+import 'package:jet/helpers/jet_logger.dart';
 import 'package:jet/jet_framework.dart';
 
 class LoginFormNotifier extends JetFormNotifier<LoginRequest, LoginResponse> {
@@ -13,6 +14,7 @@ class LoginFormNotifier extends JetFormNotifier<LoginRequest, LoginResponse> {
 
   @override
   Future<LoginResponse> action(LoginRequest data) async {
+    dump(data);
     final response = await ref.read(authServiceProvider).login(data);
     return response;
   }

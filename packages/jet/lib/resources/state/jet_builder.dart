@@ -366,6 +366,7 @@ Widget _buildRetryButton<T>({
     builder: (context, ref, jet) {
       final isLoading = ref.watch(provider).isLoading;
       final loader = jet.config.loader;
+
       return ElevatedButton(
         onPressed: isLoading ? null : onRetry,
         child: isLoading

@@ -1,3 +1,4 @@
+import 'package:example/core/router/app_router.gr.dart';
 import 'package:example/features/posts/notifiers/posts_notifier.dart';
 import 'package:example/features/posts/data/models/post_response.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,8 @@ import 'package:jet/resources/state.dart';
 /// - Built-in error handling with new JetErrorHandler
 /// - Clean, simple syntax with improved error messages
 /// - Automatic conversion of exceptions to JetExceptions
+
+@RoutePage()
 class PostsPage extends ConsumerWidget {
   const PostsPage({super.key});
 
@@ -30,17 +33,13 @@ class PostsPage extends ConsumerWidget {
           ),
         ],
       ),
-      body: JetBuilder.familyList<PostResponse, String>(
-        provider: postsProvider.call,
-        param: '1',
-        itemBuilder: (post, index) => Card(
+      body: JetBuilder.list(
+        provider: postsProvider,
+        itemBuilder: (PostResponse post, int index) => Card(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: ListTile(
             onTap: () => context.router.push(
-              PageRouteInfo(
-                'PostDetailsRoute',
-                rawPathParams: {'id': post.id.toString()},
-              ),
+              PostDetailsRoute(post: post),
             ),
             leading: CircleAvatar(
               backgroundColor: Colors.blue[100],

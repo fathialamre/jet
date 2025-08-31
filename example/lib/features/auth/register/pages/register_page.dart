@@ -4,7 +4,9 @@ import 'package:example/features/auth/register/notifiers/register_form_notifier.
 import 'package:example/features/auth/shared/data/models/register_request.dart';
 import 'package:example/features/auth/shared/data/models/register_response.dart';
 import 'package:flutter/material.dart';
+import 'package:jet/extensions/build_context.dart';
 import 'package:jet/extensions/text_extensions.dart';
+import 'package:jet/helpers/jet_logger.dart';
 import 'package:jet/jet_framework.dart';
 
 @RoutePage()
@@ -40,12 +42,18 @@ class RegisterPage extends ConsumerWidget {
 
             // Login form using JetFormBuilder
             JetFormBuilder<RegisterRequest, RegisterResponse>(
+              onError: (error, stackTrace, invalidateFields) {
+                dump(stackTrace.toString());
+                invalidateFields({
+                  'phone': ['phone is required'],
+                });
+              },
               initialValues: {
-                'phone': '0913335396',
                 'name': 'Fathi',
                 'password': '12345678',
                 'password_confirmation': '12345678',
               },
+              useDefaultErrorHandler: false,
               provider: registerFormProvider,
               onSuccess: (response, request) {
                 context.router.push(VerifyRegisterRoute(phone: response.phone));
