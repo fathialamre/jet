@@ -21,43 +21,46 @@ class LoginPage extends ConsumerWidget {
           LanguageSwitcher.toggleButton(),
         ],
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          JetButton.textButton(
-            text: 'Login',
-            onTap: () async {
-              await ref.read(authProvider.notifier).loginAsGuest();
-              if (context.mounted) {
-                context.router.replaceAll([HomeRoute()]);
-              }
-            },
-          ),
-          JetButton.textButton(
-            text: 'Login As Admin',
-            onTap: () async {
-              await ref
-                  .read(authProvider.notifier)
-                  .login(
-                    Session(token: 'admin', isGuest: false, name: 'Admin'),
-                  );
-              if (context.mounted) {
-                if (onResult != null) {
-                  onResult?.call(true);
-                } else {
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            JetButton.filled(
+              text: 'Login',
+              onTap: () async {
+                await ref.read(authProvider.notifier).loginAsGuest();
+                if (context.mounted) {
                   context.router.replaceAll([HomeRoute()]);
                 }
-              }
-            },
-          ),
-          JetButton.textButton(
-            text: 'Logout',
-            onTap: () async {
-              await ref.read(authProvider.notifier).logout();
-            },
-          ),
-        ],
+              },
+            ),
+            JetButton.textButton(
+              isExpanded: false,
+              text: 'Login As Admin',
+              onTap: () async {
+                await ref
+                    .read(authProvider.notifier)
+                    .login(
+                      Session(token: 'admin', isGuest: false, name: 'Admin'),
+                    );
+                if (context.mounted) {
+                  if (onResult != null) {
+                    onResult?.call(true);
+                  } else {
+                    context.router.replaceAll([HomeRoute()]);
+                  }
+                }
+              },
+            ),
+            JetButton.textButton(
+              text: 'Logout',
+              onTap: () async {
+                await ref.read(authProvider.notifier).logout();
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
