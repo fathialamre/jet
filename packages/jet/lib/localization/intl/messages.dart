@@ -72,6 +72,21 @@ abstract class JetLocalizationsImpl {
   String get someFieldsAreInvalid;
   String get passwordNotIdentical;
   String get submit;
+  String get connectionError;
+  String get serverError;
+  String get requestError;
+  String get validationError;
+  String get somethingWentWrong;
+
+  // Detailed error descriptions
+  String get connectionTimeoutDescription;
+  String get sendTimeoutDescription;
+  String get receiveTimeoutDescription;
+  String get badCertificateDescription;
+  String get requestCancelledDescription;
+  String get connectionErrorDescription;
+  String get checkConnection;
+  String get restart;
 }
 
 class JetLocalizationsDelegate

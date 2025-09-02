@@ -101,4 +101,46 @@ class JetLocalizationsImplEn extends JetLocalizationsImpl {
 
   @override
   String get submit => 'Submit';
+
+  @override
+  String get connectionError => 'Connection error';
+
+  @override
+  String get serverError => 'Server error';
+
+  @override
+  String get requestError => 'Request error';
+
+  @override
+  String get validationError => 'Validation error';
+
+  @override
+  String get somethingWentWrong => 'Something went wrong';
+
+  @override
+  String get connectionTimeoutDescription =>
+      'Connection timeout. Please check your internet connection and try again.';
+
+  @override
+  String get sendTimeoutDescription => 'Send timeout. Please try again.';
+
+  @override
+  String get receiveTimeoutDescription => 'Receive timeout. Please try again.';
+
+  @override
+  String get badCertificateDescription =>
+      'Security certificate error. Please try again later.';
+
+  @override
+  String get requestCancelledDescription => 'Request was cancelled.';
+
+  @override
+  String get connectionErrorDescription =>
+      'Connection error. Please check your internet connection.';
+
+  @override
+  String get checkConnection => 'Check Connection';
+
+  @override
+  String get restart => 'Restart';
 }

@@ -10,7 +10,7 @@ class JetLocalizationsImplAr extends JetLocalizationsImpl {
   @override
   String get confirm => 'تأكيد';
 
-  @override 
+  @override
   String get ok => 'موافق';
 
   @override
@@ -100,4 +100,48 @@ class JetLocalizationsImplAr extends JetLocalizationsImpl {
 
   @override
   String get submit => 'إرسال';
+
+  @override
+  String get connectionError => 'خطأ في الاتصال';
+
+  @override
+  String get serverError => 'خطأ في الخادم';
+
+  @override
+  String get requestError => 'خطأ في الطلب';
+
+  @override
+  String get validationError => 'خطأ في التحقق';
+
+  @override
+  String get somethingWentWrong => 'حدث خطأ ما';
+
+  @override
+  String get connectionTimeoutDescription =>
+      'انتهت مهلة الاتصال. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.';
+
+  @override
+  String get sendTimeoutDescription =>
+      'انتهت مهلة الإرسال. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get receiveTimeoutDescription =>
+      'انتهت مهلة الاستقبال. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get badCertificateDescription =>
+      'خطأ في شهادة الأمان. يرجى المحاولة مرة أخرى لاحقاً.';
+
+  @override
+  String get requestCancelledDescription => 'تم إلغاء الطلب.';
+
+  @override
+  String get connectionErrorDescription =>
+      'خطأ في الاتصال. يرجى التحقق من اتصالك بالإنترنت.';
+
+  @override
+  String get checkConnection => 'التحقق من الاتصال';
+
+  @override
+  String get restart => 'إعادة التشغيل';
 }
