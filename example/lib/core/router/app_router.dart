@@ -12,18 +12,24 @@ class AppRouter extends RootStackRouter {
     AutoRoute(page: LoginRoute.page, keepHistory: false),
     AutoRoute(
       page: RegisterRoute.page,
-      initial: true
     ),
     AutoRoute(page: VerifyRegisterRoute.page),
+
+    AutoRoute(page: PostDetailsRoute.page,  guards: [AuthGuard(ref: ref)],),
+
     AutoRoute(
-      page: PostsRoute.page,
+      page: HomeRoute.page,
+      initial: true,
+      children: [
+        AutoRoute(
+          page: ProfileRoute.page,
+        ),
+        AutoRoute(
+          page: PostsRoute.page,
+          guards: [AuthGuard(ref: ref)],
+        ),
+      ],
     ),
-    AutoRoute(page: PostDetailsRoute.page),
-    AutoRoute(
-      page: ProfileRoute.page,
-      guards: [AuthGuard(ref: ref)],
-    ),
-    AutoRoute(page: HomeRoute.page),
   ];
 
   @override
