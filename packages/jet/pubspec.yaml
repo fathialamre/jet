@@ -33,6 +33,7 @@ dependencies:
   lucide_icons_flutter: "^3.0.6"
   custom_refresh_indicator: "^4.0.1"
   infinite_scroll_pagination: "^5.1.0"
+  flutter_screenutil: "^5.9.3"
   
   # Storage
   flutter_secure_storage: "^9.2.4"
