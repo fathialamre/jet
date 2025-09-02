@@ -48,35 +48,46 @@ class PostsPage extends ConsumerWidget {
           ),
         ],
       ),
-      body: JetBuilder.list(
-        provider: postsProvider,
-        itemBuilder: (PostResponse post, int index) => Card(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: ListTile(
-            onTap: () => context.router.push(
-              PostDetailsRoute(post: post),
-            ),
-            leading: CircleAvatar(
-              backgroundColor: Colors.blue[100],
-              child: Text(
-                '${index + 1}',
-                style: const TextStyle(fontWeight: FontWeight.bold),
+      body: JetConsumer(
+        builder: (context, ref, jet) {
+          return JetBuilder.list(
+            provider: postsProvider,
+            error: (error, stackTrace) {
+              final jetError = jet.config.errorHandler.handle(
+                error,
+                stackTrace,
+              );
+              return Text(jetError.friendlyMessage);
+            },
+            itemBuilder: (PostResponse post, int index) => Card(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: ListTile(
+                onTap: () => context.router.push(
+                  PostDetailsRoute(post: post),
+                ),
+                leading: CircleAvatar(
+                  backgroundColor: Colors.blue[100],
+                  child: Text(
+                    '${index + 1}',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                title: Text(
+                  post.title,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                subtitle: Text(
+                  post.body,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               ),
             ),
-            title: Text(
-              post.title,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            subtitle: Text(
-              post.body,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
