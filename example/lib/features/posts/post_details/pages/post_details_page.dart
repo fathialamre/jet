@@ -27,9 +27,9 @@ class PostDetailsPage extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: JetBuilder.familyItem<PostResponse, PostResponse>(
+      body: JetBuilder.familyItem<PostResponse, int>(
         provider: postsDetailsProvider.call,
-        param: post,
+        param: post.id,
         builder: (post, ref) {
           return Text(post.body);
         },

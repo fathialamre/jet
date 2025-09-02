@@ -9,12 +9,15 @@ class AppRouter extends RootStackRouter {
   final Ref ref;
   @override
   List<AutoRoute> get routes => [
-    AutoRoute(page: LoginRoute.page, keepHistory: false, initial: true),
+    AutoRoute(page: LoginRoute.page, keepHistory: false),
     AutoRoute(
       page: RegisterRoute.page,
+      initial: true
     ),
     AutoRoute(page: VerifyRegisterRoute.page),
-    AutoRoute(page: PostsRoute.page, ),
+    AutoRoute(
+      page: PostsRoute.page,
+    ),
     AutoRoute(page: PostDetailsRoute.page),
     AutoRoute(
       page: ProfileRoute.page,

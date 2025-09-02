@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
+import 'package:jet/extensions/build_context.dart';
 import 'package:jet/jet.dart';
+import 'package:jet/resources/components/jet_empty_widget.dart';
 import 'package:jet/resources/state/jet_consumer.dart';
 import 'package:jet/networking/errors/errors.dart';
 
@@ -56,13 +58,18 @@ class JetBuilder {
   static Widget list<T>({
     required AutoDisposeFutureProvider<List<T>> provider,
     required Widget Function(T item, int index) itemBuilder,
+    required BuildContext context,
 
     // Customization
     Widget? loading,
-    Widget Function(Object error, StackTrace? stackTrace)? error,
+    Widget Function(Object error, StackTrace? stackTrace)? errorBuilder,
+    Widget? noItemsBuilder,
+    Future<void> Function()? noItemsAction,
+    String? noItemsTitle,
     EdgeInsets? padding,
     bool shrinkWrap = false,
     ScrollPhysics? physics,
+    Widget Function(BuildContext, int)? separatorBuilder,
 
     // Callbacks
     VoidCallback? onRetry,
@@ -73,8 +80,31 @@ class JetBuilder {
       onRefresh: onRefresh,
       onRetry: onRetry,
       loading: loading,
-      error: error,
+      error: errorBuilder,
       builder: (items, ref) {
+        if (items.isEmpty) {
+          return noItemsBuilder ??
+              JetEmptyWidget(
+                title: context.jetI10n.noItemsFound,
+                message: context.jetI10n.noItemsFoundMessage,
+                onTap:
+                    noItemsAction ??
+                    onRetry ??
+                    () => ref.refresh(provider.future),
+                showAction: true,
+                actionText: noItemsTitle,
+              );
+        }
+        if (separatorBuilder != null) {
+          return ListView.separated(
+            padding: padding,
+            shrinkWrap: shrinkWrap,
+            physics: physics,
+            itemCount: items.length,
+            itemBuilder: (context, index) => itemBuilder(items[index], index),
+            separatorBuilder: separatorBuilder,
+          );
+        }
         return ListView.builder(
           padding: padding,
           shrinkWrap: shrinkWrap,
@@ -367,7 +397,7 @@ Widget _buildRetryButton<T>({
       final isLoading = ref.watch(provider).isLoading;
       final loader = jet.config.loader;
 
-      return ElevatedButton(
+      return FilledButton(
         onPressed: isLoading ? null : onRetry,
         child: isLoading
             ? SizedBox(
@@ -375,7 +405,7 @@ Widget _buildRetryButton<T>({
                 height: 20,
                 child: loader,
               )
-            : Text(_getRetryButtonText(jetError)),
+            : Text(_getRetryButtonText(jetError, context)),
       );
     },
   );
@@ -421,35 +451,37 @@ Widget _buildErrorIcon(JetError jetError) {
 }
 
 /// Get error title based on JetError type
-String _getErrorTitle(JetError jetError) {
+String _getErrorTitle(
+  JetError jetError,
+  BuildContext context,
+) {
   switch (jetError.type) {
     case JetErrorType.noInternet:
-      return 'No Internet Connection';
+      return context.jetI10n.noInternetConnection;
     case JetErrorType.server:
-      return 'Server Error';
+      return context.jetI10n.serverError;
     case JetErrorType.client:
-      return 'Request Error';
+      return context.jetI10n.requestError;
     case JetErrorType.validation:
-      return 'Validation Error';
+      return context.jetI10n.validationError;
     case JetErrorType.timeout:
-      return 'Request Timeout';
+      return context.jetI10n.requestTimeout;
     case JetErrorType.cancelled:
-      return 'Request Cancelled';
+      return context.jetI10n.requestCancelled;
     case JetErrorType.unknown:
-    default:
-      return 'Something went wrong';
+      return context.jetI10n.somethingWentWrong;
   }
 }
 
 /// Get retry button text based on JetError type
-String _getRetryButtonText(JetError jetError) {
+String _getRetryButtonText(JetError jetError, BuildContext context) {
   switch (jetError.type) {
     case JetErrorType.noInternet:
-      return 'Check Connection';
+      return context.jetI10n.checkConnection;
     case JetErrorType.cancelled:
-      return 'Restart';
+      return context.jetI10n.restart;
     default:
-      return 'Retry';
+      return context.jetI10n.retry;
   }
 }
 
@@ -560,7 +592,11 @@ class _StateWidget<T> extends JetConsumerWidget {
     BuildContext context,
   ) {
     // Use the error handler to process the error
-    final jetError = jet.config.errorHandler.handle(error, stackTrace);
+    final jetError = jet.config.errorHandler.handle(
+      error,
+      context,
+      stackTrace: stackTrace,
+    );
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -580,7 +616,7 @@ class _StateWidget<T> extends JetConsumerWidget {
                     _buildErrorIcon(jetError),
                     const SizedBox(height: 16),
                     Text(
-                      _getErrorTitle(jetError),
+                      _getErrorTitle(jetError, context),
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -696,7 +732,11 @@ class _StateFamilyWidget<T, Param> extends JetConsumerWidget {
     final familyProvider = provider(param);
 
     // Use the error handler to process the error
-    final jetError = jet.config.errorHandler.handle(error, stackTrace);
+    final jetError = jet.config.errorHandler.handle(
+      error,
+      context,
+      stackTrace: stackTrace,
+    );
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -716,7 +756,7 @@ class _StateFamilyWidget<T, Param> extends JetConsumerWidget {
                     _buildErrorIcon(jetError),
                     const SizedBox(height: 16),
                     Text(
-                      _getErrorTitle(jetError),
+                      _getErrorTitle(jetError, context),
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,

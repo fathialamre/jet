@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:flutter/widgets.dart';
+import 'package:jet/extensions/build_context.dart';
 import 'jet_error.dart';
 
 /// Abstract base class for handling errors in the Jet framework
@@ -9,7 +11,7 @@ abstract class JetBaseErrorHandler {
   ///
   /// This method should be overridden by concrete implementations
   /// to provide custom error handling logic
-  JetError handle(Object error, [StackTrace? stackTrace]);
+  JetError handle(Object error, BuildContext context, {StackTrace? stackTrace});
 
   /// Check if the error is a no-internet error
   ///
@@ -117,7 +119,7 @@ abstract class JetBaseErrorHandler {
   /// Get user-friendly error message
   ///
   /// Override this method to customize error messages
-  String getErrorMessage(Object error) {
+  String getErrorMessage(Object error, BuildContext context) {
     if (error is DioException) {
       if (error.response?.data is Map<String, dynamic>) {
         final data = error.response!.data as Map<String, dynamic>;
@@ -129,19 +131,20 @@ abstract class JetBaseErrorHandler {
       // Handle different types of Dio exceptions
       switch (error.type) {
         case DioExceptionType.connectionTimeout:
-          return 'Connection timeout. Please check your internet connection and try again.';
+          return context.jetI10n.connectionTimeoutDescription;
         case DioExceptionType.sendTimeout:
-          return 'Send timeout. Please try again.';
+          return context.jetI10n.sendTimeoutDescription;
         case DioExceptionType.receiveTimeout:
-          return 'Receive timeout. Please try again.';
+          return context.jetI10n.receiveTimeoutDescription;
         case DioExceptionType.badCertificate:
-          return 'Security certificate error. Please try again later.';
+          return context.jetI10n.badCertificate;
         case DioExceptionType.badResponse:
-          return _handleBadResponse(error);
+          return _handleBadResponse(error, context);
         case DioExceptionType.cancel:
-          return 'Request was cancelled.';
+          return context.jetI10n.requestCancelledDescription;
         case DioExceptionType.connectionError:
-          return 'Connection error. Please check your internet connection.';
+          return context.jetI10n.connectionErrorDescription;
+
         case DioExceptionType.unknown:
           return _handleUnknownDioError(error);
       }
@@ -151,30 +154,35 @@ abstract class JetBaseErrorHandler {
   }
 
   /// Handle bad response errors (4xx, 5xx status codes)
-  String _handleBadResponse(DioException error) {
+  String _handleBadResponse(DioException error, BuildContext context) {
     final statusCode = error.response?.statusCode;
 
     if (statusCode == null) {
-      return 'Network error occurred. Please try again.';
+      return context.jetI10n.noInternetConnection;
     }
 
     // Client errors (4xx)
     if (statusCode >= 400 && statusCode < 500) {
       switch (statusCode) {
         case 400:
-          return 'Bad request. Please check your input and try again.';
+          return context.jetI10n.badRequestDescription;
+
         case 401:
-          return 'Authentication failed. Please log in again.';
+          return context.jetI10n.authenticationFailedDescription;
         case 403:
-          return 'Access denied. You don\'t have permission to perform this action.';
+          return context.jetI10n.accessDeniedDescription;
+
         case 404:
-          return 'The requested resource was not found.';
+          return context.jetI10n.notFoundDescription;
+
         case 422:
-          return 'Validation failed. Please check your input.';
+          return context.jetI10n.validationFailedDescription;
+
         case 429:
-          return 'Too many requests. Please wait and try again.';
+          return context.jetI10n.tooManyRequestsDescription;
+
         default:
-          return 'Client error occurred. Please try again.';
+          return context.jetI10n.clientErrorDescription;
       }
     }
 
@@ -182,15 +190,15 @@ abstract class JetBaseErrorHandler {
     if (statusCode >= 500 && statusCode < 600) {
       switch (statusCode) {
         case 500:
-          return 'Internal server error. Please try again later.';
+          return context.jetI10n.serverErrorDescription;
         case 502:
-          return 'Bad gateway. Please try again later.';
+          return context.jetI10n.badGatewayDescription;
         case 503:
-          return 'Service unavailable. Please try again later.';
+          return context.jetI10n.serviceUnavailableDescription;
         case 504:
-          return 'Gateway timeout. Please try again later.';
+          return context.jetI10n.gatewayTimeoutDescription;
         default:
-          return 'Server error occurred. Please try again later.';
+          return context.jetI10n.serverErrorDescription;
       }
     }
 

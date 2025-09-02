@@ -42,7 +42,7 @@ class LoginPage extends ConsumerWidget {
                 await ref
                     .read(authProvider.notifier)
                     .login(
-                      Session(token: 'admin', isGuest: false, name: 'Admin'),
+                      Session(token: 'token', isGuest: false, name: 'Admin'),
                     );
                 if (context.mounted) {
                   if (onResult != null) {

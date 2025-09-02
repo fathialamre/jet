@@ -627,7 +627,7 @@ class _PaginationListWidgetState<T, TResponse>
     }
 
     final jet = ref.read(jetProvider);
-    final jetError = jet.config.errorHandler.handle(error);
+    final jetError = jet.config.errorHandler.handle(error, context);
 
     return JetErrorWidget(
       icon: _getErrorIconData(jetError),
@@ -647,7 +647,7 @@ class _PaginationListWidgetState<T, TResponse>
     }
 
     final jet = ref.read(jetProvider);
-    final jetError = jet.config.errorHandler.handle(error);
+    final jetError = jet.config.errorHandler.handle(error, context);
 
     return JetFetchMoreErrorWidget(
       showAction: true,
@@ -974,7 +974,7 @@ class _PaginationGridWidgetState<T, TResponse>
     }
 
     final jet = ref.read(jetProvider);
-    final jetError = jet.config.errorHandler.handle(error);
+    final jetError = jet.config.errorHandler.handle(error, context);
 
     return JetErrorWidget(
       icon: _getErrorIconData(jetError),
@@ -1051,7 +1051,7 @@ class _PaginationGridWidgetState<T, TResponse>
     }
 
     final jet = ref.read(jetProvider);
-    final jetError = jet.config.errorHandler.handle(error);
+    final jetError = jet.config.errorHandler.handle(error, context);
 
     return JetFetchMoreErrorWidget(
       showAction: true,

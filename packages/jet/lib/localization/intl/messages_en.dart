@@ -172,6 +172,9 @@ class JetLocalizationsImplEn extends JetLocalizationsImpl {
   String get clientError => 'Client error occurred. Please try again.';
 
   @override
+  String get pleaseFixTheFormErrors => 'Please fix the form errors';
+
+  @override
   String get badRequestDescription =>
       'Bad request. Please check your input and try again.';
 
