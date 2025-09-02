@@ -1,85 +1,63 @@
-import 'package:example/core/extensions/build_context.dart';
+import 'package:example/core/router/app_router.gr.dart';
 import 'package:flutter/material.dart';
-import 'package:jet/extensions/text_extensions.dart';
 import 'package:jet/helpers/jet_logger.dart';
 import 'package:jet/jet_framework.dart';
-import '../notifiers/login_form_notifier.dart';
-import '../data/models/login_request.dart';
-import '../data/models/login_response.dart';
+import 'package:jet/session/auth_provider.dart';
+import 'package:jet/session/session.dart';
 
 @RoutePage()
 class LoginPage extends ConsumerWidget {
-  const LoginPage({super.key});
+  final Function(bool)? onResult;
+
+  const LoginPage({super.key, this.onResult});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
+        title: const Text('Login'),
         actions: [
           ThemeSwitcher.toggleButton(context),
           LanguageSwitcher.toggleButton(),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              context.localizations.welcome,
-              textAlign: TextAlign.center,
-            ).headlineLarge(context).bold(),
-
-            Text(
-              context.localizations.loginToContinue,
-              textAlign: TextAlign.center,
-            ),
-
-            const SizedBox(height: 48),
-
-            // Login form using JetFormBuilder
-            // JetFormBuilder<LoginRequest, LoginResponse>(
-            //   initialValues: {
-            //     'password': '12345678',
-            //     'otp': '123456',
-            //   },
-            //   useDefaultErrorHandler: false,
-            //   provider: loginFormProvider,
-            //   onSuccess: (response, request) {
-            //     ScaffoldMessenger.of(context).showSnackBar(
-            //       SnackBar(
-            //         content: Text(
-            //           'Login successful! Token: ${response.token.substring(0, 10)}...',
-            //         ),
-            //         backgroundColor: Colors.green,
-            //       ),
-            //     );
-            //   },
-            //   onError: (error, stackTrace, invalidateFields) {
-            //     dump(error);
-            //     invalidateFields({
-            //       'phone': ['phone is required'],
-            //     });
-            //   },
-            //   builder: (context, ref, form, formState) {
-            //     return [
-            //       FormBuilderPhoneNumberField(
-            //         name: 'phone',
-            //         hintText: context.localizations.enterPhoneNumber,
-            //         isRequired: true,
-            //       ),
-            //       // Password field using FormBuilderPasswordField
-            //       FormBuilderPasswordField(
-            //         name: 'password',
-            //         hintText: context.localizations.enterPassword,
-            //         isRequired: true,
-            //       ),
-            //     ];
-            //   },
-            // ),
-          ],
-        ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          JetButton.textButton(
+            text: 'Login',
+            onTap: () async {
+              await ref.read(authProvider.notifier).loginAsGuest();
+              if (context.mounted) {
+                context.router.replaceAll([HomeRoute()]);
+              }
+            },
+          ),
+          JetButton.textButton(
+            text: 'Login As Admin',
+            onTap: () async {
+              await ref
+                  .read(authProvider.notifier)
+                  .login(
+                    Session(token: 'admin', isGuest: false, name: 'Admin'),
+                  );
+              if (context.mounted) {
+                if (onResult != null) {
+                  onResult?.call(true);
+                } else {
+                  context.router.replaceAll([HomeRoute()]);
+                }
+              }
+            },
+          ),
+          JetButton.textButton(
+            text: 'Logout',
+            onTap: () async {
+              await ref.read(authProvider.notifier).logout();
+            },
+          ),
+        ],
       ),
     );
   }

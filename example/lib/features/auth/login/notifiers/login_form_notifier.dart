@@ -14,9 +14,11 @@ class LoginFormNotifier extends JetFormNotifier<LoginRequest, LoginResponse> {
 
   @override
   Future<LoginResponse> action(LoginRequest data) async {
-    dump(data);
-    final response = await ref.read(authServiceProvider).login(data);
-    return response;
+    await Future.delayed(const Duration(seconds: 1));
+    // dump(data);
+    // final response = await ref.read(authServiceProvider).login(data);
+    // return response;
+    return LoginResponse(token: 'afkhasduehugfagfyegfiue');
   }
 }
 

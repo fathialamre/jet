@@ -18,7 +18,7 @@ showAdaptiveConfirmationDialog({
   final bool popOnConfirm = true,
   VoidCallback? onCancel,
 }) {
-  if (!Platform.isIOS) {
+  if (Platform.isIOS) {
     showDialog(
       context: context,
       barrierDismissible: barrierDismissible,

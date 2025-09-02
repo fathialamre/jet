@@ -2,6 +2,7 @@ import 'package:example/core/router/app_router.gr.dart';
 import 'package:example/features/posts/notifiers/posts_notifier.dart';
 import 'package:example/features/posts/data/models/post_response.dart';
 import 'package:flutter/material.dart';
+import 'package:jet/helpers/jet_logger.dart';
 import 'package:jet/jet_framework.dart';
 import 'package:jet/resources/state.dart';
 
@@ -24,6 +25,20 @@ class PostsPage extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Posts'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () {
+              showConfirmationSheet(
+                type: ConfirmationSheetType.info,
+                context: context,
+                title: 'Test',
+                message: 'Test 2',
+                onConfirm: () async {
+                  await Future.delayed(const Duration(seconds: 3));
+                },
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.shopping_cart),
             tooltip: 'Infinite Scroll Demo',

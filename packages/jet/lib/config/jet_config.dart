@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jet/adapters/jet_adapter.dart';
+import 'package:jet/jet_framework.dart';
 import 'package:jet/localization/models/locale_info.dart';
 import 'package:jet/resources/components/jet_loader.dart';
 import 'package:jet/networking/errors/errors.dart';
@@ -39,6 +40,8 @@ abstract class JetConfig {
   /// Adapters can handle routing, state management, networking, etc.
   /// Example: [RouterAdapter, DatabaseAdapter, AnalyticsAdapter]
   List<JetAdapter> get adapters;
+
+  PageInfo? get authPageInfo;
 
   /// The default locale for the application.
   ///

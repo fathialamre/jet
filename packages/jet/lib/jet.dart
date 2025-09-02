@@ -8,7 +8,7 @@ class Jet {
 
   AutoRouteProvider? _routerProvider;
 
-  setRouter(AutoRouteProvider provider) {
+  void setRouter(AutoRouteProvider provider) {
     _routerProvider = provider;
   }
 
@@ -25,6 +25,7 @@ class Jet {
     required Future<Jet> Function() setup,
     Future<void> Function(Jet jet)? setupFinished,
   }) async {
+    
     final jetApp = await setup();
 
     if (setupFinished != null) {

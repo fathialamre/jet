@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jet/config/jet_config.dart';
+import 'package:jet/helpers/jet_logger.dart';
 import 'package:jet/jet.dart';
 import 'package:jet/adapters/jet_adapter.dart';
+import 'package:jet/session/auth_provider.dart';
 import 'package:jet/widgets/main/jet_app.dart';
 
 class Boot {
@@ -18,12 +20,16 @@ class Boot {
   }
 }
 
-runJetApp({required Jet jet}) async {
+Future<void> runJetApp({required Jet jet}) async {
+  dump('NEW APP RUNNER');
   runApp(
     ProviderScope(
       overrides: [
         jetProvider.overrideWith(
           (ref) => jet,
+        ),
+        authProvider.overrideWith(
+          (ref) => Auth(AsyncValue.data(null)),
         ),
       ],
       child: JetApp(jet: jet),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jet/helpers/jet_logger.dart';
 import 'package:jet/jet_framework.dart' hide PageInfo;
 import 'package:jet/resources/state.dart';
 import '../../models/product.dart';
@@ -23,6 +24,7 @@ class ProductsPage extends JetConsumerWidget {
         title: const Text('Infinite Scroll Products'),
         actions: [
           // Add refresh button to demonstrate invalidate
+          
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {

@@ -19,7 +19,11 @@ class JetApp extends BaseJetApp {
     JetConfig config,
   ) {
     return MaterialApp.router(
-      routerConfig: router.config(),
+      routerConfig: router.config(
+        //TODO: Add navigator observers
+        navigatorObservers: () => [],
+      ),
+
       debugShowCheckedModeBanner: false,
       localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,
