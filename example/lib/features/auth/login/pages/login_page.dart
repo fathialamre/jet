@@ -7,7 +7,7 @@ import 'package:jet/session/session.dart';
 
 @RoutePage()
 class LoginPage extends ConsumerWidget {
-  final Function(bool)? onResult;
+  final Function(bool )? onResult;
 
   const LoginPage({super.key, this.onResult});
 

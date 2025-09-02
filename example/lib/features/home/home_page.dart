@@ -1,7 +1,7 @@
 import 'package:example/core/router/app_router.gr.dart';
 import 'package:flutter/material.dart';
 import 'package:jet/jet_framework.dart';
-import 'package:jet/session/auth_provider.dart';
+import 'package:jet/widgets/widgets/navigation/jet_navigation_hub.dart';
 
 @RoutePage()
 class HomePage extends ConsumerWidget {
@@ -9,28 +9,21 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Jet Vertical Slider Demo'),
-      ),
-      body: Column(
-        children: [
-          JetButton.outlined(
-            text: 'Login',
-            onTap: () async {
-              await ref.read(authProvider.notifier).loginAsGuest();
-            },
-          ),
-          Text("aaa"),
-          JetButton.outlined(
-            text: 'Profile',
-            onTap: () async {
-              context.router.push(ProfileRoute());
-            },
-          ),
-          Text("aaa"),
-        ],
-      ),
+    return JetNavigationHub(
+      destinations: [
+        NavigationDestination(
+          icon: Icon(Icons.home),
+          label: 'Profile',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.list),
+          label: 'Posts',
+        ),
+      ],
+      routes: [
+        ProfileRoute(),
+        PostsRoute(),
+      ],
     );
   }
 }
