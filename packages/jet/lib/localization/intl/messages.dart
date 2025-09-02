@@ -78,6 +78,7 @@ abstract class JetLocalizationsImpl {
   String get requestError;
   String get validationError;
   String get somethingWentWrong;
+  String get pleaseFixTheFormErrors;
 
   // Detailed error descriptions
   String get connectionTimeoutDescription;

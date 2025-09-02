@@ -1,3 +1,6 @@
+import 'package:flutter/widgets.dart';
+import 'package:jet/helpers/jet_logger.dart';
+
 import 'jet_base_error_handler.dart';
 import 'jet_error.dart';
 
@@ -19,7 +22,7 @@ class JetErrorHandler extends JetBaseErrorHandler {
   JetErrorHandler();
 
   @override
-  JetError handle(Object error, [StackTrace? stackTrace]) {
+  JetError handle(Object error, BuildContext context, {StackTrace? stackTrace}) {
     // Handle no internet errors first
     if (isNoInternetError(error)) {
       return JetError.noInternet();
@@ -29,7 +32,7 @@ class JetErrorHandler extends JetBaseErrorHandler {
     if (isValidationError(error)) {
       final validationErrors = extractValidationErrors(error);
       return JetError.validation(
-        message: getErrorMessage(error),
+        message: getErrorMessage(error, context),
         errors: validationErrors,
         rawError: error,
         stackTrace: stackTrace,
@@ -38,7 +41,7 @@ class JetErrorHandler extends JetBaseErrorHandler {
 
     // Get error type and other properties
     final errorType = getErrorType(error);
-    final message = getErrorMessage(error);
+    final message = getErrorMessage(error, context);
     final statusCode = getStatusCode(error);
     final metadata = createMetadata(error);
 

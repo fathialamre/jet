@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jet/config/jet_config.dart';
 import 'package:jet/localization/intl/messages.dart';
@@ -36,6 +37,7 @@ class JetApp extends BaseJetApp {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
             JetLocalizationsDelegate(),
+            FormBuilderLocalizationsDelegate(),
             ...config.localizationsDelegates,
           ],
           supportedLocales: config.supportedLocales
@@ -46,7 +48,7 @@ class JetApp extends BaseJetApp {
           darkTheme: config.getDarkTheme(),
           themeMode: themeMode,
         );
-      }
+      },
     );
   }
 }

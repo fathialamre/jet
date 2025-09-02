@@ -193,6 +193,9 @@ class JetLocalizationsImplAr extends JetLocalizationsImpl {
       'فشل في التحقق. يرجى التحقق من المدخلات.';
 
   @override
+  String get pleaseFixTheFormErrors => 'يرجى التحقق من المدخلات.';
+
+  @override
   String get tooManyRequestsDescription =>
       'طلبات كثيرة جداً. يرجى الانتظار والمحاولة مرة أخرى.';
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jet/extensions/build_context.dart';
 import '../../bootstrap/boot.dart';
 import '../../networking/errors/jet_error.dart';
 import '../common.dart';
@@ -23,6 +24,7 @@ abstract class JetFormNotifier<Request, Response>
 
   Future<void> submit({
     bool showErrorSnackBar = true,
+    required BuildContext context,
   }) async {
     final formState = formKey.currentState!;
     if (!formState.saveAndValidate()) {
@@ -30,8 +32,9 @@ abstract class JetFormNotifier<Request, Response>
         // Use jet error handler for form validation errors
         final handler = ref.read(jetProvider).config.errorHandler;
         final jetError = handler.handle(
-          'Please fix the form errors',
-          StackTrace.current,
+          context.jetI10n.pleaseFixTheFormErrors,
+          context,
+          stackTrace: StackTrace.current,
         );
 
         state = AsyncFormError(
@@ -55,12 +58,14 @@ abstract class JetFormNotifier<Request, Response>
     } catch (error, stackTrace) {
       // Use jet error handler to process the error
       final handler = ref.read(jetProvider).config.errorHandler;
-      final jetError = handler.handle(error, stackTrace);
+      if (context.mounted) {
+        final jetError = handler.handle(error, context, stackTrace: stackTrace);
 
-      state = AsyncFormError(
-        jetError,
-        stackTrace,
-      );
+        state = AsyncFormError(
+          jetError,
+          stackTrace,
+        );
+      }
     }
   }
 
