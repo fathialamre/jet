@@ -27,8 +27,7 @@ dependencies:
   riverpod_annotation: "^2.6.1"
   envied: "^1.1.1"
   freezed_annotation: 
-  json_annotation: 
-  
+  json_annotation:
 
 
 
