@@ -12,7 +12,7 @@ class JetButton extends StatefulWidget {
   const JetButton({
     super.key,
     required this.text,
-     this.onTap,
+    this.onTap,
     this.type = JetButtonType.filled,
     this.isEnabled = true,
     this.width,
@@ -26,7 +26,25 @@ class JetButton extends StatefulWidget {
     this.borderRadius,
     this.padding,
     this.textStyle,
+    this.isExpanded = false,
   });
+
+  final String text;
+  final FutureOr<void>? Function()? onTap;
+  final JetButtonType type;
+  final bool isEnabled;
+  final double? width;
+  final double? height;
+  final IconData? icon;
+  final IconPosition iconPosition;
+  final String? loadingText;
+  final Color? backgroundColor;
+  final Color? foregroundColor;
+  final Color? borderColor;
+  final BorderRadius? borderRadius;
+  final EdgeInsetsGeometry? padding;
+  final TextStyle? textStyle;
+  final bool isExpanded;
 
   // Static constructors for convenience
   static JetButton filled({
@@ -36,6 +54,7 @@ class JetButton extends StatefulWidget {
     bool isEnabled = true,
     double? width,
     double? height,
+    bool isExpanded = false,
     IconData? icon,
     IconPosition iconPosition = IconPosition.left,
     String? loadingText,
@@ -53,6 +72,7 @@ class JetButton extends StatefulWidget {
       isEnabled: isEnabled,
       width: width,
       height: height,
+      isExpanded: isExpanded,
       icon: icon,
       iconPosition: iconPosition,
       loadingText: loadingText,
@@ -71,6 +91,7 @@ class JetButton extends StatefulWidget {
     bool isEnabled = true,
     double? width,
     double? height,
+    bool isExpanded = false,
     IconData? icon,
     IconPosition iconPosition = IconPosition.left,
     String? loadingText,
@@ -89,6 +110,7 @@ class JetButton extends StatefulWidget {
       isEnabled: isEnabled,
       width: width,
       height: height,
+      isExpanded: isExpanded,
       icon: icon,
       iconPosition: iconPosition,
       loadingText: loadingText,
@@ -108,6 +130,7 @@ class JetButton extends StatefulWidget {
     bool isEnabled = true,
     double? width,
     double? height,
+    bool isExpanded = false,
     IconData? icon,
     IconPosition iconPosition = IconPosition.left,
     String? loadingText,
@@ -125,6 +148,7 @@ class JetButton extends StatefulWidget {
       isEnabled: isEnabled,
       width: width,
       height: height,
+      isExpanded: isExpanded,
       icon: icon,
       iconPosition: iconPosition,
       loadingText: loadingText,
@@ -143,6 +167,7 @@ class JetButton extends StatefulWidget {
     bool isEnabled = true,
     double? width,
     double? height,
+    bool isExpanded = false,
     IconData? icon,
     IconPosition iconPosition = IconPosition.left,
     String? loadingText,
@@ -160,6 +185,7 @@ class JetButton extends StatefulWidget {
       isEnabled: isEnabled,
       width: width,
       height: height,
+      isExpanded: isExpanded,
       icon: icon,
       iconPosition: iconPosition,
       loadingText: loadingText,
@@ -170,22 +196,6 @@ class JetButton extends StatefulWidget {
       textStyle: textStyle,
     );
   }
-
-  final String text;
-  final FutureOr<void>? Function()? onTap;
-  final JetButtonType type;
-  final bool isEnabled;
-  final double? width;
-  final double? height;
-  final IconData? icon;
-  final IconPosition iconPosition;
-  final String? loadingText;
-  final Color? backgroundColor;
-  final Color? foregroundColor;
-  final Color? borderColor;
-  final BorderRadius? borderRadius;
-  final EdgeInsetsGeometry? padding;
-  final TextStyle? textStyle;
 
   @override
   State<JetButton> createState() => _JetButtonState();
@@ -225,7 +235,8 @@ class _JetButtonState extends State<JetButton> {
 
     if (_isLoading) {
       return Row(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: widget.isExpanded ? MainAxisSize.max : MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const SizedBox(
             width: 16,
@@ -244,7 +255,8 @@ class _JetButtonState extends State<JetButton> {
 
     if (widget.icon != null) {
       return Row(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: widget.isExpanded ? MainAxisSize.max : MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (widget.iconPosition == IconPosition.left) ...[
             Icon(widget.icon),
@@ -259,7 +271,13 @@ class _JetButtonState extends State<JetButton> {
       );
     }
 
-    return Text(displayText);
+    return Row(
+      mainAxisSize: widget.isExpanded ? MainAxisSize.max : MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(displayText),
+      ],
+    );
   }
 
   @override
