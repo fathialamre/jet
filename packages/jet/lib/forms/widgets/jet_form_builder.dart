@@ -117,6 +117,7 @@ class JetFormBuilder<Request, Response> extends ConsumerWidget {
           ...builder(context, ref, form, formState),
           if (showDefaultSubmitButton)
             JetButton(
+              isExpanded: true,
               text: submitButtonText ?? context.jetI10n.submit,
               onTap: () => form.submit(context: context),
             ),
