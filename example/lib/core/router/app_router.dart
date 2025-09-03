@@ -12,6 +12,8 @@ class AppRouter extends RootStackRouter {
     AutoRoute(page: LoginRoute.page, keepHistory: false),
     AutoRoute(
       page: RegisterRoute.page,
+            initial: true,
+
     ),
     AutoRoute(page: VerifyRegisterRoute.page),
 
@@ -19,7 +21,6 @@ class AppRouter extends RootStackRouter {
 
     AutoRoute(
       page: HomeRoute.page,
-      initial: true,
       children: [
         AutoRoute(
           page: ProfileRoute.page,

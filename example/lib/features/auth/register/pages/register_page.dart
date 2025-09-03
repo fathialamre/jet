@@ -5,7 +5,6 @@ import 'package:example/features/auth/shared/data/models/register_request.dart';
 import 'package:example/features/auth/shared/data/models/register_response.dart';
 import 'package:flutter/material.dart';
 import 'package:jet/extensions/text_extensions.dart';
-import 'package:jet/forms/widgets/jet_form_submitter.dart';
 import 'package:jet/jet_framework.dart';
 
 @RoutePage()
@@ -79,21 +78,6 @@ class RegisterPage extends ConsumerWidget {
                     isRequired: true,
                   ),
                 ];
-              },
-            ),
-            JetFormSubmitter(
-              provider: registerFormProvider,
-              builder: (context, ref, form, formState) {
-                return IconButton.filled(
-                  icon: formState.isLoading
-                      ? const CircularProgressIndicator(
-                          color: Colors.white,
-                        )
-                      : Icon(Icons.check),
-                  onPressed: () {
-                    form.submit(context: context);
-                  },
-                );
               },
             ),
           ],
