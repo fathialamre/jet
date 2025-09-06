@@ -84,6 +84,9 @@ class JetLocalizationsImplAr extends JetLocalizationsImpl {
   String get receiveTimeout => 'انتهت مهلة الاستقبال';
 
   @override
+  String get requestTimeout => 'انتهت مهلة الطلب';
+
+  @override
   String get badCertificate => 'شهادة غير صحيحة';
 
   @override
@@ -144,4 +147,74 @@ class JetLocalizationsImplAr extends JetLocalizationsImpl {
 
   @override
   String get restart => 'إعادة التشغيل';
+
+  @override
+  String get badRequest =>
+      'طلب غير صحيح. يرجى التحقق من المدخلات والمحاولة مرة أخرى.';
+
+  @override
+  String get authenticationFailed =>
+      'فشل في المصادقة. يرجى تسجيل الدخول مرة أخرى.';
+
+  @override
+  String get accessDenied =>
+      'تم رفض الوصول. ليس لديك صلاحية لتنفيذ هذا الإجراء.';
+
+  @override
+  String get notFound => 'المورد المطلوب غير موجود.';
+
+  @override
+  String get validationFailed => 'فشل في التحقق. يرجى التحقق من المدخلات.';
+
+  @override
+  String get tooManyRequests =>
+      'طلبات كثيرة جداً. يرجى الانتظار والمحاولة مرة أخرى.';
+
+  @override
+  String get clientError => 'حدث خطأ من جانب العميل. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get badRequestDescription =>
+      'طلب غير صحيح. يرجى التحقق من المدخلات والمحاولة مرة أخرى.';
+
+  @override
+  String get authenticationFailedDescription =>
+      'فشل في المصادقة. يرجى تسجيل الدخول مرة أخرى.';
+
+  @override
+  String get accessDeniedDescription =>
+      'تم رفض الوصول. ليس لديك صلاحية لتنفيذ هذا الإجراء.';
+
+  @override
+  String get notFoundDescription => 'المورد المطلوب غير موجود.';
+
+  @override
+  String get validationFailedDescription =>
+      'فشل في التحقق. يرجى التحقق من المدخلات.';
+
+  @override
+  String get pleaseFixTheFormErrors => 'يرجى التحقق من المدخلات.';
+
+  @override
+  String get tooManyRequestsDescription =>
+      'طلبات كثيرة جداً. يرجى الانتظار والمحاولة مرة أخرى.';
+
+  @override
+  String get clientErrorDescription =>
+      'حدث خطأ من جانب العميل. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get serverErrorDescription =>
+      'حدث خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقاً.';
+
+  @override
+  String get badGatewayDescription => 'خطأ في البوابة. الخادم غير متاح مؤقتاً.';
+
+  @override
+  String get serviceUnavailableDescription =>
+      'الخدمة غير متاحة مؤقتاً. يرجى المحاولة مرة أخرى لاحقاً.';
+
+  @override
+  String get gatewayTimeoutDescription =>
+      'انتهت مهلة البوابة. استغرق الخادم وقتاً طويلاً للاستجابة.';
 }

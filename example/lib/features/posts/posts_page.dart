@@ -2,8 +2,11 @@ import 'package:example/core/router/app_router.gr.dart';
 import 'package:example/features/posts/notifiers/posts_notifier.dart';
 import 'package:example/features/posts/data/models/post_response.dart';
 import 'package:flutter/material.dart';
+import 'package:jet/extensions/build_context.dart';
+import 'package:jet/extensions/text_extensions.dart';
 import 'package:jet/helpers/jet_logger.dart';
 import 'package:jet/jet_framework.dart';
+import 'package:jet/resources/components/jet_empty_widget.dart';
 import 'package:jet/resources/state.dart';
 
 /// Posts page showcasing the new unified JetState API with enhanced error handling
@@ -26,68 +29,27 @@ class PostsPage extends ConsumerWidget {
         title: const Text('Posts'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.language),
             onPressed: () {
-              showConfirmationSheet(
-                type: ConfirmationSheetType.info,
-                context: context,
-                title: 'Test',
-                message: 'Test 2',
-                onConfirm: () async {
-                  await Future.delayed(const Duration(seconds: 3));
-                },
-              );
+              LanguageSwitcher.show(context);
             },
-          ),
-          IconButton(
-            icon: const Icon(Icons.shopping_cart),
-            tooltip: 'Infinite Scroll Demo',
-            onPressed: () => context.router.push(
-              const PageRouteInfo('InfiniteScrollExampleRoute'),
-            ),
           ),
         ],
       ),
-      body: JetConsumer(
-        builder: (context, ref, jet) {
-          return JetBuilder.list(
-            provider: postsProvider,
-            error: (error, stackTrace) {
-              final jetError = jet.config.errorHandler.handle(
-                error,
-                stackTrace,
-              );
-              return Text(jetError.friendlyMessage);
-            },
-            itemBuilder: (PostResponse post, int index) => Card(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: ListTile(
-                onTap: () => context.router.push(
-                  PostDetailsRoute(post: post),
-                ),
-                leading: CircleAvatar(
-                  backgroundColor: Colors.blue[100],
-                  child: Text(
-                    '${index + 1}',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                title: Text(
-                  post.title,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                subtitle: Text(
-                  post.body,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              ),
-            ),
-          );
-        },
+      body: JetBuilder.list(
+        provider: postsProvider,
+        context: context,
+        itemBuilder: (PostResponse post, int index) => ListTile(
+          onTap: () => context.router.push(
+            PostDetailsRoute(post: post),
+          ),
+          title: Text(
+            post.title,
+          ).labelLarge(context).bold().color(Colors.red),
+          subtitle: Text(
+            post.body,
+          ).bodyLarge(context),
+        ),
       ),
     );
   }

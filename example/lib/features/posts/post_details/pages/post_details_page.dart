@@ -1,3 +1,4 @@
+import 'package:example/core/router/app_router.gr.dart' show PostsRoute, ProfileRoute;
 import 'package:example/features/posts/data/models/post_response.dart';
 import 'package:example/features/posts/notifiers/posts_notifier.dart';
 import 'package:flutter/material.dart';
@@ -26,10 +27,16 @@ class PostDetailsPage extends StatelessWidget {
         backgroundColor: Colors.indigo[700],
         foregroundColor: Colors.white,
         elevation: 0,
+        actions: [
+          IconButton(
+            onPressed: () => context.router.navigate(ProfileRoute()),
+            icon: Icon(Icons.home),
+          ),
+        ],
       ),
-      body: JetBuilder.familyItem<PostResponse, PostResponse>(
+      body: JetBuilder.familyItem<PostResponse, int>(
         provider: postsDetailsProvider.call,
-        param: post,
+        param: post.id,
         builder: (post, ref) {
           return Text(post.body);
         },
