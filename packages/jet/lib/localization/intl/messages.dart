@@ -66,6 +66,7 @@ abstract class JetLocalizationsImpl {
   String get connectionTimeout;
   String get sendTimeout;
   String get receiveTimeout;
+  String get requestTimeout;
   String get badCertificate;
   String get badResponse;
   String get requestCancelled;
@@ -77,6 +78,7 @@ abstract class JetLocalizationsImpl {
   String get requestError;
   String get validationError;
   String get somethingWentWrong;
+  String get pleaseFixTheFormErrors;
 
   // Detailed error descriptions
   String get connectionTimeoutDescription;
@@ -87,6 +89,28 @@ abstract class JetLocalizationsImpl {
   String get connectionErrorDescription;
   String get checkConnection;
   String get restart;
+
+  // HTTP error messages
+  String get badRequest;
+  String get authenticationFailed;
+  String get accessDenied;
+  String get notFound;
+  String get validationFailed;
+  String get tooManyRequests;
+  String get clientError;
+
+  // HTTP error descriptions
+  String get badRequestDescription;
+  String get authenticationFailedDescription;
+  String get accessDeniedDescription;
+  String get notFoundDescription;
+  String get validationFailedDescription;
+  String get tooManyRequestsDescription;
+  String get clientErrorDescription;
+  String get serverErrorDescription;
+  String get badGatewayDescription;
+  String get serviceUnavailableDescription;
+  String get gatewayTimeoutDescription;
 }
 
 class JetLocalizationsDelegate

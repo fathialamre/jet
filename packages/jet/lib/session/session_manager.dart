@@ -58,20 +58,18 @@ class Session implements Model {
   final String token;
   final String name;
   final bool isGuest;
+  final String? phone;
 
   Session({
     required this.token,
     required this.name,
     required this.isGuest,
+    this.phone,
   });
 
   @override
   Map<String, dynamic> toJson() {
-    return {
-      'token': token,
-      'name': name,
-      'is_guest': isGuest,
-    };
+    return {'token': token, 'name': name, 'is_guest': isGuest, 'phone': phone};
   }
 
   factory Session.fromJson(Map<String, dynamic> json) {
@@ -79,6 +77,7 @@ class Session implements Model {
       token: json['token'],
       name: json['name'],
       isGuest: json['is_guest'],
+      phone: json['phone'],
     );
   }
 }

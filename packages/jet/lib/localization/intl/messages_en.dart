@@ -85,6 +85,9 @@ class JetLocalizationsImplEn extends JetLocalizationsImpl {
   String get receiveTimeout => 'Receive timeout';
 
   @override
+  String get requestTimeout => 'Request timeout';
+
+  @override
   String get badCertificate => 'Bad certificate';
 
   @override
@@ -143,4 +146,74 @@ class JetLocalizationsImplEn extends JetLocalizationsImpl {
 
   @override
   String get restart => 'Restart';
+
+  @override
+  String get badRequest =>
+      'Bad request. Please check your input and try again.';
+
+  @override
+  String get authenticationFailed =>
+      'Authentication failed. Please log in again.';
+
+  @override
+  String get accessDenied =>
+      'Access denied. You don\'t have permission to perform this action.';
+
+  @override
+  String get notFound => 'The requested resource was not found.';
+
+  @override
+  String get validationFailed => 'Validation failed. Please check your input.';
+
+  @override
+  String get tooManyRequests => 'Too many requests. Please wait and try again.';
+
+  @override
+  String get clientError => 'Client error occurred. Please try again.';
+
+  @override
+  String get pleaseFixTheFormErrors => 'Please fix the form errors';
+
+  @override
+  String get badRequestDescription =>
+      'Bad request. Please check your input and try again.';
+
+  @override
+  String get authenticationFailedDescription =>
+      'Authentication failed. Please log in again.';
+
+  @override
+  String get accessDeniedDescription =>
+      'Access denied. You don\'t have permission to perform this action.';
+
+  @override
+  String get notFoundDescription => 'The requested resource was not found.';
+
+  @override
+  String get validationFailedDescription =>
+      'Validation failed. Please check your input.';
+
+  @override
+  String get tooManyRequestsDescription =>
+      'Too many requests. Please wait and try again.';
+
+  @override
+  String get clientErrorDescription =>
+      'Client error occurred. Please try again.';
+
+  @override
+  String get serverErrorDescription =>
+      'Server error occurred. Please try again later.';
+
+  @override
+  String get badGatewayDescription =>
+      'Bad gateway error. The server is temporarily unavailable.';
+
+  @override
+  String get serviceUnavailableDescription =>
+      'Service temporarily unavailable. Please try again later.';
+
+  @override
+  String get gatewayTimeoutDescription =>
+      'Gateway timeout. The server took too long to respond.';
 }

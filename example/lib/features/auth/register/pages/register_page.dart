@@ -4,9 +4,7 @@ import 'package:example/features/auth/register/notifiers/register_form_notifier.
 import 'package:example/features/auth/shared/data/models/register_request.dart';
 import 'package:example/features/auth/shared/data/models/register_response.dart';
 import 'package:flutter/material.dart';
-import 'package:jet/extensions/build_context.dart';
 import 'package:jet/extensions/text_extensions.dart';
-import 'package:jet/helpers/jet_logger.dart';
 import 'package:jet/jet_framework.dart';
 
 @RoutePage()
@@ -26,7 +24,6 @@ class RegisterPage extends ConsumerWidget {
         padding: const EdgeInsets.all(24.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
               context.localizations.welcome,
@@ -42,13 +39,8 @@ class RegisterPage extends ConsumerWidget {
 
             // Login form using JetFormBuilder
             JetFormBuilder<RegisterRequest, RegisterResponse>(
-              onError: (error, stackTrace, invalidateFields) {
-                dump(stackTrace.toString());
-                invalidateFields({
-                  'phone': ['phone is required'],
-                });
-              },
               initialValues: {
+                'phone': '01099999999',
                 'name': 'Fathi',
                 'password': '12345678',
                 'password_confirmation': '12345678',
@@ -58,6 +50,7 @@ class RegisterPage extends ConsumerWidget {
               onSuccess: (response, request) {
                 context.router.push(VerifyRegisterRoute(phone: response.phone));
               },
+              // showDefaultSubmitButton: false,
               builder: (context, ref, form, formState) {
                 return [
                   FormBuilderPhoneNumberField(
@@ -78,13 +71,11 @@ class RegisterPage extends ConsumerWidget {
                     name: 'password',
                     hintText: context.localizations.enterPassword,
                     isRequired: true,
-                    formKey: form.formKey,
                   ),
                   FormBuilderPasswordField(
                     name: 'password_confirmation',
                     hintText: context.localizations.enterPassword,
                     isRequired: true,
-                    formKey: form.formKey,
                   ),
                 ];
               },

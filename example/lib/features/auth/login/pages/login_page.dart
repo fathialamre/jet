@@ -7,7 +7,7 @@ import 'package:jet/session/session.dart';
 
 @RoutePage()
 class LoginPage extends ConsumerWidget {
-  final Function(bool)? onResult;
+  final Function(bool )? onResult;
 
   const LoginPage({super.key, this.onResult});
 
@@ -42,7 +42,7 @@ class LoginPage extends ConsumerWidget {
                 await ref
                     .read(authProvider.notifier)
                     .login(
-                      Session(token: 'admin', isGuest: false, name: 'Admin'),
+                      Session(token: 'token', isGuest: false, name: 'Admin'),
                     );
                 if (context.mounted) {
                   if (onResult != null) {

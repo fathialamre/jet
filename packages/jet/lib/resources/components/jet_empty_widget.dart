@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jet/extensions/build_context.dart';
 import 'package:jet/extensions/text_extensions.dart';
 import 'package:jet/widgets/widgets/buttons/jet_button.dart';
@@ -7,7 +8,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 class JetEmptyWidget extends StatelessWidget {
   const JetEmptyWidget({
     super.key,
-    this.icon = LucideIcons.inbox,
+    this.icon,
     required this.title,
     this.message,
     this.onTap,
@@ -15,7 +16,7 @@ class JetEmptyWidget extends StatelessWidget {
     this.actionText,
   });
 
-  final IconData icon;
+  final Widget? icon;
   final String title;
   final String? message;
   final VoidCallback? onTap;
@@ -28,11 +29,12 @@ class JetEmptyWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            icon,
-            color: context.theme.colorScheme.outline,
-            size: 60,
-          ),
+          icon ??
+              Icon(
+                LucideIcons.list,
+                color: context.theme.colorScheme.outline,
+                size: 60.sp,
+              ),
           const SizedBox(height: 12),
           Text(
             title,

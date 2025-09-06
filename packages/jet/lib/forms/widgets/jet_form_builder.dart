@@ -61,7 +61,7 @@ class JetFormBuilder<Request, Response> extends ConsumerWidget {
       } else {
         // Process raw error with handler
         final handler = ref.read(jetProvider).config.errorHandler;
-        jetError = handler.handle(error, stackTrace);
+        jetError = handler.handle(error, context, stackTrace: stackTrace);
       }
 
       // Show error message if available
@@ -117,8 +117,9 @@ class JetFormBuilder<Request, Response> extends ConsumerWidget {
           ...builder(context, ref, form, formState),
           if (showDefaultSubmitButton)
             JetButton(
+              isExpanded: true,
               text: submitButtonText ?? context.jetI10n.submit,
-              onTap: form.submit,
+              onTap: () => form.submit(context: context),
             ),
         ],
       ),
