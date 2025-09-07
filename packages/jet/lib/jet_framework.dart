@@ -15,6 +15,7 @@ export 'helpers/helpers.dart';
 export 'package:lucide_icons_flutter/lucide_icons.dart';
 export 'package:flutter_screenutil/flutter_screenutil.dart';
 export 'package:form_builder_validators/form_builder_validators.dart';
+export 'package:heroicons/heroicons.dart';
 
 // Widgets
 export 'widgets/widgets.dart';
