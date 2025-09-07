@@ -1,11 +1,10 @@
 import 'package:jet/helpers/jet_faker.dart';
+import 'package:jet/helpers/jet_logger.dart';
 import 'package:jet/jet_framework.dart';
 import 'package:jet/session/session_manager.dart';
 
 class Auth extends StateNotifier<AsyncValue<Session?>> {
-  Auth(super.state) {
-    _loadSession();
-  }
+  Auth(super.state);
 
   bool get isGuest => state.value?.isGuest ?? false;
 
@@ -44,5 +43,9 @@ class Auth extends StateNotifier<AsyncValue<Session?>> {
 }
 
 final authProvider = StateNotifierProvider<Auth, AsyncValue<Session?>>(
-  (ref) => throw UnimplementedError(),
+  (ref) {
+    final Session? session = JetStorage.getSession();
+    final state = AsyncValue.data(session);
+    return Auth(state);
+  },
 );
