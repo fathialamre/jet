@@ -17,6 +17,7 @@ class AuthGuard extends AutoRouteGuard {
     
 
     if ((auth.value?.isGuest != null && auth.value?.isGuest == false)) {
+      dump(auth.value?.isGuest);
       resolver.next(true);
     } else {
       resolver.redirectUntil(
