@@ -34,6 +34,9 @@ dependencies:
   custom_refresh_indicator: "^4.0.1"
   infinite_scroll_pagination: "^5.1.0"
   flutter_screenutil: "^5.9.3"
+
+  #Utils
+  guardo: "^0.1.0"
   
   # Storage
   flutter_secure_storage: "^9.2.4"

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:jet/helpers/jet_logger.dart';
+import 'package:jet/session/session_manager.dart';
 import 'package:jet/storage/model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -41,7 +42,6 @@ class JetStorage {
       );
     }
   }
-
   static dynamic read<T>(
     String key, {
     T Function(Map<String, dynamic> json)? decoder,
@@ -130,6 +130,20 @@ class JetStorage {
 
   static Future<void> clearSecure() async {
     await manager.deleteAll();
+  }
+
+  static Session? getSession() {
+    return read<Session>(
+      'session',
+      decoder: (json) => Session.fromJson(json),
+    );
+  }
+
+  static bool isLocked(){
+    return read<bool>(
+      'isLocked',
+      defaultValue: false,
+    );
   }
 }
 
