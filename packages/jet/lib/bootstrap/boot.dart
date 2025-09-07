@@ -28,9 +28,6 @@ Future<void> runJetApp({required Jet jet}) async {
         jetProvider.overrideWith(
           (ref) => jet,
         ),
-        authProvider.overrideWith(
-          (ref) => Auth(AsyncValue.data(null)),
-        ),
       ],
       child: JetApp(jet: jet),
     ),

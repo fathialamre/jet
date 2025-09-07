@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:guardo/guardo.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jet/config/jet_config.dart';
 import 'package:jet/localization/intl/messages.dart';
+import 'package:jet/storage/local_storage.dart';
 import 'package:jet/widgets/main/jet_base_app.dart';
 
 class JetApp extends BaseJetApp {
@@ -25,28 +27,31 @@ class JetApp extends BaseJetApp {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (BuildContext context, Widget? child) {
-        return MaterialApp.router(
-          routerConfig: router.config(
-            //TODO: Add navigator observers
-            navigatorObservers: () => [],
-          ),
+        return Guardo(
+          enabled: JetStorage.isLocked(),
+          child: MaterialApp.router(
+            routerConfig: router.config(
+              //TODO: Add navigator observers
+              navigatorObservers: () => [],
+            ),
 
-          debugShowCheckedModeBanner: false,
-          localizationsDelegates: [
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-            JetLocalizationsDelegate(),
-            FormBuilderLocalizationsDelegate(),
-            ...config.localizationsDelegates,
-          ],
-          supportedLocales: config.supportedLocales
-              .map((e) => e.locale)
-              .toList(),
-          locale: locale,
-          theme: config.getTheme(),
-          darkTheme: config.getDarkTheme(),
-          themeMode: themeMode,
+            debugShowCheckedModeBanner: false,
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+              JetLocalizationsDelegate(),
+              FormBuilderLocalizationsDelegate(),
+              ...config.localizationsDelegates,
+            ],
+            supportedLocales: config.supportedLocales
+                .map((e) => e.locale)
+                .toList(),
+            locale: locale,
+            theme: config.getTheme(),
+            darkTheme: config.getDarkTheme(),
+            themeMode: themeMode,
+          ),
         );
       },
     );
