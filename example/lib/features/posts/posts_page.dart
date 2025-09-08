@@ -37,7 +37,7 @@ class PostsPage extends ConsumerWidget {
         ],
       ),
       body: JetBuilder.list(
-        provider: postsProvider,
+        provider: postsNotifierProvider,
         context: context,
         itemBuilder: (PostResponse post, int index) => ListTile(
           onTap: () => context.router.push(
