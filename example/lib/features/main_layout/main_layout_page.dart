@@ -1,4 +1,9 @@
 import 'package:example/core/router/app_router.gr.dart';
+import 'package:example/features/actions/actions/jet_action.dart';
+import 'package:example/features/auth/login/notifiers/login_form_notifier.dart';
+import 'package:example/features/auth/register/notifiers/register_form_notifier.dart';
+import 'package:example/features/auth/shared/data/models/register_request.dart';
+import 'package:example/features/auth/shared/data/models/register_response.dart';
 import 'package:flutter/material.dart';
 import 'package:jet/jet_framework.dart';
 
@@ -32,6 +37,25 @@ class MainLayoutPage extends StatelessWidget {
               title: Text('Jet Tabs '),
               onTap: () {
                 context.router.push(PackagesRoute());
+              },
+            ),
+            SizedBox(height: 10),
+            ListTile(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+                side: BorderSide(
+                  color: Theme.of(context).dividerColor,
+                  width: 1,
+                ),
+              ),
+              leading: Icon(Icons.flash_auto),
+              trailing: Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+              ),
+              title: Text('Jet Actions '),
+              onTap: () {
+                context.router.push(ActionsRoute());
               },
             ),
           ],
