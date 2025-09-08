@@ -4,6 +4,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+@Deprecated('Use JetPhoneField instead')
 class FormBuilderPhoneNumberField extends HookWidget {
   final String name;
   final String? initialValue;
