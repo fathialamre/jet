@@ -10,11 +10,6 @@ class Auth extends StateNotifier<AsyncValue<Session?>> {
 
   bool get isAuthenticated => state.value?.token != null;
 
-  Future<void> _loadSession() async {
-    final session = await SessionManager.session();
-    state = AsyncValue.data(session);
-  }
-
   Future<void> logout() async {
     await Future.delayed(const Duration(seconds: 1));
     await SessionManager.clear();
@@ -22,16 +17,13 @@ class Auth extends StateNotifier<AsyncValue<Session?>> {
   }
 
   Future<void> login(Session session) async {
-    await 1.sleep();
     await SessionManager.authenticateAsUser(
-      token: session.token,
-      name: session.name,
+     session: session,
     );
     state = AsyncValue.data(session);
   }
 
   Future<void> loginAsGuest() async {
-    await 1.sleep();
     final session = Session(
       token: 'guest',
       isGuest: true,
