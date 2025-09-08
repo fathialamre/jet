@@ -187,6 +187,29 @@ flutter run
   - [Form Examples](#form-examples)
   - [Error Handling in Forms](#error-handling-in-forms)
   - [Key Features](#key-features-6)
+- [Components](#-components)
+  - [JetTab - Tab Navigation Component](#jettab---tab-navigation-component)
+  - [Tab Navigation with AutoRoute](#tab-navigation-with-autoroute)
+  - [Simple Tab Navigation](#simple-tab-navigation)
+  - [Tab Styling and Customization](#tab-styling-and-customization)
+  - [Tab Examples](#tab-examples)
+  - [Key Features](#key-features-7)
+- [Enhanced Form Inputs](#-enhanced-form-inputs)
+  - [JetPasswordField - Advanced Password Input](#jetpasswordfield---advanced-password-input)
+  - [JetPhoneField - Phone Number Input](#jetphonefield---phone-number-input)
+  - [Input Field Integration](#input-field-integration)
+  - [Form Input Examples](#form-input-examples)
+  - [Key Features](#key-features-8)
+- [Actions](#-actions)
+  - [JetAction - Unified Action Component](#jetaction---unified-action-component)
+  - [Action Types](#action-types)
+  - [Simple Actions](#simple-actions)
+  - [Confirmation Actions](#confirmation-actions)
+  - [Form Actions](#form-actions)
+  - [Advanced Form Actions with JetForm](#advanced-form-actions-with-jetform)
+  - [Action Configuration](#action-configuration)
+  - [Complete Examples](#complete-examples-1)
+  - [Key Features](#key-features-9)
 - [State Management](#-state-management)
   - [Core Components](#core-components-1)
   - [JetBuilder - Unified State Management](#jetbuilder---unified-state-management)
@@ -197,7 +220,7 @@ flutter run
   - [Provider Extensions](#provider-extensions)
   - [Performance Optimizations](#performance-optimizations)
   - [Complete Example](#complete-example-1)
-  - [Key Features](#key-features-5)
+  - [Key Features](#key-features-10)
 
 ## ⚙️ App Configuration
 
@@ -3882,6 +3905,1357 @@ class MyFormWidget extends JetConsumerWidget {
 - **Automatic Field Focus** - Smart focus management for better user experience
 - **Toast Integration** - Built-in toast notifications for errors and success states
 
+## 🧩 Components
+
+Jet Framework provides a comprehensive collection of pre-built, customizable UI components designed to accelerate development while maintaining consistency and best practices. These components are built with modern Flutter patterns and integrate seamlessly with the framework's state management, theming, and routing systems.
+
+**Key Philosophy**: Components should be powerful yet simple, providing sensible defaults while offering extensive customization options when needed.
+
+### JetTab - Tab Navigation Component
+
+`JetTab` is a powerful, customizable tab widget that supports both simple widget-based tabs and AutoRoute-based navigation. It provides extensive styling options, smooth animations, and seamless integration with your app's routing system.
+
+#### Tab Navigation with AutoRoute
+
+For apps using AutoRoute, `JetTab` provides deep integration with automatic route management:
+
+```dart
+import 'package:jet/jet_framework.dart';
+
+class MainTabsPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: JetTab.router(
+        routes: [
+          HomeRoute(),
+          ExploreRoute(),
+          ProfileRoute(),
+        ],
+        tabs: ['Home', 'Explore', 'Profile'],
+        indicatorColor: Colors.blue,
+        labelColor: Colors.blue,
+        unselectedLabelColor: Colors.grey,
+        isScrollable: false,
+      ),
+    );
+  }
+}
+```
+
+#### Simple Tab Navigation
+
+For simpler use cases without routing, use widget-based tabs:
+
+```dart
+class SimpleTabsExample extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Simple Tabs')),
+      body: JetTab.simple(
+        tabs: ['Tab 1', 'Tab 2', 'Tab 3'],
+        children: [
+          Center(child: Text('Content 1')),
+          Center(child: Text('Content 2')),
+          Center(child: Text('Content 3')),
+        ],
+        indicatorColor: Theme.of(context).primaryColor,
+        labelColor: Theme.of(context).primaryColor,
+        tabBarHeight: 48.0,
+      ),
+    );
+  }
+}
+```
+
+#### Tab Styling and Customization
+
+`JetTab` offers extensive customization options:
+
+```dart
+JetTab.router(
+  routes: routes,
+  tabs: tabLabels,
+  
+  // Visual customization
+  indicatorColor: Colors.deepPurple,
+  labelColor: Colors.deepPurple,
+  unselectedLabelColor: Colors.grey[600],
+  labelStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+  unselectedLabelStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+  
+  // Tab bar configuration
+  isScrollable: true,
+  tabAlignment: TabAlignment.start,
+  tabBarHeight: 56.0,
+  
+  // Indicator styling
+  indicatorSize: TabBarIndicatorSize.tab,
+  indicatorPadding: EdgeInsets.symmetric(horizontal: 8),
+  
+  // Divider styling
+  dividerColor: Colors.grey[300],
+  dividerHeight: 1.0,
+  
+  // Animation and physics
+  animationDuration: Duration(milliseconds: 300),
+  physics: BouncingScrollPhysics(),
+  
+  // Interaction
+  onTap: (index) => print('Tab $index selected'),
+  
+  // Custom tab widgets (overrides tabs parameter)
+  customTabs: [
+    Tab(
+      icon: Icon(Icons.home),
+      text: 'Home',
+    ),
+    Tab(
+      icon: Icon(Icons.search),
+      text: 'Search',
+    ),
+    Tab(
+      icon: Icon(Icons.person),
+      text: 'Profile',
+    ),
+  ],
+)
+```
+
+#### Tab Examples
+
+**Scrollable Tabs with Many Options:**
+
+```dart
+class ScrollableTabsExample extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return JetTab.router(
+      routes: [
+        AllRoute(),
+        TechRoute(),
+        ScienceRoute(),
+        HealthRoute(),
+        SportsRoute(),
+        EntertainmentRoute(),
+        BusinessRoute(),
+      ],
+      tabs: [
+        'All',
+        'Technology',
+        'Science', 
+        'Health',
+        'Sports',
+        'Entertainment',
+        'Business',
+      ],
+      isScrollable: true,
+      tabAlignment: TabAlignment.start,
+      indicatorColor: Colors.orange,
+      labelColor: Colors.orange,
+      unselectedLabelColor: Colors.grey,
+    );
+  }
+}
+```
+
+**Custom Tab Widgets with Icons:**
+
+```dart
+class CustomIconTabsExample extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return JetTab.simple(
+      tabs: [], // Empty since using customTabs
+      customTabs: [
+        Tab(
+          icon: Icon(Icons.dashboard),
+          text: 'Dashboard',
+        ),
+        Tab(
+          icon: Icon(Icons.analytics),
+          text: 'Analytics',
+        ),
+        Tab(
+          icon: Icon(Icons.settings),
+          text: 'Settings',
+        ),
+      ],
+      children: [
+        DashboardView(),
+        AnalyticsView(),
+        SettingsView(),
+      ],
+      indicatorColor: Colors.green,
+      labelColor: Colors.green,
+      tabBarHeight: 72.0,
+    );
+  }
+}
+```
+
+**Bottom Navigation Style Tabs:**
+
+```dart
+class BottomNavStyleTabs extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return [
+      HomeRoute(),
+      SearchRoute(), 
+      FavoritesRoute(),
+      ProfileRoute(),
+    ].toJetBottomTabs(
+      tabs: ['Home', 'Search', 'Favorites', 'Profile'],
+      bottomNavItems: [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home_outlined),
+          activeIcon: Icon(Icons.home),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.search_outlined),
+          activeIcon: Icon(Icons.search),
+          label: 'Search',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.favorite_outlined),
+          activeIcon: Icon(Icons.favorite),
+          label: 'Favorites',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person_outlined),
+          activeIcon: Icon(Icons.person),
+          label: 'Profile',
+        ),
+      ],
+      selectedItemColor: Colors.blue,
+      unselectedItemColor: Colors.grey,
+      builder: (context, child, bottomNav) => Scaffold(
+        body: child,
+        bottomNavigationBar: bottomNav,
+      ),
+    );
+  }
+}
+```
+
+**Helper Extensions for Common Patterns:**
+
+```dart
+// Scrollable tabs with center alignment
+final scrollableTabs = routes.toJetScrollableTabs(
+  tabs: tabLabels,
+  tabAlignment: TabAlignment.center,
+  indicatorColor: Colors.purple,
+);
+
+// Bottom navigation tabs with custom builder
+final bottomNavTabs = routes.toJetBottomTabs(
+  tabs: tabLabels,
+  bottomNavItems: navItems,
+  selectedItemColor: Colors.blue,
+  builder: (context, child, bottomNav) => MyCustomScaffold(
+    body: child,
+    bottomNav: bottomNav,
+  ),
+);
+```
+
+### Key Features {#key-features-7}
+
+- **Dual Mode Support** - Both AutoRoute integration and simple widget-based tabs
+- **Extensive Customization** - Full control over colors, typography, spacing, and animations
+- **Helper Extensions** - Convenient extensions for common tab patterns
+- **Custom Tab Widgets** - Support for tabs with icons, custom layouts, and styling
+- **Scrollable Support** - Horizontal scrolling for tabs that overflow
+- **Theme Integration** - Automatic theme integration with manual override options
+- **Performance Optimized** - Efficient rendering and state management
+- **Accessibility Ready** - Built-in accessibility support for screen readers and keyboard navigation
+- **Animation Control** - Customizable transition durations and physics
+- **Route Management** - Seamless integration with AutoRoute for navigation
+- **Flexible Layout** - Support for both fixed and flexible tab layouts
+- **Builder Pattern** - Custom builder support for complex layouts
+
+## 🔧 Enhanced Form Inputs
+
+Jet Framework provides enhanced form input components that build upon the foundation of Flutter Form Builder while adding specialized functionality, better UX patterns, and seamless integration with the Jet forms system.
+
+**Key Philosophy**: Form inputs should be intuitive, secure, and provide excellent user experience with minimal configuration while supporting advanced customization when needed.
+
+### JetPasswordField - Advanced Password Input
+
+`JetPasswordField` is an enhanced password input field that provides visibility toggling, password confirmation validation, and secure text handling with excellent UX.
+
+#### Basic Password Field
+
+```dart
+import 'package:jet/jet_framework.dart';
+
+JetPasswordField(
+  name: 'password',
+  hintText: 'Enter your password',
+  isRequired: true,
+  showPrefixIcon: true, // Shows lock icon by default
+  validator: FormBuilderValidators.compose([
+    FormBuilderValidators.required(),
+    FormBuilderValidators.minLength(8),
+  ]),
+)
+```
+
+#### Password with Confirmation
+
+```dart
+class PasswordForm extends StatelessWidget {
+  final _formKey = GlobalKey<FormBuilderState>();
+
+  @override
+  Widget build(BuildContext context) {
+    return FormBuilder(
+      key: _formKey,
+      child: Column(
+        children: [
+          // Primary password field
+          JetPasswordField(
+            name: 'password',
+            hintText: 'Create password',
+            isRequired: true,
+            formKey: _formKey,
+            validator: FormBuilderValidators.compose([
+              FormBuilderValidators.required(),
+              FormBuilderValidators.minLength(8),
+              (value) {
+                if (value != null && !value.contains(RegExp(r'[A-Z]'))) {
+                  return 'Password must contain at least one uppercase letter';
+                }
+                return null;
+              },
+            ]),
+          ),
+          SizedBox(height: 16),
+          
+          // Confirmation password field
+          JetPasswordField(
+            name: 'confirm_password',
+            hintText: 'Confirm password',
+            isRequired: true,
+            identicalWith: 'password', // Must match password field
+            formKey: _formKey,
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+#### Advanced Password Field Configuration
+
+```dart
+JetPasswordField(
+  name: 'password',
+  initialValue: '',
+  hintText: 'Enter secure password',
+  
+  // Validation
+  isRequired: true,
+  identicalWith: 'confirm_password', // For confirmation fields
+  formKey: formKey, // Required when using identicalWith
+  
+  // Custom validation
+  validator: FormBuilderValidators.compose([
+    FormBuilderValidators.required(),
+    FormBuilderValidators.minLength(8),
+    (value) {
+      if (value == null) return null;
+      
+      final hasUppercase = value.contains(RegExp(r'[A-Z]'));
+      final hasDigits = value.contains(RegExp(r'[0-9]'));
+      final hasSpecialChar = value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
+      
+      if (!hasUppercase || !hasDigits || !hasSpecialChar) {
+        return 'Password must contain uppercase, digit, and special character';
+      }
+      return null;
+    },
+  ]),
+  
+  // Appearance
+  showPrefixIcon: true, // Show lock icon
+  prefixIcon: Icon(Icons.security), // Custom prefix icon
+  obscureText: true, // Initially obscured (default)
+  
+  // Behavior
+  autofocus: false,
+  readOnly: false,
+  enabled: true,
+  keyboardType: TextInputType.visiblePassword,
+)
+```
+
+### JetPhoneField - Phone Number Input
+
+`JetPhoneField` is a specialized phone number input with built-in validation, formatting, and international support.
+
+#### Basic Phone Field
+
+```dart
+JetPhoneField(
+  name: 'phone',
+  hintText: 'Enter phone number',
+  isRequired: true,
+  showPrefixIcon: true, // Shows phone icon
+  validator: FormBuilderValidators.compose([
+    FormBuilderValidators.required(),
+    FormBuilderValidators.minLength(10),
+    FormBuilderValidators.maxLength(15),
+    FormBuilderValidators.numeric(),
+  ]),
+)
+```
+
+#### Advanced Phone Field Configuration
+
+```dart
+JetPhoneField(
+  name: 'phone_number',
+  initialValue: '',
+  hintText: 'Phone number',
+  
+  // Validation
+  isRequired: true,
+  validator: FormBuilderValidators.compose([
+    FormBuilderValidators.required(),
+    FormBuilderValidators.minLength(10),
+    FormBuilderValidators.maxLength(15),
+    FormBuilderValidators.numeric(),
+    (value) {
+      if (value != null && !RegExp(r'^\+?[\d\s\-\(\)]+$').hasMatch(value)) {
+        return 'Please enter a valid phone number';
+      }
+      return null;
+    },
+  ]),
+  
+  // Appearance
+  showPrefixIcon: true, // Show phone icon
+  prefixIcon: Icon(Icons.call), // Custom prefix icon
+  
+  // Behavior
+  autofocus: false,
+  readOnly: false,
+  enabled: true,
+  keyboardType: TextInputType.phone, // Numeric keypad with phone symbols
+)
+```
+
+### Input Field Integration
+
+The enhanced input fields integrate seamlessly with the Jet forms system:
+
+#### Complete Form Example
+
+```dart
+class UserRegistrationForm extends StatelessWidget {
+  final _formKey = GlobalKey<FormBuilderState>();
+
+  @override
+  Widget build(BuildContext context) {
+    return JetFormBuilder<RegistrationRequest, User>(
+      provider: registrationFormProvider,
+      builder: (context, ref, form, state) => [
+        // Regular text field
+        FormBuilderTextField(
+          name: 'full_name',
+          decoration: InputDecoration(
+            labelText: 'Full Name',
+            prefixIcon: Icon(Icons.person),
+          ),
+          validator: FormBuilderValidators.required(),
+        ),
+        
+        // Email field
+        FormBuilderTextField(
+          name: 'email',
+          decoration: InputDecoration(
+            labelText: 'Email',
+            prefixIcon: Icon(Icons.email),
+          ),
+          keyboardType: TextInputType.emailAddress,
+          validator: FormBuilderValidators.compose([
+            FormBuilderValidators.required(),
+            FormBuilderValidators.email(),
+          ]),
+        ),
+        
+        // Enhanced phone field
+        JetPhoneField(
+          name: 'phone',
+          hintText: 'Phone Number',
+          isRequired: true,
+        ),
+        
+        // Enhanced password field
+        JetPasswordField(
+          name: 'password',
+          hintText: 'Create Password',
+          formKey: _formKey,
+          isRequired: true,
+        ),
+        
+        // Password confirmation
+        JetPasswordField(
+          name: 'confirm_password',
+          hintText: 'Confirm Password',
+          identicalWith: 'password',
+          formKey: _formKey,
+          isRequired: true,
+        ),
+        
+        // Submit button with loading state
+        SizedBox(
+          width: double.infinity,
+          child: state.isLoading
+              ? Center(child: CircularProgressIndicator())
+              : ElevatedButton(
+                  onPressed: form.submit,
+                  child: Text('Create Account'),
+                ),
+        ),
+      ],
+    );
+  }
+}
+```
+
+### Form Input Examples
+
+#### Login Form with Enhanced Inputs
+
+```dart
+class LoginForm extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return JetFormBuilder<LoginRequest, User>(
+      provider: loginFormProvider,
+      onSuccess: (user, request) {
+        context.router.pushNamed('/dashboard');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Welcome back, ${user.name}!')),
+        );
+      },
+      builder: (context, ref, form, state) => [
+        // Email/Username field
+        FormBuilderTextField(
+          name: 'email',
+          decoration: InputDecoration(
+            labelText: 'Email or Username',
+            prefixIcon: Icon(Icons.person),
+            border: OutlineInputBorder(),
+          ),
+          keyboardType: TextInputType.emailAddress,
+          validator: FormBuilderValidators.required(),
+        ),
+        
+        // Enhanced password field
+        JetPasswordField(
+          name: 'password',
+          hintText: 'Password',
+          isRequired: true,
+        ),
+        
+        // Remember me checkbox
+        FormBuilderCheckbox(
+          name: 'remember_me',
+          title: Text('Remember me'),
+          initialValue: false,
+        ),
+        
+        // Login button
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: state.isLoading ? null : form.submit,
+            child: state.isLoading
+                ? SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Text('Sign In'),
+          ),
+        ),
+        
+        // Forgot password link
+        TextButton(
+          onPressed: () => context.router.pushNamed('/forgot-password'),
+          child: Text('Forgot Password?'),
+        ),
+      ],
+    );
+  }
+}
+```
+
+#### Contact Form with Phone Validation
+
+```dart
+class ContactForm extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return JetFormBuilder<ContactRequest, ContactResponse>(
+      provider: contactFormProvider,
+      onSuccess: (response, request) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Message sent successfully!')),
+        );
+      },
+      builder: (context, ref, form, state) => [
+        // Name field
+        FormBuilderTextField(
+          name: 'name',
+          decoration: InputDecoration(
+            labelText: 'Full Name',
+            prefixIcon: Icon(Icons.person),
+          ),
+          validator: FormBuilderValidators.required(),
+        ),
+        
+        // Enhanced phone field with custom validation
+        JetPhoneField(
+          name: 'phone',
+          hintText: 'Phone Number',
+          isRequired: true,
+          validator: FormBuilderValidators.compose([
+            FormBuilderValidators.required(),
+            (value) {
+              if (value != null && value.length < 10) {
+                return 'Phone number must be at least 10 digits';
+              }
+              return null;
+            },
+          ]),
+        ),
+        
+        // Message field
+        FormBuilderTextField(
+          name: 'message',
+          decoration: InputDecoration(
+            labelText: 'Message',
+            alignLabelWithHint: true,
+          ),
+          maxLines: 4,
+          validator: FormBuilderValidators.compose([
+            FormBuilderValidators.required(),
+            FormBuilderValidators.minLength(10),
+          ]),
+        ),
+        
+        // Submit button
+        ElevatedButton(
+          onPressed: state.isLoading ? null : form.submit,
+          child: Text('Send Message'),
+        ),
+      ],
+    );
+  }
+}
+```
+
+### Key Features {#key-features-8}
+
+- **Enhanced UX** - Visibility toggle for passwords, smart keyboard types, and intuitive interactions
+- **Built-in Validation** - Pre-configured validators for common use cases with custom validation support
+- **Password Confirmation** - Automatic password matching validation with visual feedback
+- **Theme Integration** - Automatic adaptation to app theme with manual override options
+- **Form Builder Compatible** - Full integration with Flutter Form Builder ecosystem
+- **Accessibility Ready** - Screen reader support and proper semantic labeling
+- **Custom Icons** - Flexible prefix icon configuration with sensible defaults
+- **Secure by Default** - Password fields are obscured by default with toggle functionality
+- **International Support** - Phone field supports international number formats
+- **Error Integration** - Seamless integration with Jet's error handling system
+- **Customizable Appearance** - Full control over styling, colors, and layout
+- **Smart Defaults** - Sensible default configurations that work out of the box
+- **Type Safety** - Full type safety with automatic validation integration
+
+## 🚀 Actions
+
+Jet Framework provides a powerful, unified action system through the `JetAction` component. This system standardizes user interactions across your app, from simple button actions to complex form submissions with confirmation dialogs, all while maintaining consistency and reducing boilerplate code.
+
+**Key Philosophy**: Actions should be predictable, type-safe, and handle all common interaction patterns (simple actions, confirmations, forms) with a unified API while providing extensive customization options.
+
+### JetAction - Unified Action Component
+
+`JetAction` is a comprehensive action component that handles multiple interaction patterns through clear named constructors. It integrates seamlessly with Jet's forms system, error handling, and state management to provide a complete solution for user actions.
+
+#### Action Types
+
+| Constructor | Description |
+|-------------|-------------|
+| `action()` | Simple action button without confirmations or forms |
+| `confirmation()` | Action that requires user confirmation before execution |
+| `form()` | Legacy form action using custom widget builder |
+| `jetForm()` | Advanced form action using JetForm system with full type safety |
+
+### Simple Actions
+
+Basic actions that execute immediately when tapped:
+
+```dart
+import 'package:jet/jet_framework.dart';
+
+class MyPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // Basic action
+        JetAction.action(
+          text: 'Save Data',
+          icon: Icons.save,
+          onTap: () async {
+            await saveUserData();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Data saved successfully!')),
+            );
+          },
+        ),
+        
+        // Action with different button style
+        JetAction.action(
+          text: 'Share Content',
+          icon: Icons.share,
+          buttonType: JetButtonType.outlined,
+          onTap: () => shareContent(),
+        ),
+        
+        // Expanded action button
+        JetAction.action(
+          text: 'Full Width Action',
+          icon: Icons.expand,
+          isExpanded: true,
+          buttonType: JetButtonType.elevated,
+          onTap: () => performFullWidthAction(),
+        ),
+        
+        // Disabled action
+        JetAction.action(
+          text: 'Unavailable Action',
+          icon: Icons.block,
+          isEnabled: false,
+          onTap: () => {}, // Won't be called
+        ),
+      ],
+    );
+  }
+}
+```
+
+### Confirmation Actions
+
+Actions that require user confirmation with styled confirmation dialogs:
+
+```dart
+class ConfirmationActions extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // Standard confirmation
+        JetAction.confirmation(
+          text: 'Delete Item',
+          icon: Icons.delete,
+          buttonType: JetButtonType.outlined,
+          confirmationType: ConfirmationSheetType.normal,
+          confirmationTitle: 'Delete Confirmation',
+          confirmationMessage: 'Are you sure you want to delete this item? This action cannot be undone.',
+          onTap: () => deleteItem(),
+        ),
+        
+        // Warning confirmation
+        JetAction.confirmation(
+          text: 'Risky Operation',
+          icon: Icons.warning,
+          confirmationType: ConfirmationSheetType.warning,
+          confirmationTitle: 'Proceed with Caution',
+          confirmationMessage: 'This action may have unintended consequences. Please review before proceeding.',
+          onTap: () => performRiskyOperation(),
+        ),
+        
+        // Error/destructive confirmation
+        JetAction.confirmation(
+          text: 'Permanent Delete',
+          icon: Icons.delete_forever,
+          buttonType: JetButtonType.filled,
+          confirmationType: ConfirmationSheetType.error,
+          confirmationTitle: 'Permanent Deletion',
+          confirmationMessage: 'This will permanently delete all data. This action cannot be undone.',
+          onTap: () => permanentDelete(),
+        ),
+        
+        // Success confirmation
+        JetAction.confirmation(
+          text: 'Complete Task',
+          icon: Icons.check,
+          confirmationType: ConfirmationSheetType.success,
+          confirmationTitle: 'Mark Complete',
+          confirmationMessage: 'Mark this task as completed? You can undo this action later.',
+          onTap: () => completeTask(),
+        ),
+      ],
+    );
+  }
+}
+```
+
+#### Confirmation Types
+
+| Type | Description | Use Case |
+|------|-------------|----------|
+| `ConfirmationSheetType.normal` | Standard blue confirmation | General confirmations |
+| `ConfirmationSheetType.warning` | Orange warning confirmation | Potentially risky actions |
+| `ConfirmationSheetType.error` | Red error/destructive confirmation | Destructive operations |
+| `ConfirmationSheetType.success` | Green success confirmation | Positive confirmations |
+
+### Form Actions
+
+Legacy form actions using custom widget builders (for backward compatibility):
+
+```dart
+class LegacyFormAction extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return JetAction.form(
+      text: 'Edit Profile',
+      icon: Icons.edit,
+      buttonType: JetButtonType.filled,
+      formTitle: 'Update Your Profile',
+      formBuilder: Column(
+        children: [
+          TextFormField(
+            decoration: InputDecoration(
+              labelText: 'Name',
+              hintText: 'Enter your name',
+              prefixIcon: Icon(Icons.person),
+            ),
+            validator: (value) => value?.isEmpty == true ? 'Name is required' : null,
+          ),
+          SizedBox(height: 16),
+          TextFormField(
+            decoration: InputDecoration(
+              labelText: 'Email',
+              hintText: 'Enter your email',
+              prefixIcon: Icon(Icons.email),
+            ),
+            keyboardType: TextInputType.emailAddress,
+            validator: (value) {
+              if (value?.isEmpty == true) return 'Email is required';
+              if (!value!.contains('@')) return 'Invalid email format';
+              return null;
+            },
+          ),
+          SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: () {
+              // Perform form submission
+              Navigator.of(context).pop();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Profile updated!')),
+              );
+            },
+            child: Text('Update Profile'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+### Advanced Form Actions with JetForm
+
+The most powerful action type that integrates with Jet's forms system for complete type safety and state management:
+
+#### Creating Form Actions
+
+First, create your request/response models and form notifier:
+
+```dart
+// Request model
+@JsonSerializable()
+class CreateCommentRequest {
+  final String title;
+  final String description;
+  final String priority;
+
+  const CreateCommentRequest({
+    required this.title,
+    required this.description,
+    required this.priority,
+  });
+
+  factory CreateCommentRequest.fromJson(Map<String, dynamic> json) =>
+      _$CreateCommentRequestFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CreateCommentRequestToJson(this);
+}
+
+// Response model
+@JsonSerializable()
+class CommentResponse {
+  final String id;
+  final String title;
+  final String description;
+  final String priority;
+  final DateTime createdAt;
+
+  const CommentResponse({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.priority,
+    required this.createdAt,
+  });
+
+  factory CommentResponse.fromJson(Map<String, dynamic> json) =>
+      _$CommentResponseFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CommentResponseToJson(this);
+}
+
+// Form notifier
+class CommentFormNotifier extends JetFormNotifier<CreateCommentRequest, CommentResponse> {
+  CommentFormNotifier(super.ref);
+
+  @override
+  CreateCommentRequest decoder(Map<String, dynamic> json) {
+    return CreateCommentRequest.fromJson(json);
+  }
+
+  @override
+  Future<CommentResponse> action(CreateCommentRequest data) async {
+    final api = ref.read(apiServiceProvider);
+    return await api.createComment(data);
+  }
+}
+
+// Provider
+final commentFormProvider = JetFormProvider<CreateCommentRequest, CommentResponse>(
+  (ref) => CommentFormNotifier(ref),
+);
+```
+
+#### Using JetForm Actions
+
+```dart
+class AdvancedFormActions extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // Basic form action
+        JetAction<CreateCommentRequest, CommentResponse>.jetForm(
+          text: 'Add Comment',
+          icon: Icons.comment,
+          buttonType: JetButtonType.filled,
+          formProvider: commentFormProvider,
+          formTitle: 'Create New Comment',
+          jetFormBuilder: (context, ref, form, state) => [
+            FormBuilderTextField(
+              name: 'title',
+              decoration: InputDecoration(
+                labelText: 'Title',
+                hintText: 'Enter comment title',
+                prefixIcon: Icon(Icons.title),
+              ),
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required(),
+                FormBuilderValidators.minLength(3),
+                FormBuilderValidators.maxLength(100),
+              ]),
+            ),
+            FormBuilderTextField(
+              name: 'description',
+              decoration: InputDecoration(
+                labelText: 'Description',
+                hintText: 'Enter comment description',
+                prefixIcon: Icon(Icons.description),
+              ),
+              maxLines: 3,
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required(),
+                FormBuilderValidators.minLength(10),
+              ]),
+            ),
+            FormBuilderDropdown(
+              name: 'priority',
+              decoration: InputDecoration(
+                labelText: 'Priority',
+                prefixIcon: Icon(Icons.priority_high),
+              ),
+              items: [
+                DropdownMenuItem(value: 'low', child: Text('Low')),
+                DropdownMenuItem(value: 'medium', child: Text('Medium')),
+                DropdownMenuItem(value: 'high', child: Text('High')),
+              ],
+              validator: FormBuilderValidators.required(),
+            ),
+          ],
+          onFormSuccess: (response, request) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Comment "${response.title}" created successfully!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          },
+        ),
+        
+        // Form action with advanced features
+        JetAction<CreateCommentRequest, CommentResponse>.jetForm(
+          text: 'Quick Comment',
+          icon: Icons.flash_on,
+          buttonType: JetButtonType.outlined,
+          formProvider: commentFormProvider,
+          formTitle: 'Quick Comment',
+          formSubmitButtonText: 'Post Comment',
+          
+          // Pre-fill form values
+          initialFormValues: {
+            'priority': 'medium',
+            'title': 'Quick Comment',
+          },
+          
+          jetFormBuilder: (context, ref, form, state) => [
+            // Show loading indicator in form
+            if (state.isLoading) LinearProgressIndicator(),
+            
+            FormBuilderTextField(
+              name: 'description',
+              decoration: InputDecoration(
+                labelText: 'Your thoughts',
+                hintText: 'What would you like to say?',
+                prefixIcon: Icon(Icons.chat_bubble),
+                border: OutlineInputBorder(),
+              ),
+              maxLines: 4,
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required(),
+                FormBuilderValidators.minLength(5),
+              ]),
+            ),
+            
+            // Show form state information
+            if (state.hasError)
+              Container(
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.red[50],
+                  border: Border.all(color: Colors.red),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'Error: ${state.error}',
+                  style: TextStyle(color: Colors.red[700]),
+                ),
+              ),
+          ],
+          
+          onFormSuccess: (response, request) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Quick comment posted!'),
+                backgroundColor: Colors.blue,
+              ),
+            );
+          },
+          
+          onFormError: (error, stackTrace, invalidateFields) {
+            // Custom error handling
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to post comment: $error'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+```
+
+### Action Configuration
+
+`JetAction` provides extensive configuration options:
+
+#### Basic Configuration
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `text` | `String` | Button text label |
+| `icon` | `IconData?` | Optional icon for the button |
+| `buttonType` | `JetButtonType` | Button style (filled, outlined, elevated, text) |
+| `isExpanded` | `bool` | Whether button should take full width |
+| `isEnabled` | `bool` | Whether the action is enabled |
+| `onTap` | `Function` | Action callback function |
+
+#### Confirmation Configuration
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `confirmationRequired` | `bool` | Whether confirmation is needed |
+| `confirmationTitle` | `String?` | Title for confirmation dialog |
+| `confirmationMessage` | `String?` | Message for confirmation dialog |
+| `confirmationType` | `ConfirmationSheetType` | Visual style of confirmation |
+
+#### Form Configuration
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `formProvider` | `JetFormProvider?` | Provider for JetForm integration |
+| `jetFormBuilder` | `Function?` | Builder function for form fields |
+| `initialFormValues` | `Map<String, dynamic>?` | Pre-filled form values |
+| `onFormSuccess` | `Function?` | Success callback with typed response |
+| `onFormError` | `Function?` | Error callback with field invalidation |
+| `formTitle` | `String?` | Title for form modal |
+| `formSubmitButtonText` | `String?` | Custom submit button text |
+| `showFormSubmitButton` | `bool` | Whether to show default submit button |
+| `formFieldSpacing` | `double` | Spacing between form fields |
+
+### Complete Examples
+
+#### E-commerce Product Actions
+
+```dart
+class ProductActions extends StatelessWidget {
+  final Product product;
+  
+  const ProductActions({required this.product});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // Quick add to cart
+        JetAction.action(
+          text: 'Add to Cart',
+          icon: Icons.shopping_cart,
+          buttonType: JetButtonType.filled,
+          isExpanded: true,
+          onTap: () async {
+            await CartService.addProduct(product.id);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('${product.name} added to cart!')),
+            );
+          },
+        ),
+        
+        SizedBox(height: 12),
+        
+        // Add to wishlist with confirmation
+        JetAction.confirmation(
+          text: 'Add to Wishlist',
+          icon: Icons.favorite_border,
+          buttonType: JetButtonType.outlined,
+          confirmationType: ConfirmationSheetType.success,
+          confirmationTitle: 'Add to Wishlist',
+          confirmationMessage: 'Add ${product.name} to your wishlist?',
+          onTap: () => WishlistService.addProduct(product.id),
+        ),
+        
+        SizedBox(height: 12),
+        
+        // Write review with form
+        JetAction<ReviewRequest, ReviewResponse>.jetForm(
+          text: 'Write Review',
+          icon: Icons.rate_review,
+          buttonType: JetButtonType.text,
+          formProvider: reviewFormProvider,
+          formTitle: 'Review ${product.name}',
+          initialFormValues: {'productId': product.id},
+          
+          jetFormBuilder: (context, ref, form, state) => [
+            // Rating field
+            FormBuilderSlider(
+              name: 'rating',
+              decoration: InputDecoration(labelText: 'Rating'),
+              min: 1.0,
+              max: 5.0,
+              divisions: 4,
+              initialValue: 5.0,
+            ),
+            
+            // Review text
+            FormBuilderTextField(
+              name: 'comment',
+              decoration: InputDecoration(
+                labelText: 'Your Review',
+                hintText: 'Share your experience with this product',
+                border: OutlineInputBorder(),
+              ),
+              maxLines: 4,
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required(),
+                FormBuilderValidators.minLength(20),
+              ]),
+            ),
+            
+            // Anonymous option
+            FormBuilderCheckbox(
+              name: 'isAnonymous',
+              title: Text('Post anonymously'),
+              initialValue: false,
+            ),
+          ],
+          
+          onFormSuccess: (response, request) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Review posted successfully!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+```
+
+#### Admin Management Actions
+
+```dart
+class AdminUserActions extends StatelessWidget {
+  final User user;
+  
+  const AdminUserActions({required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 12,
+      runSpacing: 12,
+      children: [
+        // Edit user
+        JetAction<UpdateUserRequest, User>.jetForm(
+          text: 'Edit User',
+          icon: Icons.edit,
+          buttonType: JetButtonType.outlined,
+          formProvider: updateUserFormProvider,
+          formTitle: 'Edit ${user.name}',
+          
+          initialFormValues: {
+            'id': user.id,
+            'name': user.name,
+            'email': user.email,
+            'role': user.role,
+            'isActive': user.isActive,
+          },
+          
+          jetFormBuilder: (context, ref, form, state) => [
+            FormBuilderTextField(
+              name: 'name',
+              decoration: InputDecoration(
+                labelText: 'Full Name',
+                prefixIcon: Icon(Icons.person),
+              ),
+              validator: FormBuilderValidators.required(),
+            ),
+            
+            FormBuilderTextField(
+              name: 'email',
+              decoration: InputDecoration(
+                labelText: 'Email',
+                prefixIcon: Icon(Icons.email),
+              ),
+              keyboardType: TextInputType.emailAddress,
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required(),
+                FormBuilderValidators.email(),
+              ]),
+            ),
+            
+            FormBuilderDropdown<String>(
+              name: 'role',
+              decoration: InputDecoration(
+                labelText: 'Role',
+                prefixIcon: Icon(Icons.admin_panel_settings),
+              ),
+              items: ['admin', 'moderator', 'user']
+                  .map((role) => DropdownMenuItem(
+                        value: role,
+                        child: Text(role.toUpperCase()),
+                      ))
+                  .toList(),
+              validator: FormBuilderValidators.required(),
+            ),
+            
+            FormBuilderCheckbox(
+              name: 'isActive',
+              title: Text('Account Active'),
+            ),
+          ],
+          
+          onFormSuccess: (updatedUser, request) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('${updatedUser.name} updated successfully!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          },
+        ),
+        
+        // Suspend user
+        JetAction.confirmation(
+          text: 'Suspend',
+          icon: Icons.block,
+          buttonType: JetButtonType.outlined,
+          confirmationType: ConfirmationSheetType.warning,
+          confirmationTitle: 'Suspend User',
+          confirmationMessage: 'Suspend ${user.name}? They will not be able to access the system.',
+          onTap: () => UserService.suspendUser(user.id),
+        ),
+        
+        // Delete user
+        JetAction.confirmation(
+          text: 'Delete',
+          icon: Icons.delete,
+          buttonType: JetButtonType.outlined,
+          confirmationType: ConfirmationSheetType.error,
+          confirmationTitle: 'Delete User',
+          confirmationMessage: 'Permanently delete ${user.name}? This action cannot be undone and will remove all associated data.',
+          onTap: () => UserService.deleteUser(user.id),
+        ),
+      ],
+    );
+  }
+}
+```
+
+### Key Features {#key-features-9}
+
+- **Unified API** - Single component handles simple actions, confirmations, and complex forms
+- **Type-Safe Forms** - Full type safety with Request/Response generic types through JetForm integration
+- **Multiple Action Types** - Clear named constructors for different use cases (action, confirmation, form, jetForm)
+- **Styled Confirmations** - Beautiful confirmation dialogs with different visual styles (normal, warning, error, success)
+- **Form Integration** - Seamless integration with Jet's powerful forms system
+- **Automatic Loading States** - Built-in loading indicators during async operations
+- **Error Handling** - Comprehensive error handling with custom error callbacks
+- **Field Invalidation** - Automatic form field invalidation with server-side validation errors
+- **Backward Compatibility** - Legacy form builder support for existing code
+- **Customizable UI** - Full control over button styles, form layout, and modal appearance
+- **State Management** - Deep integration with Riverpod state management
+- **Accessibility** - Built-in accessibility support and screen reader compatibility
+- **Responsive Design** - Automatic adaptation to different screen sizes and orientations
+- **Pre-filled Forms** - Support for initial form values and dynamic form generation
+- **Success/Error Callbacks** - Flexible callback system for handling action results
+
 ## 🔄 State Management
 
 Jet Framework provides powerful, unified state management built on top of **[Riverpod](https://pub.dev/packages/hooks_riverpod)**, one of Flutter's most robust state management solutions. Jet enhances Riverpod with specialized widgets that eliminate boilerplate and provide common patterns like pull-to-refresh, error handling, and pagination out of the box.
@@ -4689,7 +6063,7 @@ class PostsPage extends JetConsumerWidget {
 }
 ```
 
-### Key Features
+### Key Features {#key-features-10}
 
 - **Unified API** - Single `JetBuilder` handles lists, grids, single items, and custom builders
 - **Riverpod Integration** - Built on top of Flutter's most powerful state management solution  

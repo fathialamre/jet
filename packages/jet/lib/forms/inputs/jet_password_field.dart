@@ -5,7 +5,7 @@ import 'package:jet/jet_framework.dart';
 
 /// A customizable password field widget with built-in validation and visibility toggle.
 ///
-/// This widget provides:
+/// This widget provides:1
 /// - Password visibility toggle
 /// - Password confirmation validation
 /// - Customizable validation rules
@@ -63,6 +63,48 @@ class JetPasswordField extends HookWidget {
   /// Whether the field is enabled
   final bool enabled;
 
+  /// Label text for the field
+  final String? labelText;
+
+  /// Label style for the field
+  final TextStyle? labelStyle;
+
+  /// Whether the field should be filled
+  final bool filled;
+
+  /// Fill color for the field
+  final Color? fillColor;
+
+  /// Border for the field
+  final InputBorder? border;
+
+  /// Border when the field is enabled
+  final InputBorder? enabledBorder;
+
+  /// Border when the field is focused
+  final InputBorder? focusedBorder;
+
+  /// Border when the field has an error
+  final InputBorder? errorBorder;
+
+  /// Border when the field is disabled
+  final InputBorder? disabledBorder;
+
+  /// Content padding for the field
+  final EdgeInsetsGeometry? contentPadding;
+
+  /// Error style for validation messages
+  final TextStyle? errorStyle;
+
+  /// Helper text to display below the field
+  final String? helperText;
+
+  /// Helper text style
+  final TextStyle? helperStyle;
+
+  /// Constraints for the input field
+  final BoxConstraints? constraints;
+
   const JetPasswordField({
     super.key,
     required this.name,
@@ -79,6 +121,20 @@ class JetPasswordField extends HookWidget {
     this.readOnly = false,
     this.autofocus = false,
     this.enabled = true,
+    this.labelText,
+    this.labelStyle,
+    this.filled = true,
+    this.fillColor,
+    this.border,
+    this.enabledBorder,
+    this.focusedBorder,
+    this.errorBorder,
+    this.disabledBorder,
+    this.contentPadding,
+    this.errorStyle,
+    this.helperText,
+    this.helperStyle,
+    this.constraints,
   });
 
   @override
@@ -98,14 +154,28 @@ class JetPasswordField extends HookWidget {
       autofocus: autofocus,
       keyboardType: keyboardType,
       decoration: InputDecoration(
-        prefixIcon: showPrefixIcon ? const Icon(LucideIcons.lock) : prefixIcon,
+        labelText: labelText,
+        labelStyle: labelStyle,
         hintText: hintText,
+        prefixIcon: showPrefixIcon ? const Icon(LucideIcons.lock) : prefixIcon,
         suffixIcon: IconButton(
           icon: Icon(
             obscureTextState.value ? LucideIcons.eye : LucideIcons.eyeClosed,
           ),
           onPressed: toggleVisibility,
         ),
+        filled: filled,
+        fillColor: fillColor,
+        border: border,
+        enabledBorder: enabledBorder,
+        focusedBorder: focusedBorder,
+        errorBorder: errorBorder,
+        disabledBorder: disabledBorder,
+        contentPadding: contentPadding,
+        errorStyle: errorStyle,
+        helperText: helperText,
+        helperStyle: helperStyle,
+        constraints: constraints,
       ),
       validator:
           validator ??
