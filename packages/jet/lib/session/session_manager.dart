@@ -39,13 +39,12 @@ class SessionManager {
   }
 
   static Future<bool> authenticateAsUser({
-    required String token,
-    required String name,
+    required Session session,
   }) async {
     try {
       await JetStorage.write(
         'session',
-        Session(token: token, name: name, isGuest: false),
+        session,
       );
       return true;
     } catch (e) {
