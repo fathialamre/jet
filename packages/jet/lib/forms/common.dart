@@ -42,6 +42,13 @@ sealed class AsyncFormValue<Request, Response> {
   /// Whether the form has data.
   bool get hasValue => this is AsyncFormData<Request, Response>;
 
+  Response? get response => this is AsyncFormData<Request, Response>
+      ? (this as AsyncFormData<Request, Response>).response
+      : null;
+  Request? get request => this is AsyncFormData<Request, Response>
+      ? (this as AsyncFormData<Request, Response>).request
+      : null;
+
   /// Whether the form is in an error state.
   bool get hasError => this is AsyncFormError<Request, Response>;
 
