@@ -26,6 +26,7 @@ export '../forms/notifiers/jet_form_notifier.dart';
 export '../forms/widgets/jet_form_builder.dart';
 export '../forms/inputs/form_builder_phone_number_field.dart';
 export '../forms/inputs/form_builder_password_field.dart';
+export '../forms/inputs/jet_pin_field.dart';
 
 // Error Handling
 export 'networking/errors/jet_error.dart';
