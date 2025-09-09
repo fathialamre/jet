@@ -257,44 +257,47 @@ class JetPinField extends HookWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Pinput(
-              length: length,
-              defaultPinTheme: hasError ? errorPinTheme : defaultPinTheme,
-              focusedPinTheme: hasError ? errorPinTheme : focusedPinTheme,
-              submittedPinTheme: hasError ? errorPinTheme : submittedPinTheme,
-              errorPinTheme: errorPinTheme,
-              pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
-              showCursor: showCursor,
-              obscureText: obscureText,
-              obscuringCharacter: '*',
-              obscuringWidget: obscureText
-                  ? const Text(
-                      '●',
-                      style: TextStyle(fontSize: 24),
-                    )
-                  : null,
-              hapticFeedbackType: hapticFeedback
-                  ? HapticFeedbackType.lightImpact
-                  : HapticFeedbackType.disabled,
-              closeKeyboardWhenCompleted: closeKeyboardWhenCompleted,
-              animationCurve: animationCurve,
-              animationDuration: animationDuration,
-              enabled: enabled,
-              autofocus: autofocus,
-              readOnly: readOnly,
-              controller: TextEditingController(text: field.value),
-              onChanged: (value) {
-                field.didChange(value);
-                onChanged?.call(value);
-              },
-              onCompleted: (value) {
-                field.didChange(value);
-                onCompleted?.call(value);
-              },
-              onSubmitted: (value) {
-                field.didChange(value);
-                onSubmitted?.call(value);
-              },
+            Directionality(
+              textDirection: TextDirection.ltr,
+              child: Pinput(
+                length: length,
+                defaultPinTheme: hasError ? errorPinTheme : defaultPinTheme,
+                focusedPinTheme: hasError ? errorPinTheme : focusedPinTheme,
+                submittedPinTheme: hasError ? errorPinTheme : submittedPinTheme,
+                errorPinTheme: errorPinTheme,
+                pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
+                showCursor: showCursor,
+                obscureText: obscureText,
+                obscuringCharacter: '*',
+                obscuringWidget: obscureText
+                    ? const Text(
+                        '●',
+                        style: TextStyle(fontSize: 24),
+                      )
+                    : null,
+                hapticFeedbackType: hapticFeedback
+                    ? HapticFeedbackType.lightImpact
+                    : HapticFeedbackType.disabled,
+                closeKeyboardWhenCompleted: closeKeyboardWhenCompleted,
+                animationCurve: animationCurve,
+                animationDuration: animationDuration,
+                enabled: enabled,
+                autofocus: autofocus,
+                readOnly: readOnly,
+                controller: TextEditingController(text: field.value),
+                onChanged: (value) {
+                  field.didChange(value);
+                  onChanged?.call(value);
+                },
+                onCompleted: (value) {
+                  field.didChange(value);
+                  onCompleted?.call(value);
+                },
+                onSubmitted: (value) {
+                  field.didChange(value);
+                  onSubmitted?.call(value);
+                },
+              ),
             ),
             if (field.hasError || helperText != null) ...[
               const SizedBox(height: 8),
