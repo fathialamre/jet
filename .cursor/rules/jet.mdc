@@ -1,0 +1,172 @@
+---
+description: Jet is a lightweight, modular Flutter framework for scalable app architecture, providing dependency injection, lifecycle management, and streamlined setup for rapid development.
+globs:
+alwaysApply: true
+---
+
+# Jet Framework Rules
+
+## Core Framework Structure
+
+### App Initialization
+- Always use `Jet.fly()` with `Boot.start()` and `Boot.finished()` in main.dart
+- Create `AppConfig` extending `JetConfig` for centralized configuration
+- Configure adapters, locales, and themes in `AppConfig`
+
+### Configuration Best Practices
+```dart
+class AppConfig extends JetConfig {
+  @override
+  List<JetAdapter> get adapters => [RouterAdapter()];
+  
+  @override
+  List<LocaleInfo> get supportedLocales => [
+    LocaleInfo(locale: const Locale('en'), displayName: 'English', nativeName: 'English'),
+  ];
+}
+```
+
+## State Management
+
+### Use JetBuilder for Lists and Data
+- `JetBuilder.list<T>()` for list views with pull-to-refresh
+- `JetBuilder.grid<T>()` for grid layouts
+- `JetBuilder.item<T>()` for single items
+- Always specify generic types for type safety
+
+### Use JetPaginator for Infinite Scroll
+- Built on the official `infinite_scroll_pagination` package
+- Use `fetchPage` and `parseResponse` functions for any API format
+- Always return `PageInfo` with items and nextPageKey
+
+### Use JetConsumerWidget
+- Extend `JetConsumerWidget` instead of `ConsumerWidget`
+- Override `jetBuild()` to access Jet instance
+- Use `ref.watch()` for reactive state management
+
+## Forms
+
+### Form Structure
+1. Create `JetFormNotifier<Request, Response>` with decoder and action methods
+2. Create provider using `JetFormProvider`
+3. Use `JetFormBuilder<Request, Response>` for the UI
+4. Always specify generic types for Request and Response
+
+### Form Inputs
+- Use `JetPasswordField` for password inputs with visibility toggle
+- Use `JetPhoneField` for phone number inputs with validation
+- Use standard `FormBuilderTextField` for other text inputs
+- Form inputs automatically integrate with validation errors
+
+## Networking
+
+### API Services
+- Extend `JetApiService` for HTTP clients
+- Use singleton pattern with `getInstance()`
+- Override `baseUrl` and `defaultHeaders`
+- Use `ResponseModel<T>` for type-safe responses
+
+### Request Methods
+```dart
+// GET with decoder
+Future<ResponseModel<List<User>>> getUsers() async {
+  return await get<List<User>>(
+    '/users',
+    decoder: (data) => (data as List).map((json) => User.fromJson(json)).toList(),
+  );
+}
+```
+
+## Error Handling
+
+### Use JetError for Consistent Errors
+- `JetError.noInternet()` for network errors
+- `JetError.server()` for server errors (5xx)
+- `JetError.validation()` for form validation errors
+- `JetError.unknown()` for unexpected errors
+
+### Error Handling Pattern
+```dart
+try {
+  final result = await apiService.getData();
+} on JetError catch (error) {
+  if (error.isValidation) {
+    // Handle validation
+  } else if (error.isNoInternet) {
+    // Handle network error
+  }
+}
+```
+
+## Components
+
+### JetButton Usage
+- Use `JetButton()` for primary actions
+- Use named constructors: `.filled()`, `.outlined()`, `.textButton()`
+- Automatic loading states for async operations
+- Always provide `text` and `onTap` parameters
+
+### JetTab Usage
+- Use `JetTab.simple()` for widget-based tabs
+- Use `JetTab.router()` for AutoRoute integration
+- Provide `tabs` array and either `children` or `routes`
+
+## Storage
+
+### JetStorage Best Practices
+- Use `JetStorage.write()` and `JetStorage.read<T>()` for regular data
+- Use `JetStorage.writeSecure()` and `JetStorage.readSecure()` for sensitive data
+- Always specify generic types when reading
+- Use default values with `defaultValue` parameter
+
+## Theme and Localization
+
+### Theme Management
+- Use `ThemeSwitcher.toggleButton()` for theme switching
+- Use `ref.watch(themeSwitcherProvider)` for reactive theme state
+- Configure themes in `AppConfig`
+
+### Localization
+- Use `LanguageSwitcher.toggleButton()` for language switching
+- Use `ref.watch(languageSwitcherProvider)` for reactive locale state
+- Configure supported locales in `AppConfig`
+
+## Adapters
+
+### Custom Adapters
+- Implement `JetAdapter` interface
+- Override `boot()` for initialization and `afterBoot()` for cleanup
+- Register services in `boot()` method
+- Add to `AppConfig.adapters` list
+
+## Code Style Rules
+
+### Import Organization
+1. Flutter/Dart imports first
+2. Third-party package imports
+3. Jet framework imports (`package:jet/jet.dart`)
+4. Local app imports
+
+### Naming Conventions
+- Use descriptive names for providers ending with `Provider`
+- Use descriptive names for notifiers ending with `Notifier`
+- Use PascalCase for classes and enums
+- Use camelCase for variables and functions
+
+### File Organization
+- Keep related models, services, and providers in separate files
+- Group by feature (e.g., auth/, profile/, products/)
+- Place shared utilities in common/ or core/ directories
+
+## Performance Guidelines
+
+### Provider Management
+- Use `AutoDisposeFutureProvider` for one-time data fetching
+- Use `AutoDisposeProvider` for computed values
+- Use family providers when data depends on parameters
+- Invalidate providers appropriately for refresh functionality
+
+### State Updates
+- Avoid unnecessary rebuilds by watching specific parts of state
+- Use `select` for granular state watching
+- Minimize the widget tree affected by state changes
