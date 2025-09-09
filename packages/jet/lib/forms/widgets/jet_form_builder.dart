@@ -5,6 +5,7 @@ import 'package:jet/bootstrap/boot.dart';
 import 'package:jet/extensions/build_context.dart';
 import 'package:jet/forms/common.dart';
 import 'package:jet/forms/notifiers/jet_form_notifier.dart';
+import 'package:jet/helpers/jet_logger.dart';
 import 'package:jet/networking/errors/jet_error.dart';
 import 'package:jet/widgets/widgets/buttons/jet_button.dart';
 
@@ -25,6 +26,7 @@ class JetFormBuilder<Request, Response> extends ConsumerWidget {
   )?
   onError;
   final Map<String, dynamic> initialValues;
+  final Map<String, dynamic> staticValues;
   final bool useDefaultErrorHandler;
   final String? submitButtonText;
   final bool showDefaultSubmitButton;
@@ -40,6 +42,7 @@ class JetFormBuilder<Request, Response> extends ConsumerWidget {
     this.onError,
     this.useDefaultErrorHandler = true,
     this.initialValues = const {},
+    this.staticValues = const {},
     this.submitButtonText,
     this.showDefaultSubmitButton = true,
     this.fieldSpacing = 12,
@@ -71,10 +74,10 @@ class JetFormBuilder<Request, Response> extends ConsumerWidget {
 
       // Handle validation errors by invalidating specific fields
       if (jetError.errors != null && jetError.errors!.isNotEmpty) {
-  
         form.invalidateFields(jetError.errors!);
       }
     } else {
+     
       // Use raw error if default handler is disabled
       jetError = error is JetError
           ? error
