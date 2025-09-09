@@ -9,21 +9,38 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:auto_route/auto_route.dart' as _i2;
-import 'package:example/features/pin_test_page.dart' as _i1;
+import 'package:auto_route/auto_route.dart' as _i3;
+import 'package:example/features/home/home_page.dart' as _i1;
+import 'package:example/features/inputs/inptus_example.dart' as _i2;
 
 /// generated route for
-/// [_i1.PinTestPage]
-class PinTestRoute extends _i2.PageRouteInfo<void> {
-  const PinTestRoute({List<_i2.PageRouteInfo>? children})
-    : super(PinTestRoute.name, initialChildren: children);
+/// [_i1.HomePage]
+class HomeRoute extends _i3.PageRouteInfo<void> {
+  const HomeRoute({List<_i3.PageRouteInfo>? children})
+    : super(HomeRoute.name, initialChildren: children);
 
-  static const String name = 'PinTestRoute';
+  static const String name = 'HomeRoute';
 
-  static _i2.PageInfo page = _i2.PageInfo(
+  static _i3.PageInfo page = _i3.PageInfo(
     name,
     builder: (data) {
-      return const _i1.PinTestPage();
+      return const _i1.HomePage();
+    },
+  );
+}
+
+/// generated route for
+/// [_i2.InputsExamplePage]
+class InputsExampleRoute extends _i3.PageRouteInfo<void> {
+  const InputsExampleRoute({List<_i3.PageRouteInfo>? children})
+    : super(InputsExampleRoute.name, initialChildren: children);
+
+  static const String name = 'InputsExampleRoute';
+
+  static _i3.PageInfo page = _i3.PageInfo(
+    name,
+    builder: (data) {
+      return const _i2.InputsExamplePage();
     },
   );
 }
