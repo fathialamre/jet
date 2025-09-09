@@ -1,5 +1,5 @@
+import 'package:example/core/router/app_router.gr.dart';
 import 'package:jet/jet_framework.dart';
-import 'package:example/features/pin_test_page.dart';
 
 @AutoRouterConfig()
 class AppRouter extends RootStackRouter {
@@ -8,7 +8,8 @@ class AppRouter extends RootStackRouter {
   final Ref ref;
   @override
   List<AutoRoute> get routes => [
-    AutoRoute(page: PinTestRoute.page, path: '/', initial: true),
+    AutoRoute(page: HomeRoute.page, initial: true),
+    AutoRoute(page: InputsExampleRoute.page),
   ];
 
   @override

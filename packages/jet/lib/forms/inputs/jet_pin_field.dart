@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:pinput/pinput.dart';
 
@@ -23,7 +22,7 @@ import 'package:pinput/pinput.dart';
 ///   onSubmitted: (pin) => submitPin(pin),
 /// )
 /// ```
-class JetPinField extends HookWidget {
+class JetPinField extends StatefulWidget {
   /// The name identifier for this form field
   final String name;
 
@@ -185,71 +184,99 @@ class JetPinField extends HookWidget {
   });
 
   @override
+  State<JetPinField> createState() => _JetPinFieldState();
+}
+
+class _JetPinFieldState extends State<JetPinField> {
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialValue ?? '');
+  }
+
+  @override
+  void didUpdateWidget(JetPinField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialValue != oldWidget.initialValue) {
+      _controller.text = widget.initialValue ?? '';
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
     // Create default theme based on current theme
     final defaultPinTheme = PinTheme(
-      width: boxWidth ?? 56,
-      height: boxHeight ?? 56,
+      width: widget.boxWidth ?? 56,
+      height: widget.boxHeight ?? 56,
       textStyle:
-          textStyle ??
-          theme.textTheme.headlineMedium?.copyWith(
+          widget.textStyle ??
+          theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w600,
+            fontSize: 16,
           ),
       decoration: BoxDecoration(
-        borderRadius: borderRadius ?? BorderRadius.circular(12),
+        borderRadius: widget.borderRadius ?? BorderRadius.circular(12),
         border: Border.all(
-          color: defaultBorderColor ?? colorScheme.outline,
-          width: borderWidth,
+          color: widget.defaultBorderColor ?? colorScheme.outline,
+          width: widget.borderWidth,
         ),
-        color: defaultFillColor ?? colorScheme.surface,
+        color: widget.defaultFillColor ?? colorScheme.surface,
       ),
     );
 
     final focusedPinTheme = defaultPinTheme.copyWith(
       decoration: defaultPinTheme.decoration!.copyWith(
-        borderRadius: borderRadius ?? BorderRadius.circular(12),
+        borderRadius: widget.borderRadius ?? BorderRadius.circular(12),
         border: Border.all(
-          color: focusedBorderColor ?? colorScheme.primary,
-          width: borderWidth,
+          color: widget.focusedBorderColor ?? colorScheme.primary,
+          width: widget.borderWidth,
         ),
-        color: focusedFillColor ?? colorScheme.surface,
+        color: widget.focusedFillColor ?? colorScheme.surface,
       ),
     );
 
     final submittedPinTheme = defaultPinTheme.copyWith(
       decoration: defaultPinTheme.decoration!.copyWith(
-        borderRadius: borderRadius ?? BorderRadius.circular(12),
+        borderRadius: widget.borderRadius ?? BorderRadius.circular(12),
         border: Border.all(
-          color: submittedBorderColor ?? colorScheme.primary,
-          width: borderWidth,
+          color: widget.submittedBorderColor ?? colorScheme.primary,
+          width: widget.borderWidth,
         ),
-        color: submittedFillColor ?? colorScheme.primaryContainer,
+        color: widget.submittedFillColor ?? colorScheme.primaryContainer,
       ),
     );
 
     final errorPinTheme = defaultPinTheme.copyWith(
       decoration: defaultPinTheme.decoration!.copyWith(
-        borderRadius: borderRadius ?? BorderRadius.circular(12),
+        borderRadius: widget.borderRadius ?? BorderRadius.circular(12),
         border: Border.all(
-          color: errorBorderColor ?? colorScheme.error,
-          width: borderWidth,
+          color: widget.errorBorderColor ?? colorScheme.error,
+          width: widget.borderWidth,
         ),
-        color: errorFillColor ?? colorScheme.errorContainer,
+        color: widget.errorFillColor ?? colorScheme.errorContainer,
       ),
     );
 
     return FormBuilderField<String>(
-      name: name,
-      initialValue: initialValue,
+      name: widget.name,
+      initialValue: widget.initialValue,
       validator:
-          validator ??
+          widget.validator ??
           FormBuilderValidators.compose([
-            if (isRequired) FormBuilderValidators.required(),
-            FormBuilderValidators.minLength(length),
-            FormBuilderValidators.maxLength(length),
+            if (widget.isRequired) FormBuilderValidators.required(),
+            FormBuilderValidators.minLength(widget.length),
+            FormBuilderValidators.maxLength(widget.length),
           ]),
       builder: (FormFieldState<String> field) {
         final hasError = field.hasError;
@@ -260,63 +287,68 @@ class JetPinField extends HookWidget {
             Directionality(
               textDirection: TextDirection.ltr,
               child: Pinput(
-                length: length,
+                length: widget.length,
                 defaultPinTheme: hasError ? errorPinTheme : defaultPinTheme,
                 focusedPinTheme: hasError ? errorPinTheme : focusedPinTheme,
                 submittedPinTheme: hasError ? errorPinTheme : submittedPinTheme,
                 errorPinTheme: errorPinTheme,
                 pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
-                showCursor: showCursor,
-                obscureText: obscureText,
+                showCursor: widget.showCursor,
+                obscureText: widget.obscureText,
                 obscuringCharacter: '*',
-                obscuringWidget: obscureText
+                obscuringWidget: widget.obscureText
                     ? const Text(
                         '●',
-                        style: TextStyle(fontSize: 24),
+                        style: TextStyle(fontSize: 18),
                       )
                     : null,
-                hapticFeedbackType: hapticFeedback
+                hapticFeedbackType: widget.hapticFeedback
                     ? HapticFeedbackType.lightImpact
                     : HapticFeedbackType.disabled,
-                closeKeyboardWhenCompleted: closeKeyboardWhenCompleted,
-                animationCurve: animationCurve,
-                animationDuration: animationDuration,
-                enabled: enabled,
-                autofocus: autofocus,
-                readOnly: readOnly,
-                controller: TextEditingController(text: field.value),
+                closeKeyboardWhenCompleted: widget.closeKeyboardWhenCompleted,
+                animationCurve: widget.animationCurve,
+                animationDuration: widget.animationDuration,
+                enabled: widget.enabled,
+                autofocus: widget.autofocus,
+                readOnly: widget.readOnly,
+                controller: _controller,
                 onChanged: (value) {
                   field.didChange(value);
-                  onChanged?.call(value);
+                  _controller.text = value;
+                  widget.onChanged?.call(value);
                 },
                 onCompleted: (value) {
                   field.didChange(value);
-                  onCompleted?.call(value);
+                  _controller.text = value;
+                  widget.onCompleted?.call(value);
                 },
                 onSubmitted: (value) {
                   field.didChange(value);
-                  onSubmitted?.call(value);
+                  _controller.text = value;
+                  widget.onSubmitted?.call(value);
                 },
               ),
             ),
-            if (field.hasError || helperText != null) ...[
+            if (field.hasError || widget.helperText != null) ...[
               const SizedBox(height: 8),
               if (field.hasError)
                 Text(
                   field.errorText!,
                   style:
-                      errorStyle ??
+                      widget.errorStyle ??
                       theme.textTheme.bodySmall?.copyWith(
                         color: colorScheme.error,
+                        fontSize: 16,
                       ),
                 )
-              else if (helperText != null)
+              else if (widget.helperText != null)
                 Text(
-                  helperText!,
+                  widget.helperText!,
                   style:
-                      helperStyle ??
+                      widget.helperStyle ??
                       theme.textTheme.bodySmall?.copyWith(
                         color: colorScheme.onSurfaceVariant,
+                        fontSize: 18,
                       ),
                 ),
             ],
