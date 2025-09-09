@@ -15,7 +15,7 @@ class AppConfig extends JetConfig {
   ];
 
   @override
-  PageInfo? get authPageInfo => LoginRoute.page;
+  PageInfo? get authPageInfo => null;
 
   @override
   List<LocaleInfo> get supportedLocales => [
