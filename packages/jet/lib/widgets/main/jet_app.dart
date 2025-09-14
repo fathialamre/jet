@@ -24,20 +24,14 @@ class JetApp extends BaseJetApp {
     ThemeMode themeMode,
     JetConfig config,
   ) {
+    final lockState = ref.watch(appLockProvider);
     return ScreenUtilInit(
       designSize: const Size(375, 812),
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (BuildContext context, Widget? child) {
-        final lockState = ref.watch(appLockProvider);
-        dump(lockState, tag: 'Jep app builder');
-        dump(context.isGuardoEnabled(), tag: 'guardo enabled');
         return Guardo(
-          // enabled: true,
-          enabled: ref.watch(appLockProvider),
-          config: GuardoConfig(
-
-          ),
+          enabled: lockState,
           child: MaterialApp.router(
             routerConfig: router.config(
               //TODO: Add navigator observers

@@ -1,39 +1,41 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
+import 'package:guardo/guardo.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jet/extensions/build_context.dart';
+import 'package:jet/helpers/jet_logger.dart';
 import 'package:jet/storage/local_storage.dart';
 
-class AppLockNotifier extends Notifier<bool>{
-
-  bool get isLocked => state;
+class AppLockNotifier extends StateNotifier<bool> {
+  AppLockNotifier() : super(false) {
+    _load();
+  }
 
   static const String _key = 'isLocked';
 
-  @override
-  bool build() {
-    _load();
-   return false;
+  void _load() {
+    state = JetStorage.read(_key);
   }
 
-  Future<void> _load() async{
-    final isLocked = await JetStorage.read(_key);
-    state = isLocked;
+  void toggle(BuildContext context, {bool forceLock = false}) {
+      context.guardoActionWithResult(
+        onSuccess: () async {
+          state = !state;
+          await JetStorage.write(_key, state);
+          if (forceLock) {
+            if (context.mounted) {
+              context.lockApp();
+            }
+          }
+        },
+        onFailure: (e){
+            context.showToast(e.toString());
+        }
+      );
+    }
   }
 
-  Future<void> toggle() async {
-    final newValue = !state;
-    state = newValue;
-
-
-    await JetStorage.write(_key, newValue);
-  }
-
-  Future<void> setLock(bool enabled) async {
-    state = enabled;
-
-    await JetStorage.write(_key, enabled);
-  }
-
-}
-
-final appLockProvider = NotifierProvider<AppLockNotifier, bool>(() => AppLockNotifier());
+final appLockProvider = StateNotifierProvider<AppLockNotifier, bool>(
+  (ref) => AppLockNotifier(),
+);
