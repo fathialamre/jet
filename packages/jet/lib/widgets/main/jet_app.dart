@@ -5,7 +5,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:guardo/guardo.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jet/app_lock/app_lock_provider.dart';
 import 'package:jet/config/jet_config.dart';
+import 'package:jet/helpers/jet_logger.dart';
 import 'package:jet/localization/intl/messages.dart';
 import 'package:jet/storage/local_storage.dart';
 import 'package:jet/widgets/main/jet_base_app.dart';
@@ -22,19 +24,19 @@ class JetApp extends BaseJetApp {
     ThemeMode themeMode,
     JetConfig config,
   ) {
+    final lockState = ref.watch(appLockProvider);
     return ScreenUtilInit(
       designSize: const Size(375, 812),
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (BuildContext context, Widget? child) {
         return Guardo(
-          enabled: JetStorage.isLocked(),
+          enabled: lockState,
           child: MaterialApp.router(
             routerConfig: router.config(
               //TODO: Add navigator observers
               navigatorObservers: () => [],
             ),
-
             debugShowCheckedModeBanner: false,
             localizationsDelegates: [
               GlobalMaterialLocalizations.delegate,
