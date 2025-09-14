@@ -11,6 +11,7 @@ showAdaptiveConfirmationDialog({
   required BuildContext context,
   required String title,
   required String message,
+  required Widget icon,
   required FutureOr<void> Function() onConfirm,
   bool barrierDismissible = true,
   final String? confirmText,
@@ -55,6 +56,7 @@ showAdaptiveConfirmationDialog({
       context: context,
       barrierDismissible: barrierDismissible,
       builder: (context) => AlertDialog(
+        icon: icon,
         title: Text(title),
         content: Text(message),
         actions: [
