@@ -1,10 +1,7 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:guardo/guardo.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jet/extensions/build_context.dart';
-import 'package:jet/helpers/jet_logger.dart';
 import 'package:jet/storage/local_storage.dart';
 
 class AppLockNotifier extends StateNotifier<bool> {
