@@ -52,11 +52,11 @@ class FormBuilderPasswordField extends HookWidget {
       obscureText: obscureText.value,
       enabled: enabled,
       decoration: InputDecoration(
-        prefixIcon: showPrefixIcon ? Icon(LucideIcons.lock) : prefixIcon,
+        prefixIcon: showPrefixIcon ? Icon(PhosphorIcons.lock()) : prefixIcon,
         hintText: hintText,
         suffixIcon: IconButton(
           icon: Icon(
-            obscureText.value ? LucideIcons.eye : LucideIcons.eyeClosed,
+            obscureText.value ? PhosphorIcons.eye() : PhosphorIcons.eyeClosed(),
           ),
           onPressed: toggleVisibility,
         ),

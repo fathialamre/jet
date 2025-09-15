@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jet/extensions/build_context.dart';
 import 'package:jet/extensions/text_extensions.dart';
-import 'package:jet/widgets/widgets/buttons/jet_button.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
-
+import 'package:jet/jet_framework.dart';
 class JetErrorWidget extends StatelessWidget {
   const JetErrorWidget({
     super.key,
@@ -28,7 +26,7 @@ class JetErrorWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(LucideIcons.circleAlert, color: Colors.red, size: 60),
+          PhosphorIcon(PhosphorIcons.warningCircle(), color: Colors.red, size: 60),
           const SizedBox(height: 12),
           Text(
             title,

@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jet/extensions/build_context.dart';
-import 'package:jet/resources/theme/notifiers/theme_switcher_notifier.dart';
+import 'package:jet/jet_framework.dart';
 import 'package:jet/resources/theme/widgets/base_theme_switcher.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 extension on ThemeMode {
-  IconData get icon => switch (this) {
-    ThemeMode.light => LucideIcons.sun,
-    ThemeMode.dark => LucideIcons.moon,
-    ThemeMode.system => LucideIcons.laptopMinimal,
+  PhosphorIconData get icon => switch (this) {
+    ThemeMode.light => PhosphorIcons.sun(),
+    ThemeMode.dark => PhosphorIcons.moon(),
+    ThemeMode.system => PhosphorIcons.laptop(),
   };
 
   String name(BuildContext context) => switch (this) {
@@ -53,7 +51,7 @@ class BottomSheetThemeSwitcher extends BaseThemeSwitcher {
             child: Row(
               children: [
                 Icon(
-                  LucideIcons.palette,
+                  PhosphorIcons.palette(),
                   color: Theme.of(context).colorScheme.primary,
                 ),
                 const SizedBox(width: 12),

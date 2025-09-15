@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:jet/adapters/jet_adapter.dart';
 import 'package:jet/jet_framework.dart';
 import 'package:jet/localization/models/locale_info.dart';
+import 'package:jet/networking/interceptors/jet_dio_logger_config.dart';
 import 'package:jet/resources/components/jet_loader.dart';
 import 'package:jet/networking/errors/errors.dart';
 
@@ -97,6 +98,8 @@ abstract class JetConfig {
   JetBaseErrorHandler get errorHandler => JetErrorHandler.instance;
 
   String get fontFamily => 'inter';
+
+  JetDioLoggerConfig get dioLoggerConfig => JetDioLoggerConfig();
 
   ThemeData? getTheme() {
     return theme?.copyWith(
