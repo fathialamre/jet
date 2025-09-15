@@ -10,9 +10,9 @@ import 'package:jet/resources/components/jet_error_widget.dart';
 import 'package:jet/resources/components/jet_fetch_more_error_widget.dart';
 import 'package:jet/resources/components/jet_loading_more_widget.dart';
 import 'package:jet/resources/components/jet_no_more_items_widget.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:jet/networking/errors/errors.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Information about a page of data from any API
 ///
@@ -619,7 +619,7 @@ class _PaginationListWidgetState<T, TResponse>
   Widget _buildErrorIndicator(BuildContext context, Object? error) {
     if (error == null) {
       return JetErrorWidget(
-        icon: LucideIcons.info,
+        icon: PhosphorIcons.info(),
         title: context.jetI10n.somethingWentWrongWhileFetchingNewPage,
         message: context.jetI10n.unknownError,
         onTap: () => _pagingController.fetchNextPage(),
@@ -662,20 +662,19 @@ class _PaginationListWidgetState<T, TResponse>
   IconData _getErrorIconData(JetError jetError) {
     switch (jetError.type) {
       case JetErrorType.noInternet:
-        return LucideIcons.wifiOff;
+        return PhosphorIcons.wifiSlash();
       case JetErrorType.server:
-        return LucideIcons.server;
+        return PhosphorIcons.hardDrives();
       case JetErrorType.client:
-        return LucideIcons.info;
+        return PhosphorIcons.info();
       case JetErrorType.validation:
-        return LucideIcons.info;
+        return PhosphorIcons.info();
       case JetErrorType.timeout:
-        return LucideIcons.clock;
+        return PhosphorIcons.clock();
       case JetErrorType.cancelled:
-        return LucideIcons.x;
+        return PhosphorIcons.x();
       case JetErrorType.unknown:
-      default:
-        return LucideIcons.info;
+      return PhosphorIcons.info();
     }
   }
 
@@ -695,8 +694,7 @@ class _PaginationListWidgetState<T, TResponse>
       case JetErrorType.cancelled:
         return 'Request Cancelled';
       case JetErrorType.unknown:
-      default:
-        return context.jetI10n.somethingWentWrongWhileFetchingNewPage;
+      return context.jetI10n.somethingWentWrongWhileFetchingNewPage;
     }
   }
 
@@ -963,7 +961,7 @@ class _PaginationGridWidgetState<T, TResponse>
   Widget _buildErrorIndicator(BuildContext context, Object? error) {
     if (error == null) {
       return JetErrorWidget(
-        icon: LucideIcons.info,
+        icon: PhosphorIcons.info(),
         title: context.jetI10n.somethingWentWrongWhileFetchingNewPage,
         message: context.jetI10n.unknownError,
         onTap: () {
@@ -991,20 +989,19 @@ class _PaginationGridWidgetState<T, TResponse>
   IconData _getErrorIconData(JetError jetError) {
     switch (jetError.type) {
       case JetErrorType.noInternet:
-        return LucideIcons.wifiOff;
+        return PhosphorIcons.wifiSlash();
       case JetErrorType.server:
-        return LucideIcons.server;
+        return PhosphorIcons.hardDrives();
       case JetErrorType.client:
-        return LucideIcons.info;
+        return PhosphorIcons.info();
       case JetErrorType.validation:
-        return LucideIcons.triangleAlert;
+        return PhosphorIcons.warning();
       case JetErrorType.timeout:
-        return LucideIcons.clock;
+        return PhosphorIcons.clock();
       case JetErrorType.cancelled:
-        return LucideIcons.x;
+        return PhosphorIcons.x();
       case JetErrorType.unknown:
-      default:
-        return LucideIcons.info;
+      return PhosphorIcons.info();
     }
   }
 
@@ -1024,8 +1021,7 @@ class _PaginationGridWidgetState<T, TResponse>
       case JetErrorType.cancelled:
         return 'Request Cancelled';
       case JetErrorType.unknown:
-      default:
-        return context.jetI10n.somethingWentWrongWhileFetchingNewPage;
+      return context.jetI10n.somethingWentWrongWhileFetchingNewPage;
     }
   }
 

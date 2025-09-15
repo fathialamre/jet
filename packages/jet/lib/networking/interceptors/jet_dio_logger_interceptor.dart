@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
+import 'jet_dio_logger_config.dart';
+
 const _timeStampKey = '_pdl_timeStamp_';
 
 /// A pretty logger for Dio
@@ -9,22 +11,7 @@ const _timeStampKey = '_pdl_timeStamp_';
 /// and also can filter the request/response by [RequestOptions]
 class JetDioLoggerInterceptor extends Interceptor {
   /// Print request [Options]
-  final bool request;
-
-  /// Print request header [Options.headers]
-  final bool requestHeader;
-
-  /// Print request data [Options._data]
-  final bool requestBody;
-
-  /// Print [Response.data]
-  final bool responseBody;
-
-  /// Print [Response.headers]
-  final bool responseHeader;
-
-  /// Print error message
-  final bool error;
+  final JetDioLoggerConfig config;
 
   /// InitialTab count to logPrint json response
   static const int kInitialTab = 1;
@@ -32,57 +19,27 @@ class JetDioLoggerInterceptor extends Interceptor {
   /// 1 tab length
   static const String tabStep = '    ';
 
-  /// Print compact json response
-  final bool compact;
-
-  /// Width size per logPrint
-  final int maxWidth;
-
-  /// Size in which the Uint8List will be split
   static const int chunkSize = 20;
 
-  /// Log printer; defaults logPrint log to console.
-  /// In flutter, you'd better use debugPrint.
-  /// you can also write log in a file.
-  final void Function(Object object) logPrint;
-
-  /// Filter request/response by [RequestOptions]
-  final bool Function(RequestOptions options, FilterArgs args)? filter;
-
-  /// Enable logPrint
-  final bool enabled;
-
   /// Default constructor
-  JetDioLoggerInterceptor({
-    this.request = true,
-    this.requestHeader = true,
-    this.requestBody = false,
-    this.responseHeader = false,
-    this.responseBody = true,
-    this.error = true,
-    this.maxWidth = 90,
-    this.compact = true,
-    this.logPrint = print,
-    this.filter,
-    this.enabled = true,
-  });
+  JetDioLoggerInterceptor(this.config);
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     final extra = Map.of(options.extra);
     options.extra[_timeStampKey] = DateTime.timestamp().millisecondsSinceEpoch;
 
-    if (!enabled ||
-        (filter != null &&
-            !filter!(options, FilterArgs(false, options.data)))) {
+    if (!config.enabled ||
+        (config.filter != null &&
+            !config.filter!(options, FilterArgs(false, options.data)))) {
       handler.next(options);
       return;
     }
 
-    if (request) {
+    if (config.request) {
       _printRequestHeader(options);
     }
-    if (requestHeader) {
+    if (config.requestHeader) {
       _printMapAsTable(options.queryParameters, header: 'Query Parameters');
       final requestHeaders = <String, dynamic>{};
       requestHeaders.addAll(options.headers);
@@ -100,7 +57,7 @@ class JetDioLoggerInterceptor extends Interceptor {
       _printMapAsTable(requestHeaders, header: 'Headers');
       _printMapAsTable(extra, header: 'Extras');
     }
-    if (requestBody && options.method != 'GET') {
+    if (config.requestBody && options.method != 'GET') {
       final dynamic data = options.data;
       if (data != null) {
         if (data is Map) _printMapAsTable(options.data as Map?, header: 'Body');
@@ -119,17 +76,19 @@ class JetDioLoggerInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    if (!enabled ||
-        (filter != null &&
-            !filter!(
-                err.requestOptions, FilterArgs(true, err.response?.data)))) {
+    if (!config.enabled ||
+        (config.filter != null &&
+            !config.filter!(
+              err.requestOptions,
+              FilterArgs(true, err.response?.data),
+            ))) {
       handler.next(err);
       return;
     }
 
     final triggerTime = err.requestOptions.extra[_timeStampKey];
 
-    if (error) {
+    if (config.error) {
       if (err.type == DioExceptionType.badResponse) {
         final uri = err.response?.requestOptions.uri;
         int diff = 0;
@@ -137,15 +96,16 @@ class JetDioLoggerInterceptor extends Interceptor {
           diff = DateTime.timestamp().millisecondsSinceEpoch - triggerTime;
         }
         _printBoxed(
-            header:
-                'DioError ║ Status: ${err.response?.statusCode} ${err.response?.statusMessage} ║ Time: $diff ms',
-            text: uri.toString());
+          header:
+              'DioError ║ Status: ${err.response?.statusCode} ${err.response?.statusMessage} ║ Time: $diff ms',
+          text: uri.toString(),
+        );
         if (err.response != null && err.response?.data != null) {
-          logPrint('╔ ${err.type.toString()}');
+          config.logPrint('╔ ${err.type.toString()}');
           _printResponse(err.response!);
         }
         _printLine('╚');
-        logPrint('');
+        config.logPrint('');
       } else {
         _printBoxed(header: 'DioError ║ ${err.type}', text: err.message);
       }
@@ -155,10 +115,12 @@ class JetDioLoggerInterceptor extends Interceptor {
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    if (!enabled ||
-        (filter != null &&
-            !filter!(
-                response.requestOptions, FilterArgs(true, response.data)))) {
+    if (!config.enabled ||
+        (config.filter != null &&
+            !config.filter!(
+              response.requestOptions,
+              FilterArgs(true, response.data),
+            ))) {
       handler.next(response);
       return;
     }
@@ -170,27 +132,28 @@ class JetDioLoggerInterceptor extends Interceptor {
       diff = DateTime.timestamp().millisecondsSinceEpoch - triggerTime;
     }
     _printResponseHeader(response, diff);
-    if (responseHeader) {
+    if (config.responseHeader) {
       final responseHeaders = <String, String>{};
-      response.headers
-          .forEach((k, list) => responseHeaders[k] = list.toString());
+      response.headers.forEach(
+        (k, list) => responseHeaders[k] = list.toString(),
+      );
       _printMapAsTable(responseHeaders, header: 'Headers');
     }
 
-    if (responseBody) {
-      logPrint('╔ Body');
-      logPrint('║');
+    if (config.responseBody) {
+      config.logPrint('╔ Body');
+      config.logPrint('║');
       _printResponse(response);
-      logPrint('║');
+      config.logPrint('║');
       _printLine('╚');
     }
     handler.next(response);
   }
 
   void _printBoxed({String? header, String? text}) {
-    logPrint('');
-    logPrint('╔╣ $header');
-    logPrint('║  $text');
+    config.logPrint('');
+    config.logPrint('╔╣ $header');
+    config.logPrint('║  $text');
     _printLine('╚');
   }
 
@@ -199,13 +162,13 @@ class JetDioLoggerInterceptor extends Interceptor {
       if (response.data is Map) {
         _printPrettyMap(response.data as Map);
       } else if (response.data is Uint8List) {
-        logPrint('║${_indent()}[');
+        config.logPrint('║${_indent()}[');
         _printUint8List(response.data as Uint8List);
-        logPrint('║${_indent()}]');
+        config.logPrint('║${_indent()}]');
       } else if (response.data is List) {
-        logPrint('║${_indent()}[');
+        config.logPrint('║${_indent()}[');
         _printList(response.data as List);
-        logPrint('║${_indent()}]');
+        config.logPrint('║${_indent()}]');
       } else {
         _printBlock(response.data.toString());
       }
@@ -216,9 +179,10 @@ class JetDioLoggerInterceptor extends Interceptor {
     final uri = response.requestOptions.uri;
     final method = response.requestOptions.method;
     _printBoxed(
-        header:
-            'Response ║ $method ║ Status: ${response.statusCode} ${response.statusMessage}  ║ Time: $responseTime ms',
-        text: uri.toString());
+      header:
+          'Response ║ $method ║ Status: ${response.statusCode} ${response.statusMessage}  ║ Time: $responseTime ms',
+      text: uri.toString(),
+    );
   }
 
   void _printRequestHeader(RequestOptions options) {
@@ -228,26 +192,30 @@ class JetDioLoggerInterceptor extends Interceptor {
   }
 
   void _printLine([String pre = '', String suf = '╝']) =>
-      logPrint('$pre${'═' * maxWidth}$suf');
+      config.logPrint('$pre${'═' * config.maxWidth}$suf');
 
   void _printKV(String? key, Object? v) {
     final pre = '╟ $key: ';
     final msg = v.toString();
 
-    if (pre.length + msg.length > maxWidth) {
-      logPrint(pre);
+    if (pre.length + msg.length > config.maxWidth) {
+      config.logPrint(pre);
       _printBlock(msg);
     } else {
-      logPrint('$pre$msg');
+      config.logPrint('$pre$msg');
     }
   }
 
   void _printBlock(String msg) {
-    final lines = (msg.length / maxWidth).ceil();
+    final lines = (msg.length / config.maxWidth).ceil();
     for (var i = 0; i < lines; ++i) {
-      logPrint((i >= 0 ? '║ ' : '') +
-          msg.substring(i * maxWidth,
-              math.min<int>(i * maxWidth + maxWidth, msg.length)));
+      config.logPrint(
+        (i >= 0 ? '║ ' : '') +
+            msg.substring(
+              i * config.maxWidth,
+              math.min<int>(i * config.maxWidth + config.maxWidth, msg.length),
+            ),
+      );
     }
   }
 
@@ -264,7 +232,7 @@ class JetDioLoggerInterceptor extends Interceptor {
     final initialIndent = _indent(tabs);
     tabs++;
 
-    if (isRoot || isListItem) logPrint('║$initialIndent{');
+    if (isRoot || isListItem) config.logPrint('║$initialIndent{');
 
     for (var index = 0; index < data.length; index++) {
       final isLast = index == data.length - 1;
@@ -274,38 +242,41 @@ class JetDioLoggerInterceptor extends Interceptor {
         value = '"${value.toString().replaceAll(RegExp(r'([\r\n])+'), " ")}"';
       }
       if (value is Map) {
-        if (compact && _canFlattenMap(value)) {
-          logPrint('║${_indent(tabs)} $key: $value${!isLast ? ',' : ''}');
+        if (config.compact && _canFlattenMap(value)) {
+          config.logPrint(
+            '║${_indent(tabs)} $key: $value${!isLast ? ',' : ''}',
+          );
         } else {
-          logPrint('║${_indent(tabs)} $key: {');
+          config.logPrint('║${_indent(tabs)} $key: {');
           _printPrettyMap(value, initialTab: tabs);
         }
       } else if (value is List) {
-        if (compact && _canFlattenList(value)) {
-          logPrint('║${_indent(tabs)} $key: ${value.toString()}');
+        if (config.compact && _canFlattenList(value)) {
+          config.logPrint('║${_indent(tabs)} $key: ${value.toString()}');
         } else {
-          logPrint('║${_indent(tabs)} $key: [');
+          config.logPrint('║${_indent(tabs)} $key: [');
           _printList(value, tabs: tabs);
-          logPrint('║${_indent(tabs)} ]${isLast ? '' : ','}');
+          config.logPrint('║${_indent(tabs)} ]${isLast ? '' : ','}');
         }
       } else {
         final msg = value.toString().replaceAll('\n', '');
         final indent = _indent(tabs);
-        final linWidth = maxWidth - indent.length;
+        final linWidth = config.maxWidth - indent.length;
         if (msg.length + indent.length > linWidth) {
           final lines = (msg.length / linWidth).ceil();
           for (var i = 0; i < lines; ++i) {
             final multilineKey = i == 0 ? "$key:" : "";
-            logPrint(
-                '║${_indent(tabs)} $multilineKey ${msg.substring(i * linWidth, math.min<int>(i * linWidth + linWidth, msg.length))}');
+            config.logPrint(
+              '║${_indent(tabs)} $multilineKey ${msg.substring(i * linWidth, math.min<int>(i * linWidth + linWidth, msg.length))}',
+            );
           }
         } else {
-          logPrint('║${_indent(tabs)} $key: $msg${!isLast ? ',' : ''}');
+          config.logPrint('║${_indent(tabs)} $key: $msg${!isLast ? ',' : ''}');
         }
       }
     }
 
-    logPrint('║$initialIndent}${isListItem && !isLast ? ',' : ''}');
+    config.logPrint('║$initialIndent}${isListItem && !isLast ? ',' : ''}');
   }
 
   void _printList(List list, {int tabs = kInitialTab}) {
@@ -313,8 +284,8 @@ class JetDioLoggerInterceptor extends Interceptor {
       final element = list[i];
       final isLast = i == list.length - 1;
       if (element is Map) {
-        if (compact && _canFlattenMap(element)) {
-          logPrint('║${_indent(tabs)}  $element${!isLast ? ',' : ''}');
+        if (config.compact && _canFlattenMap(element)) {
+          config.logPrint('║${_indent(tabs)}  $element${!isLast ? ',' : ''}');
         } else {
           _printPrettyMap(
             element,
@@ -324,7 +295,7 @@ class JetDioLoggerInterceptor extends Interceptor {
           );
         }
       } else {
-        logPrint('║${_indent(tabs + 2)} $element${isLast ? '' : ','}');
+        config.logPrint('║${_indent(tabs + 2)} $element${isLast ? '' : ','}');
       }
     }
   }
@@ -334,11 +305,13 @@ class JetDioLoggerInterceptor extends Interceptor {
     for (var i = 0; i < list.length; i += chunkSize) {
       chunks.add(
         list.sublist(
-            i, i + chunkSize > list.length ? list.length : i + chunkSize),
+          i,
+          i + chunkSize > list.length ? list.length : i + chunkSize,
+        ),
       );
     }
     for (var element in chunks) {
-      logPrint('║${_indent(tabs)} ${element.join(", ")}');
+      config.logPrint('║${_indent(tabs)} ${element.join(", ")}');
     }
   }
 
@@ -346,16 +319,16 @@ class JetDioLoggerInterceptor extends Interceptor {
     return map.values
             .where((dynamic val) => val is Map || val is List)
             .isEmpty &&
-        map.toString().length < maxWidth;
+        map.toString().length < config.maxWidth;
   }
 
   bool _canFlattenList(List list) {
-    return list.length < 10 && list.toString().length < maxWidth;
+    return list.length < 10 && list.toString().length < config.maxWidth;
   }
 
   void _printMapAsTable(Map? map, {String? header}) {
     if (map == null || map.isEmpty) return;
-    logPrint('╔ $header ');
+    config.logPrint('╔ $header ');
     for (final entry in map.entries) {
       _printKV(entry.key.toString(), entry.value);
     }

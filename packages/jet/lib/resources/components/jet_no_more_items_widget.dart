@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jet/extensions/build_context.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:jet/jet_framework.dart';
 
 class JetNoMoreItemsWidget extends StatelessWidget {
   const JetNoMoreItemsWidget({
@@ -31,7 +31,7 @@ class JetNoMoreItemsWidget extends StatelessWidget {
             if (showAction)
               IconButton.filledTonal(
                 onPressed: onTap,
-                icon: const Icon(LucideIcons.rotateCw),
+                icon: PhosphorIcon(PhosphorIcons.arrowClockwise()),
               ),
           ],
         ),
