@@ -90,6 +90,120 @@ class JetLogger {
     }
   }
 
+  /// Dumps a stack trace in a human-readable format with minimal emojis.
+  ///
+  /// Parses the stack trace and displays it with clickable file paths
+  /// to make debugging easier and more efficient.
+  static void dumpTrace(
+    StackTrace stackTrace, {
+    String? title,
+    bool alwaysPrint = false,
+  }) {
+    if (!_canLog(alwaysPrint)) return;
+
+    final traceTitle = title ?? 'JET STACK TRACE';
+    _log('╔╣ $traceTitle ╠══');
+    _log('╠══════════════');
+
+    final lines = stackTrace.toString().split('\n');
+    int frameNumber = 1;
+
+    for (final line in lines) {
+      if (line.trim().isEmpty) continue;
+
+      // Parse stack trace line
+      final parsedFrame = _parseStackTraceLine(line.trim());
+      if (parsedFrame != null) {
+        // Extract file name from full path
+        final fileName = _extractFileName(parsedFrame['file']);
+
+        // Create clickable file path
+        final fileUrl = _formatClickableFilePath(
+          parsedFrame['file'],
+          parsedFrame['line'],
+          parsedFrame['column'],
+        );
+
+        // Display frame in the requested format
+        _log('╠╣ [ $frameNumber ] -> ${parsedFrame['method']} ╠══');
+        _log(
+          '╠ LINE [${parsedFrame['line'] ?? 'N/A'}] COLUMN [${parsedFrame['column'] ?? 'N/A'}]',
+        );
+        _log('╠ At ${fileName ?? 'unknown'}');
+        _log('╠ "${fileUrl ?? 'N/A'}"');
+        _log('╚════════════════════════');
+
+        frameNumber++;
+      } else {
+        // If we can't parse it, show it as raw
+        _log('╠╣ [ $frameNumber ] -> Unparsed Frame ╠══');
+        _log('╠ $line');
+        _log('╚════════════════════════');
+        frameNumber++;
+      }
+    }
+
+    _log('');
+  }
+
+  /// Extracts just the file name from a full file path.
+  static String? _extractFileName(String? filePath) {
+    if (filePath == null) return null;
+
+    // Handle package: paths and regular file paths
+    final segments = filePath.split('/');
+    return segments.isNotEmpty ? segments.last : filePath;
+  }
+
+  /// Formats a clickable file path for IDE integration.
+  static String? _formatClickableFilePath(
+    String? file,
+    String? line,
+    String? column,
+  ) {
+    if (file == null) return null;
+
+    final lineStr = line ?? '1';
+    final columnStr = column ?? '1';
+
+    // Format: file.dart:line:column for IDE clickability
+    return '$file:$lineStr:$columnStr';
+  }
+
+  /// Parses a single stack trace line to extract method, file, line, and column information.
+  static Map<String, String?>? _parseStackTraceLine(String line) {
+    // Common patterns for Dart stack traces:
+    // #0      method (file:line:column)
+    // #0      method (package:package_name/file.dart:line:column)
+
+    final regex = RegExp(r'#\d+\s+(.+?)\s+\((.+?):(\d+):(\d+)\)');
+    final match = regex.firstMatch(line);
+
+    if (match != null) {
+      return {
+        'method': match.group(1)?.trim(),
+        'file': match.group(2)?.trim(),
+        'line': match.group(3)?.trim(),
+        'column': match.group(4)?.trim(),
+      };
+    }
+
+    // Try alternative pattern: method (file:line)
+    final altRegex = RegExp(r'#\d+\s+(.+?)\s+\((.+?):(\d+)\)');
+    final altMatch = altRegex.firstMatch(line);
+
+    if (altMatch != null) {
+      return {
+        'method': altMatch.group(1)?.trim(),
+        'file': altMatch.group(2)?.trim(),
+        'line': altMatch.group(3)?.trim(),
+        'column': null,
+      };
+    }
+
+    return null;
+  }
+
   static void logWithBrackets(
     dynamic title,
     dynamic message,
@@ -103,15 +217,11 @@ class JetLogger {
       _log('║ $details ');
     }
     if (stackTrace != null) {
-      dump(stackTrace);
-      _log('╠══════╣ Error Files ╠═══');
-      // final lines = stackTrace.toString().split('\n');
-      // for (final line in lines) {
-      //   if (line.trim().isNotEmpty) {
-      //     _log('║ $line');
-      //   }
-      // }
-      _log('╚═══════ ');
+      dumpTrace(
+        stackTrace,
+        title: 'Error Stack Trace',
+        alwaysPrint: alwaysPrint,
+      );
     }
     _log('╚═══════ ');
   }
@@ -127,7 +237,7 @@ dd(dynamic value, {String? tag, bool alwaysPrint = false}) {
   exit(0);
 }
 
-dump(
+void dump(
   dynamic message, {
   dynamic details,
   String? tag,
@@ -143,12 +253,26 @@ dump(
   );
 }
 
+/// Global function to dump a stack trace with human-readable format and emojis.
+void dumpTrace(
+  StackTrace stackTrace, {
+  String? title,
+  bool alwaysPrint = false,
+}) {
+  JetLogger.dumpTrace(stackTrace, title: title, alwaysPrint: alwaysPrint);
+}
+
 extension StackTraceExt on StackTrace {
+  /// Logs the stack trace using the new human-readable format with emojis.
+  void dump({String? title, bool alwaysPrint = false}) {
+    JetLogger.dumpTrace(this, title: title, alwaysPrint: alwaysPrint);
+  }
+
+  /// Legacy method for backwards compatibility.
   void log({String? tag, bool alwaysPrint = false}) {
-    JetLogger.logWithBrackets(
-      tag ?? 'StackTrace',
-      toString(), // Ensure StackTrace is converted to a string
-      '',
+    JetLogger.dumpTrace(
+      this,
+      title: tag ?? 'StackTrace',
       alwaysPrint: alwaysPrint,
     );
   }
