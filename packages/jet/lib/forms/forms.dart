@@ -48,6 +48,9 @@ library jet_forms;
 // Core types and state management
 export 'common.dart';
 
+// Mixins for form functionality
+export 'mixins/mixins.dart';
+
 // Notifiers
 export 'notifiers/notifiers.dart';
 

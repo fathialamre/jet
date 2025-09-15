@@ -10,6 +10,9 @@
 sealed class AsyncFormValue<Request, Response> {
   const AsyncFormValue();
 
+  /// Creates an initial form state (not yet submitted).
+  const factory AsyncFormValue.initial() = AsyncFormInitial<Request, Response>;
+
   /// Creates a form state with data.
   const factory AsyncFormValue.data({
     required Request request,
@@ -36,6 +39,9 @@ sealed class AsyncFormValue<Request, Response> {
     Response? response,
   }) = AsyncFormLoading<Request, Response>;
 
+  /// Whether the form is in initial state (not yet submitted).
+  bool get isInitial => this is AsyncFormInitial<Request, Response>;
+
   /// Whether the form is currently in a loading state.
   bool get isLoading => this is AsyncFormLoading<Request, Response>;
 
@@ -54,13 +60,17 @@ sealed class AsyncFormValue<Request, Response> {
 
   /// Pattern-matching over the form state.
   ///
-  /// Provides callbacks for each state: [data], [error], and [loading].
+  /// Provides callbacks for each state: [initial], [data], [error], and [loading].
   /// All callbacks are required.
   R map<R>({
+    required R Function(AsyncFormInitial<Request, Response> initial) initial,
     required R Function(AsyncFormData<Request, Response> data) data,
     required R Function(AsyncFormError<Request, Response> error) error,
     required R Function(AsyncFormLoading<Request, Response> loading) loading,
   }) {
+    if (this is AsyncFormInitial<Request, Response>) {
+      return initial(this as AsyncFormInitial<Request, Response>);
+    }
     if (this is AsyncFormData<Request, Response>) {
       return data(this as AsyncFormData<Request, Response>);
     }
@@ -169,5 +179,26 @@ class AsyncFormLoading<Request, Response>
   @override
   String toString() {
     return 'AsyncFormLoading(request: $request, response: $response)';
+  }
+}
+
+/// Represents the initial state of a form (before any submission).
+class AsyncFormInitial<Request, Response>
+    extends AsyncFormValue<Request, Response> {
+  const AsyncFormInitial();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is AsyncFormInitial<Request, Response> &&
+            runtimeType == other.runtimeType;
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  String toString() {
+    return 'AsyncFormInitial()';
   }
 }

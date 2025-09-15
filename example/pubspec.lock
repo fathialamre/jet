@@ -173,10 +173,10 @@ packages:
     dependency: transitive
     description:
       name: code_builder
-      sha256: "0ec10bf4a89e4c613960bf1e8b42c64127021740fb21640c29c909826a5eea3e"
+      sha256: "11654819532ba94c34de52ff5feb52bd81cba1de00ef2ed622fd50295f9d4243"
       url: "https://pub.dev"
     source: hosted
-    version: "4.10.1"
+    version: "4.11.0"
   collection:
     dependency: transitive
     description:
@@ -435,14 +435,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.0"
-  flutter_svg:
-    dependency: transitive
-    description:
-      name: flutter_svg
-      sha256: b9c2ad5872518a27507ab432d1fb97e8813b05f0fc693f9d40fad06d073e0678
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.2.1"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -509,14 +501,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.1.0"
-  heroicons:
-    dependency: transitive
-    description:
-      name: heroicons
-      sha256: "4da0ce23d7c25b35390cb6cf485e33b959e811541e9d9cb33a1fceb3d6705f0c"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.11.0"
   hooks_riverpod:
     dependency: transitive
     description:
@@ -616,10 +600,10 @@ packages:
     dependency: transitive
     description:
       name: leak_tracker
-      sha256: "8dcda04c3fc16c14f48a7bb586d4be1f0d1572731b6d81d51772ef47c02081e0"
+      sha256: "33e2e26bdd85a0112ec15400c8cbffea70d0f9c3407491f672a2fad47915e2de"
       url: "https://pub.dev"
     source: hosted
-    version: "11.0.1"
+    version: "11.0.2"
   leak_tracker_flutter_testing:
     dependency: transitive
     description:
@@ -664,10 +648,10 @@ packages:
     dependency: transitive
     description:
       name: local_auth_android
-      sha256: "48924f4a8b3cc45994ad5993e2e232d3b00788a305c1bf1c7db32cef281ce9a3"
+      sha256: "1ee0e63fb8b5c6fa286796b5fb1570d256857c2f4a262127e728b36b80a570cf"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.52"
+    version: "1.0.53"
   local_auth_darwin:
     dependency: transitive
     description:
@@ -700,14 +684,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.0"
-  lucide_icons_flutter:
-    dependency: transitive
-    description:
-      name: lucide_icons_flutter
-      sha256: "68d4082b26ea1a89f4431eb44642a47748a5931cdf88323100064180482a1f51"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.1.0"
   matcher:
     dependency: transitive
     description:
@@ -764,14 +740,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.9.1"
-  path_parsing:
-    dependency: transitive
-    description:
-      name: path_parsing
-      sha256: "883402936929eac138ee0a45da5b0f2c80f89913e6dc3bf77eb65b84b409c6ca"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.0"
   path_provider:
     dependency: transitive
     description:
@@ -820,14 +788,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.0"
-  petitparser:
+  phosphor_flutter:
     dependency: transitive
     description:
-      name: petitparser
-      sha256: "1a97266a94f7350d30ae522c0af07890c70b8e62c71e8e3920d1db4d23c057d1"
+      name: phosphor_flutter
+      sha256: "8a14f238f28a0b54842c5a4dc20676598dd4811fcba284ed828bd5a262c11fde"
       url: "https://pub.dev"
     source: hosted
-    version: "7.0.1"
+    version: "2.1.0"
   pinput:
     dependency: transitive
     description:
@@ -1193,30 +1161,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.5.1"
-  vector_graphics:
-    dependency: transitive
-    description:
-      name: vector_graphics
-      sha256: a4f059dc26fc8295b5921376600a194c4ec7d55e72f2fe4c7d2831e103d461e6
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.19"
-  vector_graphics_codec:
-    dependency: transitive
-    description:
-      name: vector_graphics_codec
-      sha256: "99fd9fbd34d9f9a32efd7b6a6aae14125d8237b10403b422a6a6dfeac2806146"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.13"
-  vector_graphics_compiler:
-    dependency: transitive
-    description:
-      name: vector_graphics_compiler
-      sha256: d354a7ec6931e6047785f4db12a1f61ec3d43b207fc0790f863818543f8ff0dc
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.19"
   vector_math:
     dependency: transitive
     description:
@@ -1289,14 +1233,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
-  xml:
-    dependency: transitive
-    description:
-      name: xml
-      sha256: "971043b3a0d3da28727e40ed3e0b5d18b742fa5a68665cca88e74b7876d5e025"
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.6.1"
   xxh3:
     dependency: transitive
     description:

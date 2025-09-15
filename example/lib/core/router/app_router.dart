@@ -8,8 +8,10 @@ class AppRouter extends RootStackRouter {
   final Ref ref;
   @override
   List<AutoRoute> get routes => [
-    AutoRoute(page: HomeRoute.page,),
-    AutoRoute(page: RegisterRoute.page, initial: true),
+    AutoRoute(page: HomeRoute.page, initial: true),
+    AutoRoute(
+      page: RegisterRoute.page,
+    ),
     AutoRoute(page: OtpRoute.page),
     AutoRoute(page: InputsExampleRoute.page),
   ];

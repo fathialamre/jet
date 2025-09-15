@@ -16,6 +16,7 @@ export 'package:flutter_screenutil/flutter_screenutil.dart';
 export 'package:form_builder_validators/form_builder_validators.dart';
 export 'package:phosphor_flutter/phosphor_flutter.dart';
 export 'package:guardo/guardo.dart';
+export 'package:flutter_hooks/flutter_hooks.dart';
 
 // Widgets
 export 'widgets/widgets.dart';

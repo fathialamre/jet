@@ -12,7 +12,7 @@ class AppLockerNotifier extends StateNotifier<bool> {
   static const String _key = 'isLocked';
 
   void _load() {
-    state = JetStorage.read(_key);
+    state = JetStorage.read<bool>(_key, defaultValue: false) ?? false;
   }
 
   void toggle(BuildContext context, {bool forceLock = false}) {

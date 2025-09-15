@@ -20,7 +20,7 @@ class RegisterPage extends StatelessWidget {
         provider: registerFormProvider,
         builder: (context, ref, form, state) => [
           FormBuilderTextField(name: 'phone'),
-        ],  
+        ],
         onSuccess: (response, request) {
           context.router.push(OtpRoute(phone: request.phone));
         },
