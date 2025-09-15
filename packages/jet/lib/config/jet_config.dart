@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:jet/adapters/jet_adapter.dart';
 import 'package:jet/jet_framework.dart';
 import 'package:jet/localization/models/locale_info.dart';
 import 'package:jet/networking/interceptors/jet_dio_logger_config.dart';
 import 'package:jet/resources/components/jet_loader.dart';
-import 'package:jet/networking/errors/errors.dart';
 
 /// Configuration class for Jet framework that defines app-wide settings.
 ///
@@ -41,8 +39,6 @@ abstract class JetConfig {
   /// Adapters can handle routing, state management, networking, etc.
   /// Example: [RouterAdapter, DatabaseAdapter, AnalyticsAdapter]
   List<JetAdapter> get adapters;
-
-  PageInfo? get authPageInfo;
 
   /// The default locale for the application.
   ///
@@ -116,4 +112,108 @@ abstract class JetConfig {
       ),
     );
   }
+
+  NavigatorObserversBuilder get navigatorObservers =>
+      () => [];
+
+  bool get debugShowCheckedModeBanner => false;
+
+  /// The title of the application.
+  ///
+  /// This title is used by the OS to identify the application and
+  /// may be displayed in places like the task switcher.
+  /// Example: `'My Flutter App'`
+  String get title => '';
+
+  /// A function that generates the title dynamically based on context.
+  ///
+  /// This is useful for localized titles or context-dependent names.
+  /// Takes precedence over [title] if provided.
+  /// Example: `(context) => AppLocalizations.of(context).appTitle`
+  String Function(BuildContext)? get onGenerateTitle => null;
+
+  /// The primary color to use for the application in the operating system interface.
+  ///
+  /// On Android, this is the color used for the app's entry in the recent apps screen.
+  /// Example: `Colors.blue`
+  Color? get color => null;
+
+  /// The app's restoration scope ID for state restoration.
+  ///
+  /// This allows the app to restore its state after being killed by the OS.
+  /// Example: `'main_app'`
+  String? get restorationScopeId => null;
+
+  /// Custom scroll behavior for the entire application.
+  ///
+  /// This controls how scrollable widgets behave throughout the app.
+  /// Example: `MyCustomScrollBehavior()`
+  ScrollBehavior? get scrollBehavior => null;
+
+  /// High contrast theme for accessibility.
+  ///
+  /// Used when the system is in high contrast mode for better visibility.
+  /// Example: `ThemeData(colorScheme: ColorScheme.highContrastLight())`
+  ThemeData? get highContrastTheme => null;
+
+  /// High contrast dark theme for accessibility.
+  ///
+  /// Used when the system is in high contrast dark mode.
+  /// Example: `ThemeData(colorScheme: ColorScheme.highContrastDark())`
+  ThemeData? get highContrastDarkTheme => null;
+
+  /// Duration for theme change animations.
+  ///
+  /// Controls how long it takes to animate between theme changes.
+  /// Example: `Duration(milliseconds: 300)`
+  Duration get themeAnimationDuration => kThemeAnimationDuration;
+
+  /// Animation curve for theme transitions.
+  ///
+  /// Controls the easing function used for theme animations.
+  /// Example: `Curves.easeInOut`
+  Curve get themeAnimationCurve => Curves.linear;
+
+  /// Global shortcuts for the application.
+  ///
+  /// Defines keyboard shortcuts that work throughout the app.
+  /// Example: `{LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyN): NewDocumentIntent()}`
+  Map<ShortcutActivator, Intent>? get shortcuts => null;
+
+  /// Global actions for the application.
+  ///
+  /// Defines actions that can be triggered by shortcuts or other means.
+  /// Example: `{NewDocumentIntent: NewDocumentAction()}`
+  Map<Type, Action<Intent>>? get actions => null;
+
+  /// Builder function to wrap the entire app.
+  ///
+  /// Useful for adding global overlays, performance monitoring, or other wrappers.
+  /// The child parameter is the entire MaterialApp.
+  /// Example: `(context, child) => MyGlobalWrapper(child: child)`
+  Widget Function(BuildContext, Widget?)? get builder => null;
+
+  /// Whether to show performance overlay for debugging.
+  ///
+  /// Displays performance metrics in debug mode.
+  /// Should typically only be enabled in debug builds.
+  bool get showPerformanceOverlay => false;
+
+  /// Whether to show semantics debugger for accessibility testing.
+  ///
+  /// Highlights semantic information for screen readers and other assistive technologies.
+  /// Should typically only be enabled in debug builds.
+  bool get showSemanticsDebugger => false;
+
+  /// Whether to checkerboard raster cache images for debugging.
+  ///
+  /// Shows a checkerboard pattern on cached images to help identify performance issues.
+  /// Should typically only be enabled in debug builds.
+  bool get checkerboardRasterCacheImages => false;
+
+  /// Whether to checkerboard layers rendered to offscreen bitmaps.
+  ///
+  /// Shows a checkerboard pattern on offscreen layers to help identify performance issues.
+  /// Should typically only be enabled in debug builds.
+  bool get checkerboardOffscreenLayers => false;
 }

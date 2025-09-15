@@ -1,30 +1,29 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:guardo/guardo.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:jet/app_lock/app_lock_provider.dart';
-import 'package:jet/config/jet_config.dart';
-import 'package:jet/helpers/jet_logger.dart';
+import 'package:jet/security/app_locker/app_locker_notifier.dart';
+import 'package:jet/jet.dart';
 import 'package:jet/localization/intl/messages.dart';
-import 'package:jet/storage/local_storage.dart';
-import 'package:jet/widgets/main/jet_base_app.dart';
+import 'package:jet/localization/notifiers/language_switcher_notifier.dart';
+import 'package:jet/resources/theme/notifiers/theme_switcher_notifier.dart';
 
-class JetApp extends BaseJetApp {
-  const JetApp({super.key, required super.jet});
+class JetApp extends ConsumerWidget {
+  const JetApp({super.key, required this.jet});
+
+  final Jet jet;
 
   @override
-  Widget build(
-    BuildContext context,
-    WidgetRef ref,
-    RootStackRouter router,
-    Locale locale,
-    ThemeMode themeMode,
-    JetConfig config,
-  ) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Watch all reactive state
+    final router = ref.watch(jet.routerProvider);
+    final locale = ref.watch(languageSwitcherProvider);
+    final themeMode = ref.watch(currentThemeModeProvider);
     final lockState = ref.watch(appLockProvider);
+    final config = jet.config;
+
     return ScreenUtilInit(
       designSize: const Size(375, 812),
       minTextAdapt: true,
@@ -34,10 +33,12 @@ class JetApp extends BaseJetApp {
           enabled: lockState,
           child: MaterialApp.router(
             routerConfig: router.config(
-              //TODO: Add navigator observers
-              navigatorObservers: () => [],
+              navigatorObservers: config.navigatorObservers,
             ),
-            debugShowCheckedModeBanner: false,
+            title: config.title,
+            onGenerateTitle: config.onGenerateTitle,
+            color: config.color,
+            debugShowCheckedModeBanner: config.debugShowCheckedModeBanner,
             localizationsDelegates: [
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
@@ -53,6 +54,19 @@ class JetApp extends BaseJetApp {
             theme: config.getTheme(),
             darkTheme: config.getDarkTheme(),
             themeMode: themeMode,
+            highContrastTheme: config.highContrastTheme,
+            highContrastDarkTheme: config.highContrastDarkTheme,
+            themeAnimationDuration: config.themeAnimationDuration,
+            themeAnimationCurve: config.themeAnimationCurve,
+            restorationScopeId: config.restorationScopeId,
+            scrollBehavior: config.scrollBehavior,
+            shortcuts: config.shortcuts,
+            actions: config.actions,
+            builder: config.builder,
+            showPerformanceOverlay: config.showPerformanceOverlay,
+            showSemanticsDebugger: config.showSemanticsDebugger,
+            checkerboardRasterCacheImages: config.checkerboardRasterCacheImages,
+            checkerboardOffscreenLayers: config.checkerboardOffscreenLayers,
           ),
         );
       },
