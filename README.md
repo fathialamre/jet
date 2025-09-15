@@ -57,7 +57,8 @@ void main() async {
 - [Error Handling](#%EF%B8%8F-error-handling)
 - [Forms](#-forms)
 - [Components](#-components)
-- [Actions](#-actions)
+- [Security](#-security)
+- [Debugging](#-debugging)
 - [Sessions](#-sessions)
 - [State Management](#-state-management)
 
@@ -307,11 +308,50 @@ class UserApiService extends JetApiService {
 }
 ```
 
+### Network Logging Configuration
+
+Jet provides configurable request/response logging through `JetDioLoggerConfig`:
+
+```dart
+class AppConfig extends JetConfig {
+  @override
+  JetDioLoggerConfig get dioLoggerConfig => JetDioLoggerConfig(
+    request: true,          // Log requests
+    requestHeader: true,    // Log request headers
+    requestBody: false,     // Log request body (disable for security)
+    responseBody: true,     // Log response body
+    responseHeader: false,  // Log response headers
+    error: true,           // Log errors
+    compact: true,         // Compact JSON output
+    maxWidth: 90,          // Console width
+    enabled: true,         // Enable/disable logging
+  );
+}
+```
+
+**Custom Logging:**
+```dart
+// Custom log printer
+JetDioLoggerConfig(
+  logPrint: (object) {
+    // Custom logging logic (e.g., write to file)
+    debugPrint(object.toString());
+  },
+  // Filter specific requests
+  filter: (options, args) {
+    // Don't log auth requests
+    return !options.path.contains('/auth');
+  },
+);
+```
+
 **Features:**
 - Built on Dio for robust networking
 - Type-safe ResponseModel wrapper
 - Singleton pattern for efficiency
 - Automatic error handling integration
+- **Configurable request/response logging**
+- **Network debugging and monitoring**
 - Custom interceptors support
 
 ## ⚠️ Error Handling
@@ -485,6 +525,20 @@ JetPhoneField(
     FormBuilderValidators.numeric(),
   ]),
 )
+
+// PIN/OTP field with customizable appearance
+JetPinField(
+  name: 'otp',
+  length: 6,
+  isRequired: true,
+  autofocus: true,
+  spacing: 12.0,
+  onCompleted: (pin) {
+    // Auto-submit when PIN is complete
+    formKey.currentState?.save();
+  },
+  onSubmitted: (pin) => verifyOTP(pin),
+)
 ```
 
 ### Registration Form Example
@@ -627,12 +681,47 @@ JetFormBuilder<LoginRequest, User>(
 )
 ```
 
+### Enhanced Error Handling
+
+Forms now feature improved error handling with centralized error processing:
+
+```dart
+class LoginFormNotifier extends JetFormNotifier<LoginRequest, User> {
+  LoginFormNotifier(super.ref);
+
+  @override
+  Future<void> submit({
+    bool showErrorSnackBar = true,
+    required BuildContext context,
+  }) async {
+    // Enhanced error handling with JetErrorHandler integration
+    try {
+      final result = await super.submit(
+        showErrorSnackBar: showErrorSnackBar,
+        context: context,
+      );
+    } catch (error, stackTrace) {
+      // Centralized error processing
+      final handler = ref.read(jetProvider).config.errorHandler;
+      final jetError = handler.handle(error, context, stackTrace: stackTrace);
+      
+      // Automatic field invalidation for validation errors
+      if (jetError.isValidation && jetError.errors != null) {
+        invalidateFields(jetError.errors!);
+      }
+    }
+  }
+}
+```
+
 **Form Features:**
 - **Type-safe** form state with Request/Response generics
-- **Automatic error handling** with field-level validation
-- **Enhanced input components** (password, phone, etc.)
+- **Enhanced error handling** with centralized JetErrorHandler integration
+- **Automatic field invalidation** for server-side validation errors
+- **Enhanced input components** (password, phone, PIN/OTP)
 - **Built-in loading states** and form submission
 - **Server validation integration** with automatic field invalidation
+- **Stack trace debugging** for form errors
 - **Riverpod integration** for reactive state management
 
 ## 🧩 Components
@@ -679,186 +768,154 @@ JetTab.router(
 - Tab navigation with AutoRoute support
 - Customizable styling and animations
 
-## 🎯 Actions
+## 🔐 Security
 
-JetAction provides a unified component for user interactions, supporting simple actions, confirmations, and complex forms:
+Jet provides built-in security features for protecting your application:
 
-### Simple Actions
+### App Locker
 
-Basic actions that execute immediately:
+Secure your app with biometric authentication using the Guardo package:
 
 ```dart
-JetAction.action(
-  text: 'Save Data',
-  icon: Icons.save,
-  onTap: () async {
-    await saveUserData();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Data saved successfully!')),
+// Configuration in your app
+class AppWidget extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final lockState = ref.watch(appLockProvider);
+    
+    return MaterialApp.router(
+      // Your app configuration
+      builder: (context, child) {
+        return Guardo(
+          enabled: lockState, // App will lock when enabled
+          child: child!,
+        );
+      },
     );
-  },
-)
-
-// Different button styles
-JetAction.action(
-  text: 'Share Content',
-  icon: Icons.share,
-  buttonType: JetButtonType.outlined,
-  onTap: () => shareContent(),
-)
-
-// Full width action
-JetAction.action(
-  text: 'Submit Report',
-  icon: Icons.send,
-  buttonType: JetButtonType.filled,
-  isExpanded: true,
-  onTap: () => submitReport(),
-)
-```
-
-### Confirmation Actions
-
-Actions requiring user confirmation:
-
-```dart
-JetAction.confirmation(
-  text: 'Delete Item',
-  icon: Icons.delete,
-  buttonType: JetButtonType.outlined,
-  confirmationType: ConfirmationSheetType.error,
-  confirmationTitle: 'Delete Confirmation',
-  confirmationMessage: 'Are you sure you want to delete this item? This action cannot be undone.',
-  onTap: () => deleteItem(),
-)
-
-// Warning confirmation
-JetAction.confirmation(
-  text: 'Clear Cache',
-  icon: Icons.clear,
-  confirmationType: ConfirmationSheetType.warning,
-  confirmationTitle: 'Clear All Cache',
-  confirmationMessage: 'This will clear all cached data. Continue?',
-  onTap: () => clearCache(),
-)
-```
-
-### Form Actions with JetForm Integration
-
-Actions that open type-safe forms:
-
-```dart
-// Define form models and notifier first
-@JsonSerializable()
-class CommentRequest {
-  final String title;
-  final String description;
-  final String priority;
-
-  const CommentRequest({
-    required this.title,
-    required this.description,
-    required this.priority,
-  });
-}
-
-class CommentFormNotifier extends JetFormNotifier<CommentRequest, CommentResponse> {
-  CommentFormNotifier(super.ref);
-
-  @override
-  CommentRequest decoder(Map<String, dynamic> formData) {
-    return CommentRequest.fromJson(formData);
   }
+}
+```
 
+**Using App Locker:**
+
+```dart
+// Toggle app lock with biometric authentication
+class SecuritySettings extends ConsumerWidget {
   @override
-  Future<CommentResponse> action(CommentRequest data) async {
-    final api = ref.read(apiServiceProvider);
-    return await api.createComment(data);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isLocked = ref.watch(appLockProvider);
+    final lockNotifier = ref.read(appLockProvider.notifier);
+    
+    return SwitchListTile(
+      title: Text('App Lock'),
+      subtitle: Text('Require biometric authentication to open app'),
+      value: isLocked,
+      onChanged: (enabled) {
+        lockNotifier.toggle(context, forceLock: enabled);
+      },
+    );
   }
 }
 
-final commentFormProvider = JetFormProvider<CommentRequest, CommentResponse>(
-  (ref) => CommentFormNotifier(ref),
-);
-
-// Use with JetAction
-JetAction<CommentRequest, CommentResponse>.jetForm(
-  text: 'Add Comment',
-  icon: Icons.comment,
-  buttonType: JetButtonType.filled,
-  formProvider: commentFormProvider,
-  formTitle: 'Create New Comment',
-  initialFormValues: {
-    'priority': 'medium',
-  },
-  jetFormBuilder: (context, ref, form, state) => [
-    FormBuilderTextField(
-      name: 'title',
-      decoration: InputDecoration(
-        labelText: 'Title',
-        hintText: 'Enter comment title',
-        prefixIcon: Icon(Icons.title),
-      ),
-      validator: FormBuilderValidators.compose([
-        FormBuilderValidators.required(),
-        FormBuilderValidators.minLength(3),
-        FormBuilderValidators.maxLength(100),
-      ]),
-    ),
-    FormBuilderTextField(
-      name: 'description',
-      decoration: InputDecoration(
-        labelText: 'Description',
-        hintText: 'Enter comment description',
-        prefixIcon: Icon(Icons.description),
-      ),
-      maxLines: 3,
-      validator: FormBuilderValidators.compose([
-        FormBuilderValidators.required(),
-        FormBuilderValidators.minLength(10),
-      ]),
-    ),
-    FormBuilderDropdown(
-      name: 'priority',
-      decoration: InputDecoration(
-        labelText: 'Priority',
-        prefixIcon: Icon(Icons.priority_high),
-      ),
-      items: [
-        DropdownMenuItem(value: 'low', child: Text('Low')),
-        DropdownMenuItem(value: 'medium', child: Text('Medium')),
-        DropdownMenuItem(value: 'high', child: Text('High')),
-      ],
-      validator: FormBuilderValidators.required(),
-    ),
-  ],
-  onFormSuccess: (response, request) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Comment "${response.title}" created successfully!'),
-        backgroundColor: Colors.green,
+// Manually lock the app
+class ProfilePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        actions: [
+          IconButton(
+            icon: Icon(Icons.lock),
+            onPressed: () => context.lockApp(),
+          ),
+        ],
       ),
     );
-  },
-)
+  }
+}
 ```
 
-### Action Types
+**Security Features:**
+- **Biometric authentication** using device fingerprint/face recognition
+- **Persistent lock state** stored securely
+- **Auto-lock functionality** when app becomes inactive
+- **Force lock option** for immediate protection
+- **Integration with device security** settings
 
-| Constructor | Description | Use Case |
-|-------------|-------------|----------|
-| `action()` | Simple button action | Save, share, navigate |
-| `confirmation()` | Action with confirmation dialog | Delete, clear, reset |
-| `form()` | Legacy form action | Custom form widgets |
-| `jetForm()` | Type-safe form action | Complex forms with validation |
+## 🐛 Debugging
 
-**Action Features:**
-- **Unified API** for all interaction patterns
-- **Type-safe forms** with Request/Response generics  
-- **Built-in confirmations** with different visual styles
-- **Automatic loading states** during async operations
-- **Form integration** with JetFormBuilder system
-- **Customizable styling** and button types
+Jet provides enhanced debugging tools for better development experience:
+
+### Stack Trace Debugging
+
+Enhanced stack trace formatting with clickable file paths:
+
+```dart
+// Using the global dumpTrace function
+try {
+  riskyOperation();
+} catch (error, stackTrace) {
+  // Dump stack trace with custom title
+  dumpTrace(
+    stackTrace,
+    title: 'Operation Failed',
+    alwaysPrint: true,
+  );
+}
+
+// Using stack trace extension
+void problematicFunction() {
+  try {
+    complexOperation();
+  } catch (error, stackTrace) {
+    // Enhanced stack trace logging
+    stackTrace.dump(title: 'Complex Operation Error');
+    
+    // Legacy logging (still supported)
+    stackTrace.log(tag: 'Error');
+  }
+}
+```
+
+**Stack Trace Output Example:**
+```
+╔╣ JET STACK TRACE ╠══
+╠══════════════
+╠╣ [ 1 ] -> main.<anonymous closure> ╠══
+╠ LINE [23] COLUMN [5]
+╠ At example_test.dart
+╠ "example_test.dart:23:5"
+╚════════════════════════
+```
+
+### Enhanced Logging
+
+Comprehensive logging utilities for debugging:
+
+```dart
+// Basic logging
+JetLogger.debug('Debug message');
+JetLogger.info('Information message');
+JetLogger.error('Error occurred');
+
+// Custom tagged logging
+JetLogger.dump('Custom data', tag: 'API_RESPONSE');
+
+// JSON logging
+final userData = {'name': 'John', 'age': 30};
+JetLogger.json(userData);
+
+// Global helpers
+dump('Quick debug message', tag: 'DEBUG');
+dd('Debug and die', tag: 'FATAL'); // Exits after logging
+```
+
+**Logging Features:**
+- **Environment-aware logging** (debug mode only by default)
+- **Structured output** with timestamps and tags
+- **JSON serialization** for complex objects
+- **Stack trace integration** with clickable file paths
+- **Customizable log levels** and output formatting
 
 ## 🔐 Sessions
 
