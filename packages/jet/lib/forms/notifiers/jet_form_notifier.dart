@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jet/extensions/build_context.dart';
-import 'package:jet/helpers/jet_logger.dart';
 import '../../bootstrap/boot.dart';
 import '../../networking/errors/jet_error.dart';
 import '../common.dart';
@@ -50,7 +49,6 @@ abstract class JetFormNotifier<Request, Response>
     state = const AsyncFormLoading();
 
     try {
-
       final requestData = decoder(formState.value);
       final responseData = await action(requestData);
       state = AsyncFormData(

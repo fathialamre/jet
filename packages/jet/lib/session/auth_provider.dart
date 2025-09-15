@@ -1,5 +1,4 @@
 import 'package:jet/helpers/jet_faker.dart';
-import 'package:jet/helpers/jet_logger.dart';
 import 'package:jet/jet_framework.dart';
 import 'package:jet/session/session_manager.dart';
 
