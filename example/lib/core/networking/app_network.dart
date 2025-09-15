@@ -8,6 +8,8 @@ import 'package:jet/jet_framework.dart';
 /// - Simple error handling with standard exceptions
 /// - Graceful error recovery
 class AppNetwork extends JetApiService {
+  AppNetwork(super.ref);
+
   @override
   String get baseUrl => isDebugMode ? ProdEnv.baseUrl : ProdEnv.baseUrl;
 
@@ -16,5 +18,5 @@ class AppNetwork extends JetApiService {
 }
 
 final appNetworkProvider = AutoDisposeProvider<AppNetwork>(
-  (ref) => AppNetwork(),
+  (ref) => AppNetwork(ref),
 );

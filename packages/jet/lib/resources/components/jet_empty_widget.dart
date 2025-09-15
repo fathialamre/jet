@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jet/extensions/build_context.dart';
 import 'package:jet/extensions/text_extensions.dart';
-import 'package:jet/widgets/widgets/buttons/jet_button.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:jet/jet_framework.dart';
 
 class JetEmptyWidget extends StatelessWidget {
   const JetEmptyWidget({
@@ -30,8 +28,8 @@ class JetEmptyWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           icon ??
-              Icon(
-                LucideIcons.list,
+              PhosphorIcon(
+                PhosphorIcons.listBullets(),
                 color: context.theme.colorScheme.outline,
                 size: 60.sp,
               ),

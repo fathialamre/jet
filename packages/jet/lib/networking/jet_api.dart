@@ -1,4 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jet/bootstrap/boot.dart';
 import 'package:jet/networking/interceptors/jet_dio_logger_interceptor.dart';
 
 /// Response wrapper model for standardized API responses
@@ -65,6 +67,8 @@ abstract class JetApiService {
   late final Dio _dio;
   late final CancelToken _cancelToken;
 
+  Ref ref;
+
   /// Base URL for all API requests
   String get baseUrl;
 
@@ -102,7 +106,7 @@ abstract class JetApiService {
     return _instances[serviceId] as T;
   }
 
-  JetApiService() {
+  JetApiService(this.ref) {
     _cancelToken = CancelToken();
     _initializeDio();
   }
@@ -129,7 +133,7 @@ abstract class JetApiService {
     _dio.interceptors.add(_createErrorInterceptor());
 
     // Add logging interceptor in debug mode
-    _dio.interceptors.add(JetDioLoggerInterceptor());
+    _dio.interceptors.add(JetDioLoggerInterceptor(ref.read(jetProvider).config.dioLoggerConfig));
 
     // Add custom interceptors
     _dio.interceptors.addAll(interceptors);

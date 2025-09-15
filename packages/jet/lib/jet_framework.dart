@@ -12,10 +12,9 @@ export 'package:auto_route/auto_route.dart';
 export 'package:hooks_riverpod/hooks_riverpod.dart';
 export 'package:flutter_form_builder/flutter_form_builder.dart';
 export 'helpers/helpers.dart';
-export 'package:lucide_icons_flutter/lucide_icons.dart';
 export 'package:flutter_screenutil/flutter_screenutil.dart';
 export 'package:form_builder_validators/form_builder_validators.dart';
-export 'package:heroicons/heroicons.dart';
+export 'package:phosphor_flutter/phosphor_flutter.dart';
 export 'package:guardo/guardo.dart';
 
 // Widgets

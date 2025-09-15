@@ -157,10 +157,10 @@ class JetPasswordField extends HookWidget {
         labelText: labelText,
         labelStyle: labelStyle,
         hintText: hintText,
-        prefixIcon: showPrefixIcon ? const Icon(LucideIcons.lock) : prefixIcon,
+        prefixIcon: showPrefixIcon ? Icon(PhosphorIcons.lock()) : prefixIcon,
         suffixIcon: IconButton(
           icon: Icon(
-            obscureTextState.value ? LucideIcons.eye : LucideIcons.eyeClosed,
+            obscureTextState.value ? PhosphorIcons.eye() : PhosphorIcons.eyeClosed(),
           ),
           onPressed: toggleVisibility,
         ),
