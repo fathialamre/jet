@@ -68,7 +68,7 @@ class TodoPage extends JetConsumerWidget {
                       const SizedBox(height: 24),
                       JetButton.filled(
                         text: 'Create Todo',
-                        onTap: () => form.submit(context: context),
+                        onTap: () => form.submit(),
                       ),
                     ],
                   ),

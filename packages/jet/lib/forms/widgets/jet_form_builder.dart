@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:hooks_riverpod/misc.dart';
 import 'package:jet/bootstrap/boot.dart';
 import 'package:jet/extensions/build_context.dart';
 import 'package:jet/forms/common.dart';
@@ -9,7 +10,7 @@ import 'package:jet/networking/errors/jet_error.dart';
 import 'package:jet/widgets/widgets/buttons/jet_button.dart';
 
 class JetFormBuilder<Request, Response> extends ConsumerWidget {
-  final JetFormProvider<Request, Response> provider;
+  final ProviderListenable<AsyncFormValue<Request, Response>> provider;
   final List<Widget> Function(
     BuildContext context,
     WidgetRef ref,
@@ -73,7 +74,7 @@ class JetFormBuilder<Request, Response> extends ConsumerWidget {
 
       // Handle validation errors by invalidating specific fields
       if (jetError.errors != null && jetError.errors!.isNotEmpty) {
-        form.invalidateFields(jetError.errors!);
+        form.invalidateFields(jetError.errors!, form.formKey);
       }
     } else {
       // Use raw error if default handler is disabled
@@ -87,7 +88,7 @@ class JetFormBuilder<Request, Response> extends ConsumerWidget {
     }
 
     // Call custom error handler if provided
-    onError?.call(jetError, stackTrace, form.invalidateFields);
+    onError?.call(jetError, stackTrace, form.invalidateFormFields);
   }
 
   @override

@@ -1,88 +1,101 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:jet/extensions/build_context.dart';
-import '../../bootstrap/boot.dart';
-import '../../networking/errors/jet_error.dart';
 import '../common.dart';
+import '../mixins/mixins.dart';
 
 typedef JetFormProvider<Request, Response> =
-    ProviderListenable<AsyncFormValue<Request, Response>>;
+    Provider<AsyncFormValue<Request, Response>>;
 
 typedef JetForm<Request, Response> = JetFormNotifier<Request, Response>;
 
 abstract class JetFormNotifier<Request, Response>
-    extends Notifier<AsyncFormValue<Request, Response>> {
+    extends Notifier<AsyncFormValue<Request, Response>>
+    with
+        FormValidationMixin,
+        FormErrorHandlingMixin,
+        FormLifecycleMixin<Request, Response> {
   @override
   AsyncFormValue<Request, Response> build();
 
   final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
 
-  Future<void> submit({
-    bool showErrorSnackBar = true,
-    required BuildContext context,
-  }) async {
-    final formState = formKey.currentState!;
-    if (!formState.saveAndValidate()) {
-      if (showErrorSnackBar) {
-        // Use jet error handler for form validation errors
-        final handler = ref.read(jetProvider).config.errorHandler;
-        final jetError = handler.handle(
-          context.jetI10n.pleaseFixTheFormErrors,
-          context,
-          stackTrace: StackTrace.current,
-        );
+  Future<void> submit() async {
+    final formState = formKey.currentState;
+    if (formState == null || !formState.saveAndValidate()) {
+      // Extract form validation errors
+      final formErrors = extractFormErrors(formState);
+      final validationError = createValidationError(formErrors);
 
-        state = AsyncFormError(
-          jetError,
-          StackTrace.current,
-        );
-      }
+      state = AsyncFormValue.error(
+        validationError,
+        StackTrace.current,
+        request: state.request,
+        response: state.response,
+      );
 
+      triggerValidationError(validationError);
       return;
     }
 
-    state = const AsyncFormLoading();
+    // Notify submission start
+    triggerSubmissionStart();
+
+    // Preserve current data while loading
+    state = AsyncFormValue.loading(
+      request: state.request,
+      response: state.response,
+    );
 
     try {
       final requestData = decoder(formState.value);
       final responseData = await action(requestData);
-      state = AsyncFormData(
+
+      state = AsyncFormValue.data(
         request: requestData,
         response: responseData,
       );
-    } catch (error, stackTrace) {
-      // Use jet error handler to process the error
-      final handler = ref.read(jetProvider).config.errorHandler;
-      if (context.mounted) {
-        final jetError = handler.handle(error, context, stackTrace: stackTrace);
 
-        state = AsyncFormError(
-          jetError,
-          stackTrace,
-        );
-      }
+      triggerSuccess(responseData, requestData);
+    } catch (error, stackTrace) {
+      // Convert error to JetError
+      final jetError = convertToJetError(error, stackTrace);
+
+      state = AsyncFormValue.error(
+        jetError,
+        stackTrace,
+        request: state.request,
+        response: state.response,
+      );
+
+      triggerSubmissionError(jetError);
     }
   }
 
   Request decoder(Map<String, dynamic> json);
 
-  void invalidateFields(Map<String, List<String>> fieldErrors) {
-    fieldErrors.forEach((field, errorText) {
-      formKey.currentState?.fields[field]?.invalidate(errorText.first);
-    });
+  void invalidateFormFields(Map<String, List<String>> fieldErrors) {
+    super.invalidateFields(fieldErrors, formKey);
   }
 
   /// Invalidate fields based on JetError validation errors
-  void invalidateFieldsFromJetError(Object error) {
-    if (error is JetError && error.isValidation && error.errors != null) {
-      invalidateFields(error.errors!);
-    }
+  void invalidateFieldsFromError(Object error) {
+    super.invalidateFieldsFromJetError(error, formKey);
   }
 
   void reset() {
     formKey.currentState?.reset();
-    state = const AsyncFormLoading();
+    state = const AsyncFormValue.idle();
+  }
+
+  /// Validate a specific field
+  void validateSingleField(String fieldName) {
+    super.validateSpecificField(fieldName, formKey);
+  }
+
+  /// Validate all fields without submitting
+  bool validateForm() {
+    return super.validateAllFields(formKey);
   }
 
   Future<Response> action(Request data);
