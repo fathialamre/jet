@@ -1,6 +1,6 @@
 # 🚀 Jet Framework
 
-**Jet** is a lightweight, modular Flutter framework for scalable app architecture, providing dependency injection, lifecycle management, and streamlined setup for rapid development.
+**Jet** is a lightweight, modular Flutter framework for scalable app architecture, providing dependency injection, lifecycle management, and streamlined setup for rapid development. Built with **Riverpod 3** for enhanced state management and code generation capabilities.
 
 ## 📦 Installation
 
@@ -430,12 +430,27 @@ final loginFormProvider = JetFormProvider<LoginRequest, User>(
   (ref) => LoginFormNotifier(ref),
 );
 
+// Alternative: Using Riverpod 3 Generators (Recommended)
+@riverpod
+class LoginForm extends _$LoginForm implements JetFormNotifier<LoginRequest, User> {
+  @override
+  LoginRequest decoder(Map<String, dynamic> formData) {
+    return LoginRequest.fromJson(formData);
+  }
+
+  @override
+  Future<User> action(LoginRequest data) async {
+    final authService = ref.read(authServiceProvider);
+    return await authService.login(data.email, data.password);
+  }
+}
+
 // 4. Build form UI
-class LoginForm extends StatelessWidget {
+class LoginFormWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return JetFormBuilder<LoginRequest, User>(
-      provider: loginFormProvider,
+      provider: loginFormProvider, // or loginFormProvider for generated version
       onSuccess: (user, request) {
         context.router.pushNamed('/dashboard');
         ScaffoldMessenger.of(context).showSnackBar(
@@ -714,6 +729,59 @@ class LoginFormNotifier extends JetFormNotifier<LoginRequest, User> {
 }
 ```
 
+### Riverpod 3 Generators Support
+
+Jet Framework fully supports **Riverpod 3 generators** for enhanced developer experience and code generation:
+
+```dart
+// Add to your pubspec.yaml
+dependencies:
+  riverpod: ^3.0.0
+  riverpod_annotation: ^3.0.0
+
+dev_dependencies:
+  riverpod_generator: ^3.0.0
+  build_runner: ^2.4.7
+
+// Enable code generation
+@riverpod
+class UserForm extends _$UserForm implements JetFormNotifier<UserRequest, User> {
+  @override
+  UserRequest decoder(Map<String, dynamic> formData) {
+    return UserRequest.fromJson(formData);
+  }
+
+  @override
+  Future<User> action(UserRequest data) async {
+    final apiService = ref.read(userApiServiceProvider);
+    return await apiService.createUser(data);
+  }
+}
+
+// Generated provider automatically available as: userFormProvider
+class UserFormPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return JetFormBuilder<UserRequest, User>(
+      provider: userFormProvider, // Generated provider
+      builder: (context, ref, form, state) => [
+        // Your form fields
+      ],
+    );
+  }
+}
+
+// Run code generation
+// dart run build_runner build
+```
+
+**Generator Benefits:**
+- **Automatic provider generation** - No manual provider creation needed
+- **Type safety** - Compile-time checks for provider dependencies  
+- **Better performance** - Optimized provider creation and disposal
+- **IDE support** - Enhanced autocomplete and refactoring
+- **Hot reload** - Seamless development experience
+
 **Form Features:**
 - **Type-safe** form state with Request/Response generics
 - **Enhanced error handling** with centralized JetErrorHandler integration
@@ -722,7 +790,7 @@ class LoginFormNotifier extends JetFormNotifier<LoginRequest, User> {
 - **Built-in loading states** and form submission
 - **Server validation integration** with automatic field invalidation
 - **Stack trace debugging** for form errors
-- **Riverpod integration** for reactive state management
+- **Riverpod 3 integration** with generator support for reactive state management
 
 ## 🧩 Components
 
@@ -1104,7 +1172,7 @@ class AuthService {
 
 ## 🔄 State Management
 
-Jet provides powerful state management built on Riverpod with enhanced widgets for common patterns:
+Jet provides powerful state management built on **Riverpod 3** with enhanced widgets for common patterns and code generation support:
 
 ### JetBuilder - Unified State Widget
 
@@ -1162,6 +1230,43 @@ class CategoryPostsList extends StatelessWidget {
         post: post,
         onLike: () => _toggleLike(post.id),
       ),
+    );
+  }
+}
+```
+
+### Riverpod 3 Generators for Providers
+
+Use the new generator syntax for cleaner provider definitions:
+
+```dart
+// Traditional approach
+final postsProvider = AutoDisposeFutureProvider<List<Post>>((ref) async {
+  final api = ref.read(apiServiceProvider);
+  return await api.getAllPosts();
+});
+
+// Riverpod 3 Generator approach (Recommended)
+@riverpod
+Future<List<Post>> posts(PostsRef ref) async {
+  final api = ref.read(apiServiceProvider);
+  return await api.getAllPosts();
+}
+
+// Family provider with generators
+@riverpod
+Future<List<Post>> postsByCategory(PostsByCategoryRef ref, String categoryId) async {
+  final api = ref.read(apiServiceProvider);
+  return await api.getPostsByCategory(categoryId);
+}
+
+// Using generated providers
+class PostsPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return JetBuilder.list<Post>(
+      provider: postsProvider, // Generated provider
+      itemBuilder: (post, index) => PostCard(post: post),
     );
   }
 }
@@ -1271,10 +1376,14 @@ class DashboardPage extends JetConsumerWidget {
 ```
 
 **State Management Features:**
-- Built on Riverpod for robust state management
+- Built on **Riverpod 3** for robust state management with code generation
+- **Generator support** for cleaner provider definitions and better performance
+- **Automatic provider creation** with `@riverpod` annotation
 - Unified JetBuilder for lists, grids, single items
 - Family provider support for parameterized data
 - Automatic pull-to-refresh functionality
 - Infinite scroll pagination for any API
 - Enhanced consumer widgets with Jet access
+- **Type-safe provider dependencies** with compile-time checks
+- **Hot reload support** for generated providers
 - Automatic error handling and loading states
