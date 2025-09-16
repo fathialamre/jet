@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:hooks_riverpod/misc.dart';
 import 'package:jet/extensions/build_context.dart';
 import '../../bootstrap/boot.dart';
 import '../../networking/errors/jet_error.dart';
