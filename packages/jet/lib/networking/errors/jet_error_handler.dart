@@ -22,7 +22,16 @@ class JetErrorHandler extends JetBaseErrorHandler {
   JetErrorHandler();
 
   @override
-  JetError handle(Object error, BuildContext context, {StackTrace? stackTrace}) {
+  JetError handle(
+    Object error,
+    BuildContext context, {
+    StackTrace? stackTrace,
+  }) {
+    if (stackTrace != null) {
+      dumpTrace(
+        stackTrace,
+      );
+    }
     // Handle no internet errors first
     if (isNoInternetError(error)) {
       return JetError.noInternet();

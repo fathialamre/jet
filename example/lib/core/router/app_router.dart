@@ -3,15 +3,18 @@ import 'package:jet/jet_framework.dart';
 
 @AutoRouterConfig()
 class AppRouter extends RootStackRouter {
-  AppRouter({required this.ref});
-
   final Ref ref;
+
+  AppRouter(this.ref);
+
   @override
   List<AutoRoute> get routes => [
-    AutoRoute(page: HomeRoute.page,),
-    AutoRoute(page: RegisterRoute.page, initial: true),
-    AutoRoute(page: OtpRoute.page),
-    AutoRoute(page: InputsExampleRoute.page),
+    AutoRoute(
+      page: HomeRoute.page,
+      initial: true,
+    ),
+    AutoRoute(page: TodoRoute.page),
+    AutoRoute(page: SettingsRoute.page),
   ];
 
   @override
@@ -20,6 +23,4 @@ class AppRouter extends RootStackRouter {
   ];
 }
 
-final appRouter = AutoDisposeProvider<AppRouter>(
-  (ref) => AppRouter(ref: ref),
-);
+final appRouter = Provider<AppRouter>(AppRouter.new);

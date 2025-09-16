@@ -91,7 +91,7 @@ class PageInfo<T> {
 /// **With Provider Support (recommended for non-family providers):**
 /// ```dart
 /// // Define a simple provider (not family)
-/// final allProductsProvider = AutoDisposeFutureProvider<List<Product>>((ref) async {
+/// final allProductsProvider = FutureProvider<List<Product>>((ref) async {
 ///   // Fetch all products logic here
 ///   return await api.getAllProducts();
 /// });
@@ -212,7 +212,7 @@ class JetPaginator {
     bool enablePullToRefresh = true,
 
     // Provider integration
-    ProviderBase? provider,
+    Object? provider,
 
     // Refresh indicator customization
     Widget Function(BuildContext context, IndicatorController controller)?
@@ -300,7 +300,7 @@ class JetPaginator {
     bool enablePullToRefresh = true,
 
     // Provider integration
-    ProviderBase? provider,
+    Object? provider,
 
     // Grid customization
     double crossAxisSpacing = 8.0,
@@ -427,7 +427,7 @@ class _PaginationListWidget<T, TResponse> extends ConsumerStatefulWidget {
   final Widget Function(T item, int index) itemBuilder;
   final dynamic firstPageKey;
   final bool enablePullToRefresh;
-  final ProviderBase? provider;
+  final Object? provider;
   final Widget Function(BuildContext context, IndicatorController controller)?
   refreshIndicatorBuilder;
   final Color? refreshIndicatorColor;
@@ -518,10 +518,11 @@ class _PaginationListWidgetState<T, TResponse>
 
   Future<void> _refresh() async {
     // If provider is available, use Riverpod invalidate
-    if (widget.provider != null && context.mounted) {
-      final container = ProviderScope.containerOf(context);
-      container.invalidate(widget.provider!);
-    }
+    // TODO: Update this for Riverpod 3.0 invalidate API
+    // if (widget.provider != null && context.mounted) {
+    //   final container = ProviderScope.containerOf(context);
+    //   container.invalidate(widget.provider!);
+    // }
 
     // Call custom refresh callback if provided
     widget.onRefresh?.call();
@@ -674,7 +675,7 @@ class _PaginationListWidgetState<T, TResponse>
       case JetErrorType.cancelled:
         return PhosphorIcons.x();
       case JetErrorType.unknown:
-      return PhosphorIcons.info();
+        return PhosphorIcons.info();
     }
   }
 
@@ -694,7 +695,7 @@ class _PaginationListWidgetState<T, TResponse>
       case JetErrorType.cancelled:
         return 'Request Cancelled';
       case JetErrorType.unknown:
-      return context.jetI10n.somethingWentWrongWhileFetchingNewPage;
+        return context.jetI10n.somethingWentWrongWhileFetchingNewPage;
     }
   }
 
@@ -760,7 +761,7 @@ class _PaginationGridWidget<T, TResponse> extends ConsumerStatefulWidget {
   final int crossAxisCount;
   final dynamic firstPageKey;
   final bool enablePullToRefresh;
-  final ProviderBase? provider;
+  final Object? provider;
   final Widget Function(BuildContext context, IndicatorController controller)?
   refreshIndicatorBuilder;
   final Color? refreshIndicatorColor;
@@ -853,10 +854,11 @@ class _PaginationGridWidgetState<T, TResponse>
 
   Future<void> _refresh() async {
     // If provider is available, use Riverpod invalidate
-    if (widget.provider != null && context.mounted) {
-      final container = ProviderScope.containerOf(context);
-      container.invalidate(widget.provider!);
-    }
+    // TODO: Update this for Riverpod 3.0 invalidate API
+    // if (widget.provider != null && context.mounted) {
+    //   final container = ProviderScope.containerOf(context);
+    //   container.invalidate(widget.provider!);
+    // }
 
     // Call custom refresh callback if provided
     widget.onRefresh?.call();
@@ -1001,7 +1003,7 @@ class _PaginationGridWidgetState<T, TResponse>
       case JetErrorType.cancelled:
         return PhosphorIcons.x();
       case JetErrorType.unknown:
-      return PhosphorIcons.info();
+        return PhosphorIcons.info();
     }
   }
 
@@ -1021,7 +1023,7 @@ class _PaginationGridWidgetState<T, TResponse>
       case JetErrorType.cancelled:
         return 'Request Cancelled';
       case JetErrorType.unknown:
-      return context.jetI10n.somethingWentWrongWhileFetchingNewPage;
+        return context.jetI10n.somethingWentWrongWhileFetchingNewPage;
     }
   }
 

@@ -15,7 +15,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   dio: "^5.8.0+1"
-  hooks_riverpod: "^2.6.1"
+  hooks_riverpod: "^3.0.0"
   flutter_hooks: "^0.21.2"
   auto_route: "^10.1.0+1"
   flutter_form_builder: "^10.1.0"

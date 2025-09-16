@@ -4,15 +4,12 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jet/extensions/build_context.dart';
 import 'package:jet/storage/local_storage.dart';
 
-class AppLockerNotifier extends StateNotifier<bool> {
-  AppLockerNotifier() : super(false) {
-    _load();
-  }
-
+class AppLockerNotifier extends Notifier<bool> {
   static const String _key = 'isLocked';
 
-  void _load() {
-    state = JetStorage.read(_key);
+  @override
+  bool build() {
+    return JetStorage.read(_key) ?? false;
   }
 
   void toggle(BuildContext context, {bool forceLock = false}) {
@@ -33,6 +30,6 @@ class AppLockerNotifier extends StateNotifier<bool> {
   }
 }
 
-final appLockProvider = StateNotifierProvider<AppLockerNotifier, bool>(
-  (ref) => AppLockerNotifier(),
+final appLockProvider = NotifierProvider<AppLockerNotifier, bool>(
+  AppLockerNotifier.new,
 );

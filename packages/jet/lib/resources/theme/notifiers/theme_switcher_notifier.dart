@@ -13,15 +13,11 @@ extension ThemeModeExtension on ThemeMode {
 }
 
 /// Theme switcher state notifier
-class ThemeSwitcherNotifier extends StateNotifier<ThemeMode> {
+class ThemeSwitcherNotifier extends Notifier<ThemeMode> {
   static const String _storageKey = 'jet_theme_mode';
 
-  ThemeSwitcherNotifier() : super(ThemeMode.system) {
-    _loadTheme();
-  }
-
-  /// Load theme from storage
-  Future<void> _loadTheme() async {
+  @override
+  ThemeMode build() {
     try {
       final savedTheme = JetStorage.read<String>(
         _storageKey,
@@ -29,17 +25,18 @@ class ThemeSwitcherNotifier extends StateNotifier<ThemeMode> {
       );
 
       if (savedTheme != null) {
-        state = ThemeMode.values.firstWhere(
+        final themeMode = ThemeMode.values.firstWhere(
           (e) => e.name == savedTheme,
           orElse: () => ThemeMode.system,
         );
-        dump('[ThemeSwitcher] Loaded theme: ${state.name}');
+        dump('[ThemeSwitcher] Loaded theme: ${themeMode.name}');
+        return themeMode;
       }
     } catch (e, stackTrace) {
       dump('[ThemeSwitcher] Error loading theme: $e', stackTrace: stackTrace);
       // Fallback to system theme if loading fails
-      state = ThemeMode.system;
     }
+    return ThemeMode.system;
   }
 
   /// Switch to a specific theme mode
@@ -82,8 +79,8 @@ class ThemeSwitcherNotifier extends StateNotifier<ThemeMode> {
 
 /// Theme switcher provider
 final themeSwitcherProvider =
-    StateNotifierProvider<ThemeSwitcherNotifier, ThemeMode>(
-      (ref) => ThemeSwitcherNotifier(),
+    NotifierProvider<ThemeSwitcherNotifier, ThemeMode>(
+      ThemeSwitcherNotifier.new,
     );
 
 /// Convenience provider for accessing the current theme mode as Flutter's ThemeMode

@@ -17,6 +17,6 @@ class AppNetwork extends JetApiService {
   List<Interceptor> get interceptors => [];
 }
 
-final appNetworkProvider = AutoDisposeProvider<AppNetwork>(
+final appNetworkProvider = Provider<AppNetwork>(
   (ref) => AppNetwork(ref),
 );

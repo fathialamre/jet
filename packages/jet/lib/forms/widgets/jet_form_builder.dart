@@ -5,7 +5,6 @@ import 'package:jet/bootstrap/boot.dart';
 import 'package:jet/extensions/build_context.dart';
 import 'package:jet/forms/common.dart';
 import 'package:jet/forms/notifiers/jet_form_notifier.dart';
-import 'package:jet/helpers/jet_logger.dart';
 import 'package:jet/networking/errors/jet_error.dart';
 import 'package:jet/widgets/widgets/buttons/jet_button.dart';
 
@@ -77,7 +76,6 @@ class JetFormBuilder<Request, Response> extends ConsumerWidget {
         form.invalidateFields(jetError.errors!);
       }
     } else {
-     
       // Use raw error if default handler is disabled
       jetError = error is JetError
           ? error
@@ -94,11 +92,13 @@ class JetFormBuilder<Request, Response> extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final form = ref.read(provider.notifier);
+    // Use dynamic casting to access the notifier
+    final form = ref.read((provider as dynamic).notifier);
     final formState = ref.watch(provider);
 
     ref.listen<AsyncFormValue<Request, Response>>(provider, (previous, next) {
       next.map(
+        idle: (idle) {},
         data: (data) => onSuccess?.call(data.response, data.request),
         error: (e) => _handleFormError(
           ref,
