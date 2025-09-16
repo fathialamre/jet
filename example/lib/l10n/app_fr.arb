@@ -1,9 +1,5 @@
 {
-    "enterPhoneNumber": "Entrez votre numéro de téléphone",
-    "welcome": "Bienvenue",
-    "loginToContinue": "Connectez-vous pour continuer",
-    "enterPassword": "Entrez votre mot de passe",
-    "enterName": "Entrez votre nom",
-    "enterOtp": "Entrez votre code OTP",
-    "enterPasswordConfirmation": "Confirmez votre mot de passe"
+    "app_title": "Exemples du Framework Jet",
+    "todo_example": "Exemple Todo",
+    "settings": "Paramètres"
 }

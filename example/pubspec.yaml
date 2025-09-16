@@ -24,7 +24,7 @@ dependencies:
   retrofit: "^4.6.0"
   
   # Code Generation & Serialization
-  riverpod_annotation: "^2.6.1"
+  riverpod_annotation: "^3.0.0"
   envied: "^1.1.1"
   freezed_annotation: 
   json_annotation:
@@ -40,8 +40,8 @@ dev_dependencies:
   retrofit_generator: 
   riverpod_generator: 
   envied_generator: "^1.1.1"
-  auto_route_generator: "^10.2.3"
-  freezed: "^2.5.7"
+  auto_route_generator: "^10.2.4"
+  freezed: "^3.2.3"
   json_serializable: "^6.8.0" 
 
 flutter:

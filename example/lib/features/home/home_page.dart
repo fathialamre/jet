@@ -1,23 +1,140 @@
 import 'package:example/core/router/app_router.gr.dart';
 import 'package:flutter/material.dart';
 import 'package:jet/jet_framework.dart';
+import 'package:jet/resources/state/jet_consumer.dart';
+
 @RoutePage()
-class HomePage extends StatelessWidget {
+class HomePage extends JetConsumerWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return  Scaffold(
+  Widget jetBuild(BuildContext context, WidgetRef ref, Jet jet) {
+    return Scaffold(
       appBar: AppBar(
-        title: Text('Home'),
-      ),
-      body: Column(
-        children: [
-          ListTile(
-            title: Text('Inputs'),
-            onTap: () => context.router.push(InputsExampleRoute()),
+        title: const Text('Jet Framework Examples'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () => context.router.push(SettingsRoute()),
           ),
         ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Jet Framework Examples',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Explore different features of the Jet Flutter framework',
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: ListView(
+                children: [
+                  _ExampleCard(
+                    title: 'Todo Form',
+                    description:
+                        'Example of form handling with validation and submission using Riverpod generator',
+                    icon: Icons.checklist,
+                    onTap: () => context.router.push(TodoRoute()),
+                  ),
+                  const SizedBox(height: 12),
+                  _ExampleCard(
+                    title: 'Settings',
+                    description: 'Theme switching and localization examples',
+                    icon: Icons.settings,
+                    onTap: () => context.router.push(SettingsRoute()),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ExampleCard extends StatelessWidget {
+  final String title;
+  final String description;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _ExampleCard({
+    required this.title,
+    required this.description,
+    required this.icon,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  icon,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      description,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

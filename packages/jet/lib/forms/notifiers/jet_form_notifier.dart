@@ -1,24 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:hooks_riverpod/misc.dart';
 import 'package:jet/extensions/build_context.dart';
 import '../../bootstrap/boot.dart';
 import '../../networking/errors/jet_error.dart';
 import '../common.dart';
 
 typedef JetFormProvider<Request, Response> =
-    AutoDisposeStateNotifierProvider<
-      JetFormNotifier<Request, Response>,
-      AsyncFormValue<Request, Response>
-    >;
+    ProviderListenable<AsyncFormValue<Request, Response>>;
 
 typedef JetForm<Request, Response> = JetFormNotifier<Request, Response>;
 
 abstract class JetFormNotifier<Request, Response>
-    extends StateNotifier<AsyncFormValue<Request, Response>> {
-  final Ref ref;
-
-  JetFormNotifier(this.ref) : super(const AsyncFormLoading());
+    extends Notifier<AsyncFormValue<Request, Response>> {
+  @override
+  AsyncFormValue<Request, Response> build();
 
   final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
 

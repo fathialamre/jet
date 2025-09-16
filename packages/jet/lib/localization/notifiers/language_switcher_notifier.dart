@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jet/bootstrap/boot.dart';
 import 'package:jet/helpers/jet_logger.dart';
-import 'package:jet/localization/intl/messages.dart';
 import 'package:jet/storage/local_storage.dart';
 
 /// Storage key for persisting the selected locale preference
@@ -34,11 +33,9 @@ const String _localeStorageKey = 'selected_locale';
 /// - Persists changes to local storage
 /// - Notifies listeners when the locale changes
 final languageSwitcherProvider =
-    StateNotifierProvider<LanguageSwitcherNotifier, Locale>((
-      ref,
-    ) {
-      return LanguageSwitcherNotifier(ref);
-    });
+    NotifierProvider<LanguageSwitcherNotifier, Locale>(
+      LanguageSwitcherNotifier.new,
+    );
 
 /// State notifier that manages locale switching with persistence
 ///
@@ -63,41 +60,9 @@ final languageSwitcherProvider =
 ///   }
 /// }
 /// ```
-class LanguageSwitcherNotifier extends StateNotifier<Locale> {
-  /// Initialize the notifier with a default locale and load saved preferences
-  ///
-  /// The constructor:
-  /// - Sets English as the default locale
-  /// - Immediately loads any previously saved locale from storage
-  /// - Validates the loaded locale against supported locales
-  ///
-  /// Example:
-  /// ```dart
-  /// final notifier = LanguageSwitcherNotifier();
-  /// // Automatically loads saved locale if available
-  /// ```
-  LanguageSwitcherNotifier(Ref ref) : super(const Locale('en')) {
-    _loadSavedLocale(ref);
-  }
-
-  /// Load the saved locale from storage and apply it if valid
-  ///
-  /// This method:
-  /// - Reads the saved locale code from local storage
-  /// - Creates a Locale object from the saved code
-  /// - Validates that the locale is supported by the app
-  /// - Updates the state if the locale is valid
-  ///
-  /// If no saved locale exists or the saved locale is not supported,
-  /// the default locale (English) remains active.
-  ///
-  /// Example of what gets loaded:
-  /// ```dart
-  /// // If user previously selected Arabic
-  /// // Storage contains: 'selected_locale' -> 'ar'
-  /// // This method will load and apply Locale('ar')
-  /// ```
-  Future<void> _loadSavedLocale(Ref ref) async {
+class LanguageSwitcherNotifier extends Notifier<Locale> {
+  @override
+  Locale build() {
     final savedLocaleCode = JetStorage.read<String>(_localeStorageKey);
     if (savedLocaleCode != null) {
       final locale = Locale(savedLocaleCode);
@@ -105,9 +70,10 @@ class LanguageSwitcherNotifier extends StateNotifier<Locale> {
       if (config.supportedLocales.any(
         (supported) => supported.locale.languageCode == locale.languageCode,
       )) {
-        state = locale;
+        return locale;
       }
     }
+    return const Locale('en');
   }
 
   /// Check if the given locale is supported by the application
@@ -124,7 +90,7 @@ class LanguageSwitcherNotifier extends StateNotifier<Locale> {
   ///
   /// @param locale The locale to validate
   /// @return true if the locale is supported, false otherwise
-  bool _isSupportedLocale(Locale locale, WidgetRef ref) {
+  bool _isSupportedLocale(Locale locale) {
     return ref
         .read(jetProvider)
         .config
@@ -158,8 +124,8 @@ class LanguageSwitcherNotifier extends StateNotifier<Locale> {
   /// ```
   ///
   /// @param locale The new locale to switch to
-  Future<void> changeLocale(Locale locale, WidgetRef ref) async {
-    if (_isSupportedLocale(locale, ref)) {
+  Future<void> changeLocale(Locale locale) async {
+    if (_isSupportedLocale(locale)) {
       dump(locale.languageCode, tag: 'changeLocale');
 
       state = locale;

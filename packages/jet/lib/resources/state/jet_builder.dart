@@ -56,7 +56,7 @@ class JetBuilder {
   /// Perfect for displaying lists of items with pull-to-refresh functionality.
   /// Works with any provider that returns `List<T>`.
   static Widget list<T>({
-    required AutoDisposeFutureProvider<List<T>> provider,
+    required FutureProvider<List<T>> provider,
     required Widget Function(T item, int index) itemBuilder,
     required BuildContext context,
 
@@ -120,7 +120,7 @@ class JetBuilder {
   ///
   /// Use this when your provider takes parameters.
   static Widget familyList<T, Param>({
-    required AutoDisposeFutureProvider<List<T>> Function(Param) provider,
+    required FutureProvider<List<T>> Function(Param) provider,
     required Param param,
     required Widget Function(T item, int index) itemBuilder,
 
@@ -162,7 +162,7 @@ class JetBuilder {
   ///
   /// Perfect for displaying items in a grid layout with pull-to-refresh.
   static Widget grid<T>({
-    required AutoDisposeFutureProvider<List<T>> provider,
+    required FutureProvider<List<T>> provider,
     required Widget Function(T item, int index) itemBuilder,
     required int crossAxisCount,
 
@@ -208,7 +208,7 @@ class JetBuilder {
 
   /// Creates a refreshable grid widget with family support
   static Widget familyGrid<T, Param>({
-    required AutoDisposeFutureProvider<List<T>> Function(Param) provider,
+    required FutureProvider<List<T>> Function(Param) provider,
     required Param param,
     required Widget Function(T item, int index) itemBuilder,
     required int crossAxisCount,
@@ -263,7 +263,7 @@ class JetBuilder {
   /// Perfect for displaying a single item (like user profile, product details)
   /// with pull-to-refresh functionality.
   static Widget item<T>({
-    required AutoDisposeFutureProvider<T> provider,
+    required FutureProvider<T> provider,
     required Widget Function(T item, WidgetRef ref) builder,
 
     // Customization
@@ -294,7 +294,7 @@ class JetBuilder {
 
   /// Creates a refreshable single item widget with family support
   static Widget familyItem<T, Param>({
-    required AutoDisposeFutureProvider<T> Function(Param) provider,
+    required FutureProvider<T> Function(Param) provider,
     required Param param,
     required Widget Function(T item, WidgetRef ref) builder,
 
@@ -334,7 +334,7 @@ class JetBuilder {
   /// Use this when you need full control over the widget structure
   /// while still getting pull-to-refresh and error handling.
   static Widget builder<T>({
-    required AutoDisposeFutureProvider<T> provider,
+    required FutureProvider<T> provider,
     required Widget Function(T data, WidgetRef ref) builder,
 
     // Customization
@@ -357,7 +357,7 @@ class JetBuilder {
 
   /// Creates a refreshable widget with custom builder and family support
   static Widget familyBuilder<T, Param>({
-    required AutoDisposeFutureProvider<T> Function(Param) provider,
+    required FutureProvider<T> Function(Param) provider,
     required Param param,
     required Widget Function(T data, WidgetRef ref) builder,
 
@@ -390,7 +390,7 @@ Widget _buildRetryButton<T>({
   required JetError jetError,
   required WidgetRef ref,
   required VoidCallback? onRetry,
-  required AutoDisposeFutureProvider<T> provider,
+  required FutureProvider<T> provider,
 }) {
   return JetConsumer(
     builder: (context, ref, jet) {
@@ -527,7 +527,7 @@ class _StateWidget<T> extends JetConsumerWidget {
     this.error,
   });
 
-  final AutoDisposeFutureProvider<T> provider;
+  final FutureProvider<T> provider;
   final Widget Function(T data, WidgetRef ref) builder;
   final Future<void> Function()? onRefresh;
   final VoidCallback? onRetry;
@@ -663,7 +663,7 @@ class _StateFamilyWidget<T, Param> extends JetConsumerWidget {
     this.error,
   });
 
-  final AutoDisposeFutureProvider<T> Function(Param) provider;
+  final FutureProvider<T> Function(Param) provider;
   final Param param;
   final Widget Function(T data, WidgetRef ref) builder;
   final Future<void> Function()? onRefresh;
