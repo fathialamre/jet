@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import '../../networking/errors/jet_error.dart';
+import 'package:jet/networking/errors/jet_error.dart';
 
 /// Mixin that provides validation capabilities for forms
 mixin FormValidationMixin {
@@ -74,15 +74,5 @@ mixin FormValidationMixin {
     fieldErrors.forEach((field, errorText) {
       formKey.currentState?.fields[field]?.invalidate(errorText.first);
     });
-  }
-
-  /// Invalidate fields based on JetError validation errors
-  void invalidateFieldsFromJetError(
-    Object error,
-    GlobalKey<FormBuilderState> formKey,
-  ) {
-    if (error is JetError && error.isValidation && error.errors != null) {
-      invalidateFields(error.errors!, formKey);
-    }
   }
 }
