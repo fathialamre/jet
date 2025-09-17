@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jet/bootstrap/boot.dart';
+import 'package:jet/helpers/jet_logger.dart';
 import 'package:jet/networking/interceptors/jet_dio_logger_interceptor.dart';
 
 /// Response wrapper model for standardized API responses
@@ -134,6 +135,8 @@ abstract class JetApiService {
 
     // Add logging interceptor in debug mode
     _dio.interceptors.add(JetDioLoggerInterceptor(ref.read(jetProvider).config.dioLoggerConfig));
+
+    dump(interceptors, tag: "interceptor");
 
     // Add custom interceptors
     _dio.interceptors.addAll(interceptors);
