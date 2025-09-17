@@ -67,6 +67,8 @@ abstract class JetConfig {
   /// Example: `ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue))`
   ThemeData? get theme => null;
 
+  bool get showErrorStackTrace => true;
+
   /// The dark theme configuration for the application.
   ///
   /// Returns null by default, meaning no custom dark theme is applied.

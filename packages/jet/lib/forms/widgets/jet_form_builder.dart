@@ -6,6 +6,7 @@ import 'package:jet/bootstrap/boot.dart';
 import 'package:jet/extensions/build_context.dart';
 import 'package:jet/forms/common.dart';
 import 'package:jet/forms/notifiers/jet_form_notifier.dart';
+import 'package:jet/helpers/jet_logger.dart';
 import 'package:jet/networking/errors/jet_error.dart';
 import 'package:jet/widgets/widgets/buttons/jet_button.dart';
 
@@ -59,12 +60,13 @@ class JetFormBuilder<Request, Response> extends ConsumerWidget {
 
     if (useDefaultErrorHandler) {
       if (error is JetError) {
-        // Error is already processed by JetFormNotifier
         jetError = error;
       } else {
         // Process raw error with handler
-        final handler = ref.read(jetProvider).config.errorHandler;
-        jetError = handler.handle(error, context, stackTrace: stackTrace);
+        final jet = ref.read(jetProvider);
+        final handler = jet.config.errorHandler;
+
+        jetError = handler.handle(error, context, stackTrace: stackTrace, showErrorStackTrace: jet.config.showErrorStackTrace);
       }
 
       // Show error message if available
@@ -123,7 +125,7 @@ class JetFormBuilder<Request, Response> extends ConsumerWidget {
             JetButton(
               isExpanded: true,
               text: submitButtonText ?? context.jetI10n.submit,
-              onTap: () => form.submit(context: context),
+              onTap: () => form.submit(),
             ),
         ],
       ),
