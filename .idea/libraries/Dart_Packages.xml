@@ -12,6 +12,7 @@
         <entry key="analyzer">
           <value>
             <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/analyzer-7.7.1/lib" />
               <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib" />
             </list>
           </value>
@@ -327,6 +328,7 @@
         <entry key="flutter_riverpod">
           <value>
             <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_riverpod-3.0.0/lib" />
               <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_riverpod-2.6.1/lib" />
             </list>
           </value>
@@ -453,6 +455,7 @@
         <entry key="hooks_riverpod">
           <value>
             <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/hooks_riverpod-3.0.0/lib" />
               <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/hooks_riverpod-2.6.1/lib" />
             </list>
           </value>
@@ -782,6 +785,7 @@
         <entry key="riverpod">
           <value>
             <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/riverpod-3.0.0/lib" />
               <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/riverpod-2.6.1/lib" />
             </list>
           </value>
@@ -1113,6 +1117,7 @@
     <CLASSES>
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/_fe_analyzer_shared-85.0.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/analyzer-7.7.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/analyzer_plugin-0.13.4/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/ansicolor-2.0.3/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/args-2.7.0/lib" />
@@ -1156,6 +1161,7 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_lints-6.0.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.30/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_riverpod-2.6.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_riverpod-3.0.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_screenutil-5.9.3/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_secure_storage-9.2.4/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_secure_storage_linux-1.2.3/lib" />
@@ -1172,6 +1178,7 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/graphs-2.3.2/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/guardo-0.1.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/hooks_riverpod-2.6.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/hooks_riverpod-3.0.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/hotreloader-4.3.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/http-1.5.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/http_multi_server-3.2.2/lib" />
@@ -1219,6 +1226,7 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/retrofit-4.7.2/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/retrofit_generator-9.7.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/riverpod-2.6.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/riverpod-3.0.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/riverpod_analyzer_utils-0.5.9/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/riverpod_annotation-2.6.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/riverpod_generator-2.6.4/lib" />
