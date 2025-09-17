@@ -10,10 +10,10 @@ class FormLifecycleCallbacks<Request, Response> {
   final void Function(Response response, Request request)? onSuccess;
 
   /// Called when form submission fails
-  final void Function(JetError error)? onSubmissionError;
+  final void Function(Object error, StackTrace stackTrace)? onSubmissionError;
 
   /// Called when form validation fails
-  final void Function(JetError error)? onValidationError;
+  final void Function(Object error, StackTrace stackTrace)? onValidationError;
 
   const FormLifecycleCallbacks({
     this.onSubmissionStart,
@@ -45,12 +45,12 @@ mixin FormLifecycleMixin<Request, Response> {
   }
 
   /// Trigger submission error callback
-  void triggerSubmissionError(JetError error) {
-    _callbacks?.onSubmissionError?.call(error);
+  void triggerSubmissionError(Object error, StackTrace stackTrace) {
+    _callbacks?.onSubmissionError?.call(error, stackTrace);
   }
 
   /// Trigger validation error callback
-  void triggerValidationError(JetError error) {
-    _callbacks?.onValidationError?.call(error);
+  void triggerValidationError(Object error, StackTrace stackTrace) {
+    _callbacks?.onValidationError?.call(error, stackTrace);
   }
 }

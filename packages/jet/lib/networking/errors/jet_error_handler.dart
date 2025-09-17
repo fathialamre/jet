@@ -26,8 +26,9 @@ class JetErrorHandler extends JetBaseErrorHandler {
     Object error,
     BuildContext context, {
     StackTrace? stackTrace,
+    bool showErrorStackTrace = true,
   }) {
-    if (stackTrace != null) {
+    if (stackTrace != null && showErrorStackTrace) {
       dumpTrace(
         stackTrace,
       );

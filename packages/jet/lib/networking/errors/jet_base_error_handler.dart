@@ -11,7 +11,7 @@ abstract class JetBaseErrorHandler {
   ///
   /// This method should be overridden by concrete implementations
   /// to provide custom error handling logic
-  JetError handle(Object error, BuildContext context, {StackTrace? stackTrace});
+  JetError handle(Object error, BuildContext context, {StackTrace? stackTrace, bool showErrorStackTrace = true});
 
   /// Check if the error is a no-internet error
   ///

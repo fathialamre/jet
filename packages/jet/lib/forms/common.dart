@@ -59,6 +59,10 @@ sealed class AsyncFormValue<Request, Response> {
   /// Whether the form is in an error state.
   bool get hasError => this is AsyncFormError<Request, Response>;
 
+  Object? get error => this is AsyncFormError<Request, Response>
+      ? (this as AsyncFormError<Request, Response>).error
+      : null;
+
   /// Pattern-matching over the form state.
   ///
   /// Provides callbacks for each state: [idle], [data], [error], and [loading].

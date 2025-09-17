@@ -34,7 +34,7 @@ abstract class JetFormNotifier<Request, Response>
         response: state.response,
       );
 
-      triggerValidationError(validationError);
+      triggerValidationError(validationError, StackTrace.current);
       return;
     }
 
@@ -51,24 +51,12 @@ abstract class JetFormNotifier<Request, Response>
       final requestData = decoder(formState.value);
       final responseData = await action(requestData);
 
-      state = AsyncFormValue.data(
-        request: requestData,
-        response: responseData,
-      );
+      state = AsyncFormValue.data(request: requestData, response: responseData);
 
       triggerSuccess(responseData, requestData);
     } catch (error, stackTrace) {
-      // Convert error to JetError
-      final jetError = convertToJetError(error, stackTrace);
-
-      state = AsyncFormValue.error(
-        jetError,
-        stackTrace,
-        request: state.request,
-        response: state.response,
-      );
-
-      triggerSubmissionError(jetError);
+      state = AsyncFormValue.error(error, stackTrace);
+      triggerSubmissionError(error, stackTrace);
     }
   }
 
