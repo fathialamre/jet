@@ -1,5 +1,3 @@
-import '../../networking/errors/jet_error.dart';
-
 /// Callbacks for form lifecycle events
 /// These are configured in JetFormBuilder, not in the notifier
 class FormLifecycleCallbacks<Request, Response> {

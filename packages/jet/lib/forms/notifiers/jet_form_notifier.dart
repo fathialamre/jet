@@ -66,11 +66,6 @@ abstract class JetFormNotifier<Request, Response>
     super.invalidateFields(fieldErrors, formKey);
   }
 
-  /// Invalidate fields based on JetError validation errors
-  void invalidateFieldsFromError(Object error) {
-    super.invalidateFieldsFromJetError(error, formKey);
-  }
-
   void reset() {
     formKey.currentState?.reset();
     state = const AsyncFormValue.idle();
