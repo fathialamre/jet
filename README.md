@@ -45,7 +45,7 @@ void main() async {
 }
 ```
 
-## Table of Contents
+## 📋 Table of Contents
 
 - [Configuration](#%EF%B8%8F-configuration)
 - [Routing](#-routing)
@@ -58,9 +58,9 @@ void main() async {
 - [Forms](#-forms)
 - [Components](#-components)
 - [Security](#-security)
-- [Debugging](#-debugging)
 - [Sessions](#-sessions)
 - [State Management](#-state-management)
+- [Debugging](#-debugging)
 
 ## ⚙️ Configuration
 
@@ -86,6 +86,19 @@ class AppConfig extends JetConfig {
   ThemeData? get darkTheme => ThemeData(
     colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue, brightness: Brightness.dark),
   );
+
+  @override
+  JetDioLoggerConfig get dioLoggerConfig => JetDioLoggerConfig(
+    request: true,
+    requestHeader: true,
+    requestBody: false,
+    responseBody: true,
+    responseHeader: false,
+    error: true,
+    compact: true,
+    maxWidth: 90,
+    enabled: true,
+  );
 }
 ```
 
@@ -95,6 +108,7 @@ class AppConfig extends JetConfig {
 - `theme` / `darkTheme` - App themes
 - `defaultLocale` - Fallback locale
 - `localizationsDelegates` - Custom localization delegates
+- `dioLoggerConfig` - Network logging configuration
 
 ## 🧭 Routing
 
@@ -202,13 +216,13 @@ Jet provides built-in theme management with persistent storage:
 ```dart
 // Add theme toggle button
 AppBar(
-      actions: [
-        ThemeSwitcher.toggleButton(context),
+  actions: [
+    ThemeSwitcher.toggleButton(context),
   ],
 )
 
-            // Show theme selection modal
-            ThemeSwitcher.show(context);
+// Show theme selection modal
+ThemeSwitcher.show(context);
 
 // Segmented theme switcher
 ThemeSwitcher.segmentedButton(context);
@@ -223,7 +237,7 @@ class MyWidget extends ConsumerWidget {
     final themeNotifier = ref.read(themeSwitcherProvider.notifier);
     
     return ElevatedButton(
-                  onPressed: () => themeNotifier.toggleTheme(),
+      onPressed: () => themeNotifier.toggleTheme(),
       child: Text('Toggle Theme'),
     );
   }
@@ -243,13 +257,13 @@ Jet provides internationalization support with language switching:
 ```dart
 // Add language switcher button
 AppBar(
-      actions: [
-        LanguageSwitcher.toggleButton(),
+  actions: [
+    LanguageSwitcher.toggleButton(),
   ],
 )
 
-            // Show language selection modal
-            LanguageSwitcher.show(context);
+// Show language selection modal
+LanguageSwitcher.show(context);
 ```
 
 **Using with Riverpod:**
@@ -261,7 +275,7 @@ class MyWidget extends ConsumerWidget {
     final localeNotifier = ref.read(languageSwitcherProvider.notifier);
     
     return ElevatedButton(
-                  onPressed: () => localeNotifier.changeLocale(Locale('ar')),
+      onPressed: () => localeNotifier.changeLocale(Locale('ar')),
       child: Text('Switch to Arabic'),
     );
   }
@@ -327,22 +341,6 @@ class AppConfig extends JetConfig {
     enabled: true,         // Enable/disable logging
   );
 }
-```
-
-**Custom Logging:**
-```dart
-// Custom log printer
-JetDioLoggerConfig(
-  logPrint: (object) {
-    // Custom logging logic (e.g., write to file)
-    debugPrint(object.toString());
-  },
-  // Filter specific requests
-  filter: (options, args) {
-    // Don't log auth requests
-    return !options.path.contains('/auth');
-  },
-);
 ```
 
 **Features:**
@@ -430,27 +428,12 @@ final loginFormProvider = JetFormProvider<LoginRequest, User>(
   (ref) => LoginFormNotifier(ref),
 );
 
-// Alternative: Using Riverpod 3 Generators (Recommended)
-@riverpod
-class LoginForm extends _$LoginForm implements JetFormNotifier<LoginRequest, User> {
-  @override
-  LoginRequest decoder(Map<String, dynamic> formData) {
-    return LoginRequest.fromJson(formData);
-  }
-
-  @override
-  Future<User> action(LoginRequest data) async {
-    final authService = ref.read(authServiceProvider);
-    return await authService.login(data.email, data.password);
-  }
-}
-
 // 4. Build form UI
 class LoginFormWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return JetFormBuilder<LoginRequest, User>(
-      provider: loginFormProvider, // or loginFormProvider for generated version
+      provider: loginFormProvider,
       onSuccess: (user, request) {
         context.router.pushNamed('/dashboard');
         ScaffoldMessenger.of(context).showSnackBar(
@@ -556,179 +539,6 @@ JetPinField(
 )
 ```
 
-### Registration Form Example
-
-```dart
-class RegistrationFormNotifier extends JetFormNotifier<RegistrationRequest, User> {
-  RegistrationFormNotifier(super.ref);
-
-  @override
-  RegistrationRequest decoder(Map<String, dynamic> formData) {
-    return RegistrationRequest.fromJson(formData);
-  }
-
-  @override
-  Future<User> action(RegistrationRequest data) async {
-    final authService = ref.read(authServiceProvider);
-    return await authService.register(data);
-  }
-}
-
-class RegistrationForm extends StatelessWidget {
-  final _formKey = GlobalKey<FormBuilderState>();
-
-  @override
-  Widget build(BuildContext context) {
-    return JetFormBuilder<RegistrationRequest, User>(
-      provider: registrationFormProvider,
-      initialValues: {'agreeToTerms': false},
-      onSuccess: (user, request) {
-        context.router.pushNamed('/verify-email');
-        context.showToast('Account created! Please verify your email.');
-      },
-      builder: (context, ref, form, state) => [
-        // Name field
-        FormBuilderTextField(
-          name: 'name',
-          decoration: InputDecoration(
-            labelText: 'Full Name',
-            prefixIcon: Icon(Icons.person),
-          ),
-          validator: FormBuilderValidators.compose([
-            FormBuilderValidators.required(),
-            FormBuilderValidators.minLength(2),
-          ]),
-        ),
-
-        // Email field
-        FormBuilderTextField(
-          name: 'email',
-          decoration: InputDecoration(
-            labelText: 'Email Address',
-            prefixIcon: Icon(Icons.email),
-          ),
-          keyboardType: TextInputType.emailAddress,
-          validator: FormBuilderValidators.compose([
-            FormBuilderValidators.required(),
-            FormBuilderValidators.email(),
-          ]),
-        ),
-
-        // Phone field
-        JetPhoneField(
-          name: 'phone',
-          hintText: 'Phone Number',
-          isRequired: true,
-        ),
-
-        // Password field
-        JetPasswordField(
-          name: 'password',
-          hintText: 'Password',
-          formKey: _formKey,
-        ),
-
-        // Confirm password
-        JetPasswordField(
-          name: 'confirm_password',
-          hintText: 'Confirm Password',
-          identicalWith: 'password',
-          formKey: _formKey,
-        ),
-
-        // Terms checkbox
-        FormBuilderCheckbox(
-          name: 'agreeToTerms',
-          title: Text('I agree to the Terms of Service'),
-          validator: FormBuilderValidators.equal(
-            true,
-            errorText: 'You must agree to the terms',
-          ),
-        ),
-
-        // Submit button
-        SizedBox(
-          width: double.infinity,
-          child: state.isLoading
-              ? Center(child: CircularProgressIndicator())
-              : JetButton(
-                  text: 'Create Account',
-                  onTap: form.submit,
-                ),
-        ),
-      ],
-    );
-  }
-}
-```
-
-### Form Validation & Error Handling
-
-Forms automatically handle server-side validation errors:
-
-```dart
-// Server returns validation errors like:
-// {
-//   "message": "Validation failed",
-//   "errors": {
-//     "email": ["Email already exists"],
-//     "password": ["Password too weak"]
-//   }
-// }
-
-// JetFormBuilder automatically:
-// 1. Shows field-specific errors under inputs
-// 2. Displays general error message as toast
-// 3. Highlights invalid fields
-// 4. Preserves form data during errors
-
-JetFormBuilder<LoginRequest, User>(
-  provider: loginFormProvider,
-  // Custom error handling
-  onError: (error, stackTrace, invalidateFields) {
-    if (error.toString().contains('account_locked')) {
-      context.router.pushNamed('/account-locked');
-    }
-  },
-  builder: (context, ref, form, state) => [
-    // Form fields automatically show validation errors
-  ],
-)
-```
-
-### Enhanced Error Handling
-
-Forms now feature improved error handling with centralized error processing:
-
-```dart
-class LoginFormNotifier extends JetFormNotifier<LoginRequest, User> {
-  LoginFormNotifier(super.ref);
-
-  @override
-  Future<void> submit({
-    bool showErrorSnackBar = true,
-    required BuildContext context,
-  }) async {
-    // Enhanced error handling with JetErrorHandler integration
-    try {
-      final result = await super.submit(
-        showErrorSnackBar: showErrorSnackBar,
-        context: context,
-      );
-    } catch (error, stackTrace) {
-      // Centralized error processing
-      final handler = ref.read(jetProvider).config.errorHandler;
-      final jetError = handler.handle(error, context, stackTrace: stackTrace);
-      
-      // Automatic field invalidation for validation errors
-      if (jetError.isValidation && jetError.errors != null) {
-        invalidateFields(jetError.errors!);
-      }
-    }
-  }
-}
-```
-
 ### Riverpod 3 Generators Support
 
 Jet Framework fully supports **Riverpod 3 generators** for enhanced developer experience and code generation:
@@ -775,13 +585,6 @@ class UserFormPage extends StatelessWidget {
 // dart run build_runner build
 ```
 
-**Generator Benefits:**
-- **Automatic provider generation** - No manual provider creation needed
-- **Type safety** - Compile-time checks for provider dependencies  
-- **Better performance** - Optimized provider creation and disposal
-- **IDE support** - Enhanced autocomplete and refactoring
-- **Hot reload** - Seamless development experience
-
 **Form Features:**
 - **Type-safe** form state with Request/Response generics
 - **Enhanced error handling** with centralized JetErrorHandler integration
@@ -789,7 +592,6 @@ class UserFormPage extends StatelessWidget {
 - **Enhanced input components** (password, phone, PIN/OTP)
 - **Built-in loading states** and form submission
 - **Server validation integration** with automatic field invalidation
-- **Stack trace debugging** for form errors
 - **Riverpod 3 integration** with generator support for reactive state management
 
 ## 🧩 Components
@@ -910,81 +712,6 @@ class ProfilePage extends StatelessWidget {
 - **Force lock option** for immediate protection
 - **Integration with device security** settings
 
-## 🐛 Debugging
-
-Jet provides enhanced debugging tools for better development experience:
-
-### Stack Trace Debugging
-
-Enhanced stack trace formatting with clickable file paths:
-
-```dart
-// Using the global dumpTrace function
-try {
-  riskyOperation();
-} catch (error, stackTrace) {
-  // Dump stack trace with custom title
-  dumpTrace(
-    stackTrace,
-    title: 'Operation Failed',
-    alwaysPrint: true,
-  );
-}
-
-// Using stack trace extension
-void problematicFunction() {
-  try {
-    complexOperation();
-  } catch (error, stackTrace) {
-    // Enhanced stack trace logging
-    stackTrace.dump(title: 'Complex Operation Error');
-    
-    // Legacy logging (still supported)
-    stackTrace.log(tag: 'Error');
-  }
-}
-```
-
-**Stack Trace Output Example:**
-```
-╔╣ JET STACK TRACE ╠══
-╠══════════════
-╠╣ [ 1 ] -> main.<anonymous closure> ╠══
-╠ LINE [23] COLUMN [5]
-╠ At example_test.dart
-╠ "example_test.dart:23:5"
-╚════════════════════════
-```
-
-### Enhanced Logging
-
-Comprehensive logging utilities for debugging:
-
-```dart
-// Basic logging
-JetLogger.debug('Debug message');
-JetLogger.info('Information message');
-JetLogger.error('Error occurred');
-
-// Custom tagged logging
-JetLogger.dump('Custom data', tag: 'API_RESPONSE');
-
-// JSON logging
-final userData = {'name': 'John', 'age': 30};
-JetLogger.json(userData);
-
-// Global helpers
-dump('Quick debug message', tag: 'DEBUG');
-dd('Debug and die', tag: 'FATAL'); // Exits after logging
-```
-
-**Logging Features:**
-- **Environment-aware logging** (debug mode only by default)
-- **Structured output** with timestamps and tags
-- **JSON serialization** for complex objects
-- **Stack trace integration** with clickable file paths
-- **Customizable log levels** and output formatting
-
 ## 🔐 Sessions
 
 Jet provides built-in session management for user authentication:
@@ -1048,116 +775,6 @@ class AppWidget extends ConsumerWidget {
       loading: () => SplashScreen(),
       error: (error, stack) => ErrorPage(),
     );
-  }
-}
-```
-
-### Session Model
-
-```dart
-class Session {
-  final String token;
-  final String name;
-  final bool isGuest;
-  final String? phone;
-
-  Session({
-    required this.token,
-    required this.name,
-    required this.isGuest,
-    this.phone,
-  });
-
-  // Automatic JSON serialization for storage
-  factory Session.fromJson(Map<String, dynamic> json) => Session(
-    token: json['token'],
-    name: json['name'],
-    isGuest: json['is_guest'],
-    phone: json['phone'],
-  );
-
-  Map<String, dynamic> toJson() => {
-    'token': token,
-    'name': name,
-    'is_guest': isGuest,
-    'phone': phone,
-  };
-}
-```
-
-### Auth Guard for Routes
-
-Protect routes with authentication:
-
-```dart
-class AuthGuard extends AutoRouteGuard {
-  @override
-  void onNavigation(NavigationResolver resolver, StackRouter router) {
-    final session = JetStorage.getSession();
-    
-    if (session?.token != null && !session!.isGuest) {
-      // User is authenticated, allow navigation
-      resolver.next();
-    } else {
-      // Redirect to login
-      router.push(LoginRoute());
-    }
-  }
-}
-
-// Use in router
-@AutoRouterConfig()
-class AppRouter extends RootStackRouter {
-  @override
-  List<AutoRoute> get routes => [
-    AutoRoute(page: LoginRoute.page, path: '/login'),
-    AutoRoute(
-      page: DashboardRoute.page,
-      path: '/dashboard',
-      guards: [AuthGuard], // Protected route
-    ),
-  ];
-}
-```
-
-### Complete Auth Example
-
-```dart
-class AuthService {
-  final apiService = UserApiService.instance;
-
-  Future<User> login(String email, String password) async {
-    final response = await apiService.login(email, password);
-    
-    if (response.success && response.data != null) {
-      // Create session
-      final session = Session(
-        token: response.data!.token,
-        name: response.data!.name,
-        isGuest: false,
-        phone: response.data!.phone,
-      );
-      
-      // Store session
-      await SessionManager.authenticateAsUser(session: session);
-      
-      return response.data!;
-    } else {
-      throw JetError.client(message: response.message ?? 'Login failed');
-    }
-  }
-
-  Future<void> logout() async {
-    // Clear session
-    await SessionManager.clear();
-    
-    // Navigate to login
-    GetIt.instance<AppRouter>().pushAndClearStack(LoginRoute());
-  }
-
-  Future<bool> isAuthenticated() async {
-    final session = await SessionManager.session();
-    return session?.token != null && !session!.isGuest;
   }
 }
 ```
@@ -1387,3 +1004,109 @@ class DashboardPage extends JetConsumerWidget {
 - **Type-safe provider dependencies** with compile-time checks
 - **Hot reload support** for generated providers
 - Automatic error handling and loading states
+
+## 🐛 Debugging
+
+Jet provides enhanced debugging tools for better development experience:
+
+### Stack Trace Debugging
+
+Enhanced stack trace formatting with clickable file paths:
+
+```dart
+// Using the global dumpTrace function
+try {
+  riskyOperation();
+} catch (error, stackTrace) {
+  // Dump stack trace with custom title
+  dumpTrace(
+    stackTrace,
+    title: 'Operation Failed',
+    alwaysPrint: true,
+  );
+}
+
+// Using stack trace extension
+void problematicFunction() {
+  try {
+    complexOperation();
+  } catch (error, stackTrace) {
+    // Enhanced stack trace logging
+    stackTrace.dump(title: 'Complex Operation Error');
+    
+    // Legacy logging (still supported)
+    stackTrace.log(tag: 'Error');
+  }
+}
+```
+
+**Stack Trace Output Example:**
+```
+╔╣ JET STACK TRACE ╠══
+╠══════════════
+╠╣ [ 1 ] -> main.<anonymous closure> ╠══
+╠ LINE [23] COLUMN [5]
+╠ At example_test.dart
+╠ "example_test.dart:23:5"
+╚════════════════════════
+```
+
+### Enhanced Logging
+
+Comprehensive logging utilities for debugging:
+
+```dart
+// Basic logging
+JetLogger.debug('Debug message');
+JetLogger.info('Information message');
+JetLogger.error('Error occurred');
+
+// Custom tagged logging
+JetLogger.dump('Custom data', tag: 'API_RESPONSE');
+
+// JSON logging
+final userData = {'name': 'John', 'age': 30};
+JetLogger.json(userData);
+
+// Global helpers
+dump('Quick debug message', tag: 'DEBUG');
+dd('Debug and die', tag: 'FATAL'); // Exits after logging
+```
+
+**Logging Features:**
+- **Environment-aware logging** (debug mode only by default)
+- **Structured output** with timestamps and tags
+- **JSON serialization** for complex objects
+- **Stack trace integration** with clickable file paths
+- **Customizable log levels** and output formatting
+
+## 🎯 Key Features Summary
+
+- **🚀 Rapid Development** - Get started in minutes with comprehensive setup
+- **📱 Modern Architecture** - Built on Riverpod 3 with code generation support
+- **🔧 Type Safety** - Full type safety across forms, networking, and state management
+- **🌐 Internationalization** - Built-in localization with RTL support
+- **🎨 Theming** - Complete theme management with persistent storage
+- **🔐 Security** - App locking with biometric authentication
+- **📝 Forms** - Advanced form management with validation and error handling
+- **🌐 Networking** - Type-safe HTTP client with configurable logging
+- **💾 Storage** - Secure storage for sensitive data and regular preferences
+- **🔄 State Management** - Unified state widgets with automatic loading/error states
+- **🐛 Debugging** - Enhanced debugging tools with stack trace formatting
+- **🔐 Sessions** - Built-in authentication and session management
+- **🧩 Components** - Pre-built UI components for common patterns
+
+## 📚 Additional Resources
+
+- [Riverpod Documentation](https://riverpod.dev/)
+- [AutoRoute Documentation](https://auto-route.vercel.app/)
+- [Dio Documentation](https://pub.dev/packages/dio)
+- [Flutter Form Builder](https://pub.dev/packages/flutter_form_builder)
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our contributing guidelines for details.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
