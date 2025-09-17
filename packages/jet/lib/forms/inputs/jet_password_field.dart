@@ -105,6 +105,9 @@ class JetPasswordField extends HookWidget {
   /// Constraints for the input field
   final BoxConstraints? constraints;
 
+  /// Value transformer for the field
+  final ValueTransformer<String?>? valueTransformer;
+
   const JetPasswordField({
     super.key,
     required this.name,
@@ -135,6 +138,7 @@ class JetPasswordField extends HookWidget {
     this.helperText,
     this.helperStyle,
     this.constraints,
+    this.valueTransformer,
   });
 
   @override
@@ -149,6 +153,7 @@ class JetPasswordField extends HookWidget {
       name: name,
       initialValue: initialValue,
       obscureText: obscureTextState.value,
+      valueTransformer: valueTransformer,
       enabled: enabled,
       readOnly: readOnly,
       autofocus: autofocus,
@@ -160,7 +165,9 @@ class JetPasswordField extends HookWidget {
         prefixIcon: showPrefixIcon ? Icon(PhosphorIcons.lock()) : prefixIcon,
         suffixIcon: IconButton(
           icon: Icon(
-            obscureTextState.value ? PhosphorIcons.eye() : PhosphorIcons.eyeClosed(),
+            obscureTextState.value
+                ? PhosphorIcons.eye()
+                : PhosphorIcons.eyeClosed(),
           ),
           onPressed: toggleVisibility,
         ),
