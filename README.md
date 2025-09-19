@@ -60,6 +60,7 @@ void main() async {
 - [Security](#-security)
 - [Sessions](#-sessions)
 - [State Management](#-state-management)
+- [Notifications](#-notifications)
 - [Debugging](#-debugging)
 
 ## ⚙️ Configuration
@@ -1005,6 +1006,242 @@ class DashboardPage extends JetConsumerWidget {
 - **Hot reload support** for generated providers
 - Automatic error handling and loading states
 
+## 🔔 Notifications
+
+Jet provides comprehensive local notification support built on **[flutter_local_notifications](https://pub.dev/packages/flutter_local_notifications)** for cross-platform notification management:
+
+### Setup
+
+Add the notifications adapter to your app configuration:
+
+```dart
+class AppConfig extends JetConfig {
+  @override
+  List<JetAdapter> get adapters => [
+    RouterAdapter(),
+    NotificationsAdapter(), // Add notifications support
+  ];
+}
+```
+
+### Basic Notifications
+
+Send simple notifications with minimal setup:
+
+```dart
+// Send immediate notification
+await JetNotifications.sendNotification(
+  title: "Hello from Jet!",
+  body: "This is a simple notification from the Jet framework.",
+  payload: "simple_notification",
+);
+
+// Send with custom channel
+await JetNotifications.sendNotification(
+  title: "Custom Channel",
+  body: "Notification with custom channel settings.",
+  channelId: "custom_channel",
+  channelName: "Custom Notifications",
+  channelDescription: "Notifications with custom styling",
+  payload: "custom_notification",
+);
+```
+
+### Scheduled Notifications
+
+Schedule notifications for future delivery:
+
+```dart
+// Schedule notification for 5 seconds from now
+final scheduledTime = DateTime.now().add(const Duration(seconds: 5));
+
+await JetNotifications.sendNotification(
+  title: "Scheduled Notification",
+  body: "This notification was scheduled for 5 seconds from now.",
+  at: scheduledTime,
+  payload: "scheduled_notification",
+);
+
+// Schedule daily notification at 9 AM
+final dailyTime = Time(9, 0, 0);
+await JetNotifications.scheduleDailyNotification(
+  title: "Daily Reminder",
+  body: "Don't forget to check your tasks!",
+  time: dailyTime,
+  payload: "daily_reminder",
+);
+```
+
+### Advanced Notifications
+
+Create rich notifications with actions, styling, and custom behavior:
+
+```dart
+await JetNotifications.sendNotification(
+  title: "Advanced Notification",
+  body: "This notification has custom styling and actions.",
+  subtitle: "Jet Framework Demo",
+  payload: "advanced_notification",
+  channelId: "advanced_channel",
+  channelName: "Advanced Notifications",
+  channelDescription: "Notifications with custom styling",
+  importance: Importance.high,
+  priority: Priority.high,
+  color: Colors.blue,
+  actions: [
+    const AndroidNotificationAction(
+      'reply',
+      'Reply',
+    ),
+    const AndroidNotificationAction(
+      'dismiss',
+      'Dismiss',
+    ),
+  ],
+);
+```
+
+### Notification Management
+
+Control and manage your notifications:
+
+```dart
+// Cancel specific notification
+await JetNotifications.cancelNotification(notificationId);
+
+// Cancel all notifications
+await JetNotifications.cancelAllNotifications();
+
+// Get pending notifications
+final pendingNotifications = await JetNotifications.getPendingNotifications();
+
+// Check if notifications are enabled
+final isEnabled = await JetNotifications.isNotificationEnabled();
+```
+
+### Notification Handling
+
+Handle notification taps and actions:
+
+```dart
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: MyHomePage(),
+      // Handle notification taps
+      onGenerateRoute: (settings) {
+        if (settings.name == '/notification') {
+          final payload = settings.arguments as String?;
+          return MaterialPageRoute(
+            builder: (context) => NotificationDetailsPage(payload: payload),
+          );
+        }
+        return null;
+      },
+    );
+  }
+}
+
+// Listen for notification events
+class NotificationHandler {
+  static void initialize() {
+    // Handle notification tap
+    JetNotifications.onNotificationTap.listen((payload) {
+      print('Notification tapped with payload: $payload');
+      // Navigate to specific screen based on payload
+    });
+
+    // Handle notification action
+    JetNotifications.onNotificationAction.listen((action) {
+      print('Notification action: ${action.actionId}');
+      // Handle specific actions like reply, dismiss, etc.
+    });
+  }
+}
+```
+
+### Platform-Specific Features
+
+#### Android Configuration
+
+Add required permissions to your `android/app/src/main/AndroidManifest.xml`:
+
+```xml
+<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+<uses-permission android:name="android.permission.VIBRATE" />
+<uses-permission android:name="android.permission.WAKE_LOCK" />
+<uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+```
+
+#### iOS Configuration
+
+Add notification capabilities in your `ios/Runner/Info.plist`:
+
+```xml
+<key>UIBackgroundModes</key>
+<array>
+    <string>fetch</string>
+    <string>remote-notification</string>
+</array>
+```
+
+### Notification Channels (Android)
+
+Create and manage notification channels for better user control:
+
+```dart
+// Create custom channel
+await JetNotifications.createNotificationChannel(
+  channelId: 'important_channel',
+  channelName: 'Important Notifications',
+  channelDescription: 'Critical app notifications',
+  importance: Importance.high,
+  enableVibration: true,
+  enableLights: true,
+  ledColor: Colors.red,
+  playSound: true,
+);
+
+// Send notification to specific channel
+await JetNotifications.sendNotification(
+  title: "Important Update",
+  body: "Your app has been updated!",
+  channelId: "important_channel",
+  payload: "app_update",
+);
+```
+
+### Notification Icons
+
+Customize notification icons for your app:
+
+```dart
+// Android notification icon (drawable resource)
+await JetNotifications.sendNotification(
+  title: "Custom Icon",
+  body: "Notification with custom icon",
+  smallIcon: 'ic_notification', // Drawable resource name
+  largeIcon: 'ic_large_notification', // Drawable resource name
+  payload: "custom_icon",
+);
+
+// iOS notification icon (app icon is used by default)
+// Custom icons can be set in iOS project settings
+```
+
+**Notification Features:**
+- **Cross-platform support** built on flutter_local_notifications
+- **Scheduled notifications** with precise timing control
+- **Rich notifications** with actions, styling, and custom channels
+- **Notification management** with cancellation and status checking
+- **Event handling** for taps and user actions
+- **Platform-specific configuration** for Android and iOS
+- **Custom channels** for organized notification management
+- **Icon customization** for branded notification appearance
+- **Background processing** support for reliable delivery
+
 ## 🐛 Debugging
 
 Jet provides enhanced debugging tools for better development experience:
@@ -1092,6 +1329,7 @@ dd('Debug and die', tag: 'FATAL'); // Exits after logging
 - **🌐 Networking** - Type-safe HTTP client with configurable logging
 - **💾 Storage** - Secure storage for sensitive data and regular preferences
 - **🔄 State Management** - Unified state widgets with automatic loading/error states
+- **🔔 Notifications** - Cross-platform local notifications with scheduling and management
 - **🐛 Debugging** - Enhanced debugging tools with stack trace formatting
 - **🔐 Sessions** - Built-in authentication and session management
 - **🧩 Components** - Pre-built UI components for common patterns
@@ -1102,6 +1340,7 @@ dd('Debug and die', tag: 'FATAL'); // Exits after logging
 - [AutoRoute Documentation](https://auto-route.vercel.app/)
 - [Dio Documentation](https://pub.dev/packages/dio)
 - [Flutter Form Builder](https://pub.dev/packages/flutter_form_builder)
+- [Flutter Local Notifications](https://pub.dev/packages/flutter_local_notifications)
 
 ## 🤝 Contributing
 

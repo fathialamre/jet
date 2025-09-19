@@ -30,3 +30,7 @@ export '../forms/inputs/inputs.dart';
 export 'networking/errors/jet_error.dart';
 export 'networking/errors/jet_error_handler.dart';
 export 'package:dio/dio.dart';
+
+// Notifications
+export 'notifications/notifications.dart';
+export 'package:flutter_local_notifications/flutter_local_notifications.dart';
