@@ -5,3 +5,5 @@
 // Home Page - Main navigation
 export 'home/home_page.dart';
 
+// Notifications Example
+export 'notifications/notifications_example.dart';
