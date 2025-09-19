@@ -1,5 +1,5 @@
-import 'package:jet_flutter_framework/storage/local_storage.dart';
-import 'package:jet_flutter_framework/storage/model.dart';
+import 'package:jet/storage/local_storage.dart';
+import 'package:jet/storage/model.dart';
 
 class SessionManager {
   static Future<void> authenticate() async {}

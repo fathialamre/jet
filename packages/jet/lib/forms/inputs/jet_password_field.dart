@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:jet_flutter_framework/extensions/build_context.dart';
-import 'package:jet_flutter_framework/jet_framework.dart';
+import 'package:jet/extensions/build_context.dart';
+import 'package:jet/jet_framework.dart';
 
 /// A customizable password field widget with built-in validation and visibility toggle.
 ///

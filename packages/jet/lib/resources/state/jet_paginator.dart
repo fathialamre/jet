@@ -3,15 +3,15 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:jet_flutter_framework/bootstrap/boot.dart';
-import 'package:jet_flutter_framework/extensions/build_context.dart';
-import 'package:jet_flutter_framework/resources/components/jet_empty_widget.dart';
-import 'package:jet_flutter_framework/resources/components/jet_error_widget.dart';
-import 'package:jet_flutter_framework/resources/components/jet_fetch_more_error_widget.dart';
-import 'package:jet_flutter_framework/resources/components/jet_loading_more_widget.dart';
-import 'package:jet_flutter_framework/resources/components/jet_no_more_items_widget.dart';
+import 'package:jet/bootstrap/boot.dart';
+import 'package:jet/extensions/build_context.dart';
+import 'package:jet/resources/components/jet_empty_widget.dart';
+import 'package:jet/resources/components/jet_error_widget.dart';
+import 'package:jet/resources/components/jet_fetch_more_error_widget.dart';
+import 'package:jet/resources/components/jet_loading_more_widget.dart';
+import 'package:jet/resources/components/jet_no_more_items_widget.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
-import 'package:jet_flutter_framework/networking/errors/errors.dart';
+import 'package:jet/networking/errors/errors.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Information about a page of data from any API

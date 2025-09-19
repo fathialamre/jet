@@ -1,6 +1,6 @@
-import 'package:jet_flutter_framework/adapters/adapters.dart';
-import 'package:jet_flutter_framework/config/jet_config.dart';
-import 'package:jet_flutter_framework/jet.dart';
+import 'package:jet/adapters/adapters.dart';
+import 'package:jet/config/jet_config.dart';
+import 'package:jet/jet.dart';
 
 abstract class JetAdapter {
   Future<Jet?> boot(Jet jet) async => null;

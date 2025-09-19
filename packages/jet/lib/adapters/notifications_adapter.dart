@@ -1,8 +1,8 @@
-import 'package:jet_flutter_framework/adapters/jet_adapter.dart';
-import 'package:jet_flutter_framework/jet.dart';
-import 'package:jet_flutter_framework/notifications/jet_notifications.dart';
-import 'package:jet_flutter_framework/notifications/events/jet_notification_event_registry.dart';
-import 'package:jet_flutter_framework/helpers/jet_logger.dart';
+import 'package:jet/adapters/jet_adapter.dart';
+import 'package:jet/jet.dart';
+import 'package:jet/notifications/jet_notifications.dart';
+import 'package:jet/notifications/events/jet_notification_event_registry.dart';
+import 'package:jet/helpers/jet_logger.dart';
 
 class NotificationsAdapter extends JetAdapter {
   @override

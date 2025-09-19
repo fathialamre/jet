@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:jet_flutter_framework/storage/local_storage.dart';
-import 'package:jet_flutter_framework/helpers/jet_logger.dart';
+import 'package:jet/storage/local_storage.dart';
+import 'package:jet/helpers/jet_logger.dart';
 
 extension ThemeModeExtension on ThemeMode {
   static ThemeMode fromString(String value) {

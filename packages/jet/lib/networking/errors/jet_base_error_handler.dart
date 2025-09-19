@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
-import 'package:jet_flutter_framework/extensions/build_context.dart';
+import 'package:jet/extensions/build_context.dart';
 import 'jet_error.dart';
 
 /// Abstract base class for handling errors in the Jet framework
@@ -11,7 +11,12 @@ abstract class JetBaseErrorHandler {
   ///
   /// This method should be overridden by concrete implementations
   /// to provide custom error handling logic
-  JetError handle(Object error, BuildContext context, {StackTrace? stackTrace, bool showErrorStackTrace = true});
+  JetError handle(
+    Object error,
+    BuildContext context, {
+    StackTrace? stackTrace,
+    bool showErrorStackTrace = true,
+  });
 
   /// Check if the error is a no-internet error
   ///

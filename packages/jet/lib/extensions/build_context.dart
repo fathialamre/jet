@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:jet_flutter_framework/localization/intl/messages.dart';
+import 'package:jet/localization/intl/messages.dart';
 
 extension BuildContextX on BuildContext {
   ThemeData get theme => Theme.of(this);

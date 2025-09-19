@@ -1,5 +1,5 @@
-import 'package:jet_flutter_framework/config/jet_config.dart';
-import 'package:jet_flutter_framework/router/jet_router.dart';
+import 'package:jet/config/jet_config.dart';
+import 'package:jet/router/jet_router.dart';
 
 class Jet {
   final JetConfig config;
