@@ -99,7 +99,6 @@ class JetErrorHandler extends JetBaseErrorHandler {
         );
 
       case JetErrorType.unknown:
-      default:
         return JetError.unknown(
           message: message,
           rawError: error,
