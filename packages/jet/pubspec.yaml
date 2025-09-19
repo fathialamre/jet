@@ -1,9 +1,9 @@
 name: jet
-description: "A comprehensive Flutter framework providing networking, state management, forms, theming, and more."
-version: 0.0.1
-homepage: https://github.com/your-org/jet
-repository: https://github.com/your-org/jet
-issue_tracker: https://github.com/your-org/jet/issues
+description: "A lightweight, modular Flutter framework for scalable app architecture, providing dependency injection, lifecycle management, and streamlined setup for rapid development. Built with Riverpod 3 for enhanced state management and code generation capabilities."
+version: 0.0.3-alpha.2
+homepage: https://github.com/fathialamre/jet
+repository: https://github.com/fathialamre/jet
+issue_tracker: https://github.com/fathialamre/jet/issues
 
 environment:
   sdk: ">=3.8.1 <4.0.0"
