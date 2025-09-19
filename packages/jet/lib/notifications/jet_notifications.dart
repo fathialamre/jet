@@ -8,7 +8,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
-import '../helpers/jet_logger.dart';
+import 'events/jet_notification_event_registry.dart';
+import 'observers/jet_notification_observer.dart';
+import 'models/notification_response_wrapper.dart';
 
 /// Download and save a file
 Future<String> _downloadAndSaveFile(String url, String fileName) async {
@@ -108,20 +110,38 @@ class JetNotifications {
   List<AndroidNotificationAction>? _actions;
   bool? _colorized;
   AudioAttributesUsage? _audioAttributesUsage;
-  bool _initialized = false;
 
   // Static instance for singleton pattern
   static final FlutterLocalNotificationsPlugin _localNotifications =
       FlutterLocalNotificationsPlugin();
 
+  // Static field to track initialization status
+  static bool _isInitialized = false;
+
+  // Static observer instance
+  static JetNotificationObserver? _observer;
+
   JetNotifications({String title = "", String body = ""})
     : _title = title,
       _body = body;
 
+  /// Check if JetNotifications is initialized
+  static bool get isInitialized => _isInitialized;
+
+  /// Set the notification observer
+  static void setObserver(JetNotificationObserver observer) {
+    _observer = observer;
+  }
+
+  /// Get the current notification observer
+  static JetNotificationObserver? get observer => _observer;
+
   /// Initialize the local notifications plugin
   static Future<bool> initialize() async {
     if (kIsWeb) {
-      JetLogger.info("Local notifications are not supported on the web");
+      _observer?.onInitialization(
+        message: "Local notifications are not supported on the web",
+      );
       return false;
     }
 
@@ -147,24 +167,151 @@ class JetNotifications {
     try {
       await _localNotifications.initialize(
         initializationSettings,
-        onDidReceiveNotificationResponse: _onNotificationTapped,
+        onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
+        onDidReceiveBackgroundNotificationResponse:
+            onDidReceiveBackgroundNotificationResponse,
       );
 
-      dump(
-        "Jet Notifications initialized successfully",
-        tag: "JET NOTIFICATIONS",
+      _isInitialized = true;
+      _observer?.onInitialization(
+        message: "Jet Notifications initialized successfully",
       );
+
       return true;
     } catch (e) {
-      JetLogger.error("Failed to initialize local notifications: $e");
+      _observer?.onInitializationError(
+        message: "Failed to initialize local notifications: $e",
+        error: e,
+      );
+      _isInitialized = false;
       return false;
     }
   }
 
-  /// Handle notification tap
-  static void _onNotificationTapped(NotificationResponse response) {
-    JetLogger.info("Notification tapped: ${response.payload}");
-    // Override this method to handle notification taps
+  /// Handle notification response when app is in foreground
+  static void onDidReceiveNotificationResponse(NotificationResponse response) {
+    _observer!.onResponse(response: response);
+
+    try {
+      final wrapper = NotificationResponseWrapper(response);
+      final event = JetNotificationEventRegistry.findHandler(response);
+
+      if (event != null) {
+        _observer!.onEventHandlerFound(
+          eventName: event.name,
+          notificationId: response.id ?? 0,
+          response: response,
+        );
+
+        if (wrapper.isAction) {
+          // Handle action button press
+          event.onAction(response, wrapper.actionId!);
+        } else {
+          // Handle notification tap
+          event.onTap(response);
+        }
+      } else {
+        _observer!.onNoEventHandler(
+          notificationId: response.id ?? 0,
+          response: response,
+        );
+      }
+    } catch (e) {
+      _observer!.onError(
+        message: "NOTIFICATION: Error handling notification response: $e",
+        error: e,
+      );
+    }
+  }
+
+  /// Handle notification response when app is in background
+  static void onDidReceiveBackgroundNotificationResponse(
+    NotificationResponse response,
+  ) {
+    _observer!.onBackgroundResponse(
+      response: response,
+    );
+
+    try {
+      final wrapper = NotificationResponseWrapper(response);
+      final event = JetNotificationEventRegistry.findHandler(response);
+
+      if (event != null) {
+        _observer!.onBackgroundEventHandlerFound(
+          eventName: event.name,
+          notificationId: response.id ?? 0,
+          response: response,
+        );
+
+        if (wrapper.isAction) {
+          // Handle action button press
+          event.onAction(response, wrapper.actionId!);
+        } else {
+          // Handle notification tap
+          event.onTap(response);
+        }
+      } else {
+        _observer!.onNoBackgroundEventHandler(
+          notificationId: response.id ?? 0,
+          response: response,
+        );
+      }
+    } catch (e) {
+      _observer!.onBackgroundError(
+        message:
+            "NOTIFICATION: Error handling background notification response: $e",
+        error: e,
+      );
+    }
+  }
+
+  /// Trigger onReceive event for notifications
+  static void _triggerOnReceiveEvent(int id, String? payload) {
+    _observer!.onReceive(
+      notificationId: id,
+      payload: payload,
+    );
+
+    try {
+      // Create a NotificationResponse for the onReceive event
+      final response = NotificationResponse(
+        id: id,
+        actionId: null,
+        input: null,
+        payload: payload,
+        notificationResponseType: NotificationResponseType.selectedNotification,
+      );
+
+      final event = JetNotificationEventRegistry.findHandler(response);
+
+      if (event != null) {
+        _observer!.onReceiveHandlerFound(
+          eventName: event.name,
+          notificationId: id,
+          payload: payload,
+        );
+
+        // Call the onReceive method
+        event.onReceive(response);
+
+        _observer!.onReceiveCompleted(
+          notificationId: id,
+          payload: payload,
+        );
+      } else {
+        _observer!.onNoReceiveHandler(
+          notificationId: id,
+          payload: payload,
+        );
+      }
+    } catch (e) {
+      _observer!.onReceiveError(
+        message: "❌ NOTIFICATION: Error triggering onReceive event: $e",
+        error: e,
+        notificationId: id,
+        payload: payload,
+      );
+    }
   }
 
   /// Send a notification
@@ -473,8 +620,10 @@ class JetNotifications {
 
     _sendAt = at;
 
-    if (_initialized == false) {
-      _initialized = await JetNotifications.initialize();
+    if (!_isInitialized) {
+      throw Exception(
+        "JetNotifications is not initialized please add NotificationsAdapter to your app adapters",
+      );
     }
 
     NotificationDetails notificationDetails = await _getNotificationDetails();
@@ -482,10 +631,16 @@ class JetNotifications {
     if (_sendAt != null) {
       String sendAtDateTime = at!.toString();
 
-      JetLogger.info("Scheduling notification for: $sendAtDateTime");
+      _observer!.onScheduling(
+        message: "Scheduling notification for: $sendAtDateTime",
+        scheduledTime: at,
+      );
 
       final scheduledTime = tz.TZDateTime.parse(tz.local, sendAtDateTime);
-      JetLogger.info("Parsed scheduled time: $scheduledTime");
+      _observer!.onSchedulingParsed(
+        message: "Parsed scheduled time: $scheduledTime",
+        parsedTime: scheduledTime,
+      );
 
       await _localNotifications.zonedSchedule(
         _id ?? 1,
@@ -498,7 +653,10 @@ class JetNotifications {
         payload: _payload,
       );
 
-      JetLogger.info("Notification scheduled successfully");
+      _observer!.onSchedulingSuccess(
+        message: "Notification scheduled successfully",
+        scheduledTime: at,
+      );
       return;
     }
 
@@ -509,6 +667,9 @@ class JetNotifications {
       notificationDetails,
       payload: _payload,
     );
+
+    // Trigger onReceive event for foreground notifications
+    _triggerOnReceiveEvent(_id ?? 1, _payload);
   }
 
   /// Add an attachment to the push notification
@@ -879,7 +1040,11 @@ class JetNotifications {
             ),
           );
         } on Exception catch (e) {
-          JetLogger.error(e.toString());
+          _observer!.onAttachmentError(
+            message: e.toString(),
+            error: e,
+            fileName: attachment.fileName,
+          );
           continue;
         }
       }
@@ -1042,3 +1207,50 @@ class JetNotifications {
 /// Jet notification helper
 JetNotifications jetNotification(String title, String body) =>
     JetNotifications(title: title, body: body);
+
+/// Background notification tap handler
+///
+/// This function is called when a notification is tapped while the app
+/// is in the background or terminated. It must be a top-level function
+/// and marked with @pragma('vm:entry-point') to be accessible from
+/// the background isolate.
+@pragma('vm:entry-point')
+void notificationTapBackground(NotificationResponse notificationResponse) {
+  JetNotifications.observer?.onBackgroundTap(
+    response: notificationResponse,
+  );
+
+  try {
+    final wrapper = NotificationResponseWrapper(notificationResponse);
+    final event = JetNotificationEventRegistry.findHandler(
+      notificationResponse,
+    );
+
+    if (event != null) {
+      JetNotifications.observer?.onBackgroundTapHandlerFound(
+        eventName: event.name,
+        notificationId: notificationResponse.id ?? 0,
+        response: notificationResponse,
+      );
+
+      if (wrapper.isAction) {
+        // Handle action button press
+        event.onAction(notificationResponse, wrapper.actionId!);
+      } else {
+        // Handle notification tap
+        event.onTap(notificationResponse);
+      }
+    } else {
+      JetNotifications.observer?.onNoBackgroundTapHandler(
+        notificationId: notificationResponse.id ?? 0,
+        response: notificationResponse,
+      );
+    }
+  } catch (e) {
+    JetNotifications.observer?.onBackgroundTapError(
+      message: "NOTIFICATION: Error in background tap handler: $e",
+      error: e,
+      response: notificationResponse,
+    );
+  }
+}
