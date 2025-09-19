@@ -25,7 +25,6 @@ class Jet {
     required Future<Jet> Function() setup,
     Future<void> Function(Jet jet)? setupFinished,
   }) async {
-    
     final jetApp = await setup();
 
     if (setupFinished != null) {

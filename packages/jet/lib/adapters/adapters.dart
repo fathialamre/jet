@@ -3,5 +3,4 @@ import 'package:jet_flutter_framework/adapters/storage_adapter.dart';
 
 final defaultAdapters = [
   StorageAdapter(),
-  NotificationsAdapter(),
 ];
