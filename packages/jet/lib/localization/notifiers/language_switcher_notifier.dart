@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:jet/bootstrap/boot.dart';
-import 'package:jet/helpers/jet_logger.dart';
-import 'package:jet/storage/local_storage.dart';
+import 'package:jet_flutter_framework/bootstrap/boot.dart';
+import 'package:jet_flutter_framework/helpers/jet_logger.dart';
+import 'package:jet_flutter_framework/storage/local_storage.dart';
 
 /// Storage key for persisting the selected locale preference
 ///

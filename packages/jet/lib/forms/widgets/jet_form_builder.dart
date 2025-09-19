@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:hooks_riverpod/misc.dart';
-import 'package:jet/bootstrap/boot.dart';
-import 'package:jet/extensions/build_context.dart';
-import 'package:jet/forms/common.dart';
-import 'package:jet/forms/notifiers/jet_form_notifier.dart';
-import 'package:jet/networking/errors/jet_error.dart';
-import 'package:jet/widgets/widgets/buttons/jet_button.dart';
+import 'package:jet_flutter_framework/bootstrap/boot.dart';
+import 'package:jet_flutter_framework/extensions/build_context.dart';
+import 'package:jet_flutter_framework/forms/common.dart';
+import 'package:jet_flutter_framework/forms/notifiers/jet_form_notifier.dart';
+import 'package:jet_flutter_framework/networking/errors/jet_error.dart';
+import 'package:jet_flutter_framework/widgets/widgets/buttons/jet_button.dart';
 
 class JetFormBuilder<Request, Response> extends ConsumerWidget {
   final ProviderListenable<AsyncFormValue<Request, Response>> provider;

@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:jet/helpers/jet_logger.dart';
-import 'package:jet/storage/local_storage.dart';
+import 'package:jet_flutter_framework/helpers/jet_logger.dart';
+import 'package:jet_flutter_framework/storage/local_storage.dart';
 
 class JetBearerTokenInterceptor extends Interceptor {
 

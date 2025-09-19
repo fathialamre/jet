@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:jet/bootstrap/boot.dart';
-import 'package:jet/jet.dart';
+import 'package:jet_flutter_framework/bootstrap/boot.dart';
+import 'package:jet_flutter_framework/jet.dart';
 
 /// Abstract widget that provides access to Jet instance and WidgetRef
 ///

@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:jet/bootstrap/boot.dart';
-import 'package:jet/networking/interceptors/jet_dio_logger_interceptor.dart';
+import 'package:jet_flutter_framework/bootstrap/boot.dart';
+import 'package:jet_flutter_framework/networking/interceptors/jet_dio_logger_interceptor.dart';
 
 /// Response wrapper model for standardized API responses
 /// Inspired by clean architecture patterns for consistent response handling

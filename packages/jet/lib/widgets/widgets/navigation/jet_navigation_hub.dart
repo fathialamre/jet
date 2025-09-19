@@ -2,7 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:jet/extensions/build_context.dart';
+import 'package:jet_flutter_framework/extensions/build_context.dart';
 
 class JetNavigationHub extends StatelessWidget {
   final AnimatedIndexedStackTransitionBuilder? transitionBuilder;

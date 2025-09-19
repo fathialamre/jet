@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:jet/helpers/jet_logger.dart';
-import 'package:jet/session/session_manager.dart';
-import 'package:jet/storage/model.dart';
+import 'package:jet_flutter_framework/helpers/jet_logger.dart';
+import 'package:jet_flutter_framework/session/session_manager.dart';
+import 'package:jet_flutter_framework/storage/model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// A unified storage solution for the Jet framework that provides both

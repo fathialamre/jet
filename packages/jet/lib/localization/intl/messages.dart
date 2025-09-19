@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:jet/localization/i10n.dart';
+import 'package:jet_flutter_framework/localization/i10n.dart';
 
 import 'messages_ar.dart';
 import 'messages_en.dart';

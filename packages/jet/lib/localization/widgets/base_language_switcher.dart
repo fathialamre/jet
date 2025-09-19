@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:jet/bootstrap/boot.dart';
-import 'package:jet/localization/models/locale_info.dart';
-import 'package:jet/localization/notifiers/language_switcher_notifier.dart';
+import 'package:jet_flutter_framework/bootstrap/boot.dart';
+import 'package:jet_flutter_framework/localization/models/locale_info.dart';
+import 'package:jet_flutter_framework/localization/notifiers/language_switcher_notifier.dart';
 
 /// Abstract base class for language switcher widgets that provides common functionality.
 /// 

@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:jet/helpers/jet_logger.dart';
+import 'package:jet_flutter_framework/helpers/jet_logger.dart';
 
 import 'jet_base_error_handler.dart';
 import 'jet_error.dart';

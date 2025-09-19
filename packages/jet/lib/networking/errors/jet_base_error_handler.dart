@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
-import 'package:jet/extensions/build_context.dart';
+import 'package:jet_flutter_framework/extensions/build_context.dart';
 import 'jet_error.dart';
 
 /// Abstract base class for handling errors in the Jet framework
