@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
-import 'package:jet_flutter_framework/extensions/build_context.dart';
-import 'package:jet_flutter_framework/jet.dart';
-import 'package:jet_flutter_framework/resources/components/jet_empty_widget.dart';
-import 'package:jet_flutter_framework/resources/state/jet_consumer.dart';
-import 'package:jet_flutter_framework/networking/errors/errors.dart';
+import 'package:jet/extensions/build_context.dart';
+import 'package:jet/jet.dart';
+import 'package:jet/resources/components/jet_empty_widget.dart';
+import 'package:jet/resources/state/jet_consumer.dart';
+import 'package:jet/networking/errors/errors.dart';
 
 /// Unified state management for Jet framework
 ///

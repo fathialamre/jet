@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:jet_flutter_framework/jet_framework.dart';
-import 'package:jet_flutter_framework/localization/models/locale_info.dart';
-import 'package:jet_flutter_framework/networking/interceptors/jet_dio_logger_config.dart';
-import 'package:jet_flutter_framework/resources/components/jet_loader.dart';
-import 'package:jet_flutter_framework/notifications/observers/jet_notification_observer.dart';
+import 'package:jet/jet_framework.dart';
+import 'package:jet/localization/models/locale_info.dart';
+import 'package:jet/networking/interceptors/jet_dio_logger_config.dart';
+import 'package:jet/resources/components/jet_loader.dart';
+import 'package:jet/notifications/observers/jet_notification_observer.dart';
 
 /// Configuration class for Jet framework that defines app-wide settings.
 ///

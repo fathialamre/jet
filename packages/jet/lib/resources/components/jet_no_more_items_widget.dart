@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:jet_flutter_framework/extensions/build_context.dart';
-import 'package:jet_flutter_framework/jet_framework.dart';
+import 'package:jet/extensions/build_context.dart';
+import 'package:jet/jet_framework.dart';
 
 class JetNoMoreItemsWidget extends StatelessWidget {
   const JetNoMoreItemsWidget({

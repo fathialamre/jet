@@ -1,12 +1,13 @@
 import 'package:dio/dio.dart';
-import 'package:jet_flutter_framework/helpers/jet_logger.dart';
-import 'package:jet_flutter_framework/storage/local_storage.dart';
+import 'package:jet/helpers/jet_logger.dart';
+import 'package:jet/storage/local_storage.dart';
 
 class JetBearerTokenInterceptor extends Interceptor {
-
   @override
   Future<dynamic> onRequest(
-      RequestOptions options, RequestInterceptorHandler handler) async {
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     const String localeStorageKey = 'selected_locale';
     String token = JetStorage.getSession()?.token ?? '';
     dump(token, tag: 'token');

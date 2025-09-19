@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:jet_flutter_framework/extensions/build_context.dart';
-import 'package:jet_flutter_framework/jet_framework.dart';
-import 'package:jet_flutter_framework/resources/state/jet_consumer.dart';
+import 'package:jet/extensions/build_context.dart';
+import 'package:jet/jet_framework.dart';
+import 'package:jet/resources/state/jet_consumer.dart';
 
 class JetLoadingMoreWidget extends JetConsumerWidget {
   const JetLoadingMoreWidget({super.key, this.loader, this.text});

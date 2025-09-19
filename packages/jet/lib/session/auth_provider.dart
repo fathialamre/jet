@@ -1,6 +1,6 @@
-import 'package:jet_flutter_framework/helpers/jet_faker.dart';
-import 'package:jet_flutter_framework/jet_framework.dart';
-import 'package:jet_flutter_framework/session/session_manager.dart';
+import 'package:jet/helpers/jet_faker.dart';
+import 'package:jet/jet_framework.dart';
+import 'package:jet/session/session_manager.dart';
 
 class Auth extends Notifier<AsyncValue<Session?>> {
   @override

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:jet_flutter_framework/jet_framework.dart';
-import 'package:jet_flutter_framework/resources/theme/widgets/base_theme_switcher.dart';
+import 'package:jet/jet_framework.dart';
+import 'package:jet/resources/theme/widgets/base_theme_switcher.dart';
 
 class ToggleButtonSwitcher extends BaseThemeSwitcher {
   const ToggleButtonSwitcher({super.key});
@@ -16,7 +16,9 @@ class ToggleButtonSwitcher extends BaseThemeSwitcher {
       onPressed: () => notifier.switchTheme(
         state == ThemeMode.light ? ThemeMode.dark : ThemeMode.light,
       ),
-      icon: Icon(state == ThemeMode.light ? PhosphorIcons.sun() : PhosphorIcons.moon()),
+      icon: Icon(
+        state == ThemeMode.light ? PhosphorIcons.sun() : PhosphorIcons.moon(),
+      ),
     );
   }
 }
