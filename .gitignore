@@ -1,0 +1,50 @@
+# Jet Framework .gitignore
+
+# Build outputs
+build/
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Flutter/Dart
+*.dart.js
+*.js_
+*.js.deps
+*.js.map
+*.info.json
+*.mocks.dart
+
+# Coverage
+coverage/
+test/coverage_helper_test.dart
+
+# Generated files
+*.g.dart
+*.gr.dart
+*.freezed.dart
+*.mocks.dart
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Reference files (should not be tracked)
+.ref/
