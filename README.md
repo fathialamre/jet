@@ -1024,157 +1024,6 @@ class AppConfig extends JetConfig {
 }
 ```
 
-### Event-Driven Notifications
-
-Jet's notification system is built around **JetNotificationEvent** - a powerful abstraction that provides type-safe, event-driven notification handling:
-
-#### Creating Notification Events
-
-```dart
-class OrderNotificationEvent extends JetNotificationEvent {
-  @override
-  int get id => 1;
-
-  @override
-  String get name => 'OrderNotification';
-
-  @override
-  String? get category => 'orders';
-
-  @override
-  NotificationPriority get priority => NotificationPriority.high;
-
-  @override
-  bool validatePayload(String? payload) {
-    if (payload == null || payload.isEmpty) return false;
-    try {
-      final orderId = int.parse(payload);
-      return orderId > 0;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  @override
-  Future<void> onTap(NotificationResponse response) async {
-    dump('Order notification tapped: ${response.payload}');
-    
-    final orderId = int.parse(response.payload ?? '0');
-    // Navigate to order details
-    // context.router.push(OrderDetailsRoute(orderId: orderId));
-  }
-
-  @override
-  Future<void> onReceive(NotificationResponse response) async {
-    dump('🎯 ORDER NOTIFICATION RECEIVED: ${response.payload}');
-    
-    final orderId = int.parse(response.payload ?? '0');
-    // Update app state
-    // ref.read(orderProvider.notifier).updateOrderStatus(orderId);
-  }
-
-  @override
-  Future<void> onAction(NotificationResponse response, String actionId) async {
-    final orderId = int.parse(response.payload ?? '0');
-    
-    switch (actionId) {
-      case 'view_order':
-        await onTap(response);
-        break;
-      case 'track_order':
-        // Navigate to tracking page
-        break;
-      case 'cancel_order':
-        // Show cancellation dialog
-        break;
-    }
-  }
-
-  @override
-  Future<void> onDismiss(NotificationResponse response) async {
-    dump('Order notification dismissed: ${response.payload}');
-    // Mark as dismissed in app state
-  }
-
-  /// Get notification actions for this event type
-  List<AndroidNotificationAction> get notificationActions => [
-    const AndroidNotificationAction(
-      'view_order',
-      'View Order',
-      icon: DrawableResourceAndroidBitmap('ic_view'),
-    ),
-    const AndroidNotificationAction(
-      'track_order',
-      'Track Order',
-      icon: DrawableResourceAndroidBitmap('ic_track'),
-    ),
-    const AndroidNotificationAction(
-      'cancel_order',
-      'Cancel Order',
-      icon: DrawableResourceAndroidBitmap('ic_cancel'),
-    ),
-  ];
-}
-```
-
-#### Registering Events
-
-```dart
-// Register individual events
-JetNotificationEventRegistry.register(OrderNotificationEvent());
-JetNotificationEventRegistry.register(PaymentNotificationEvent());
-JetNotificationEventRegistry.register(MessageNotificationEvent());
-
-// Register multiple events at once
-JetNotificationEventRegistry.registerAll([
-  OrderNotificationEvent(),
-  PaymentNotificationEvent(),
-  MessageNotificationEvent(),
-]);
-
-// Get events by category
-final orderEvents = JetNotificationEventRegistry.getEventsByCategory('orders');
-
-// Get specific event by ID
-final orderEvent = JetNotificationEventRegistry.getEvent(1);
-```
-
-### Notification Configuration
-
-Use **NotificationEventConfig** for fine-grained control over notification behavior:
-
-```dart
-// Default configuration
-final defaultConfig = NotificationEventConfig.defaultFor(orderEvent);
-
-// High priority configuration
-final highPriorityConfig = NotificationEventConfig.highPriority(orderEvent);
-
-// Low priority configuration  
-final lowPriorityConfig = NotificationEventConfig.lowPriority(orderEvent);
-
-// Silent configuration
-final silentConfig = NotificationEventConfig.silent(orderEvent);
-
-// Custom configuration
-final customConfig = NotificationEventConfig(
-  event: orderEvent,
-  androidChannelId: 'orders_critical',
-  androidChannelName: 'Critical Orders',
-  androidChannelDescription: 'Urgent order notifications',
-  androidImportance: Importance.max,
-  androidPriority: Priority.max,
-  androidColor: Colors.red,
-  androidActions: orderEvent.notificationActions,
-  iosInterruptionLevel: InterruptionLevel.critical,
-  showInForeground: true,
-  showInBackground: true,
-  showWhenTerminated: true,
-  enableLights: true,
-  enableVibration: true,
-);
-```
-
 ### Basic Notifications
 
 Send simple notifications with minimal setup:
@@ -1390,6 +1239,182 @@ class CriticalAlertEvent extends JetNotificationEvent {
   @override
   String? get category => 'alerts';
 }
+```
+
+### Event-Driven Notifications
+
+Jet's notification system is built around **JetNotificationEvent** - a powerful abstraction that provides type-safe, event-driven notification handling:
+
+#### Creating Notification Events
+
+```dart
+class OrderNotificationEvent extends JetNotificationEvent {
+  @override
+  int get id => 1;
+
+  @override
+  String get name => 'OrderNotification';
+
+  @override
+  String? get category => 'orders';
+
+  @override
+  NotificationPriority get priority => NotificationPriority.high;
+
+  @override
+  bool validatePayload(String? payload) {
+    if (payload == null || payload.isEmpty) return false;
+    try {
+      final orderId = int.parse(payload);
+      return orderId > 0;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  @override
+  Future<void> onTap(NotificationResponse response) async {
+    dump('Order notification tapped: ${response.payload}');
+    
+    final orderId = int.parse(response.payload ?? '0');
+    // Navigate to order details
+    // context.router.push(OrderDetailsRoute(orderId: orderId));
+  }
+
+  @override
+  Future<void> onReceive(NotificationResponse response) async {
+    dump('🎯 ORDER NOTIFICATION RECEIVED: ${response.payload}');
+    
+    final orderId = int.parse(response.payload ?? '0');
+    // Update app state
+    // ref.read(orderProvider.notifier).updateOrderStatus(orderId);
+  }
+
+  @override
+  Future<void> onAction(NotificationResponse response, String actionId) async {
+    final orderId = int.parse(response.payload ?? '0');
+    
+    switch (actionId) {
+      case 'view_order':
+        await onTap(response);
+        break;
+      case 'track_order':
+        // Navigate to tracking page
+        break;
+      case 'cancel_order':
+        // Show cancellation dialog
+        break;
+    }
+  }
+
+  @override
+  Future<void> onDismiss(NotificationResponse response) async {
+    dump('Order notification dismissed: ${response.payload}');
+    // Mark as dismissed in app state
+  }
+
+  /// Get notification actions for this event type
+  List<AndroidNotificationAction> get notificationActions => [
+    const AndroidNotificationAction(
+      'view_order',
+      'View Order',
+      icon: DrawableResourceAndroidBitmap('ic_view'),
+    ),
+    const AndroidNotificationAction(
+      'track_order',
+      'Track Order',
+      icon: DrawableResourceAndroidBitmap('ic_track'),
+    ),
+    const AndroidNotificationAction(
+      'cancel_order',
+      'Cancel Order',
+      icon: DrawableResourceAndroidBitmap('ic_cancel'),
+    ),
+  ];
+}
+```
+
+#### Registering Events in App Configuration
+
+**Important:** You must register your custom notification events in your app configuration file:
+
+```dart
+// In your app.dart config file
+class AppConfig extends JetConfig {
+  @override
+  List<JetAdapter> get adapters => [
+    RouterAdapter(),
+    NotificationsAdapter(),
+  ];
+
+  @override
+  List<JetNotificationEvent> get notificationEvents => [
+    OrderNotificationEvent(),
+    PaymentNotificationEvent(),
+    MessageNotificationEvent(),
+    // Add your custom events here
+  ];
+}
+```
+
+#### Manual Event Registration (Alternative)
+
+You can also register events manually if needed:
+
+```dart
+// Register individual events
+JetNotificationEventRegistry.register(OrderNotificationEvent());
+JetNotificationEventRegistry.register(PaymentNotificationEvent());
+JetNotificationEventRegistry.register(MessageNotificationEvent());
+
+// Register multiple events at once
+JetNotificationEventRegistry.registerAll([
+  OrderNotificationEvent(),
+  PaymentNotificationEvent(),
+  MessageNotificationEvent(),
+]);
+
+// Get events by category
+final orderEvents = JetNotificationEventRegistry.getEventsByCategory('orders');
+
+// Get specific event by ID
+final orderEvent = JetNotificationEventRegistry.getEvent(1);
+```
+
+#### Notification Configuration
+
+Use **NotificationEventConfig** for fine-grained control over notification behavior:
+
+```dart
+// Default configuration
+final defaultConfig = NotificationEventConfig.defaultFor(orderEvent);
+
+// High priority configuration
+final highPriorityConfig = NotificationEventConfig.highPriority(orderEvent);
+
+// Low priority configuration  
+final lowPriorityConfig = NotificationEventConfig.lowPriority(orderEvent);
+
+// Silent configuration
+final silentConfig = NotificationEventConfig.silent(orderEvent);
+
+// Custom configuration
+final customConfig = NotificationEventConfig(
+  event: orderEvent,
+  androidChannelId: 'orders_critical',
+  androidChannelName: 'Critical Orders',
+  androidChannelDescription: 'Urgent order notifications',
+  androidImportance: Importance.max,
+  androidPriority: Priority.max,
+  androidColor: Colors.red,
+  androidActions: orderEvent.notificationActions,
+  iosInterruptionLevel: InterruptionLevel.critical,
+  showInForeground: true,
+  showInBackground: true,
+  showWhenTerminated: true,
+  enableLights: true,
+  enableVibration: true,
+);
 ```
 
 **Advanced Notification Features:**
