@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:jet/localization/intl/messages.dart';
-import 'package:jet/localization/intl/messages_en.dart';
+import 'package:jet_flutter_framework/localization/intl/messages.dart';
+import 'package:jet_flutter_framework/localization/intl/messages_en.dart';
 
 class JetLocalizations {
   JetLocalizations._();

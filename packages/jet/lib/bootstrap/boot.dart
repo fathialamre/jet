@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:jet/config/jet_config.dart';
-import 'package:jet/helpers/jet_logger.dart';
-import 'package:jet/jet.dart';
-import 'package:jet/adapters/jet_adapter.dart';
-import 'package:jet/widgets/main/jet_app.dart';
+import 'package:jet_flutter_framework/config/jet_config.dart';
+import 'package:jet_flutter_framework/helpers/jet_logger.dart';
+import 'package:jet_flutter_framework/jet.dart';
+import 'package:jet_flutter_framework/adapters/jet_adapter.dart';
+import 'package:jet_flutter_framework/widgets/main/jet_app.dart';
 
 class Boot {
   static Future<Jet> start(JetConfig config) async {

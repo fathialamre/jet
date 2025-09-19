@@ -1,4 +1,4 @@
-import 'package:jet/localization/intl/messages.dart';
+import 'package:jet_flutter_framework/localization/intl/messages.dart';
 
 class JetLocalizationsImplAr extends JetLocalizationsImpl {
   @override

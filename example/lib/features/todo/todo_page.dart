@@ -20,111 +20,120 @@ class TodoPage extends JetConsumerWidget {
         padding: const EdgeInsets.all(16.0),
         child: JetFormBuilder<TodoRequest, TodoResponse>(
           provider: todoFormProvider,
-          builder: (context, ref, form, formState) {
-            return [
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Create Todo',
-                        style: Theme.of(context).textTheme.headlineSmall,
+          builder:
+              (
+                context,
+                ref,
+                JetForm<TodoRequest, TodoResponse> form,
+                AsyncFormValue<TodoRequest, TodoResponse> formState,
+              ) {
+                return [
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Create Todo',
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
+                          const SizedBox(height: 16),
+                          FormBuilderTextField(
+                            name: 'title',
+                            decoration: const InputDecoration(
+                              labelText: 'Todo Title',
+                              border: OutlineInputBorder(),
+                            ),
+                            validator: FormBuilderValidators.compose([
+                              FormBuilderValidators.required(),
+                              FormBuilderValidators.minLength(3),
+                            ]),
+                          ),
+                          const SizedBox(height: 16),
+                          FormBuilderTextField(
+                            name: 'description',
+                            decoration: const InputDecoration(
+                              labelText: 'Description',
+                              border: OutlineInputBorder(),
+                            ),
+                            maxLines: 3,
+                            validator: FormBuilderValidators.compose([
+                              FormBuilderValidators.required(),
+                              FormBuilderValidators.minLength(10),
+                            ]),
+                          ),
+                          const SizedBox(height: 16),
+                          FormBuilderCheckbox(
+                            name: 'isCompleted',
+                            title: const Text('Mark as completed'),
+                            initialValue: false,
+                          ),
+                          const SizedBox(height: 24),
+                          JetButton.filled(
+                            text: 'Create Todo',
+                            onTap: () => form.submit(),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 16),
-                      FormBuilderTextField(
-                        name: 'title',
-                        decoration: const InputDecoration(
-                          labelText: 'Todo Title',
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(),
-                          FormBuilderValidators.minLength(3),
-                        ]),
-                      ),
-                      const SizedBox(height: 16),
-                      FormBuilderTextField(
-                        name: 'description',
-                        decoration: const InputDecoration(
-                          labelText: 'Description',
-                          border: OutlineInputBorder(),
-                        ),
-                        maxLines: 3,
-                        validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(),
-                          FormBuilderValidators.minLength(10),
-                        ]),
-                      ),
-                      const SizedBox(height: 16),
-                      FormBuilderCheckbox(
-                        name: 'isCompleted',
-                        title: const Text('Mark as completed'),
-                        initialValue: false,
-                      ),
-                      const SizedBox(height: 24),
-                      JetButton.filled(
-                        text: 'Create Todo',
-                        onTap: () => form.submit(),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-              if (formState.hasValue) ...[
-                const SizedBox(height: 16),
-                Card(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Todo Created Successfully!',
-                          style: Theme.of(context).textTheme.titleMedium
+                  if (formState.hasValue) ...[
+                    const SizedBox(height: 16),
+                    Card(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Todo Created Successfully!',
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onPrimaryContainer,
+                                  ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'ID: ${formState.response!.id}',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                            Text(
+                              'Title: ${formState.response!.title}',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                            Text(
+                              'Created: ${formState.response!.createdAt.toString().substring(0, 19)}',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                  if (formState.hasError) ...[
+                    const SizedBox(height: 16),
+                    Card(
+                      color: Theme.of(context).colorScheme.errorContainer,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          'Error: ${(formState as AsyncFormError).error}',
+                          style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(
                                 color: Theme.of(
                                   context,
-                                ).colorScheme.onPrimaryContainer,
+                                ).colorScheme.onErrorContainer,
                               ),
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'ID: ${formState.response!.id}',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        Text(
-                          'Title: ${formState.response!.title}',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        Text(
-                          'Created: ${formState.response!.createdAt.toString().substring(0, 19)}',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-              if (formState.hasError) ...[
-                const SizedBox(height: 16),
-                Card(
-                  color: Theme.of(context).colorScheme.errorContainer,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      'Error: ${(formState as AsyncFormError).error}',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onErrorContainer,
                       ),
                     ),
-                  ),
-                ),
-              ],
-            ];
-          },
+                  ],
+                ];
+              },
         ),
       ),
     );
