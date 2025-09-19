@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:jet/jet_framework.dart';
 import 'package:jet/localization/models/locale_info.dart';
-import 'package:jet/networking/interceptors/jet_dio_logger_config.dart';
 import 'package:jet/resources/components/jet_loader.dart';
+import 'package:jet/notifications/observers/jet_notification_observer.dart';
 
 /// Configuration class for Jet framework that defines app-wide settings.
 ///
@@ -218,4 +218,99 @@ abstract class JetConfig {
   /// Shows a checkerboard pattern on offscreen layers to help identify performance issues.
   /// Should typically only be enabled in debug builds.
   bool get checkerboardOffscreenLayers => false;
+
+  /// List of notification events to register.
+  ///
+  /// These events will be automatically registered when the app starts
+  /// and will handle notification taps, receives, and actions.
+  ///
+  /// Example:
+  /// ```dart
+  /// @override
+  /// List<JetNotificationEvent> get notificationEvents => [
+  ///   OrderNotificationEvent(),
+  ///   MessageNotificationEvent(),
+  ///   SystemNotificationEvent(),
+  /// ];
+  /// ```
+  List<JetNotificationEvent> get notificationEvents => [];
+
+  /// Global notification tap handler.
+  ///
+  /// This handler is called for all notification taps after the specific
+  /// event handler has been called. It's useful for logging, analytics,
+  /// or common processing that should happen for all notifications.
+  ///
+  /// Example:
+  /// ```dart
+  /// @override
+  /// Future<void> Function(NotificationResponse)? get globalNotificationHandler => (response) async {
+  ///   // Log notification tap
+  ///   analytics.track('notification_tapped', {'id': response.id});
+  ///
+  ///   // Update app state
+  ///   ref.read(notificationProvider.notifier).markAsTapped(response.id);
+  /// };
+  /// ```
+  Future<void> Function(NotificationResponse)? get globalNotificationHandler =>
+      null;
+
+  /// Background notification handler.
+  ///
+  /// This handler is called when a notification is tapped while the app
+  /// is in the background or terminated. It must be a top-level function
+  /// and is used for background processing.
+  ///
+  /// Example:
+  /// ```dart
+  /// @override
+  /// @pragma('vm:entry-point')
+  /// static void Function(NotificationResponse)? get backgroundNotificationHandler => (response) async {
+  ///   // Background processing
+  ///   await database.updateNotificationStatus(response.id);
+  /// };
+  /// ```
+  @pragma('vm:entry-point')
+  static void Function(NotificationResponse)?
+  get backgroundNotificationHandler => null;
+
+  /// Notification event configuration.
+  ///
+  /// This allows you to configure specific settings for notification events,
+  /// such as channel settings, priority, and platform-specific options.
+  ///
+  /// Example:
+  /// ```dart
+  /// @override
+  /// Map<int, NotificationEventConfig> get notificationEventConfigs => {
+  ///   1: NotificationEventConfig.highPriority(OrderNotificationEvent()),
+  ///   2: NotificationEventConfig.lowPriority(MessageNotificationEvent()),
+  /// };
+  /// ```
+  Map<int, NotificationEventConfig> get notificationEventConfigs => {};
+
+  /// Whether to enable notification event logging.
+  ///
+  /// When enabled, detailed logs will be written for notification events
+  /// including registration, handling, and errors.
+  bool get enableNotificationEventLogging => true;
+
+  /// Notification event timeout duration.
+  ///
+  /// The maximum time to wait for a notification event handler to complete
+  /// before timing out. This prevents handlers from blocking the app.
+  Duration get notificationEventTimeout => const Duration(seconds: 30);
+
+  /// Notification observer for handling notification events.
+  ///
+  /// This observer will be used to handle all notification-related events
+  /// including initialization, responses, errors, and background processing.
+  /// By default, it uses the JetNotificationObserver which logs events.
+  ///
+  /// Example:
+  /// ```dart
+  /// @override
+  /// JetNotificationObserver get notificationObserver => MyCustomObserver();
+  /// ```
+  JetNotificationObserver get notificationObserver => JetNotificationObserver();
 }

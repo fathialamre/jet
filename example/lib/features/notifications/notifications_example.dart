@@ -10,8 +10,24 @@ import 'package:jet/helpers/jet_logger.dart' show dump;
 class NotificationsExamplePage extends StatelessWidget {
   const NotificationsExamplePage({super.key});
 
+  /// Check if JetNotifications is initialized
+  void _checkInitializationStatus(BuildContext context) {
+    final isInitialized = JetNotifications.isInitialized;
+    context.showToast(
+      isInitialized
+          ? 'JetNotifications is initialized ✅'
+          : 'JetNotifications is NOT initialized ❌',
+    );
+  }
+
   Future<void> _sendSimpleNotification(BuildContext context) async {
     try {
+      // Check if JetNotifications is initialized before sending
+      if (!JetNotifications.isInitialized) {
+        context.showToast('JetNotifications is not initialized!');
+        return;
+      }
+
       await JetNotifications.sendNotification(
         title: "Hello from Jet!",
         body: "This is a simple notification from the Jet framework.",
@@ -71,6 +87,36 @@ class NotificationsExamplePage extends StatelessWidget {
     }
   }
 
+  Future<void> _sendOrderNotification(BuildContext context) async {
+    try {
+      await JetNotifications.sendNotification(
+        title: "Order Update",
+        body: "Your order #12345 has been shipped!",
+        id: 1, // This will trigger OrderNotificationEvent
+        payload: "12345",
+        channelId: "orders_channel",
+        channelName: "Order Notifications",
+        channelDescription: "Notifications about your orders",
+        importance: Importance.high,
+        priority: Priority.high,
+        color: Colors.green,
+        actions: [
+          const AndroidNotificationAction(
+            'view_order',
+            'View Order',
+          ),
+          const AndroidNotificationAction(
+            'track_order',
+            'Track Order',
+          ),
+        ],
+      );
+      context.showToast('Order notification sent!');
+    } catch (e) {
+      dump('Failed to send order notification: $e', tag: 'Notification Error');
+    }
+  }
+
   Future<void> _cancelAllNotifications(BuildContext context) async {
     try {
       await JetNotifications.cancelAllNotifications();
@@ -92,7 +138,10 @@ class NotificationsExamplePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            
+            const Text(
+              'Basic Notifications',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 16),
             JetButton(
               text: 'Send Simple Notification',
@@ -109,6 +158,21 @@ class NotificationsExamplePage extends StatelessWidget {
               onTap: () => _sendAdvancedNotification(context),
             ),
             const SizedBox(height: 8),
+            JetButton(
+              text: 'Check Initialization Status',
+              onTap: () => _checkInitializationStatus(context),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Event-Driven Notifications',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            JetButton(
+              text: 'Send Order Notification (ID: 1)',
+              onTap: () => _sendOrderNotification(context),
+            ),
+            const SizedBox(height: 24),
             JetButton.outlined(
               text: 'Cancel All Notifications',
               onTap: () => _cancelAllNotifications(context),
