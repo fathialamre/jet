@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:jet/networking/errors/jet_error.dart';
 
 /// Mixin that provides validation capabilities for forms
 mixin FormValidationMixin {

@@ -53,7 +53,6 @@ class JetErrorHandler extends JetBaseErrorHandler {
     final errorType = getErrorType(error);
     final message = getErrorMessage(error, context);
     final statusCode = getStatusCode(error);
-    final metadata = createMetadata(error);
 
     // Create appropriate JetError based on type
     switch (errorType) {

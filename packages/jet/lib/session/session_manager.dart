@@ -5,7 +5,7 @@ class SessionManager {
   static Future<void> authenticate() async {}
 
   static Future<Session?> session() async {
-    final result = await JetStorage.read<Session>(
+    final result = JetStorage.read<Session>(
       'session',
       decoder: (json) => Session.fromJson(json),
     );

@@ -7,7 +7,7 @@ import 'package:jet/extensions/build_context.dart';
 import 'package:jet/widgets/widgets/buttons/jet_button.dart';
 import 'package:jet/widgets/widgets/buttons/jet_cupertino_button.dart';
 
-showAdaptiveConfirmationDialog({
+Future<void> showAdaptiveConfirmationDialog({
   required BuildContext context,
   required String title,
   required String message,
@@ -18,7 +18,7 @@ showAdaptiveConfirmationDialog({
   final String? cancelText,
   final bool popOnConfirm = true,
   VoidCallback? onCancel,
-}) {
+}) async {
   if (Platform.isIOS) {
     showDialog(
       context: context,
