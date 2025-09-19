@@ -62,6 +62,15 @@ class HomePage extends JetConsumerWidget {
                     icon: Icons.settings,
                     onTap: () => context.router.push(SettingsRoute()),
                   ),
+                  const SizedBox(height: 12),
+                  _ExampleCard(
+                    title: 'Notifications',
+                    description:
+                        'Local notifications with JetNotifications class',
+                    icon: Icons.notifications,
+                    onTap: () =>
+                        context.router.push(NotificationsExampleRoute()),
+                  ),
                 ],
               ),
             ),
