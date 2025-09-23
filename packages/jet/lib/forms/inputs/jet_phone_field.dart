@@ -44,6 +44,9 @@ class JetPhoneField extends HookWidget {
   /// Hint text to display when field is empty
   final String hintText;
 
+  /// Hint style for the field
+  final TextStyle hintStyle;
+
   /// Whether to autofocus this field
   final bool autofocus;
 
@@ -117,6 +120,7 @@ class JetPhoneField extends HookWidget {
     this.autofocus = false,
     this.isRequired = true,
     this.hintText = '',
+    this.hintStyle = const TextStyle(color: Color(0xFF7A7A7A)),
     this.enabled = true,
     this.minLength = 10,
     this.maxLength = 15,
@@ -190,6 +194,7 @@ class JetPhoneField extends HookWidget {
         labelText: labelText,
         labelStyle: labelStyle,
         hintText: hintText,
+        hintStyle: hintStyle,
         prefixIcon: prefixWidget,
         filled: filled,
         fillColor: fillColor,
