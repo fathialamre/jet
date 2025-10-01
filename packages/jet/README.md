@@ -55,6 +55,7 @@ void main() async {
 - **📝 Forms** - Advanced form management with validation and error handling
 - **🌐 Networking** - Type-safe HTTP client with configurable logging
 - **💾 Storage** - Secure storage for sensitive data and regular preferences
+- **🗄️ Caching** - TTL-based caching with Hive for offline capabilities
 - **🔄 State Management** - Unified state widgets with automatic loading/error states
 - **🔔 Notifications** - Cross-platform local notifications with scheduling and management
 - **🐛 Debugging** - Enhanced debugging tools with stack trace formatting

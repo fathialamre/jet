@@ -1,3 +1,4 @@
+import 'package:example/features/notifications/providers/notification_state_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:jet/extensions/build_context.dart';
 import 'package:jet/jet_framework.dart';
@@ -6,8 +7,9 @@ import 'package:jet/helpers/jet_logger.dart' show dump;
 /// Notifications Example Page
 ///
 /// Demonstrates how to use JetNotifications for local notifications
+/// and how notification events can interact with Riverpod providers
 @RoutePage()
-class NotificationsExamplePage extends StatelessWidget {
+class NotificationsExamplePage extends ConsumerWidget {
   const NotificationsExamplePage({super.key});
 
   /// Check if JetNotifications is initialized
@@ -127,17 +129,57 @@ class NotificationsExamplePage extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Watch the notification state to see updates from notification events
+    final notificationState = ref.watch(notificationStateProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Jet Notifications Example'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Display notification state (updated by notification events)
+            Card(
+              color: Theme.of(context).colorScheme.primaryContainer,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '📊 Notification State (via Riverpod)',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text('Taps: ${notificationState.tapCount}'),
+                    Text('Receives: ${notificationState.receiveCount}'),
+                    Text(
+                      'Last Order ID: ${notificationState.lastOrderId ?? 'None'}',
+                    ),
+                    if (notificationState.lastInteraction != null)
+                      Text(
+                        'Last Interaction: ${notificationState.lastInteraction!.toString().substring(11, 19)}',
+                      ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      '💡 This state is updated by notification events using container.read()',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
             const Text(
               'Basic Notifications',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -164,13 +206,21 @@ class NotificationsExamplePage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             const Text(
-              'Event-Driven Notifications',
+              'Event-Driven Notifications (with Riverpod)',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             JetButton(
               text: 'Send Order Notification (ID: 1)',
               onTap: () => _sendOrderNotification(context),
+            ),
+            const SizedBox(height: 8),
+            JetButton.outlined(
+              text: 'Reset State',
+              onTap: () {
+                ref.read(notificationStateProvider.notifier).reset();
+                context.showToast('State reset');
+              },
             ),
             const SizedBox(height: 24),
             JetButton.outlined(
