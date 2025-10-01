@@ -1,11 +1,14 @@
+import 'package:example/features/notifications/providers/notification_state_provider.dart';
 import 'package:jet/helpers/jet_logger.dart';
 import 'package:jet/jet_framework.dart';
-import 'package:jet/notifications/events/jet_notification_event.dart';
 
 /// Example notification event for handling order-related notifications.
 ///
 /// This class demonstrates how to implement a JetNotificationEvent for
 /// order notifications, including handling taps, receives, and actions.
+///
+/// It also shows how to use the `container` property to access Riverpod
+/// providers and update app state from notification events.
 class OrderNotificationEvent extends JetNotificationEvent {
   @override
   int get id => 1;
@@ -41,21 +44,31 @@ class OrderNotificationEvent extends JetNotificationEvent {
     dump('Order notification tapped: ${response.payload}');
 
     try {
-      final orderId = int.parse(response.payload ?? '0');
+      final orderId = response.payload ?? '0';
 
-      // Navigate to order details page
-      // This would typically use your routing system
-      // Example: context.go('/orders/$orderId');
+      // ✅ USE CONTAINER TO ACCESS RIVERPOD PROVIDERS (NO NULL CHECKS NEEDED!)
 
-      // Update app state
-      // Example: ref.read(orderProvider.notifier).selectOrder(orderId);
+      // Update notification state using Riverpod
+      container
+          .read(notificationStateProvider.notifier)
+          .incrementTapCount(orderId);
 
-      // Mark notification as handled
-      // Example: ref.read(notificationProvider.notifier).markAsRead(response.id);
+      // Get current state
+      final currentState = container.read(notificationStateProvider);
+      dump('📊 Notification tapped ${currentState.tapCount} times');
+      dump('📦 Last order ID: ${currentState.lastOrderId}');
 
-      dump('Navigated to order details for order ID: $orderId');
+      // Navigate to order details page using router
+      // container.read(routerProvider).push(OrderRoute(id: orderId));
+
+      // You can also read other providers:
+      // - Update order status: container.read(orderProvider.notifier).selectOrder(orderId);
+      // - Show in-app notification: container.read(snackBarProvider.notifier).show('Order tapped');
+      // - Mark as read: container.read(notificationProvider.notifier).markAsRead(response.id);
+
+      dump('✅ Successfully updated app state from notification tap');
     } catch (e) {
-      dump('Failed to handle order notification tap: $e');
+      dump('❌ Failed to handle order notification tap: $e');
     }
   }
 
@@ -64,23 +77,30 @@ class OrderNotificationEvent extends JetNotificationEvent {
     dump('🎯 ORDER NOTIFICATION RECEIVED: ${response.payload}');
 
     try {
-      final orderId = int.parse(response.payload ?? '0');
+      final orderId = response.payload ?? '0';
+
+      // ✅ USE CONTAINER TO ACCESS RIVERPOD PROVIDERS (NO NULL CHECKS NEEDED!)
+
+      // Update notification state
+      container
+          .read(notificationStateProvider.notifier)
+          .incrementReceiveCount(orderId);
+
+      // Get current state
+      final currentState = container.read(notificationStateProvider);
+      dump('📨 Notification received ${currentState.receiveCount} times');
+      dump('📦 Last order ID: ${currentState.lastOrderId}');
 
       // Update order status in app state
-      // Example: ref.read(orderProvider.notifier).updateOrderStatus(orderId);
+      // container.read(orderProvider.notifier).updateOrderStatus(orderId);
 
       // Show in-app notification
-      // Example: context.showSnackBar('New order update available');
+      // container.read(snackBarProvider.notifier).show('New order update available');
 
       // Update notification badge
-      // Example: ref.read(notificationProvider.notifier).incrementBadge();
+      // container.read(badgeProvider.notifier).increment();
 
-      dump('✅ Updated order status for order ID: $orderId');
-
-      // Add a small delay to make the logging more visible
-      await Future.delayed(const Duration(milliseconds: 100));
-
-      dump('🎉 Order notification onReceive event completed successfully!');
+      dump('✅ Successfully updated app state from notification receive');
     } catch (e) {
       dump('❌ Failed to handle order notification receive: $e');
     }
