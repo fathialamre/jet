@@ -282,6 +282,14 @@ abstract class JetAdapter {
 }
 ```
 
+### Adapter Lifecycle
+
+Adapters have access to the **ProviderContainer** during the boot process, allowing them to interact with Riverpod providers:
+
+1. **Container Initialization** - The `ProviderContainer` is created and set on the Jet instance **before** adapters are booted
+2. **Adapter Boot** - Each adapter's `boot()` method is called with access to `jet.container`
+3. **Adapter After Boot** - After all adapters finish booting, `afterBoot()` is called for post-initialization tasks
+
 **Router Adapter:**
 ```dart
 class RouterAdapter implements JetAdapter {
@@ -296,21 +304,53 @@ class RouterAdapter implements JetAdapter {
 }
 ```
 
+**Adapter with ProviderContainer Access:**
+```dart
+class NotificationsAdapter implements JetAdapter {
+  @override
+  Future<Jet?> boot(Jet jet) async {
+    // The container is guaranteed to be initialized
+    // Safe to use jet.container without null checks
+    JetNotifications.setContainer(jet.container);
+    
+    await JetNotifications.initialize();
+    return jet;
+  }
+
+  @override
+  Future<void> afterBoot(Jet jet) async {
+    // Post-initialization tasks
+  }
+}
+```
+
 **Custom Adapter Example:**
 ```dart
 class FirebaseAdapter implements JetAdapter {
   @override
   Future<Jet?> boot(Jet jet) async {
     await Firebase.initializeApp();
+    
+    // Access Riverpod providers via container
+    final userService = jet.container.read(userServiceProvider);
+    await userService.initialize();
+    
     return jet;
   }
 
   @override
   Future<void> afterBoot(Jet jet) async {
     // Setup after all adapters loaded
+    await Analytics.instance.logAppStart();
   }
 }
 ```
+
+**Key Points:**
+- ✅ `jet.container` is available in `boot()` and `afterBoot()` methods
+- ✅ No null checks needed - container is guaranteed to be initialized
+- ✅ Use `boot()` for initialization, `afterBoot()` for post-setup tasks
+- ✅ Adapters run sequentially in the order they are defined in `JetConfig`
 
 ## 💾 Storage
 
