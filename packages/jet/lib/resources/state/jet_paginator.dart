@@ -495,6 +495,7 @@ class _PaginationListWidgetState<T, TResponse>
 
   @override
   void dispose() {
+    _pagingController.removeListener(_handlePagingStatus);
     _pagingController.dispose();
     super.dispose();
   }
@@ -831,6 +832,7 @@ class _PaginationGridWidgetState<T, TResponse>
 
   @override
   void dispose() {
+    _pagingController.removeListener(_handlePagingStatus);
     _pagingController.dispose();
     super.dispose();
   }

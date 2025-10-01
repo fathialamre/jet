@@ -54,16 +54,14 @@ class ResponseModel<T> {
 }
 
 /// Abstract base class for HTTP API interactions
-/// Enhanced with singleton pattern and response model wrapper
+/// Enhanced with response model wrapper
 /// Provides a comprehensive networking solution with:
 /// - All HTTP methods (GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS)
 /// - Custom interceptors support
 /// - Default headers management
 /// - Generic JSON response decoding with ResponseModel wrapper
-/// - Singleton pattern for efficient resource management
 /// - Enhanced error handling and caching support
 abstract class JetApiService {
-  static final Map<String, JetApiService> _instances = {};
   late final Dio _dio;
   late final CancelToken _cancelToken;
 
@@ -71,9 +69,6 @@ abstract class JetApiService {
 
   /// Base URL for all API requests
   String get baseUrl;
-
-  /// API service identifier for singleton management
-  String get serviceId => runtimeType.toString();
 
   /// Default headers that will be added to all requests
   Map<String, dynamic> get defaultHeaders => {
@@ -94,17 +89,6 @@ abstract class JetApiService {
 
   /// HTTP client adapter (can be overridden for HTTP/2, etc.)
   HttpClientAdapter? get httpClientAdapter => null;
-
-  /// Get singleton instance of an API service
-  static T getInstance<T extends JetApiService>(
-    String serviceId,
-    T Function() creator,
-  ) {
-    if (!_instances.containsKey(serviceId)) {
-      _instances[serviceId] = creator();
-    }
-    return _instances[serviceId] as T;
-  }
 
   JetApiService(this.ref) {
     _cancelToken = CancelToken();

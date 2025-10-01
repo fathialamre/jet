@@ -628,8 +628,6 @@ class UserApiService extends JetApiService {
     'Authorization': 'Bearer ${getToken()}',
   };
 
-  static UserApiService get instance => getInstance('UserApiService', () => UserApiService());
-
   Future<ResponseModel<List<User>>> getUsers() async {
     return await get<List<User>>(
       '/users',

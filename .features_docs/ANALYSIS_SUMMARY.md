@@ -18,27 +18,27 @@ The framework has a solid architectural foundation but requires immediate attent
 
 ## Critical Issues Requiring Immediate Action
 
-### 1. 🔴 PagingController Memory Leak
-**Location:** `JetPaginator` implementation  
+### 1. ✅ PagingController Memory Leak (RESOLVED)
+**Location:** Previously in `JetPaginator` implementation  
 **Impact:** 1-5MB per navigation, eventual app crashes  
-**Fix Effort:** 5 minutes  
+**Fix Effort:** Completed  
 **Priority:** CRITICAL
 
+**Resolution:**
+Both `_PaginationListWidgetState` and `_PaginationGridWidgetState` now properly remove listeners before disposing the controller. The `dispose()` methods now include:
 ```dart
-// Missing in dispose():
+_pagingController.removeListener(_handlePagingStatus);
 _pagingController.dispose();
 ```
 
-### 2. 🔴 JetApiService Singleton Memory Leak
-**Location:** `JetApiService.getInstance()`  
-**Impact:** 500KB-2MB per service, accumulates forever  
-**Fix Effort:** 2 hours  
+### 2. ✅ JetApiService Singleton Memory Leak (RESOLVED)
+**Location:** Previously at `JetApiService.getInstance()`  
+**Impact:** 500KB-2MB per service, accumulated forever  
+**Fix Effort:** Completed  
 **Priority:** CRITICAL
 
-Need to implement:
-- WeakReference-based storage
-- Automatic cleanup of stale instances
-- Proper disposal mechanism
+**Resolution:**
+The singleton pattern and `_instances` static map have been completely removed from `JetApiService`. API services are now instantiated directly without any caching mechanism, eliminating the memory leak issue entirely.
 
 ### 3. 🔴 Synchronous Storage Operations
 **Location:** `JetStorage.read()`  
