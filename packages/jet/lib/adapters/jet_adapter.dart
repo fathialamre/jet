@@ -10,25 +10,27 @@ abstract class JetAdapter {
 
 Future<Jet> bootApplication(
   JetConfig config, {
+  Jet? jet,
   Future<void> Function(Jet jet)? setupFinished,
 }) async {
-  Jet jet = Jet(config: config);
+  // Use provided Jet instance or create a new one
+  Jet currentJet = jet ?? Jet(config: config);
 
   for (final adapter in [
     ...defaultAdapters,
     ...config.adapters,
   ]) {
-    final jetObject = await adapter.boot(jet);
+    final jetObject = await adapter.boot(currentJet);
     if (jetObject != null) {
-      jet = jetObject;
+      currentJet = jetObject;
     }
   }
 
   if (setupFinished != null) {
-    await setupFinished(jet);
+    await setupFinished(currentJet);
   }
 
-  return jet;
+  return currentJet;
 }
 
 Future<Jet> bootFinished(Jet jet, JetConfig config) async {
