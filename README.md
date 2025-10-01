@@ -1,6 +1,17 @@
 # 🚀 Jet Framework
 
-**Jet** is a lightweight, modular Flutter framework for scalable app architecture, providing dependency injection, lifecycle management, and streamlined setup for rapid development. Built with **Riverpod 3** for enhanced state management and code generation capabilities.
+**Jet** is a production-ready, lightweight Flutter framework designed for building scalable, maintainable applications with confidence. It provides a complete architectural foundation with best practices baked in, eliminating boilerplate and accelerating development from prototype to production.
+
+Built on **Riverpod 3** with code generation support, Jet combines powerful state management, type-safe networking, secure storage, intelligent caching, and a rich component library—all working seamlessly together.
+
+## ✨ Why Jet?
+
+- **🎯 Batteries Included** - Everything you need from day one: routing, networking, forms, storage, caching, notifications, and more
+- **📐 Opinionated Architecture** - Best practices and patterns built-in, no more architectural decisions paralysis
+- **⚡ Developer Experience** - Hot reload friendly, minimal boilerplate, fluent APIs, and comprehensive documentation
+- **🔐 Production Ready** - Security features, error handling, logging, and performance optimizations out of the box
+- **🌍 Global Ready** - Built-in internationalization, RTL support, and adaptive UI components
+- **🧩 Modular Design** - Use what you need, extend with adapters, customize to fit your requirements
 
 ## 📦 Installation
 
@@ -14,36 +25,153 @@ dependencies:
 
 ## 🚀 Quick Start
 
-1. **Create your app configuration:**
+Get up and running with Jet in 3 simple steps:
+
+### 1. Create Your App Configuration
+
+Create a configuration file at `lib/core/config/app_config.dart`:
 
 ```dart
 import 'package:jet/jet.dart';
+import 'package:flutter/material.dart';
 
 class AppConfig extends JetConfig {
   @override
-  List<JetAdapter> get adapters => [RouterAdapter()];
+  List<JetAdapter> get adapters => [
+    RouterAdapter(),        // Routing with AutoRoute
+    StorageAdapter(),       // Local storage
+    CacheAdapter(),         // Caching with TTL support
+    NotificationsAdapter(), // Local notifications
+  ];
 
   @override
   List<LocaleInfo> get supportedLocales => [
-    LocaleInfo(locale: const Locale('en'), displayName: 'English', nativeName: 'English'),
+    LocaleInfo(
+      locale: const Locale('en'),
+      displayName: 'English',
+      nativeName: 'English',
+    ),
+    LocaleInfo(
+      locale: const Locale('ar'),
+      displayName: 'Arabic',
+      nativeName: 'العربية',
+    ),
   ];
-}
-```
 
-2. **Set up main.dart:**
+  @override
+  ThemeData? get theme => ThemeData(
+    colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+    useMaterial3: true,
+  );
 
-```dart
-import 'package:jet/jet.dart';
-import 'core/config/app_config.dart';
-
-void main() async {
-  final config = AppConfig();
-  Jet.fly(
-    setup: () => Boot.start(config),
-    setupFinished: (jet) => Boot.finished(jet, config),
+  @override
+  ThemeData? get darkTheme => ThemeData(
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: Colors.blue,
+      brightness: Brightness.dark,
+    ),
+    useMaterial3: true,
   );
 }
 ```
+
+### 2. Set Up Your Router
+
+Create a router file at `lib/core/router/app_router.dart`:
+
+```dart
+import 'package:auto_route/auto_route.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+@AutoRouterConfig()
+class AppRouter extends RootStackRouter {
+  @override
+  List<AutoRoute> get routes => [
+    AutoRoute(page: HomeRoute.page, path: '/', initial: true),
+    AutoRoute(page: ProfileRoute.page, path: '/profile'),
+    AutoRoute(page: SettingsRoute.page, path: '/settings'),
+  ];
+}
+
+// Create router provider
+final appRouterProvider = AutoDisposeProvider<AppRouter>((ref) {
+  return AppRouter();
+});
+```
+
+### 3. Initialize in main.dart
+
+Set up your app entry point:
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:jet/jet.dart';
+import 'core/config/app_config.dart';
+import 'core/router/app_router.dart';
+
+void main() async {
+  final config = AppConfig();
+  
+  Jet.fly(
+    setup: () => Boot.start(config),
+    setupFinished: (jet) {
+      // Configure router
+      jet.setRouter(appRouterProvider);
+      
+      // Finish boot process
+      Boot.finished(jet, config);
+    },
+  );
+}
+```
+
+### 4. Create Your First Page
+
+Create a home page at `lib/features/home/home_page.dart`:
+
+```dart
+import 'package:auto_route/auto_route.dart';
+import 'package:flutter/material.dart';
+import 'package:jet/jet.dart';
+
+@RoutePage()
+class HomePage extends JetConsumerWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget jetBuild(BuildContext context, WidgetRef ref, Jet jet) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Jet Framework').titleLarge(context).bold(),
+        actions: [
+          ThemeSwitcher.toggleButton(context),
+          LanguageSwitcher.toggleButton(),
+        ],
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('Welcome to Jet! 🚀')
+              .headlineMedium(context)
+              .bold()
+              .center(),
+            SizedBox(height: 16),
+            JetButton.filled(
+              text: 'Get Started',
+              onTap: () {
+                context.showToast('Let\'s build something amazing!');
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+**That's it!** 🎉 You now have a fully configured Jet app with routing, theming, localization, storage, caching, and notifications ready to go.
 
 ## 📋 Table of Contents
 
@@ -58,6 +186,9 @@ void main() async {
 - [Error Handling](#%EF%B8%8F-error-handling)
 - [Forms](#-forms)
 - [Components](#-components)
+- [Dialogs & Sheets](#-dialogs--sheets)
+- [Helpers & Utilities](#-helpers--utilities)
+- [Extensions](#-extensions)
 - [Security](#-security)
 - [Sessions](#-sessions)
 - [State Management](#-state-management)
@@ -831,6 +962,384 @@ JetTab.router(
 - Automatic loading states for async operations
 - Tab navigation with AutoRoute support
 - Customizable styling and animations
+
+## 💬 Dialogs & Sheets
+
+Jet provides beautiful, adaptive dialogs and bottom sheets with built-in confirmation workflows:
+
+### Adaptive Confirmation Dialog
+
+Platform-aware dialogs that adapt to iOS and Android design patterns:
+
+```dart
+// Show confirmation dialog
+await showAdaptiveConfirmationDialog(
+  context: context,
+  title: 'Delete Account',
+  message: 'Are you sure you want to delete your account? This action cannot be undone.',
+  icon: Icon(Icons.warning_amber_rounded, size: 48, color: Colors.orange),
+  confirmText: 'Delete',
+  cancelText: 'Cancel',
+  onConfirm: () async {
+    await deleteAccount();
+    context.router.pushNamed('/login');
+  },
+  onCancel: () {
+    // Handle cancel action
+  },
+);
+
+// Customize behavior
+await showAdaptiveConfirmationDialog(
+  context: context,
+  title: 'Logout',
+  message: 'Are you sure you want to logout?',
+  icon: Icon(Icons.logout),
+  barrierDismissible: false, // Prevent dismissing by tapping outside
+  popOnConfirm: false, // Keep dialog open after confirm
+  onConfirm: () async {
+    await performLogout();
+  },
+);
+```
+
+### Confirmation Bottom Sheet
+
+Modern bottom sheets with visual feedback and customizable types:
+
+```dart
+// Basic confirmation sheet
+showConfirmationSheet(
+  context: context,
+  title: 'Save Changes',
+  message: 'Do you want to save your changes before leaving?',
+  icon: Icons.save_outlined,
+  type: ConfirmationSheetType.normal,
+  onConfirm: () async {
+    await saveChanges();
+  },
+);
+
+// Different sheet types
+showConfirmationSheet(
+  context: context,
+  title: 'Success!',
+  message: 'Your order has been placed successfully.',
+  icon: Icons.check_circle_outline,
+  type: ConfirmationSheetType.success, // Green theme
+  confirmText: 'View Order',
+  cancelText: 'Close',
+  onConfirm: () => context.router.push(OrderDetailsRoute()),
+);
+
+// Error confirmation
+showConfirmationSheet(
+  context: context,
+  title: 'Error',
+  message: 'Failed to process your request. Would you like to retry?',
+  icon: Icons.error_outline,
+  type: ConfirmationSheetType.error, // Red theme
+  confirmText: 'Retry',
+  cancelText: 'Cancel',
+  buttonLayout: Axis.vertical, // Stack buttons vertically
+  onConfirm: () async {
+    await retryOperation();
+  },
+);
+
+// Warning confirmation
+showConfirmationSheet(
+  context: context,
+  title: 'Warning',
+  message: 'This action will overwrite your existing data.',
+  icon: Icons.warning_amber_rounded,
+  type: ConfirmationSheetType.warning, // Orange theme
+  onConfirm: () async {
+    await overwriteData();
+  },
+);
+
+// Info sheet
+showConfirmationSheet(
+  context: context,
+  title: 'New Feature',
+  message: 'Check out our new dark mode feature!',
+  icon: Icons.info_outline,
+  type: ConfirmationSheetType.info, // Blue theme
+  confirmText: 'Try It',
+  cancelText: 'Later',
+  onConfirm: () {
+    ref.read(themeSwitcherProvider.notifier).toggleTheme();
+  },
+);
+```
+
+**Available Sheet Types:**
+- `ConfirmationSheetType.normal` - Default primary color
+- `ConfirmationSheetType.success` - Green theme for success messages
+- `ConfirmationSheetType.error` - Red theme for errors
+- `ConfirmationSheetType.warning` - Orange theme for warnings
+- `ConfirmationSheetType.info` - Blue theme for information
+
+**Dialog & Sheet Features:**
+- **Platform-aware design** - Material on Android, Cupertino on iOS
+- **Haptic feedback** - Subtle vibrations on user interaction
+- **Async operation support** - Await user confirmation
+- **Customizable actions** - Custom text and callbacks
+- **Visual feedback** - Colored icons and themed buttons
+- **Flexible layouts** - Horizontal or vertical button arrangement
+- **Built-in localization** - Uses Jet's i18n system
+
+## 🛠 Helpers & Utilities
+
+### JetFaker - Test Data Generation
+
+Generate realistic fake data for development and testing:
+
+```dart
+// Generate random usernames
+final username1 = JetFaker.username(); // Example: "brave_tiger123"
+final username2 = JetFaker.username(); // Example: "cool_panda456"
+final username3 = JetFaker.username(); // Example: "fast_eagle789"
+
+// Use in development
+class DevTools {
+  static User createTestUser() {
+    return User(
+      username: JetFaker.username(),
+      email: '${JetFaker.username()}@example.com',
+      createdAt: DateTime.now(),
+    );
+  }
+
+  static List<User> generateTestUsers(int count) {
+    return List.generate(
+      count,
+      (index) => createTestUser(),
+    );
+  }
+}
+
+// Populate test data
+final testUsers = DevTools.generateTestUsers(10);
+
+// Use in UI previews
+class UserCardPreview extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final demoUser = User(
+      username: JetFaker.username(),
+      email: '${JetFaker.username()}@test.com',
+    );
+    
+    return UserCard(user: demoUser);
+  }
+}
+```
+
+**JetFaker Features:**
+- Random username generation with adjective + noun + number pattern
+- Consistent formatting for professional-looking test data
+- Perfect for UI development, demos, and testing
+- Lightweight with no external dependencies
+
+## 🎯 Extensions
+
+Jet provides powerful extensions to enhance Flutter's built-in classes with commonly needed functionality:
+
+### BuildContext Extensions
+
+Access theme, localization, and utilities directly from context:
+
+```dart
+class MyWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    // Access theme
+    final primaryColor = context.theme.colorScheme.primary;
+    final textTheme = context.theme.textTheme;
+    
+    // Access localization
+    final localizedText = context.jetI10n.confirm;
+    final cancelText = context.jetI10n.cancel;
+    
+    // Platform checks
+    if (context.isAndroid) {
+      // Android-specific UI
+    } else if (context.isIOS) {
+      // iOS-specific UI
+    }
+    
+    // Show toast notifications
+    context.showToast('Operation completed successfully!');
+    
+    // Toast with action button
+    context.showToast(
+      'Failed to load data',
+      actionLabel: 'Retry',
+      onPressed: () => _retryLoad(),
+      duration: Duration(seconds: 5),
+    );
+    
+    // Clear previous toasts
+    context.showToast(
+      'New message',
+      clearOldToasts: true, // Clears any existing toasts
+    );
+    
+    return Container();
+  }
+}
+```
+
+### Text Extensions
+
+Style text widgets with fluent, chainable methods:
+
+```dart
+// Theme-based typography
+Text('Title').titleLarge(context)
+Text('Subtitle').titleMedium(context)
+Text('Caption').bodySmall(context)
+Text('Headline').headlineLarge(context)
+Text('Display').displayMedium(context)
+Text('Label').labelSmall(context)
+
+// Style modifiers (chainable)
+Text('Important Text')
+  .titleLarge(context)
+  .bold()
+  .color(Colors.red)
+
+Text('Centered Bold Text')
+  .bodyLarge(context)
+  .bold()
+  .center()
+
+Text('Link Text')
+  .bodyMedium(context)
+  .color(Colors.blue)
+  .underline()
+
+Text('Custom Size')
+  .bodyMedium(context)
+  .fontSize(18)
+  .bold()
+  .color(Theme.of(context).primaryColor)
+
+// All typography variants
+// Title: titleSmall, titleMedium, titleLarge
+// Body: bodySmall, bodyMedium, bodyLarge
+// Headline: headlineSmall, headlineMedium, headlineLarge
+// Display: displaySmall, displayMedium, displayLarge
+// Label: labelSmall, labelMedium, labelLarge
+
+// Example usage in a card
+Card(
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text('Product Name').titleLarge(context).bold(),
+      SizedBox(height: 8),
+      Text('Description text').bodyMedium(context),
+      SizedBox(height: 4),
+      Text('\$99.99').titleMedium(context).color(Colors.green).bold(),
+    ],
+  ),
+)
+```
+
+### DateTime Extensions
+
+Format dates and times with ease:
+
+```dart
+final now = DateTime.now();
+
+// Formatted date
+final date = now.formattedDate(); // Default: "01/10/2025"
+final customDate = now.formattedDate(format: 'MMM dd, yyyy'); // "Oct 01, 2025"
+
+// Formatted time
+final time = now.formattedTime(); // Default: "14:30"
+final customTime = now.formattedTime(format: 'hh:mm a'); // "02:30 PM"
+
+// Formatted date and time
+final dateTime = now.formattedDateTime(); // "01/10/2025 14:30"
+final customDateTime = now.formattedDateTime(
+  format: 'EEEE, MMMM dd, yyyy at hh:mm a',
+); // "Wednesday, October 01, 2025 at 02:30 PM"
+
+// Usage in widgets
+class EventCard extends StatelessWidget {
+  final Event event;
+  
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(event.title).titleMedium(context).bold(),
+          SizedBox(height: 4),
+          Row(
+            children: [
+              Icon(Icons.calendar_today, size: 16),
+              SizedBox(width: 4),
+              Text(event.date.formattedDate(format: 'MMM dd, yyyy'))
+                .bodySmall(context),
+            ],
+          ),
+          Row(
+            children: [
+              Icon(Icons.access_time, size: 16),
+              SizedBox(width: 4),
+              Text(event.date.formattedTime(format: 'hh:mm a'))
+                .bodySmall(context),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+### Number Extensions
+
+Format numbers with custom patterns:
+
+```dart
+// Order ID formatting
+int orderId = 123;
+String formattedOrderId = orderId.toOrderId(); // "00123"
+
+orderId = 45678;
+formattedOrderId = orderId.toOrderId(); // "45678"
+
+// Usage in order tracking
+class OrderTile extends StatelessWidget {
+  final int orderId;
+  
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Icon(Icons.shopping_bag),
+      title: Text('Order #${orderId.toOrderId()}').titleMedium(context).bold(),
+      subtitle: Text('Tap to view details').bodySmall(context),
+    );
+  }
+}
+```
+
+**Extension Features:**
+- **BuildContext extensions** - Quick access to theme, localization, platform checks, and toast notifications
+- **Text extensions** - Fluent API for Material Design typography and styling
+- **DateTime extensions** - Flexible date/time formatting with custom patterns
+- **Number extensions** - Format numbers for specific use cases (order IDs, prices, etc.)
+- **Chainable methods** - Combine multiple style modifiers
+- **Type-safe** - Full compile-time type checking
+- **Performance optimized** - Minimal overhead
 
 ## 🔐 Security
 
@@ -1712,17 +2221,217 @@ dd('Debug and die', tag: 'FATAL'); // Exits after logging
 - **🗄️ Caching** - TTL-based caching with Hive for offline capabilities
 - **🔄 State Management** - Unified state widgets with automatic loading/error states
 - **🔔 Notifications** - Cross-platform local notifications with scheduling and management
+- **💬 Dialogs & Sheets** - Beautiful adaptive dialogs and confirmation bottom sheets
+- **🛠 Helpers & Utilities** - Test data generation with JetFaker
+- **🎯 Extensions** - Powerful extensions for BuildContext, Text, DateTime, and more
 - **🐛 Debugging** - Enhanced debugging tools with stack trace formatting
 - **🔐 Sessions** - Built-in authentication and session management
 - **🧩 Components** - Pre-built UI components for common patterns
 
+## 📖 Best Practices
+
+### Project Structure
+
+Organize your Jet project with a feature-first architecture:
+
+```
+lib/
+├── core/
+│   ├── config/
+│   │   └── app_config.dart           # App configuration
+│   ├── router/
+│   │   └── app_router.dart           # AutoRoute configuration
+│   ├── networking/
+│   │   └── api_service.dart          # Base API service
+│   └── utilities/
+│       └── constants.dart            # App constants
+├── features/
+│   ├── auth/
+│   │   ├── models/                   # Auth models
+│   │   ├── providers/                # Auth providers
+│   │   ├── services/                 # Auth services
+│   │   └── pages/                    # Auth pages
+│   ├── home/
+│   │   └── home_page.dart
+│   └── profile/
+│       └── profile_page.dart
+├── shared/
+│   ├── models/                       # Shared models
+│   ├── widgets/                      # Reusable widgets
+│   └── constants/                    # Shared constants
+└── main.dart
+```
+
+### State Management Guidelines
+
+```dart
+// ✅ DO: Use AutoDispose providers for scoped state
+final userProvider = AutoDisposeFutureProvider<User>((ref) async {
+  final api = ref.read(apiServiceProvider);
+  return await api.getCurrentUser();
+});
+
+// ✅ DO: Use family providers for parameterized data
+final postProvider = AutoDisposeFutureProvider.family<Post, String>(
+  (ref, postId) async {
+    final api = ref.read(apiServiceProvider);
+    return await api.getPost(postId);
+  },
+);
+
+// ✅ DO: Use code generation for cleaner syntax
+@riverpod
+Future<User> currentUser(CurrentUserRef ref) async {
+  final api = ref.read(apiServiceProvider);
+  return await api.getCurrentUser();
+}
+
+// ❌ DON'T: Keep providers alive unnecessarily
+// Use AutoDispose unless you have a specific reason not to
+```
+
+### Error Handling
+
+```dart
+// ✅ DO: Use try-catch with JetError
+try {
+  final result = await apiService.getData();
+  // Handle success
+} on JetError catch (error) {
+  if (error.isValidation) {
+    // Handle validation errors
+    context.showToast(error.message);
+  } else if (error.isNoInternet) {
+    // Handle network errors
+    context.showToast('No internet connection');
+  }
+} catch (error) {
+  // Handle unexpected errors
+  dump('Unexpected error: $error');
+}
+
+// ✅ DO: Provide user-friendly error messages
+context.showToast(
+  'Failed to load data',
+  actionLabel: 'Retry',
+  onPressed: () => ref.refresh(dataProvider),
+);
+```
+
+### Performance Optimization
+
+```dart
+// ✅ DO: Use select for granular state watching
+final userName = ref.watch(
+  userProvider.select((user) => user.value?.name),
+);
+
+// ✅ DO: Cache expensive computations
+final expensiveDataProvider = AutoDisposeFutureProvider<Data>((ref) async {
+  // Check cache first
+  final cached = await JetCache.read('expensive_data');
+  if (cached != null) {
+    return Data.fromJson(cached);
+  }
+  
+  // Fetch and cache
+  final data = await fetchExpensiveData();
+  await JetCache.write('expensive_data', data.toJson(), ttl: Duration(hours: 1));
+  return data;
+});
+
+// ✅ DO: Use JetPaginator for large lists
+JetPaginator.list<Product, Map<String, dynamic>>(
+  fetchPage: (pageKey) => api.getProducts(page: pageKey),
+  parseResponse: (response, pageKey) => PageInfo(
+    items: response['items'],
+    nextPageKey: response['nextPage'],
+  ),
+  itemBuilder: (product, index) => ProductCard(product: product),
+)
+```
+
+### Security Best Practices
+
+```dart
+// ✅ DO: Use secure storage for sensitive data
+await JetStorage.writeSecure('auth_token', token);
+final token = await JetStorage.readSecure('auth_token');
+
+// ✅ DO: Implement app lock for sensitive apps
+class SecuritySettings extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isLocked = ref.watch(appLockProvider);
+    
+    return SwitchListTile(
+      title: Text('App Lock'),
+      value: isLocked,
+      onChanged: (enabled) {
+        ref.read(appLockProvider.notifier).toggle(context);
+      },
+    );
+  }
+}
+
+// ✅ DO: Clear sensitive data on logout
+await SessionManager.clear();
+await JetStorage.clearSecure();
+```
+
+### Code Quality
+
+```dart
+// ✅ DO: Use meaningful names
+final userProfileProvider = AutoDisposeFutureProvider<UserProfile>(...);
+final createUserFormProvider = JetFormProvider<CreateUserRequest, User>(...);
+
+// ✅ DO: Document complex logic
+/// Validates user input and creates a new account.
+/// 
+/// Throws [JetError.validation] if input is invalid.
+/// Throws [JetError.server] if account creation fails.
+Future<User> createAccount(CreateAccountRequest request) async {
+  // Implementation
+}
+
+// ✅ DO: Keep widgets focused and small
+class UserCard extends StatelessWidget {
+  final User user;
+  
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Column(
+        children: [
+          _buildAvatar(),
+          _buildUserInfo(),
+          _buildActions(),
+        ],
+      ),
+    );
+  }
+  
+  Widget _buildAvatar() => CircleAvatar(...);
+  Widget _buildUserInfo() => Column(...);
+  Widget _buildActions() => Row(...);
+}
+```
+
 ## 📚 Additional Resources
 
+### Official Documentation
 - [Riverpod Documentation](https://riverpod.dev/)
 - [AutoRoute Documentation](https://auto-route.vercel.app/)
 - [Dio Documentation](https://pub.dev/packages/dio)
 - [Flutter Form Builder](https://pub.dev/packages/flutter_form_builder)
 - [Flutter Local Notifications](https://pub.dev/packages/flutter_local_notifications)
+- [Hive Documentation](https://docs.hivedb.dev/)
+
+### Learning Resources
+- [Flutter Official Docs](https://flutter.dev/docs)
+- [Dart Language Tour](https://dart.dev/guides/language/language-tour)
+- [Material Design 3](https://m3.material.io/)
 
 ## 🤝 Contributing
 
