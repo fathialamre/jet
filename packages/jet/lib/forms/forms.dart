@@ -43,7 +43,7 @@
 ///   },
 /// )
 /// ```
-library jet_forms;
+library;
 
 // Core types and state management
 export 'common.dart';
