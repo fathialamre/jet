@@ -1,5 +1,4 @@
 import 'package:example/core/router/app_router.gr.dart';
-import 'package:example/features/cache/cache_example.dart';
 import 'package:flutter/material.dart';
 import 'package:jet/jet_framework.dart';
 import 'package:jet/resources/state/jet_consumer.dart';
@@ -71,18 +70,6 @@ class HomePage extends JetConsumerWidget {
                     icon: Icons.notifications,
                     onTap: () =>
                         context.router.push(NotificationsExampleRoute()),
-                  ),
-                  const SizedBox(height: 12),
-                  _ExampleCard(
-                    title: 'Cache Example',
-                    description:
-                        'JetCache with TTL support, different data types, and cache management',
-                    icon: Icons.storage,
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const CacheExamplePage(),
-                      ),
-                    ),
                   ),
                 ],
               ),

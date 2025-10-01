@@ -14,7 +14,6 @@ This example app demonstrates the various features and capabilities of the Jet F
 ### Advanced Features
 - **Forms** - Type-safe form handling with validation and error management
 - **Notifications** - Local notifications with scheduling and event handling
-- **Caching** - TTL-based caching with Hive for offline capabilities
 - **Storage** - Secure storage for sensitive data and regular preferences
 - **Sessions** - Authentication and session management
 - **Security** - App locking with biometric authentication
@@ -43,14 +42,6 @@ Comprehensive notification examples including:
 - Scheduled notifications
 - Event-driven notifications
 - Notification management
-
-### Cache Example
-Demonstrates Jet's caching capabilities with:
-- TTL-based caching with different expiration times
-- Type-safe data models (User, Product, Settings)
-- Cache statistics and management
-- Batch operations and cleanup
-- Auto-refresh functionality
 
 ## 🛠️ Getting Started
 
