@@ -10,7 +10,6 @@ JetApiService is an abstract HTTP client wrapper built on top of Dio that provid
 
 ### Key Benefits
 - **Type-Safe Responses:** Generic `ResponseModel<T>` wrapper for all API calls
-- **Singleton Pattern:** Efficient resource management with `getInstance()`
 - **Rich HTTP Support:** All HTTP methods (GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS)
 - **Automatic Error Handling:** Integrated with Jet's error handling system
 - **Interceptor Support:** Easy integration of logging, auth, retry logic
@@ -32,8 +31,7 @@ JetApiService follows the **Repository Pattern** with these principles:
 1. **Abstraction:** Hide Dio complexity behind clean interface
 2. **Consistency:** All responses wrapped in `ResponseModel<T>`
 3. **Flexibility:** Support any API format through custom decoders
-4. **Efficiency:** Singleton pattern prevents duplicate Dio instances
-5. **Integration:** Tight integration with Riverpod for DI
+4. **Integration:** Tight integration with Riverpod for DI
 
 ### Component Diagram
 
@@ -72,16 +70,11 @@ HTTP Network
   - `statusCode`: HTTP status code
   - `meta`: Additional metadata
 
-#### Component 3: Singleton Manager
-- **Location:** `packages/jet/lib/networking/jet_api.dart:99-107`
-- **Purpose:** Manage API service instances
-- **Critical Issue:** ⚠️ Memory leak - instances never released (see Performance section)
-
 ### Data Flow
 
 ```
 1. Create Service
-   MyApiService.getInstance() → Singleton check → Create if needed
+   MyApiService(ref) → Initialize Dio instance
 
 2. Make Request
    service.get('/users') → _dio.get() → Response
@@ -100,16 +93,7 @@ HTTP Network
 ```dart
 // 1. Define your API service
 class MyApiService extends JetApiService {
-  static MyApiService? _instance;
-
   MyApiService(super.ref);
-
-  static MyApiService getInstance(Ref ref) {
-    return JetApiService.getInstance<MyApiService>(
-      'MyApiService',
-      () => MyApiService(ref),
-    );
-  }
 
   @override
   String get baseUrl => 'https://api.example.com';
@@ -133,7 +117,7 @@ class MyApiService extends JetApiService {
 
 // 2. Provide via Riverpod
 final myApiServiceProvider = Provider<MyApiService>((ref) {
-  return MyApiService.getInstance(ref);
+  return MyApiService(ref);
 });
 
 // 3. Use in code

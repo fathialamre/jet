@@ -10,7 +10,6 @@ The Jet Framework is a comprehensive Flutter framework that provides a complete 
 ### 📈 Strong Points
 - **Comprehensive HTTP Support**: Complete implementation of all HTTP methods (GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS)
 - **Response Model Wrapper**: Standardized `ResponseModel<T>` for consistent response handling
-- **Singleton Pattern**: Efficient resource management with `getInstance()` method
 - **Type Safety**: Generic decoder functions for type-safe response parsing
 - **Built-in Interceptors**: Logging and error handling interceptors included
 - **Upload Support**: File upload with `FormData` support
