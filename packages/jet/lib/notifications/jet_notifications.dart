@@ -1,50 +1,15 @@
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
 import 'events/jet_notification_event_registry.dart';
 import 'observers/jet_notification_observer.dart';
 import 'models/notification_response_wrapper.dart';
-
-/// Download and save a file
-Future<String> _downloadAndSaveFile(String url, String fileName) async {
-  final Directory directory = await getApplicationDocumentsDirectory();
-  final String filePath = '${directory.path}/$fileName';
-
-  final Dio dio = Dio();
-  final Response<List<int>> response = await dio.get<List<int>>(
-    url,
-    options: Options(responseType: ResponseType.bytes),
-  );
-
-  if (response.data == null) {
-    throw Exception("Failed to download file");
-  }
-
-  final File file = File(filePath);
-  await file.writeAsBytes(response.data!);
-  return filePath;
-}
-
-/// Push Notification Attachments
-class _JetNotificationAttachments {
-  final String url;
-  final String fileName;
-  final bool? showThumbnail;
-
-  _JetNotificationAttachments(
-    this.url,
-    this.fileName, {
-    this.showThumbnail = true,
-  });
-}
 
 /// Jet Notifications - A comprehensive local notifications system
 class JetNotifications {
@@ -53,7 +18,6 @@ class JetNotifications {
   final String _body;
   String? _payload;
   String? _subtitle;
-  final List<_JetNotificationAttachments> _attachments = [];
   DateTime? _sendAt;
 
   // iOS
@@ -697,18 +661,6 @@ class JetNotifications {
     _triggerOnReceiveEvent(_id ?? 1, _payload);
   }
 
-  /// Add an attachment to the push notification
-  JetNotifications addAttachment(
-    String url,
-    String fileName, {
-    bool? showThumbnail,
-  }) {
-    _attachments.add(
-      _JetNotificationAttachments(url, fileName, showThumbnail: showThumbnail),
-    );
-    return this;
-  }
-
   /// Add a payload to the push notification
   JetNotifications addPayload(String payload) {
     _payload = payload;
@@ -1048,32 +1000,6 @@ class JetNotifications {
   /// Get the notification details
   Future<NotificationDetails> _getNotificationDetails() async {
     if (Platform.isIOS) {
-      // fetch the attachments
-      List<DarwinNotificationAttachment> attachments = [];
-      for (_JetNotificationAttachments attachment in _attachments) {
-        try {
-          final String fileAttachment = await _downloadAndSaveFile(
-            attachment.url,
-            attachment.fileName,
-          );
-
-          attachments.add(
-            DarwinNotificationAttachment(
-              fileAttachment,
-              identifier: attachment.fileName,
-              hideThumbnail: attachment.showThumbnail ?? false,
-            ),
-          );
-        } on Exception catch (e) {
-          _observer!.onAttachmentError(
-            message: e.toString(),
-            error: e,
-            fileName: attachment.fileName,
-          );
-          continue;
-        }
-      }
-
       DarwinNotificationDetails iOSPlatformChannelSpecifics =
           DarwinNotificationDetails(
             presentList: _presentList ?? true,
@@ -1082,7 +1008,6 @@ class JetNotifications {
             presentSound: _presentSound ?? true,
             presentBanner: _presentBanner ?? true,
             sound: _sound,
-            attachments: attachments,
             badgeNumber: _badgeNumber,
             subtitle: _subtitle,
             threadIdentifier: _threadIdentifier,

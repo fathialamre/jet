@@ -171,18 +171,6 @@ class JetNotificationObserver {
     dump(message, tag: 'JET_NOTIFICATIONS_SCHEDULE_SUCCESS');
   }
 
-  /// Handle attachment errors
-  void onAttachmentError({
-    required String message,
-    Object? error,
-    String? fileName,
-  }) {
-    dump(
-      '$message${error != null ? ': $error' : ''}${fileName != null ? ' (file: $fileName)' : ''}',
-      tag: 'JET_NOTIFICATIONS_ATTACHMENT_ERROR',
-    );
-  }
-
   /// Handle background tap
   void onBackgroundTap({required NotificationResponse response}) {
     dump(
