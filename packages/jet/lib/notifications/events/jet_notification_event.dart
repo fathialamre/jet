@@ -1,4 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import '../jet_notifications.dart';
 
 /// Abstract base class for handling notification events in the Jet framework.
 ///
@@ -32,6 +34,26 @@ abstract class JetNotificationEvent {
   ///
   /// Used for debugging and logging purposes.
   String get name;
+
+  /// Access the Riverpod ProviderContainer to read providers
+  ///
+  /// This allows notification events to interact with app state through Riverpod.
+  /// The container is guaranteed to be available when notification events are triggered.
+  ///
+  /// Example usage:
+  /// ```dart
+  /// @override
+  /// Future<void> onTap(NotificationResponse response) async {
+  ///   final orderId = int.parse(response.payload ?? '0');
+  ///
+  ///   // Update state using Riverpod (no null check needed!)
+  ///   container.read(orderProvider.notifier).selectOrder(orderId);
+  ///
+  ///   // Navigate using router
+  ///   container.read(routerProvider).push(OrderRoute(id: orderId));
+  /// }
+  /// ```
+  ProviderContainer get container => JetNotifications.container;
 
   /// Handle notification tap event.
   ///

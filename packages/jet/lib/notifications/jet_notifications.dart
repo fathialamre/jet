@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -121,6 +122,9 @@ class JetNotifications {
   // Static observer instance
   static JetNotificationObserver? _observer;
 
+  // Static ProviderContainer instance for accessing Riverpod providers
+  static late ProviderContainer _container;
+
   JetNotifications({String title = "", String body = ""})
     : _title = title,
       _body = body;
@@ -135,6 +139,27 @@ class JetNotifications {
 
   /// Get the current notification observer
   static JetNotificationObserver? get observer => _observer;
+
+  /// Set the ProviderContainer for accessing Riverpod providers in notification events
+  ///
+  /// This is called by the NotificationsAdapter during initialization.
+  /// The adapter gets the container from the Jet instance (jet.container) and passes it here.
+  /// Once set, notification events can access Riverpod providers through the container.
+  ///
+  /// Architecture flow:
+  /// boot.dart creates container → sets on Jet → NotificationsAdapter passes to JetNotifications
+  static void setContainer(ProviderContainer container) {
+    _container = container;
+  }
+
+  /// Get the current ProviderContainer for accessing Riverpod providers.
+  ///
+  /// The container is guaranteed to be set by the NotificationsAdapter before any
+  /// notification events are triggered, so you can safely access it without null checks.
+  ///
+  /// This container is provided by the Jet framework and allows notification events
+  /// to access any Riverpod provider outside of the widget tree.
+  static ProviderContainer get container => _container;
 
   /// Initialize the local notifications plugin
   static Future<bool> initialize() async {
