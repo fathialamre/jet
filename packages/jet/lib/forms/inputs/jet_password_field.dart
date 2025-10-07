@@ -48,6 +48,9 @@ class JetPasswordField extends HookWidget {
   /// Hint text to display when field is empty
   final String hintText;
 
+  /// Hint text style
+  final TextStyle? hintStyle;
+
   /// Whether to initially obscure the password text
   final bool obscureText;
 
@@ -62,6 +65,9 @@ class JetPasswordField extends HookWidget {
 
   /// Whether the field is enabled
   final bool enabled;
+
+  /// Callback when the field value changes
+  final void Function(String?)? onChanged;
 
   /// Label text for the field
   final String? labelText;
@@ -117,8 +123,10 @@ class JetPasswordField extends HookWidget {
     this.showPrefixIcon = true,
     this.isRequired = true,
     this.formKey,
+    this.onChanged,
     this.identicalWith,
     this.hintText = '',
+    this.hintStyle = const TextStyle(color: Color(0xFF7A7A7A)),
     this.obscureText = true,
     this.keyboardType,
     this.readOnly = false,
@@ -158,10 +166,12 @@ class JetPasswordField extends HookWidget {
       readOnly: readOnly,
       autofocus: autofocus,
       keyboardType: keyboardType,
+      onChanged: onChanged,
       decoration: InputDecoration(
         labelText: labelText,
         labelStyle: labelStyle,
         hintText: hintText,
+        hintStyle: hintStyle,
         prefixIcon: showPrefixIcon ? Icon(PhosphorIcons.lock()) : prefixIcon,
         suffixIcon: IconButton(
           icon: Icon(
