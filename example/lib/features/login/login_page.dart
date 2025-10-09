@@ -174,6 +174,7 @@ class LoginPage extends HookConsumerWidget {
                       submitButtonText: 'Sign In',
                       fieldSpacing: 16,
                       expandSubmitButton: true,
+                      showSubmitButton: false,
                       children: [
                         FormBuilderTextField(
                           name: 'email',
@@ -181,7 +182,6 @@ class LoginPage extends HookConsumerWidget {
                             labelText: 'Email Address',
                             hintText: 'Enter your email',
                             prefixIcon: Icon(Icons.email_outlined),
-                            border: OutlineInputBorder(),
                           ),
                           keyboardType: TextInputType.emailAddress,
                           validator: FormBuilderValidators.compose([
@@ -211,6 +211,10 @@ class LoginPage extends HookConsumerWidget {
                             ],
                           ),
                           initialValue: false,
+                        ),
+                        JetButton(
+                          text: 'Sign In',
+                          onTap: form.submit,
                         ),
                       ],
                     ),
