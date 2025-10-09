@@ -5,5 +5,8 @@
 // Home Page - Main navigation
 export 'home/home_page.dart';
 
+// Login Example - useJetForm hook demonstration
+export 'login/login_page.dart';
+
 // Notifications Example
 export 'notifications/notifications_example.dart';

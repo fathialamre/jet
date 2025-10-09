@@ -707,9 +707,91 @@ try {
 
 ## 📝 Forms
 
-Jet provides type-safe form management with JetFormBuilder and enhanced input components:
+Jet provides two powerful approaches for form management:
 
-### Complete Form Example
+1. **useJetForm Hook** - Simplified inline forms without separate notifier classes (recommended for simple forms)
+2. **JetFormNotifier + JetFormBuilder** - Full-featured forms with separate notifier classes (recommended for complex forms)
+
+### Simple Forms with useJetForm Hook
+
+For simple forms, use the `useJetForm` hook to define form logic inline without creating separate notifier classes:
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jet/forms/forms.dart';
+
+class LoginPage extends HookConsumerWidget {
+  const LoginPage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Define form logic inline with the hook
+    final form = useJetForm<LoginRequest, LoginResponse>(
+      ref: ref,
+      decoder: (json) => LoginRequest.fromJson(json),
+      action: (request) async {
+        final authService = ref.read(authServiceProvider);
+        return await authService.login(request.email, request.password);
+      },
+      onSuccess: (response, request) {
+        context.showToast('Welcome back, ${response.user.name}!');
+        context.router.pushNamed('/dashboard');
+      },
+      onError: (error, stackTrace) {
+        // Handle errors
+        dump('Login error: $error');
+      },
+    );
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Login')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: JetSimpleForm(
+          controller: form,
+          submitButtonText: 'Sign In',
+          children: [
+            FormBuilderTextField(
+              name: 'email',
+              decoration: const InputDecoration(
+                labelText: 'Email',
+                prefixIcon: Icon(Icons.email),
+              ),
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required(),
+                FormBuilderValidators.email(),
+              ]),
+            ),
+            JetPasswordField(
+              name: 'password',
+              hintText: 'Password',
+              isRequired: true,
+            ),
+            FormBuilderCheckbox(
+              name: 'rememberMe',
+              title: const Text('Remember me'),
+              initialValue: false,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+**useJetForm Features:**
+- ✅ Zero boilerplate - no separate notifier files needed
+- ✅ Type-safe with generic Request/Response types
+- ✅ Built-in loading states and error handling
+- ✅ Lifecycle callbacks (onSuccess, onError, onValidationError)
+- ✅ Access to form state (isLoading, hasError, hasValue)
+- ✅ Perfect for simple forms and rapid prototyping
+
+### Complete Form Example with JetFormNotifier
+
+For complex forms with business logic, use the full-featured JetFormNotifier approach:
 
 ```dart
 // 1. Define request/response models
@@ -909,13 +991,17 @@ class UserFormPage extends StatelessWidget {
 ```
 
 **Form Features:**
+- **Two approaches** - useJetForm hook for simple forms, JetFormNotifier for complex forms
 - **Type-safe** form state with Request/Response generics
+- **Zero boilerplate** with useJetForm hook (no separate notifier files)
 - **Enhanced error handling** with centralized JetErrorHandler integration
 - **Automatic field invalidation** for server-side validation errors
 - **Enhanced input components** (password, phone, PIN/OTP)
 - **Built-in loading states** and form submission
 - **Server validation integration** with automatic field invalidation
 - **Riverpod 3 integration** with generator support for reactive state management
+- **JetSimpleForm widget** for streamlined form UI with useJetForm
+- **Form state access** (isLoading, hasError, hasValue, response, request)
 
 ## 🧩 Components
 
@@ -2213,7 +2299,7 @@ dd('Debug and die', tag: 'FATAL'); // Exits after logging
 - **🌐 Internationalization** - Built-in localization with RTL support
 - **🎨 Theming** - Complete theme management with persistent storage
 - **🔐 Security** - App locking with biometric authentication
-- **📝 Forms** - Advanced form management with validation and error handling
+- **📝 Forms** - Advanced form management with useJetForm hook and JetFormNotifier
 - **🌐 Networking** - Type-safe HTTP client with configurable logging
 - **💾 Storage** - Secure storage for sensitive data and regular preferences
 - **🗄️ Caching** - TTL-based caching with Hive for offline capabilities
@@ -2315,6 +2401,90 @@ context.showToast(
   onPressed: () => ref.refresh(dataProvider),
 );
 ```
+
+### Form Management Guidelines
+
+```dart
+// ✅ DO: Use useJetForm for simple forms
+class ContactPage extends HookConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final form = useJetForm<ContactRequest, ContactResponse>(
+      ref: ref,
+      decoder: (json) => ContactRequest.fromJson(json),
+      action: (request) => ref.read(apiServiceProvider).sendContact(request),
+      onSuccess: (response, request) {
+        context.showToast('Message sent successfully!');
+        form.reset();
+      },
+    );
+
+    return JetSimpleForm(
+      controller: form,
+      children: [
+        FormBuilderTextField(name: 'name'),
+        FormBuilderTextField(name: 'email'),
+        FormBuilderTextField(name: 'message', maxLines: 5),
+      ],
+    );
+  }
+}
+
+// ✅ DO: Use JetFormNotifier for complex forms with business logic
+@riverpod
+class RegistrationForm extends JetFormNotifier<RegisterRequest, User> {
+  @override
+  RegisterRequest decoder(Map<String, dynamic> json) {
+    return RegisterRequest.fromJson(json);
+  }
+
+  @override
+  Future<User> action(RegisterRequest data) async {
+    // Complex validation logic
+    if (data.age < 18) {
+      throw JetError.validation(errors: {
+        'age': ['Must be 18 or older']
+      });
+    }
+
+    // Multiple API calls
+    final verified = await ref.read(verificationServiceProvider).verify(data.email);
+    if (!verified) {
+      throw JetError.validation(errors: {
+        'email': ['Email verification failed']
+      });
+    }
+
+    return await ref.read(authServiceProvider).register(data);
+  }
+}
+
+// ❌ DON'T: Use JetFormNotifier for simple forms
+// This is overkill for a simple contact form
+@riverpod
+class SimpleContactForm extends JetFormNotifier<ContactRequest, ContactResponse> {
+  // Too much boilerplate for a simple form
+}
+
+// ❌ DON'T: Use useJetForm for forms with complex business logic
+// Complex logic belongs in a separate notifier class for testability
+```
+
+**When to use each approach:**
+
+- **Use useJetForm when:**
+  - Form logic is simple and straightforward
+  - You don't need to test form logic in isolation
+  - Form is only used in one place
+  - Rapid prototyping or experimentation
+  - Forms with basic validation and single API call
+
+- **Use JetFormNotifier when:**
+  - Form has complex business logic
+  - You need to test form logic separately
+  - Form logic is reused across multiple pages
+  - Multiple API calls or complex async operations
+  - Custom validation logic that needs to be tested
 
 ### Performance Optimization
 
