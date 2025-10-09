@@ -76,7 +76,7 @@ class AppConfig extends JetConfig {
 ```
 
 ### 2. Set Up Your Router
-
+م
 Create a router file at `lib/core/router/app_router.dart`:
 
 ```dart
