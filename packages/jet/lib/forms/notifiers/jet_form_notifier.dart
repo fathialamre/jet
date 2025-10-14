@@ -8,12 +8,19 @@ import '../mixins/mixins.dart';
 typedef JetFormProvider<Request, Response> =
     Provider<AsyncFormValue<Request, Response>>;
 
-typedef JetForm<Request, Response> = JetFormNotifier<Request, Response>;
+typedef JetForm<Request, Response> = FormNotifierBase<Request, Response>;
 
-/// Base interface for form notifiers that provides access to state
+/// Base interface for form notifiers that provides access to state and methods
 abstract class FormNotifierBase<Request, Response> {
   AsyncFormValue<Request, Response> get state;
   set state(AsyncFormValue<Request, Response> value);
+
+  GlobalKey<FormBuilderState> get formKey;
+  Future<void> submit();
+  void invalidateFormFields(Map<String, List<String>> fieldErrors);
+  void reset();
+  Request decoder(Map<String, dynamic> json);
+  Future<Response> action(Request data);
 }
 
 /// Mixin version of JetFormNotifier for use with Riverpod's @riverpod annotation
