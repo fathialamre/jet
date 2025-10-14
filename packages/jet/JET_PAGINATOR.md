@@ -124,6 +124,15 @@ JetPaginator.grid<Product, Map<String, dynamic>>(
 
 JetPaginator works with any API format by using the `parseResponse` function to extract pagination information.
 
+**💡 Pro Tip:** Jet includes a built-in `PaginationResponse` class with pre-configured factory methods for common API formats:
+- `PaginationResponse.fromLaravel()` - Laravel pagination
+- `PaginationResponse.fromDummyJson()` - DummyJSON-style APIs
+- `PaginationResponse.fromPageBased()` - Page-based pagination
+- `PaginationResponse.fromCursorBased()` - Cursor-based pagination
+- `PaginationResponse.fromJson()` - Custom format with extractors
+
+These helpers make parsing API responses easier and more consistent across your app.
+
 ### Offset-Based (DummyJSON, Skip/Limit)
 
 ```dart
@@ -135,7 +144,7 @@ JetPaginator works with any API format by using the `parseResponse` function to 
   "limit": 20
 }
 
-// Parse Response:
+// Parse Response (Manual):
 parseResponse: (response, pageKey) => PageInfo(
   items: (response['products'] as List)
       .map((json) => Product.fromJson(json))
@@ -145,6 +154,20 @@ parseResponse: (response, pageKey) => PageInfo(
       : null,
   totalItems: response['total'],
 ),
+
+// Or use Jet's PaginationResponse:
+parseResponse: (response, pageKey) {
+  final pagination = PaginationResponse.fromDummyJson(
+    response,
+    Product.fromJson,
+    'products', // data key
+  );
+  return PageInfo(
+    items: pagination.items,
+    nextPageKey: pagination.nextPageKey,
+    totalItems: pagination.total,
+  );
+},
 ```
 
 ### Page-Based (Page Number)
@@ -152,21 +175,43 @@ parseResponse: (response, pageKey) => PageInfo(
 ```dart
 // API Response:
 {
-  "content": [...],
-  "page": 1,
-  "totalPages": 10,
-  "hasNext": true
+  "data": [...],
+  "current_page": 1,
+  "last_page": 10,
+  "per_page": 15,
+  "total": 150
 }
 
-// Parse Response:
+// Parse Response (Manual):
 parseResponse: (response, currentPage) => PageInfo(
-  items: (response['content'] as List)
+  items: (response['data'] as List)
       .map((json) => User.fromJson(json))
       .toList(),
-  nextPageKey: response['hasNext'] ? (currentPage as int) + 1 : null,
-  totalItems: response['totalElements'],
+  nextPageKey: response['current_page'] < response['last_page']
+      ? (currentPage as int) + 1
+      : null,
+  totalItems: response['total'],
 ),
 firstPageKey: 1, // Start from page 1
+
+// Or use Jet's PaginationResponse:
+parseResponse: (response, currentPage) {
+  final pagination = PaginationResponse.fromPageBased(
+    response,
+    User.fromJson,
+    dataKey: 'data',
+    currentPageKey: 'current_page',
+    lastPageKey: 'last_page',
+    perPageKey: 'per_page',
+    totalKey: 'total',
+  );
+  return PageInfo(
+    items: pagination.items,
+    nextPageKey: pagination.nextPageKey,
+    totalItems: pagination.total,
+  );
+},
+firstPageKey: 1,
 ```
 
 ### Cursor-Based (Cursor/Token)
@@ -176,20 +221,38 @@ firstPageKey: 1, // Start from page 1
 {
   "data": [...],
   "pagination": {
-    "nextCursor": "eyJpZCI6MTAwfQ==",
-    "hasMore": true
+    "next_cursor": "eyJpZCI6MTAwfQ==",
+    "has_more": true
   }
 }
 
-// Parse Response:
+// Parse Response (Manual):
 parseResponse: (response, currentCursor) => PageInfo(
   items: (response['data'] as List)
       .map((json) => Post.fromJson(json))
       .toList(),
-  nextPageKey: response['pagination']?['nextCursor'],
-  isLastPage: !(response['pagination']?['hasMore'] ?? false),
+  nextPageKey: response['pagination']?['next_cursor'],
+  isLastPage: !(response['pagination']?['has_more'] ?? false),
 ),
 firstPageKey: null, // Initial cursor is null
+
+// Or use Jet's PaginationResponse:
+parseResponse: (response, currentCursor) {
+  final pagination = PaginationResponse.fromCursorBased(
+    response,
+    Post.fromJson,
+    dataKey: 'data',
+    paginationKey: 'pagination',
+    nextCursorKey: 'next_cursor',
+    hasMoreKey: 'has_more',
+  );
+  return PageInfo(
+    items: pagination.items,
+    nextPageKey: pagination.nextPageKey,
+    isLastPage: pagination.isLastPage,
+  );
+},
+firstPageKey: null,
 ```
 
 ### Laravel Pagination
@@ -219,53 +282,12 @@ firstPageKey: 1,
 
 ## Complete Laravel Example
 
-Here's a full working example using Laravel's pagination format:
+Here's a full working example using Laravel's pagination format with Jet's built-in `PaginationResponse.fromLaravel()`:
 
 ```dart
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jet/jet.dart';
-
-// Laravel API Response Model
-class LaravelPaginatedResponse<T> {
-  final List<T> data;
-  final int currentPage;
-  final int lastPage;
-  final int perPage;
-  final int total;
-  final String? nextPageUrl;
-  final String? prevPageUrl;
-
-  LaravelPaginatedResponse({
-    required this.data,
-    required this.currentPage,
-    required this.lastPage,
-    required this.perPage,
-    required this.total,
-    this.nextPageUrl,
-    this.prevPageUrl,
-  });
-
-  factory LaravelPaginatedResponse.fromJson(
-    Map<String, dynamic> json,
-    T Function(Map<String, dynamic>) fromJsonT,
-  ) {
-    return LaravelPaginatedResponse<T>(
-      data: (json['data'] as List)
-          .map((item) => fromJsonT(item as Map<String, dynamic>))
-          .toList(),
-      currentPage: json['current_page'] as int,
-      lastPage: json['last_page'] as int,
-      perPage: json['per_page'] as int,
-      total: json['total'] as int,
-      nextPageUrl: json['next_page_url'] as String?,
-      prevPageUrl: json['prev_page_url'] as String?,
-    );
-  }
-
-  bool get hasMorePages => currentPage < lastPage;
-  int? get nextPage => hasMorePages ? currentPage + 1 : null;
-}
 
 // API Service
 class ArticleApiService extends JetApiService {
@@ -351,17 +373,17 @@ class ArticlesPage extends ConsumerWidget {
           return response;
         },
         
-        // Parse Laravel pagination response
+        // Parse Laravel pagination response using Jet's PaginationResponse
         parseResponse: (response, currentPage) {
-          final pagination = LaravelPaginatedResponse.fromJson(
+          final pagination = PaginationResponse.fromLaravel(
             response,
             (json) => Article.fromJson(json),
           );
 
           return PageInfo<Article>(
-            items: pagination.data,
-            nextPageKey: pagination.nextPage,
-            isLastPage: !pagination.hasMorePages,
+            items: pagination.items,
+            nextPageKey: pagination.nextPageKey,
+            isLastPage: pagination.isLastPage,
             totalItems: pagination.total,
           );
         },
@@ -523,14 +545,13 @@ class ArticlesPage extends ConsumerWidget {
 PageInfo<T> parseLaravelPagination<T>(
   Map<String, dynamic> response,
   T Function(Map<String, dynamic>) fromJson,
-  int currentPage,
 ) {
-  final pagination = LaravelPaginatedResponse<T>.fromJson(response, fromJson);
+  final pagination = PaginationResponse.fromLaravel(response, fromJson);
   
   return PageInfo<T>(
-    items: pagination.data,
-    nextPageKey: pagination.nextPage,
-    isLastPage: !pagination.hasMorePages,
+    items: pagination.items,
+    nextPageKey: pagination.nextPageKey,
+    isLastPage: pagination.isLastPage,
     totalItems: pagination.total,
   );
 }
@@ -547,7 +568,6 @@ class ArticlesPageSimplified extends ConsumerWidget {
         parseResponse: (response, page) => parseLaravelPagination(
           response,
           Article.fromJson,
-          page as int,
         ),
         itemBuilder: (article, index) => ArticleCard(article: article),
         firstPageKey: 1,
@@ -559,10 +579,10 @@ class ArticlesPageSimplified extends ConsumerWidget {
 
 **Laravel Pagination Key Points:**
 - Start page counting from `1` (not `0`)
-- Use `current_page < last_page` to determine if more pages exist
-- Laravel provides helpful metadata like `total`, `per_page`, `next_page_url`
-- Consider creating a reusable `LaravelPaginatedResponse` class
-- Use a helper function for cleaner pagination parsing
+- Use Jet's built-in `PaginationResponse.fromLaravel()` for easy parsing
+- Laravel provides helpful metadata like `total`, `per_page`, `from`, `to`
+- The `PaginationResponse` class handles all pagination logic automatically
+- Use a helper function for cleaner pagination parsing across your app
 
 ## Customization
 
