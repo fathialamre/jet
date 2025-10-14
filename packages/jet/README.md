@@ -64,7 +64,14 @@ void main() async {
 
 ## 📚 Documentation
 
-For complete documentation, visit our [GitHub repository](https://github.com/fathialamre/jet).
+### Component Guides
+
+- **[JetTab](JET_TAB.md)** - Customizable tab widget with keep-alive and lazy loading
+- **[JetCarousel](JET_CAROUSEL.md)** - Feature-rich carousel widget with auto-play
+- **[JetPaginator](JET_PAGINATOR.md)** - Infinite scroll pagination for any API format
+- **[JetForm](USE_JET_FORM.md)** - Type-safe form management with validation
+
+For complete framework documentation, visit our [GitHub repository](https://github.com/fathialamre/jet).
 
 ## 🤝 Contributing
 
