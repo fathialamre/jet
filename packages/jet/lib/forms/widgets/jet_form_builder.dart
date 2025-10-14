@@ -48,6 +48,87 @@ class JetFormBuilder<Request, Response> extends ConsumerWidget {
     this.fieldSpacing = 12,
   });
 
+  /// Advanced constructor with more control over form behavior.
+  ///
+  /// This constructor provides full control over error handling, validation,
+  /// and form submission. It's designed for complex forms that need custom
+  /// error handling or don't want the default submit button.
+  ///
+  /// Example:
+  /// ```dart
+  /// JetFormBuilder.advanced(
+  ///   provider: loginFormProvider,
+  ///   builder: (context, ref, form, formState) => [
+  ///     FormBuilderTextField(name: 'email'),
+  ///     FormBuilderTextField(name: 'password'),
+  ///     ElevatedButton(
+  ///       onPressed: () => form.submit(),
+  ///       child: Text('Custom Submit'),
+  ///     ),
+  ///   ],
+  ///   useDefaultErrorHandler: false,
+  ///   showDefaultSubmitButton: false,
+  ///   onError: (error, stackTrace, invalidateFields) {
+  ///     // Custom error handling
+  ///   },
+  /// )
+  /// ```
+  const JetFormBuilder.advanced({
+    super.key,
+    required this.provider,
+    required this.builder,
+    this.onSuccess,
+    this.onError,
+    this.initialValues = const {},
+    this.staticValues = const {},
+    this.submitButtonText,
+    this.fieldSpacing = 12,
+    this.showErrorSnackBar = false,
+    this.useDefaultErrorHandler = false,
+    this.showDefaultSubmitButton = false,
+  });
+
+  /// Hook-based constructor for use with HookConsumerWidget.
+  ///
+  /// This constructor is identical to the default constructor but is named
+  /// to indicate it's designed for use within HookConsumerWidget where the
+  /// builder can use hooks.
+  ///
+  /// Example:
+  /// ```dart
+  /// class MyForm extends HookConsumerWidget {
+  ///   @override
+  ///   Widget build(BuildContext context, WidgetRef ref) {
+  ///     return JetFormBuilder.hook(
+  ///       provider: loginFormProvider,
+  ///       builder: (context, ref, form, formState) {
+  ///         // You can use hooks here
+  ///         final animation = useAnimationController();
+  ///
+  ///         return [
+  ///           FormBuilderTextField(name: 'email'),
+  ///           FormBuilderTextField(name: 'password'),
+  ///         ];
+  ///       },
+  ///     );
+  ///   }
+  /// }
+  /// ```
+  const JetFormBuilder.hook({
+    super.key,
+    required this.provider,
+    required this.builder,
+    this.showErrorSnackBar = true,
+    this.onSuccess,
+    this.onError,
+    this.useDefaultErrorHandler = true,
+    this.initialValues = const {},
+    this.staticValues = const {},
+    this.submitButtonText,
+    this.showDefaultSubmitButton = true,
+    this.fieldSpacing = 12,
+  });
+
   void _handleFormError(
     WidgetRef ref,
     BuildContext context,
