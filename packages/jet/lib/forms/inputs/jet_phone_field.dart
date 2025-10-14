@@ -146,7 +146,7 @@ class JetPhoneField extends HookWidget {
       if (!allowInternational)
         FilteringTextInputFormatter.digitsOnly
       else
-        FilteringTextInputFormatter.allow(RegExp(r'[\d+\-\(\)\s]')),
+        FilteringTextInputFormatter.allow(RegExp(r'[\d+\-()\s]')),
       LengthLimitingTextInputFormatter(
         allowInternational
             ? maxLength + 5
@@ -217,7 +217,7 @@ class JetPhoneField extends HookWidget {
                 if (value == null || value.isEmpty) return null;
                 // Basic international phone validation
                 final phoneRegex = RegExp(
-                  r'^[\+]?[(]?[0-9]{1,3}[)]?[-\s\.]?[(]?[0-9]{1,4}[)]?[-\s\.]?[0-9]{1,4}[-\s\.]?[0-9]{1,9}$',
+                  r'^[+]?[(]?[0-9]{1,3}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,4}[-\s.]?[0-9]{1,9}$',
                 );
                 if (!phoneRegex.hasMatch(value)) {
                   return 'Please enter a valid phone number';

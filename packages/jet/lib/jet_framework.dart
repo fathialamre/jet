@@ -5,6 +5,7 @@ export 'bootstrap/boot.dart';
 export 'resources/theme/notifiers/theme_switcher_notifier.dart';
 export 'localization/widgets/language_switcher.dart';
 export 'resources/theme/widgets/theme_switcher.dart';
+export 'resources/state/jet_builder.dart';
 export 'localization/i10n.dart';
 export 'storage/local_storage.dart';
 export 'networking/networking.dart';
