@@ -1,5 +1,40 @@
 # JetPaginator Documentation
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Key Features](#key-features)
+- [Basic Usage](#basic-usage)
+  - [Simple List](#simple-list)
+  - [Grid Layout](#grid-layout)
+- [API Response Formats](#api-response-formats)
+  - [Offset-Based (DummyJSON, Skip/Limit)](#offset-based-dummyjson-skiplimit)
+  - [Page-Based (Page Number)](#page-based-page-number)
+  - [Cursor-Based (Cursor/Token)](#cursor-based-cursortoken)
+  - [Laravel Pagination](#laravel-pagination)
+- [Complete Laravel Example](#complete-laravel-example)
+- [Customization](#customization)
+  - [Custom Loading Indicator](#custom-loading-indicator)
+  - [Custom Error Handling](#custom-error-handling)
+  - [Custom Empty State](#custom-empty-state)
+  - [Custom Refresh Indicator](#custom-refresh-indicator)
+  - [Fully Custom Refresh Indicator](#fully-custom-refresh-indicator)
+- [Riverpod Integration](#riverpod-integration)
+  - [With Non-Family Providers](#with-non-family-providers)
+  - [With Family Providers](#with-family-providers)
+- [Advanced Features](#advanced-features)
+  - [Custom Page Threshold](#custom-page-threshold)
+  - [Disable Pull-to-Refresh](#disable-pull-to-refresh)
+  - [Custom Padding and Physics](#custom-padding-and-physics)
+- [Complete Example](#complete-example)
+- [API Reference](#api-reference)
+  - [JetPaginator.list](#jetpaginatorlist)
+  - [JetPaginator.grid](#jetpaginatorgrid)
+  - [PageInfo](#pageinfo)
+- [Best Practices](#best-practices)
+- [Troubleshooting](#troubleshooting)
+- [See Also](#see-also)
+
 ## Overview
 
 **JetPaginator** provides simple, powerful infinite scroll pagination that works with **ANY** API format. Built on top of the official `infinite_scroll_pagination` package for maximum reliability and performance.
@@ -181,6 +216,353 @@ parseResponse: (response, currentPage) => PageInfo(
 ),
 firstPageKey: 1,
 ```
+
+## Complete Laravel Example
+
+Here's a full working example using Laravel's pagination format:
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jet/jet.dart';
+
+// Laravel API Response Model
+class LaravelPaginatedResponse<T> {
+  final List<T> data;
+  final int currentPage;
+  final int lastPage;
+  final int perPage;
+  final int total;
+  final String? nextPageUrl;
+  final String? prevPageUrl;
+
+  LaravelPaginatedResponse({
+    required this.data,
+    required this.currentPage,
+    required this.lastPage,
+    required this.perPage,
+    required this.total,
+    this.nextPageUrl,
+    this.prevPageUrl,
+  });
+
+  factory LaravelPaginatedResponse.fromJson(
+    Map<String, dynamic> json,
+    T Function(Map<String, dynamic>) fromJsonT,
+  ) {
+    return LaravelPaginatedResponse<T>(
+      data: (json['data'] as List)
+          .map((item) => fromJsonT(item as Map<String, dynamic>))
+          .toList(),
+      currentPage: json['current_page'] as int,
+      lastPage: json['last_page'] as int,
+      perPage: json['per_page'] as int,
+      total: json['total'] as int,
+      nextPageUrl: json['next_page_url'] as String?,
+      prevPageUrl: json['prev_page_url'] as String?,
+    );
+  }
+
+  bool get hasMorePages => currentPage < lastPage;
+  int? get nextPage => hasMorePages ? currentPage + 1 : null;
+}
+
+// API Service
+class ArticleApiService extends JetApiService {
+  @override
+  String get baseUrl => 'https://your-api.com/api';
+
+  Future<Map<String, dynamic>> getArticles({required int page, int perPage = 15}) async {
+    final response = await get(
+      '/articles',
+      queryParameters: {
+        'page': page,
+        'per_page': perPage,
+      },
+    );
+    return response.data as Map<String, dynamic>;
+  }
+}
+
+// Article Model
+class Article {
+  final int id;
+  final String title;
+  final String excerpt;
+  final String content;
+  final String author;
+  final DateTime publishedAt;
+  final String? imageUrl;
+  final int viewCount;
+
+  Article({
+    required this.id,
+    required this.title,
+    required this.excerpt,
+    required this.content,
+    required this.author,
+    required this.publishedAt,
+    this.imageUrl,
+    required this.viewCount,
+  });
+
+  factory Article.fromJson(Map<String, dynamic> json) => Article(
+    id: json['id'] as int,
+    title: json['title'] as String,
+    excerpt: json['excerpt'] as String,
+    content: json['content'] as String,
+    author: json['author'] as String,
+    publishedAt: DateTime.parse(json['published_at'] as String),
+    imageUrl: json['image_url'] as String?,
+    viewCount: json['view_count'] as int,
+  );
+}
+
+// Provider
+final articleApiServiceProvider = Provider<ArticleApiService>((ref) {
+  return ArticleApiService();
+});
+
+// Articles Page with Laravel Pagination
+class ArticlesPage extends ConsumerWidget {
+  const ArticlesPage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final apiService = ref.read(articleApiServiceProvider);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Articles'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () => _showSearch(context),
+          ),
+        ],
+      ),
+      body: JetPaginator.list<Article, Map<String, dynamic>>(
+        // Fetch page from Laravel API
+        fetchPage: (pageKey) async {
+          final response = await apiService.getArticles(
+            page: pageKey as int,
+            perPage: 15,
+          );
+          return response;
+        },
+        
+        // Parse Laravel pagination response
+        parseResponse: (response, currentPage) {
+          final pagination = LaravelPaginatedResponse.fromJson(
+            response,
+            (json) => Article.fromJson(json),
+          );
+
+          return PageInfo<Article>(
+            items: pagination.data,
+            nextPageKey: pagination.nextPage,
+            isLastPage: !pagination.hasMorePages,
+            totalItems: pagination.total,
+          );
+        },
+        
+        // Build each article item
+        itemBuilder: (article, index) => Card(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: InkWell(
+            onTap: () => _navigateToArticle(context, article),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Article Image
+                if (article.imageUrl != null)
+                  ClipRRect(
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(12),
+                    ),
+                    child: Image.network(
+                      article.imageUrl!,
+                      height: 200,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          height: 200,
+                          color: Colors.grey[300],
+                          child: const Icon(
+                            Icons.image_not_supported,
+                            size: 64,
+                            color: Colors.grey,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Article Title
+                      Text(
+                        article.title,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+                      
+                      // Article Excerpt
+                      Text(
+                        article.excerpt,
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 14,
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 12),
+                      
+                      // Article Meta
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.person_outline,
+                            size: 16,
+                            color: Colors.grey[600],
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            article.author,
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Icon(
+                            Icons.calendar_today,
+                            size: 16,
+                            color: Colors.grey[600],
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            article.publishedAt.formattedDate(
+                              format: 'MMM dd, yyyy',
+                            ),
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                            ),
+                          ),
+                          const Spacer(),
+                          Icon(
+                            Icons.remove_red_eye_outlined,
+                            size: 16,
+                            color: Colors.grey[600],
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${article.viewCount}',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        
+        // Configuration
+        firstPageKey: 1, // Laravel pagination starts at 1
+        enablePullToRefresh: true,
+        refreshIndicatorColor: Theme.of(context).primaryColor,
+        
+        // Empty state
+        noItemsTitle: 'No Articles Found',
+        noItemsMessage: 'There are no articles available at this time.',
+        
+        // Pagination behavior
+        itemsThresholdToTriggerLoad: 3, // Load next page when 3 items from bottom
+        
+        // Callbacks
+        onRefresh: () {
+          // Invalidate providers or perform custom refresh logic
+          dump('Refreshing articles...');
+        },
+      ),
+    );
+  }
+
+  void _navigateToArticle(BuildContext context, Article article) {
+    // Navigate to article details
+    context.router.push(ArticleDetailsRoute(articleId: article.id));
+  }
+
+  void _showSearch(BuildContext context) {
+    // Show search dialog
+    showSearch(
+      context: context,
+      delegate: ArticleSearchDelegate(),
+    );
+  }
+}
+
+// Alternative: Using a helper function for cleaner code
+PageInfo<T> parseLaravelPagination<T>(
+  Map<String, dynamic> response,
+  T Function(Map<String, dynamic>) fromJson,
+  int currentPage,
+) {
+  final pagination = LaravelPaginatedResponse<T>.fromJson(response, fromJson);
+  
+  return PageInfo<T>(
+    items: pagination.data,
+    nextPageKey: pagination.nextPage,
+    isLastPage: !pagination.hasMorePages,
+    totalItems: pagination.total,
+  );
+}
+
+// Usage with helper function
+class ArticlesPageSimplified extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final apiService = ref.read(articleApiServiceProvider);
+
+    return Scaffold(
+      body: JetPaginator.list<Article, Map<String, dynamic>>(
+        fetchPage: (page) => apiService.getArticles(page: page as int),
+        parseResponse: (response, page) => parseLaravelPagination(
+          response,
+          Article.fromJson,
+          page as int,
+        ),
+        itemBuilder: (article, index) => ArticleCard(article: article),
+        firstPageKey: 1,
+      ),
+    );
+  }
+}
+```
+
+**Laravel Pagination Key Points:**
+- Start page counting from `1` (not `0`)
+- Use `current_page < last_page` to determine if more pages exist
+- Laravel provides helpful metadata like `total`, `per_page`, `next_page_url`
+- Consider creating a reusable `LaravelPaginatedResponse` class
+- Use a helper function for cleaner pagination parsing
 
 ## Customization
 
