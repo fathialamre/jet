@@ -19,7 +19,7 @@ class TodoPage extends JetConsumerWidget {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: JetFormBuilder<TodoRequest, TodoResponse>(
-          provider: todoFormProvider,
+          provider: todoFormProvider(1),
           builder:
               (
                 context,
