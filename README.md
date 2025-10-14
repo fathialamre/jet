@@ -192,6 +192,7 @@ class HomePage extends JetConsumerWidget {
 - [Components](#-components)
   - [JetButton](#jetbutton)
   - [JetTab](#jettab)
+  - [JetCarousel](#jetcarousel)
 - [Dialogs & Sheets](#-dialogs--sheets)
   - [Adaptive Confirmation Dialog](#adaptive-confirmation-dialog)
   - [Confirmation Bottom Sheet](#confirmation-bottom-sheet)
@@ -1072,11 +1073,79 @@ JetTab.router(
 )
 ```
 
+### JetCarousel
+
+Feature-rich carousel component with auto-play, infinite scroll, and smooth indicators:
+
+```dart
+// Basic carousel
+JetCarousel<String>(
+  items: ['Item 1', 'Item 2', 'Item 3'],
+  height: 200,
+  builder: (context, index, item) {
+    return Center(child: Text(item));
+  },
+)
+
+// With auto-play and custom indicators
+JetCarousel<Product>(
+  items: products,
+  height: 250,
+  autoPlay: true,
+  autoPlayInterval: Duration(seconds: 3),
+  builder: (context, index, product) => ProductCard(product),
+  onChange: (index) => print('Page: $index'),
+  onTap: (index, product) => navigate(product),
+  indicatorOptions: JetCarouselIndicatorOptions(
+    effect: JetIndicatorEffect.worm,
+    activeColor: Colors.blue,
+  ),
+)
+
+// Vertical carousel with overlay indicator
+JetCarousel<Banner>(
+  items: banners,
+  scrollDirection: Axis.vertical,
+  builder: (context, index, banner) => BannerCard(banner),
+  indicatorOptions: JetCarouselIndicatorOptions(
+    position: IndicatorPosition.overlay,
+    alignment: Alignment.centerRight,
+    effect: JetIndicatorEffect.scrolling,
+  ),
+)
+
+// With controller for programmatic control
+final controller = useState(JetCarouselController());
+
+JetCarousel<Image>(
+  items: images,
+  controller: controller.value,
+  builder: (context, index, image) => Image.network(image.url),
+)
+
+// Control methods
+controller.value.nextPage();
+controller.value.previousPage();
+controller.value.jumpToPage(0);
+controller.value.pause();
+controller.value.resume();
+```
+
 **Features:**
 - Material and Cupertino button styles
 - Automatic loading states for async operations
 - Tab navigation with AutoRoute support
 - Customizable styling and animations
+- Type-safe builder with generic support
+- Auto-play with configurable intervals
+- Infinite scrolling with seamless transitions
+- Smooth page indicators (7 effect types)
+- Programmatic control via JetCarouselController
+- Horizontal and vertical scrolling
+- Overlay/floating indicator support
+- onChange and onTap callbacks
+
+**📖 [View Complete JetCarousel Documentation](packages/jet/JET_CAROUSEL.md)**
 
 ## 💬 Dialogs & Sheets
 
