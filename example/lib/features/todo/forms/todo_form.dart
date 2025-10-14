@@ -7,9 +7,9 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'todo_form.g.dart';
 
 @riverpod
-class TodoForm extends JetFormNotifier<TodoRequest, TodoResponse> {
+class TodoForm extends _$TodoForm with JetFormMixin<TodoRequest, TodoResponse> {
   @override
-  AsyncFormValue<TodoRequest, TodoResponse> build() {
+  AsyncFormValue<TodoRequest, TodoResponse> build(int id) {
     return const AsyncFormIdle();
   }
 

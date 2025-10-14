@@ -28,6 +28,54 @@ The `useJetForm` hook provides a simplified way to handle forms in the Jet frame
 - Want to test form logic in isolation
 - Need to share form state across component tree
 
+### Using JetFormMixin with Riverpod Code Generation
+
+When using Riverpod's `@riverpod` annotation with code generation, use `JetFormMixin` instead of extending `JetFormNotifier`:
+
+```dart
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'todo_form.g.dart';
+
+@riverpod
+class TodoForm extends _$TodoForm with JetFormMixin<TodoRequest, TodoResponse> {
+  @override
+  AsyncFormValue<TodoRequest, TodoResponse> build(int id) {
+    return const AsyncFormIdle();
+  }
+
+  @override
+  TodoRequest decoder(Map<String, dynamic> json) {
+    return TodoRequest.fromJson(json);
+  }
+
+  @override
+  Future<TodoResponse> action(TodoRequest data) async {
+    final apiService = ref.read(apiServiceProvider);
+    return await apiService.createTodo(data);
+  }
+}
+
+// Use the generated provider
+class TodoPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return JetFormBuilder<TodoRequest, TodoResponse>(
+      provider: todoFormProvider(todoId), // Generated family provider
+      builder: (context, ref, form, state) => [
+        // Your form fields
+      ],
+    );
+  }
+}
+```
+
+**Key differences with code generation:**
+- Use `extends _$TodoForm with JetFormMixin<Request, Response>` instead of `extends JetFormNotifier<Request, Response>`
+- The `@riverpod` annotation generates the provider automatically
+- Support for family providers with parameters (e.g., `todoFormProvider(id)`)
+- Full hot reload support with generated code
+
 ## Basic Usage
 
 ### 1. Import Required Packages
@@ -618,15 +666,74 @@ JetSimpleForm(
 
 ## Migration Guide
 
+### From Legacy JetFormNotifier to JetFormMixin (Riverpod 3 Code Generation)
+
+**Before (Legacy approach):**
+```dart
+// todo_form.dart
+class TodoFormNotifier extends JetFormNotifier<TodoRequest, TodoResponse> {
+  TodoFormNotifier(super.ref);
+  
+  @override
+  AsyncFormValue<TodoRequest, TodoResponse> build() => const AsyncFormIdle();
+  
+  @override
+  TodoRequest decoder(Map<String, dynamic> json) => TodoRequest.fromJson(json);
+  
+  @override
+  Future<TodoResponse> action(TodoRequest data) async {
+    return await apiService.createTodo(data);
+  }
+}
+
+final todoFormProvider = JetFormProvider<TodoRequest, TodoResponse>(
+  (ref) => TodoFormNotifier(ref),
+);
+```
+
+**After (With code generation):**
+```dart
+// todo_form.dart
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'todo_form.g.dart';
+
+@riverpod
+class TodoForm extends _$TodoForm with JetFormMixin<TodoRequest, TodoResponse> {
+  @override
+  AsyncFormValue<TodoRequest, TodoResponse> build(int id) {
+    return const AsyncFormIdle();
+  }
+  
+  @override
+  TodoRequest decoder(Map<String, dynamic> json) => TodoRequest.fromJson(json);
+  
+  @override
+  Future<TodoResponse> action(TodoRequest data) async {
+    final apiService = ref.read(apiServiceProvider);
+    return await apiService.createTodo(data);
+  }
+}
+
+// Provider is auto-generated: todoFormProvider(id)
+```
+
+**Key Migration Steps:**
+1. Add `@riverpod` annotation
+2. Change `extends JetFormNotifier` to `extends _$TodoForm with JetFormMixin`
+3. Add `part 'filename.g.dart';` directive
+4. Remove manual provider creation (auto-generated)
+5. Run `dart run build_runner build`
+
 ### From JetFormNotifier to useJetForm
 
 Before:
 ```dart
 // todo_form.dart
 @riverpod
-class TodoForm extends JetFormNotifier<TodoRequest, TodoResponse> {
+class TodoForm extends _$TodoForm with JetFormMixin<TodoRequest, TodoResponse> {
   @override
-  AsyncFormValue<TodoRequest, TodoResponse> build() => const AsyncFormIdle();
+  AsyncFormValue<TodoRequest, TodoResponse> build(int id) => const AsyncFormIdle();
   
   @override
   TodoRequest decoder(Map<String, dynamic> json) => TodoRequest.fromJson(json);
@@ -642,7 +749,7 @@ class TodoPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return JetFormBuilder<TodoRequest, TodoResponse>(
-      provider: todoFormProvider,
+      provider: todoFormProvider(todoId),
       builder: (context, ref, form, state) {
         return [
           FormBuilderTextField(name: 'title'),
