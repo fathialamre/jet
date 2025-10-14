@@ -87,6 +87,14 @@ class HomePage extends JetConsumerWidget {
                     onTap: () =>
                         context.router.push(NotificationsExampleRoute()),
                   ),
+                  const SizedBox(height: 12),
+                  _ExampleCard(
+                    title: 'Carousel (JetCarousel)',
+                    description:
+                        'Feature-rich carousel with auto-play, infinite scroll, and indicators',
+                    icon: Icons.view_carousel,
+                    onTap: () => context.router.push(CarouselExampleRoute()),
+                  ),
                 ],
               ),
             ),

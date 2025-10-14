@@ -10,3 +10,6 @@ export 'login/login_page.dart';
 
 // Notifications Example
 export 'notifications/notifications_example.dart';
+
+// Carousel Example
+export 'carousel/carousel_example_page.dart';

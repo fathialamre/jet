@@ -18,6 +18,7 @@ class AppRouter extends RootStackRouter {
     AutoRoute(page: TodoRoute.page),
     AutoRoute(page: SettingsRoute.page),
     AutoRoute(page: NotificationsExampleRoute.page),
+    AutoRoute(page: CarouselExampleRoute.page),
   ];
 
   @override
