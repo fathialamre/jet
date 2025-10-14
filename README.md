@@ -2,11 +2,11 @@
 
 **Jet** is a production-ready, lightweight Flutter framework designed for building scalable, maintainable applications with confidence. It provides a complete architectural foundation with best practices baked in, eliminating boilerplate and accelerating development from prototype to production.
 
-Built on **Riverpod 3** with code generation support, Jet combines powerful state management, type-safe networking, secure storage, intelligent caching, and a rich component library—all working seamlessly together.
+Built on **Riverpod 3** with code generation support, Jet combines powerful state management, type-safe networking, secure storage, and a rich component library—all working seamlessly together.
 
 ## ✨ Why Jet?
 
-- **🎯 Batteries Included** - Everything you need from day one: routing, networking, forms, storage, caching, notifications, and more
+- **🎯 Batteries Included** - Everything you need from day one: routing, networking, forms, storage, notifications, and more
 - **📐 Opinionated Architecture** - Best practices and patterns built-in, no more architectural decisions paralysis
 - **⚡ Developer Experience** - Hot reload friendly, minimal boilerplate, fluent APIs, and comprehensive documentation
 - **🔐 Production Ready** - Security features, error handling, logging, and performance optimizations out of the box
@@ -40,7 +40,6 @@ class AppConfig extends JetConfig {
   List<JetAdapter> get adapters => [
     RouterAdapter(),        // Routing with AutoRoute
     StorageAdapter(),       // Local storage
-    CacheAdapter(),         // Caching with TTL support
     NotificationsAdapter(), // Local notifications
   ];
 
@@ -171,7 +170,7 @@ class HomePage extends JetConsumerWidget {
 }
 ```
 
-**That's it!** 🎉 You now have a fully configured Jet app with routing, theming, localization, storage, caching, and notifications ready to go.
+**That's it!** 🎉 You now have a fully configured Jet app with routing, theming, localization, storage, and notifications ready to go.
 
 ## 📋 Table of Contents
 
@@ -179,21 +178,67 @@ class HomePage extends JetConsumerWidget {
 - [Routing](#-routing)
 - [Adapters](#-adapters)
 - [Storage](#-storage)
-- [Caching](#-caching)
 - [Theming](#-theming)
 - [Localization](#-localization)
 - [Networking](#-networking)
+  - [Network Logging Configuration](#network-logging-configuration)
 - [Error Handling](#%EF%B8%8F-error-handling)
 - [Forms](#-forms)
+  - [Simple Forms with useJetForm Hook](#simple-forms-with-usejetform-hook)
+  - [Complete Form Example with JetFormNotifier](#complete-form-example-with-jetformnotifier)
+  - [JetFormBuilder Constructor Variants](#jetformbuilder-constructor-variants)
+  - [Enhanced Form Inputs](#enhanced-form-inputs)
+  - [Riverpod 3 Generators Support with JetFormMixin](#riverpod-3-generators-support-with-jetformmixin)
 - [Components](#-components)
+  - [JetButton](#jetbutton)
+  - [JetTab](#jettab)
 - [Dialogs & Sheets](#-dialogs--sheets)
+  - [Adaptive Confirmation Dialog](#adaptive-confirmation-dialog)
+  - [Confirmation Bottom Sheet](#confirmation-bottom-sheet)
 - [Helpers & Utilities](#-helpers--utilities)
+  - [JetFaker - Test Data Generation](#jetfaker---test-data-generation)
 - [Extensions](#-extensions)
+  - [BuildContext Extensions](#buildcontext-extensions)
+  - [Text Extensions](#text-extensions)
+  - [DateTime Extensions](#datetime-extensions)
+  - [Number Extensions](#number-extensions)
 - [Security](#-security)
+  - [App Locker](#app-locker)
 - [Sessions](#-sessions)
+  - [Session Manager](#session-manager)
+  - [Auth Provider Integration](#auth-provider-integration)
 - [State Management](#-state-management)
+  - [JetBuilder - Unified State Widget](#jetbuilder---unified-state-widget)
+  - [Family Providers for Parameters](#family-providers-for-parameters)
+  - [Riverpod 3 Generators for Providers](#riverpod-3-generators-for-providers)
+  - [Grid Layouts](#grid-layouts)
+  - [JetPaginator - Infinite Scroll](#jetpaginator---infinite-scroll)
+  - [JetConsumerWidget - Enhanced Consumer](#jetconsumerwidget---enhanced-consumer)
 - [Notifications](#-notifications)
+  - [Setup](#setup-1)
+  - [Basic Notifications](#basic-notifications)
+  - [Scheduled Notifications](#scheduled-notifications)
+  - [Advanced Notifications](#advanced-notifications)
+  - [Notification Management](#notification-management)
+  - [Notification Observer](#notification-observer)
+  - [Platform-Specific Features](#platform-specific-features)
+  - [Notification Channels](#notification-channels-android)
+  - [Notification Icons](#notification-icons)
+  - [Event Categories and Priorities](#event-categories-and-priorities)
+  - [Event-Driven Notifications](#event-driven-notifications)
 - [Debugging](#-debugging)
+  - [Stack Trace Debugging](#stack-trace-debugging)
+  - [Enhanced Logging](#enhanced-logging)
+- [Key Features Summary](#-key-features-summary)
+- [Best Practices](#-best-practices)
+  - [Project Structure](#project-structure)
+  - [State Management Guidelines](#state-management-guidelines)
+  - [Error Handling](#error-handling)
+  - [Form Management Guidelines](#form-management-guidelines)
+  - [Performance Optimization](#performance-optimization)
+  - [Security Best Practices](#security-best-practices)
+  - [Code Quality](#code-quality)
+- [Additional Resources](#-additional-resources)
 
 ## ⚙️ Configuration
 
@@ -341,198 +386,6 @@ await JetStorage.clearSecure(); // Clear all secure storage
 - Encrypted secure storage for sensitive data
 - JSON serialization support
 - Default values and error handling
-
-## 💾 Caching
-
-Jet provides a powerful caching system built on **[Hive](https://pub.dev/packages/hive)** with TTL (Time To Live) support for efficient data management and offline capabilities.
-
-### Setup
-
-Add the cache adapter to your app configuration:
-
-```dart
-class AppConfig extends JetConfig {
-  @override
-  List<JetAdapter> get adapters => [
-    RouterAdapter(),
-    CacheAdapter(), // Add caching support
-  ];
-}
-```
-
-### Basic Caching
-
-Cache data with automatic expiration:
-
-```dart
-// Cache data with 30-second TTL
-await JetCache.write(
-  'user_data',
-  {'name': 'John Doe', 'email': 'john@example.com'},
-  ttl: Duration(seconds: 30),
-);
-
-// Read cached data
-final userData = await JetCache.read('user_data');
-if (userData != null) {
-  print('User: ${userData['name']}');
-}
-
-// Check if data exists and is not expired
-final exists = await JetCache.exists('user_data');
-
-// Delete specific cache entry
-await JetCache.delete('user_data');
-```
-
-### Advanced Caching
-
-Use different TTL strategies for different data types:
-
-```dart
-// User data - 30 seconds
-await JetCache.write('user', userData, ttl: Duration(seconds: 30));
-
-// Product list - 5 minutes
-await JetCache.write('products', productsData, ttl: Duration(minutes: 5));
-
-// App settings - 1 hour
-await JetCache.write('settings', settingsData, ttl: Duration(hours: 1));
-
-// Persistent data - no TTL
-await JetCache.write('permanent_data', data); // Never expires
-```
-
-### Cache Management
-
-Monitor and manage your cache:
-
-```dart
-// Get cache statistics
-final stats = await JetCache.getStats();
-print('Total entries: ${stats['totalEntries']}');
-print('Valid entries: ${stats['validEntries']}');
-print('Expired entries: ${stats['expiredEntries']}');
-
-// Cleanup expired entries
-final removedCount = await JetCache.cleanupExpired();
-print('Removed $removedCount expired entries');
-
-// Clear all cache
-await JetCache.clear();
-```
-
-### Type-Safe Caching Service
-
-Create a service layer for type-safe caching:
-
-```dart
-class CacheService {
-  // Cache user with 30-second TTL
-  static Future<void> cacheUser(User user) async {
-    await JetCache.write(
-      'user_data',
-      user.toJson(),
-      ttl: Duration(seconds: 30),
-    );
-  }
-
-  // Get user from cache
-  static Future<User?> getUser() async {
-    final data = await JetCache.read('user_data');
-    if (data == null) return null;
-    return User.fromJson(data);
-  }
-
-  // Cache products with 5-minute TTL
-  static Future<void> cacheProducts(List<Product> products) async {
-    final data = {
-      'products': products.map((p) => p.toJson()).toList(),
-      'cachedAt': DateTime.now().millisecondsSinceEpoch,
-    };
-    await JetCache.write('products_list', data, ttl: Duration(minutes: 5));
-  }
-
-  // Get products from cache
-  static Future<List<Product>?> getProducts() async {
-    final data = await JetCache.read('products_list');
-    if (data == null) return null;
-    
-    final productsData = data['products'] as List;
-    return productsData
-        .map((json) => Product.fromJson(json))
-        .toList();
-  }
-}
-```
-
-### Cache with Auto-Refresh
-
-Implement cache with automatic refresh when data expires:
-
-```dart
-class DataService {
-  static Future<List<Product>> getProducts() async {
-    return await JetCache.getOrRefresh<List<Product>>(
-      'products',
-      (data) => (data['products'] as List)
-          .map((json) => Product.fromJson(json))
-          .toList(),
-      () async {
-        // Refresh function - called when cache is empty/expired
-        final api = ref.read(apiServiceProvider);
-        final response = await api.getProducts();
-        return {'products': response.map((p) => p.toJson()).toList()};
-      },
-      ttl: Duration(minutes: 5),
-    );
-  }
-}
-```
-
-### Batch Operations
-
-Perform multiple cache operations efficiently:
-
-```dart
-// Read multiple keys at once
-final results = await CacheService.readMultiple([
-  'user_data',
-  'products_list',
-  'settings',
-]);
-
-// Delete multiple keys
-await CacheService.deleteMultiple([
-  'old_user_data',
-  'expired_products',
-]);
-```
-
-### Cache Example
-
-See the complete cache example in the example app:
-
-```dart
-// Navigate to cache example
-Navigator.of(context).push(
-  MaterialPageRoute(
-    builder: (context) => const CacheExamplePage(),
-  ),
-);
-```
-
-**Cache Features:**
-- **TTL Support** - Automatic expiration with configurable timeouts
-- **Hive Integration** - Fast, lightweight NoSQL database
-- **Type Safety** - Full type safety with generic support
-- **Automatic Cleanup** - Remove expired entries automatically
-- **Statistics** - Monitor cache usage and performance
-- **Batch Operations** - Efficient multi-key operations
-- **Auto-Refresh** - Automatic data refresh when cache expires
-- **Cross-Platform** - Works on all Flutter platforms
-- **Persistence** - Data survives app restarts
-- **Memory Efficient** - Optimized for mobile performance
 
 ## 🎨 Theming
 
@@ -890,6 +743,165 @@ class LoginFormWidget extends StatelessWidget {
 }
 ```
 
+### JetFormBuilder Constructor Variants
+
+`JetFormBuilder` provides three constructor variants to handle different form complexity levels:
+
+#### Default Constructor
+
+The standard constructor with balanced defaults suitable for most forms:
+
+```dart
+JetFormBuilder<LoginRequest, User>(
+  provider: loginFormProvider,
+  onSuccess: (user, request) {
+    context.router.pushNamed('/dashboard');
+  },
+  builder: (context, ref, form, state) => [
+    FormBuilderTextField(name: 'email'),
+    JetPasswordField(name: 'password'),
+  ],
+)
+```
+
+**Features:**
+- Shows error snackbar on failure (`showErrorSnackBar: true`)
+- Uses default error handler (`useDefaultErrorHandler: true`)
+- Shows default submit button (`showDefaultSubmitButton: true`)
+- Perfect for standard forms with typical behavior
+
+#### .advanced Constructor
+
+For complex forms requiring full control over error handling and submission:
+
+```dart
+JetFormBuilder.advanced(
+  provider: loginFormProvider,
+  builder: (context, ref, form, state) => [
+    FormBuilderTextField(name: 'email'),
+    FormBuilderTextField(name: 'password'),
+    
+    // Custom submit button with loading state
+    state.isLoading
+        ? CircularProgressIndicator()
+        : ElevatedButton(
+            onPressed: () => form.submit(),
+            child: Text('Custom Submit'),
+          ),
+  ],
+  onSuccess: (response, request) {
+    // Custom success handling
+    showCustomSuccessDialog(response);
+  },
+  onError: (error, stackTrace, invalidateFields) {
+    // Custom error handling
+    if (error is JetError && error.isValidation) {
+      // Handle validation errors with custom UI
+      showValidationErrorSheet(error.errors);
+    } else {
+      // Handle other errors
+      showCustomErrorDialog(error.toString());
+    }
+  },
+)
+```
+
+**Features:**
+- No error snackbar (`showErrorSnackBar: false`)
+- No default error handler (`useDefaultErrorHandler: false`)
+- No default submit button (`showDefaultSubmitButton: false`)
+- Full control over error handling and UI
+- Perfect for forms with custom error display and submission flows
+
+**Use Cases:**
+- Forms with custom error displays (e.g., inline errors, dialogs)
+- Multi-step forms with custom navigation
+- Forms that need custom submission buttons with complex behavior
+- Forms requiring custom validation feedback
+
+#### .hook Constructor
+
+For use within `HookConsumerWidget` where the builder needs to use Flutter hooks:
+
+```dart
+class LoginPage extends HookConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
+      body: JetFormBuilder.hook(
+        provider: loginFormProvider,
+        builder: (context, ref, form, state) {
+          // Use hooks inside the builder
+          final focusNode = useFocusNode();
+          final animationController = useAnimationController(
+            duration: Duration(milliseconds: 300),
+          );
+          
+          useEffect(() {
+            if (state.hasError) {
+              animationController.forward();
+            }
+            return null;
+          }, [state.hasError]);
+
+          return [
+            FormBuilderTextField(
+              name: 'email',
+              focusNode: focusNode,
+            ),
+            JetPasswordField(name: 'password'),
+            
+            // Use animated builder with hook controller
+            AnimatedBuilder(
+              animation: animationController,
+              builder: (context, child) {
+                return Transform.translate(
+                  offset: Offset(
+                    animationController.value * 10,
+                    0,
+                  ),
+                  child: child,
+                );
+              },
+              child: JetButton(
+                text: 'Login',
+                onTap: form.submit,
+              ),
+            ),
+          ];
+        },
+        onSuccess: (user, request) {
+          context.router.pushNamed('/dashboard');
+        },
+      ),
+    );
+  }
+}
+```
+
+**Features:**
+- Identical behavior to default constructor
+- Named to indicate hook compatibility
+- Allows use of Flutter hooks within the builder function
+- Perfect for forms with animations, focus management, or other hook-dependent features
+
+**Use Cases:**
+- Forms with animations controlled by `useAnimationController()`
+- Forms with focus management using `useFocusNode()`
+- Forms with state management using `useState()` or `useMemoized()`
+- Forms that need `useEffect()` for side effects
+
+**Comparison Table:**
+
+| Feature | Default | .advanced | .hook |
+|---------|---------|-----------|-------|
+| Error Snackbar | ✅ Yes | ❌ No | ✅ Yes |
+| Default Error Handler | ✅ Yes | ❌ No | ✅ Yes |
+| Default Submit Button | ✅ Yes | ❌ No | ✅ Yes |
+| Hook Support | ⚠️ Not intended | ⚠️ Not intended | ✅ Yes |
+| Custom Error Handling | Optional | Required | Optional |
+| Use Case | Standard forms | Custom UI/logic | Hook-based forms |
+
 ### Enhanced Form Inputs
 
 Jet provides specialized input components with built-in validation:
@@ -1007,6 +1019,7 @@ class UserFormPage extends StatelessWidget {
 
 **Form Features:**
 - **Two approaches** - useJetForm hook for simple forms, JetFormNotifier for complex forms
+- **Three JetFormBuilder variants** - Default for standard forms, .advanced for custom control, .hook for hook-based forms
 - **Type-safe** form state with Request/Response generics
 - **Zero boilerplate** with useJetForm hook (no separate notifier files)
 - **Enhanced error handling** with centralized JetErrorHandler integration
@@ -1017,6 +1030,7 @@ class UserFormPage extends StatelessWidget {
 - **Riverpod 3 integration** with JetFormMixin and generator support
 - **JetSimpleForm widget** for streamlined form UI with useJetForm
 - **Form state access** (isLoading, hasError, hasValue, response, request)
+- **Hook support** with .hook constructor for animations and focus management
 
 **📖 [View Complete Forms Documentation](packages/jet/USE_JET_FORM.md)**
 
@@ -2330,7 +2344,6 @@ dd('Debug and die', tag: 'FATAL'); // Exits after logging
 - **📝 Forms** - Advanced form management with useJetForm hook and JetFormNotifier
 - **🌐 Networking** - Type-safe HTTP client with configurable logging
 - **💾 Storage** - Secure storage for sensitive data and regular preferences
-- **🗄️ Caching** - TTL-based caching with Hive for offline capabilities
 - **🔄 State Management** - Unified state widgets with automatic loading/error states
 - **🔔 Notifications** - Cross-platform local notifications with scheduling and management
 - **💬 Dialogs & Sheets** - Beautiful adaptive dialogs and confirmation bottom sheets
@@ -2521,20 +2534,6 @@ class SimpleContactForm extends JetFormNotifier<ContactRequest, ContactResponse>
 final userName = ref.watch(
   userProvider.select((user) => user.value?.name),
 );
-
-// ✅ DO: Cache expensive computations
-final expensiveDataProvider = AutoDisposeFutureProvider<Data>((ref) async {
-  // Check cache first
-  final cached = await JetCache.read('expensive_data');
-  if (cached != null) {
-    return Data.fromJson(cached);
-  }
-  
-  // Fetch and cache
-  final data = await fetchExpensiveData();
-  await JetCache.write('expensive_data', data.toJson(), ttl: Duration(hours: 1));
-  return data;
-});
 
 // ✅ DO: Use JetPaginator for large lists
 JetPaginator.list<Product, Map<String, dynamic>>(
