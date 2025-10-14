@@ -134,7 +134,7 @@ class JetPasswordField extends HookWidget {
     this.enabled = true,
     this.labelText,
     this.labelStyle,
-    this.filled = true,
+    this.filled = false,
     this.fillColor,
     this.border,
     this.enabledBorder,

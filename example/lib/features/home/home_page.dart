@@ -49,9 +49,25 @@ class HomePage extends JetConsumerWidget {
               child: ListView(
                 children: [
                   _ExampleCard(
-                    title: 'Todo Form',
+                    title: 'Login Form (useJetForm)',
                     description:
-                        'Example of form handling with validation and submission using Riverpod generator',
+                        'Simple login form using useJetForm hook - zero boilerplate',
+                    icon: Icons.login,
+                    onTap: () => context.router.push(LoginRoute()),
+                  ),
+                  const SizedBox(height: 12),
+                  _ExampleCard(
+                    title: 'Simple Todo (useJetForm)',
+                    description:
+                        'Todo form with useJetForm hook - no separate notifier',
+                    icon: Icons.check_circle_outline,
+                    onTap: () => context.router.push(SimpleTodoRoute()),
+                  ),
+                  const SizedBox(height: 12),
+                  _ExampleCard(
+                    title: 'Todo Form (JetFormNotifier)',
+                    description:
+                        'Traditional form with JetFormNotifier and Riverpod generator',
                     icon: Icons.checklist,
                     onTap: () => context.router.push(TodoRoute()),
                   ),

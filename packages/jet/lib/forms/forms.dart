@@ -6,9 +6,10 @@
 /// - **State Management**: AsyncFormValue pattern for form states
 /// - **Form Notifiers**: JetFormNotifier for handling form logic
 /// - **Form Builder**: JetFormBuilder for constructing forms
+/// - **Form Hooks**: useJetForm for simplified inline forms
 /// - **Input Widgets**: Pre-built form fields with validation
 ///
-/// ## Basic Usage
+/// ## Basic Usage with JetFormNotifier
 ///
 /// ```dart
 /// // 1. Define your form notifier
@@ -43,6 +44,31 @@
 ///   },
 /// )
 /// ```
+///
+/// ## Simplified Usage with useJetForm Hook
+///
+/// ```dart
+/// class LoginPage extends HookConsumerWidget {
+///   @override
+///   Widget build(BuildContext context, WidgetRef ref) {
+///     final form = useJetForm<LoginRequest, LoginResponse>(
+///       decoder: (json) => LoginRequest.fromJson(json),
+///       action: (request) => apiService.login(request),
+///       onSuccess: (response, request) {
+///         // Handle success
+///       },
+///     );
+///
+///     return JetSimpleForm(
+///       controller: form,
+///       children: [
+///         FormBuilderTextField(name: 'email'),
+///         JetPasswordField(name: 'password'),
+///       ],
+///     );
+///   }
+/// }
+/// ```
 library;
 
 // Core types and state management
@@ -56,3 +82,6 @@ export 'widgets/widgets.dart';
 
 // Input fields
 export 'inputs/inputs.dart';
+
+// Hooks
+export 'hooks/hooks.dart';
