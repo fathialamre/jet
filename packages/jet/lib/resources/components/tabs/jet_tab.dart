@@ -33,8 +33,22 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 ///   labelColor: Colors.blue,
 /// )
 /// ```
+///
+/// With keep-alive and lazy loading:
+/// ```dart
+/// JetTab.simple(
+///   keepAlive: true,   // Preserve state when switching tabs
+///   lazyLoad: true,    // Build tab content only when first visited
+///   tabs: ['Feed', 'Profile', 'Settings'],
+///   children: [
+///     FeedView(),
+///     ProfileView(),
+///     SettingsView(),
+///   ],
+/// )
+/// ```
 class JetTab extends HookWidget {
-  const JetTab._(  {
+  const JetTab._({
     super.key,
     required this.tabs,
     this.children,
@@ -62,6 +76,8 @@ class JetTab extends HookWidget {
     this.useAutoRoute = false,
     this.indicator,
     this.tabsPadding,
+    this.keepAlive = false,
+    this.lazyLoad = false,
   });
 
   /// Creates a simple tab widget with widget children.
@@ -90,6 +106,8 @@ class JetTab extends HookWidget {
     List<Widget>? customTabs,
     Decoration? indicator,
     EdgeInsetsGeometry? tabsPadding,
+    bool keepAlive = false,
+    bool lazyLoad = false,
   }) : this._(
          key: key,
          tabs: tabs,
@@ -116,6 +134,8 @@ class JetTab extends HookWidget {
          useAutoRoute: false,
          indicator: indicator,
          tabsPadding: tabsPadding,
+         keepAlive: keepAlive,
+         lazyLoad: lazyLoad,
        );
 
   /// Creates a tab widget integrated with AutoRoute.
@@ -140,6 +160,8 @@ class JetTab extends HookWidget {
     ScrollPhysics? physics,
     Duration? animationDuration,
     List<Widget>? customTabs,
+    bool keepAlive = false,
+    bool lazyLoad = false,
   }) : this._(
          key: key,
          tabs: tabs,
@@ -162,6 +184,8 @@ class JetTab extends HookWidget {
          animationDuration: animationDuration,
          customTabs: customTabs,
          useAutoRoute: true,
+         keepAlive: keepAlive,
+         lazyLoad: lazyLoad,
        );
 
   /// List of tab titles (required if customTabs is not provided).
@@ -240,6 +264,12 @@ class JetTab extends HookWidget {
 
   final EdgeInsetsGeometry? tabsPadding;
 
+  /// Whether to keep tab content alive when switching tabs (preserves state).
+  final bool keepAlive;
+
+  /// Whether to lazily load tab content only when first visited.
+  final bool lazyLoad;
+
   @override
   Widget build(BuildContext context) {
     if (useAutoRoute) {
@@ -261,6 +291,27 @@ class JetTab extends HookWidget {
 
     // Use custom tabs if provided, otherwise create from text
     final tabWidgets = customTabs ?? tabs.map((tab) => Tab(text: tab)).toList();
+
+    // Wrap children with keep-alive and/or lazy load wrappers
+    final wrappedChildren = children!.asMap().entries.map((entry) {
+      Widget child = entry.value;
+
+      // Apply lazy load wrapper first (outer wrapper)
+      if (lazyLoad) {
+        child = _LazyLoadWrapper(
+          index: entry.key,
+          controller: tabController,
+          child: child,
+        );
+      }
+
+      // Apply keep-alive wrapper (inner wrapper, closer to actual content)
+      if (keepAlive) {
+        child = _KeepAliveWrapper(child: child);
+      }
+
+      return child;
+    }).toList();
 
     return Column(
       children: [
@@ -297,7 +348,7 @@ class JetTab extends HookWidget {
           child: TabBarView(
             controller: tabController,
             physics: physics,
-            children: children!,
+            children: wrappedChildren,
           ),
         ),
       ],
@@ -313,12 +364,21 @@ class JetTab extends HookWidget {
         // Create JetTab with AutoRoute's controller
         final jetTabBar = _buildJetTabBar(controller, tabsRouter);
 
+        // Wrap child with keep-alive if enabled
+        Widget wrappedChild = child;
+        if (keepAlive) {
+          wrappedChild = _KeepAliveWrapper(child: child);
+        }
+
+        // Note: Lazy loading for router mode is handled by AutoRoute's native behavior
+        // AutoRoute already lazy-loads routes by default
+
         // Default builder that wraps in Column if no custom builder provided
         if (builder == null) {
           return Column(
             children: [
               jetTabBar,
-              Expanded(child: child),
+              Expanded(child: wrappedChild),
             ],
           );
         }
@@ -329,7 +389,7 @@ class JetTab extends HookWidget {
           Column(
             children: [
               jetTabBar,
-              Expanded(child: child),
+              Expanded(child: wrappedChild),
             ],
           ),
         );
@@ -365,6 +425,64 @@ class JetTab extends HookWidget {
         },
       ),
     );
+  }
+}
+
+/// Internal widget to preserve tab state when switching tabs.
+class _KeepAliveWrapper extends StatefulWidget {
+  final Widget child;
+
+  const _KeepAliveWrapper({required this.child});
+
+  @override
+  _KeepAliveWrapperState createState() => _KeepAliveWrapperState();
+}
+
+class _KeepAliveWrapperState extends State<_KeepAliveWrapper>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return widget.child;
+  }
+}
+
+/// Internal widget to lazily load tab content only when first visited.
+class _LazyLoadWrapper extends HookWidget {
+  final Widget child;
+  final int index;
+  final TabController controller;
+
+  const _LazyLoadWrapper({
+    required this.child,
+    required this.index,
+    required this.controller,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final hasBeenBuilt = useState(false);
+
+    useEffect(() {
+      void listener() {
+        if (controller.index == index && !hasBeenBuilt.value) {
+          hasBeenBuilt.value = true;
+        }
+      }
+
+      // Check initial state
+      if (controller.index == index) {
+        hasBeenBuilt.value = true;
+      }
+
+      controller.addListener(listener);
+      return () => controller.removeListener(listener);
+    }, [controller]);
+
+    return hasBeenBuilt.value ? child : const SizedBox.shrink();
   }
 }
 
