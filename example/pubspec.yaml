@@ -19,6 +19,7 @@ dependencies:
     
   # UI
   cupertino_icons: "^1.0.8"
+  smooth_page_indicator: "^1.2.0+3"
   
   # Networking & API
   retrofit: "^4.6.0"

@@ -11,6 +11,7 @@ export 'storage/local_storage.dart';
 export 'networking/networking.dart';
 export 'package:auto_route/auto_route.dart';
 export 'package:hooks_riverpod/hooks_riverpod.dart';
+export 'package:flutter_hooks/flutter_hooks.dart';
 export 'package:flutter_form_builder/flutter_form_builder.dart';
 export 'helpers/helpers.dart';
 export 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -20,6 +21,10 @@ export 'package:guardo/guardo.dart';
 
 // Widgets
 export 'widgets/widgets.dart';
+
+// Components
+export 'resources/components/components.dart';
+export 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 // Forms
 export '../forms/common.dart';
