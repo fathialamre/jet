@@ -34,7 +34,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 /// )
 /// ```
 class JetTab extends HookWidget {
-  const JetTab._({
+  const JetTab._(  {
     super.key,
     required this.tabs,
     this.children,
@@ -60,6 +60,8 @@ class JetTab extends HookWidget {
     this.animationDuration,
     this.customTabs,
     this.useAutoRoute = false,
+    this.indicator,
+    this.tabsPadding,
   });
 
   /// Creates a simple tab widget with widget children.
@@ -86,6 +88,8 @@ class JetTab extends HookWidget {
     ScrollPhysics? physics,
     Duration? animationDuration,
     List<Widget>? customTabs,
+    Decoration? indicator,
+    EdgeInsetsGeometry? tabsPadding,
   }) : this._(
          key: key,
          tabs: tabs,
@@ -110,6 +114,8 @@ class JetTab extends HookWidget {
          animationDuration: animationDuration,
          customTabs: customTabs,
          useAutoRoute: false,
+         indicator: indicator,
+         tabsPadding: tabsPadding,
        );
 
   /// Creates a tab widget integrated with AutoRoute.
@@ -230,6 +236,10 @@ class JetTab extends HookWidget {
   /// Custom tab widgets (overrides tabs parameter if provided).
   final List<Widget>? customTabs;
 
+  final Decoration? indicator;
+
+  final EdgeInsetsGeometry? tabsPadding;
+
   @override
   Widget build(BuildContext context) {
     if (useAutoRoute) {
@@ -254,23 +264,33 @@ class JetTab extends HookWidget {
 
     return Column(
       children: [
-        SizedBox(
-          height: tabBarHeight,
-          child: TabBar(
-            controller: tabController,
-            tabs: tabWidgets,
-            isScrollable: isScrollable,
-            tabAlignment: tabAlignment,
-            indicatorColor: indicatorColor,
-            labelColor: labelColor,
-            unselectedLabelColor: unselectedLabelColor,
-            labelStyle: labelStyle,
-            unselectedLabelStyle: unselectedLabelStyle,
-            indicatorSize: indicatorSize,
-            indicatorPadding: indicatorPadding ?? EdgeInsets.zero,
-            dividerColor: dividerColor,
-            dividerHeight: dividerHeight,
-            onTap: onTap,
+        Padding(
+          padding: tabsPadding ?? EdgeInsets.zero,
+          child: SizedBox(
+            height: tabBarHeight,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: TabBar(
+                controller: tabController,
+                tabs: tabWidgets,
+                isScrollable: isScrollable,
+                tabAlignment: tabAlignment,
+                indicatorColor: indicatorColor,
+                indicator: indicator,
+                labelColor: labelColor,
+                unselectedLabelColor: unselectedLabelColor,
+                labelStyle: labelStyle,
+                unselectedLabelStyle: unselectedLabelStyle,
+                indicatorSize: indicatorSize,
+                indicatorPadding: indicatorPadding ?? EdgeInsets.zero,
+                dividerColor: dividerColor,
+                dividerHeight: dividerHeight,
+                onTap: onTap,
+              ),
+            ),
           ),
         ),
         Expanded(
