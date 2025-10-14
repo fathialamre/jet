@@ -161,7 +161,7 @@ class JetFormBuilder<Request, Response> extends ConsumerWidget {
 
       // Handle validation errors by invalidating specific fields
       if (jetError.errors != null && jetError.errors!.isNotEmpty) {
-        form.invalidateFields(jetError.errors!, form.formKey);
+        form.invalidateFormFields(jetError.errors!);
       }
     } else {
       // Use raw error if default handler is disabled
