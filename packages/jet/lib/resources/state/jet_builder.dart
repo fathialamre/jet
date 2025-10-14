@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
-import 'package:jet/extensions/build_context.dart';
+import 'package:hooks_riverpod/misc.dart';
 import 'package:jet/jet.dart';
 import 'package:jet/resources/components/jet_empty_widget.dart';
 import 'package:jet/resources/state/jet_consumer.dart';
@@ -44,479 +44,184 @@ import 'package:jet/networking/errors/errors.dart';
 ///   builder: (user, ref) => UserProfile(user: user),
 /// )
 /// ```
+
+/// JetBuilder: Helpers for wiring Riverpod providers with Jet + AsyncValue
 class JetBuilder {
-  JetBuilder._();
-
-  // ==========================================================================
-  // LIST WIDGETS
-  // ==========================================================================
-
-  /// Creates a refreshable list widget
-  ///
-  /// Perfect for displaying lists of items with pull-to-refresh functionality.
-  /// Works with any provider that returns `List<T>`.
+  /// Build a ListView from an AsyncValue<List<T>>
   static Widget list<T>({
-    required FutureProvider<List<T>> provider,
+    required ProviderListenable<AsyncValue<List<T>>> provider,
     required Widget Function(T item, int index) itemBuilder,
     required BuildContext context,
-
-    // Customization
-    Widget? loading,
-    Widget Function(Object error, StackTrace? stackTrace)? errorBuilder,
-    Widget? noItemsBuilder,
-    Future<void> Function()? noItemsAction,
-    String? noItemsTitle,
-    EdgeInsets? padding,
-    bool shrinkWrap = false,
-    ScrollPhysics? physics,
-    Widget Function(BuildContext, int)? separatorBuilder,
-
-    // Callbacks
-    VoidCallback? onRetry,
     Future<void> Function()? onRefresh,
+    VoidCallback? onRetry,
+    Widget? loading,
+    Widget? empty,
+    String? emptyTitle,
+    Widget Function(Object error, StackTrace? stackTrace)? error,
+    ScrollPhysics? scrollPhysics,
   }) {
     return _StateWidget<List<T>>(
       provider: provider,
-      onRefresh: onRefresh,
-      onRetry: onRetry,
-      loading: loading,
-      error: errorBuilder,
       builder: (items, ref) {
         if (items.isEmpty) {
-          return noItemsBuilder ??
-              JetEmptyWidget(
-                title: context.jetI10n.noItemsFound,
-                message: context.jetI10n.noItemsFoundMessage,
-                onTap:
-                    noItemsAction ??
-                    onRetry ??
-                    () => ref.refresh(provider.future),
-                showAction: true,
-                actionText: noItemsTitle,
-              );
-        }
-        if (separatorBuilder != null) {
-          return ListView.separated(
-            padding: padding,
-            shrinkWrap: shrinkWrap,
-            physics: physics,
-            itemCount: items.length,
-            itemBuilder: (context, index) => itemBuilder(items[index], index),
-            separatorBuilder: separatorBuilder,
-          );
+          return empty ?? JetEmptyWidget(title: emptyTitle ?? '');
         }
         return ListView.builder(
-          padding: padding,
-          shrinkWrap: shrinkWrap,
-          physics: physics,
+          physics: scrollPhysics,
+          shrinkWrap: true,
           itemCount: items.length,
-          itemBuilder: (context, index) => itemBuilder(items[index], index),
+          itemBuilder: (ctx, index) => itemBuilder(items[index], index),
         );
       },
-    );
-  }
-
-  /// Creates a refreshable list widget with family support
-  ///
-  /// Use this when your provider takes parameters.
-  static Widget familyList<T, Param>({
-    required FutureProvider<List<T>> Function(Param) provider,
-    required Param param,
-    required Widget Function(T item, int index) itemBuilder,
-
-    // Customization
-    Widget? loading,
-    Widget Function(Object error, StackTrace? stackTrace)? error,
-    EdgeInsets? padding,
-    bool shrinkWrap = false,
-    ScrollPhysics? physics,
-
-    // Callbacks
-    VoidCallback? onRetry,
-    Future<void> Function()? onRefresh,
-  }) {
-    return _StateFamilyWidget<List<T>, Param>(
-      provider: provider,
-      param: param,
       onRefresh: onRefresh,
       onRetry: onRetry,
       loading: loading,
       error: error,
-      builder: (items, ref) {
-        return ListView.builder(
-          padding: padding,
-          shrinkWrap: shrinkWrap,
-          physics: physics,
-          itemCount: items.length,
-          itemBuilder: (context, index) => itemBuilder(items[index], index),
-        );
-      },
     );
   }
 
-  // ==========================================================================
-  // GRID WIDGETS
-  // ==========================================================================
-
-  /// Creates a refreshable grid widget
-  ///
-  /// Perfect for displaying items in a grid layout with pull-to-refresh.
+  /// Build a GridView from an AsyncValue<List<T>>
   static Widget grid<T>({
-    required FutureProvider<List<T>> provider,
+    required ProviderListenable<AsyncValue<List<T>>> provider,
     required Widget Function(T item, int index) itemBuilder,
     required int crossAxisCount,
-
-    // Grid customization
-    double crossAxisSpacing = 8.0,
-    double mainAxisSpacing = 8.0,
-    double childAspectRatio = 1.0,
-
-    // General customization
+    required BuildContext context,
+    Future<void> Function()? onRefresh,
+    VoidCallback? onRetry,
     Widget? loading,
     Widget Function(Object error, StackTrace? stackTrace)? error,
-    EdgeInsets? padding,
-    bool shrinkWrap = false,
-    ScrollPhysics? physics,
-
-    // Callbacks
-    VoidCallback? onRetry,
-    Future<void> Function()? onRefresh,
   }) {
     return _StateWidget<List<T>>(
       provider: provider,
+      builder: (items, ref) => GridView.builder(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: crossAxisCount,
+        ),
+        itemCount: items.length,
+        itemBuilder: (ctx, index) => itemBuilder(items[index], index),
+      ),
       onRefresh: onRefresh,
       onRetry: onRetry,
       loading: loading,
       error: error,
-      builder: (items, ref) {
-        return GridView.builder(
-          padding: padding,
-          shrinkWrap: shrinkWrap,
-          physics: physics,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            crossAxisSpacing: crossAxisSpacing,
-            mainAxisSpacing: mainAxisSpacing,
-            childAspectRatio: childAspectRatio,
-          ),
-          itemCount: items.length,
-          itemBuilder: (context, index) => itemBuilder(items[index], index),
-        );
-      },
     );
   }
 
-  /// Creates a refreshable grid widget with family support
-  static Widget familyGrid<T, Param>({
-    required FutureProvider<List<T>> Function(Param) provider,
-    required Param param,
-    required Widget Function(T item, int index) itemBuilder,
-    required int crossAxisCount,
-
-    // Grid customization
-    double crossAxisSpacing = 8.0,
-    double mainAxisSpacing = 8.0,
-    double childAspectRatio = 1.0,
-
-    // General customization
+  /// Build a single item widget from AsyncValue<T>
+  static Widget item<T>({
+    required ProviderListenable<AsyncValue<T>> provider,
+    required Widget Function(T item, WidgetRef ref) builder,
+    Future<void> Function()? onRefresh,
+    VoidCallback? onRetry,
     Widget? loading,
     Widget Function(Object error, StackTrace? stackTrace)? error,
-    EdgeInsets? padding,
-    bool shrinkWrap = false,
-    ScrollPhysics? physics,
+  }) {
+    return _StateWidget<T>(
+      provider: provider,
+      builder: builder,
+      onRefresh: onRefresh,
+      onRetry: onRetry,
+      loading: loading,
+      error: error,
+    );
+  }
 
-    // Callbacks
-    VoidCallback? onRetry,
+  /// Build from AsyncValue<T> without forcing ListView/Grid
+  static Widget builder<T>({
+    required ProviderListenable<AsyncValue<T>> provider,
+    required Widget Function(T data, WidgetRef ref) builder,
     Future<void> Function()? onRefresh,
+    VoidCallback? onRetry,
+    Widget? loading,
+    Widget Function(Object error, StackTrace? stackTrace)? error,
+  }) {
+    return _StateWidget<T>(
+      provider: provider,
+      builder: builder,
+      onRefresh: onRefresh,
+      onRetry: onRetry,
+      loading: loading,
+      error: error,
+    );
+  }
+
+  /// Family: list with a parameter
+  static Widget familyList<T, Param>({
+    required ProviderListenable<AsyncValue<List<T>>> Function(Param) provider,
+    required Param param,
+    required Widget Function(T item, int index) itemBuilder,
+    required BuildContext context,
+    Future<void> Function()? onRefresh,
+    VoidCallback? onRetry,
+    Widget? loading,
+    Widget Function(Object error, StackTrace? stackTrace)? error,
   }) {
     return _StateFamilyWidget<List<T>, Param>(
       provider: provider,
       param: param,
+      builder: (items, ref) => ListView.builder(
+        itemCount: items.length,
+        itemBuilder: (ctx, index) => itemBuilder(items[index], index),
+      ),
       onRefresh: onRefresh,
       onRetry: onRetry,
       loading: loading,
       error: error,
-      builder: (items, ref) {
-        return GridView.builder(
-          padding: padding,
-          shrinkWrap: shrinkWrap,
-          physics: physics,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            crossAxisSpacing: crossAxisSpacing,
-            mainAxisSpacing: mainAxisSpacing,
-            childAspectRatio: childAspectRatio,
-          ),
-          itemCount: items.length,
-          itemBuilder: (context, index) => itemBuilder(items[index], index),
-        );
-      },
     );
   }
 
-  // ==========================================================================
-  // SINGLE ITEM WIDGETS
-  // ==========================================================================
-
-  /// Creates a refreshable single item widget
-  ///
-  /// Perfect for displaying a single item (like user profile, product details)
-  /// with pull-to-refresh functionality.
-  static Widget item<T>({
-    required FutureProvider<T> provider,
-    required Widget Function(T item, WidgetRef ref) builder,
-
-    // Customization
-    Widget? loading,
-    Widget Function(Object error, StackTrace? stackTrace)? error,
-    EdgeInsets? padding,
-    ScrollPhysics? physics,
-
-    // Callbacks
-    VoidCallback? onRetry,
-    Future<void> Function()? onRefresh,
-  }) {
-    return _StateWidget<T>(
-      provider: provider,
-      onRefresh: onRefresh,
-      onRetry: onRetry,
-      loading: loading,
-      error: error,
-      builder: (item, ref) {
-        return SingleChildScrollView(
-          padding: padding,
-          physics: physics ?? const AlwaysScrollableScrollPhysics(),
-          child: builder(item, ref),
-        );
-      },
-    );
-  }
-
-  /// Creates a refreshable single item widget with family support
-  static Widget familyItem<T, Param>({
-    required FutureProvider<T> Function(Param) provider,
+  /// Family: grid with a parameter
+  static Widget familyGrid<T, Param>({
+    required ProviderListenable<AsyncValue<List<T>>> Function(Param) provider,
     required Param param,
-    required Widget Function(T item, WidgetRef ref) builder,
-
-    // Customization
+    required Widget Function(T item, int index) itemBuilder,
+    required int crossAxisCount,
+    required BuildContext context,
+    Future<void> Function()? onRefresh,
+    VoidCallback? onRetry,
     Widget? loading,
     Widget Function(Object error, StackTrace? stackTrace)? error,
-    EdgeInsets? padding,
-    ScrollPhysics? physics,
-
-    // Callbacks
-    VoidCallback? onRetry,
-    Future<void> Function()? onRefresh,
   }) {
-    return _StateFamilyWidget<T, Param>(
+    return _StateFamilyWidget<List<T>, Param>(
       provider: provider,
       param: param,
+      builder: (items, ref) => GridView.builder(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: crossAxisCount,
+        ),
+        itemCount: items.length,
+        itemBuilder: (ctx, index) => itemBuilder(items[index], index),
+      ),
       onRefresh: onRefresh,
       onRetry: onRetry,
       loading: loading,
       error: error,
-      builder: (item, ref) {
-        return SingleChildScrollView(
-          padding: padding,
-          physics: physics ?? const AlwaysScrollableScrollPhysics(),
-          child: builder(item, ref),
-        );
-      },
     );
   }
 
-  // ==========================================================================
-  // CUSTOM BUILDER WIDGET
-  // ==========================================================================
-
-  /// Creates a refreshable widget with custom builder
-  ///
-  /// Use this when you need full control over the widget structure
-  /// while still getting pull-to-refresh and error handling.
-  static Widget builder<T>({
-    required FutureProvider<T> provider,
-    required Widget Function(T data, WidgetRef ref) builder,
-
-    // Customization
-    Widget? loading,
-    Widget Function(Object error, StackTrace? stackTrace)? error,
-
-    // Callbacks
-    VoidCallback? onRetry,
-    Future<void> Function()? onRefresh,
-  }) {
-    return _StateWidget<T>(
-      provider: provider,
-      onRefresh: onRefresh,
-      onRetry: onRetry,
-      loading: loading,
-      error: error,
-      builder: builder,
-    );
-  }
-
-  /// Creates a refreshable widget with custom builder and family support
+  /// Family: builder with param
   static Widget familyBuilder<T, Param>({
-    required FutureProvider<T> Function(Param) provider,
+    required ProviderListenable<AsyncValue<T>> Function(Param) provider,
     required Param param,
     required Widget Function(T data, WidgetRef ref) builder,
-
-    // Customization
+    Future<void> Function()? onRefresh,
+    VoidCallback? onRetry,
     Widget? loading,
     Widget Function(Object error, StackTrace? stackTrace)? error,
-
-    // Callbacks
-    VoidCallback? onRetry,
-    Future<void> Function()? onRefresh,
   }) {
     return _StateFamilyWidget<T, Param>(
       provider: provider,
       param: param,
+      builder: builder,
       onRefresh: onRefresh,
       onRetry: onRetry,
       loading: loading,
       error: error,
-      builder: builder,
     );
   }
 }
 
-// =============================================================================
-// ERROR HANDLING HELPER FUNCTIONS
-// =============================================================================
-
-/// Build a retry button with loading state management
-Widget _buildRetryButton<T>({
-  required JetError jetError,
-  required WidgetRef ref,
-  required VoidCallback? onRetry,
-  required FutureProvider<T> provider,
-}) {
-  return JetConsumer(
-    builder: (context, ref, jet) {
-      final isLoading = ref.watch(provider).isLoading;
-      final loader = jet.config.loader;
-
-      return FilledButton(
-        onPressed: isLoading ? null : onRetry,
-        child: isLoading
-            ? SizedBox(
-                width: 20,
-                height: 20,
-                child: loader,
-              )
-            : Text(_getRetryButtonText(jetError, context)),
-      );
-    },
-  );
-}
-
-/// Build error icon based on JetError type
-Widget _buildErrorIcon(JetError jetError) {
-  IconData iconData;
-  Color color;
-
-  switch (jetError.type) {
-    case JetErrorType.noInternet:
-      iconData = Icons.wifi_off;
-      color = Colors.orange;
-      break;
-    case JetErrorType.server:
-      iconData = Icons.dns;
-      color = Colors.red;
-      break;
-    case JetErrorType.client:
-      iconData = Icons.error_outline;
-      color = Colors.red;
-      break;
-    case JetErrorType.validation:
-      iconData = Icons.warning;
-      color = Colors.amber;
-      break;
-    case JetErrorType.timeout:
-      iconData = Icons.access_time;
-      color = Colors.orange;
-      break;
-    case JetErrorType.cancelled:
-      iconData = Icons.cancel;
-      color = Colors.grey;
-      break;
-    case JetErrorType.unknown:
-      iconData = Icons.error_outline;
-      color = Colors.red;
-      break;
-  }
-
-  return Icon(iconData, size: 48, color: color);
-}
-
-/// Get error title based on JetError type
-String _getErrorTitle(
-  JetError jetError,
-  BuildContext context,
-) {
-  switch (jetError.type) {
-    case JetErrorType.noInternet:
-      return context.jetI10n.noInternetConnection;
-    case JetErrorType.server:
-      return context.jetI10n.serverError;
-    case JetErrorType.client:
-      return context.jetI10n.requestError;
-    case JetErrorType.validation:
-      return context.jetI10n.validationError;
-    case JetErrorType.timeout:
-      return context.jetI10n.requestTimeout;
-    case JetErrorType.cancelled:
-      return context.jetI10n.requestCancelled;
-    case JetErrorType.unknown:
-      return context.jetI10n.somethingWentWrong;
-  }
-}
-
-/// Get retry button text based on JetError type
-String _getRetryButtonText(JetError jetError, BuildContext context) {
-  switch (jetError.type) {
-    case JetErrorType.noInternet:
-      return context.jetI10n.checkConnection;
-    case JetErrorType.cancelled:
-      return context.jetI10n.restart;
-    default:
-      return context.jetI10n.retry;
-  }
-}
-
-/// Build validation errors widget
-Widget _buildValidationErrors(Map<String, List<String>> errors) {
-  return Container(
-    padding: const EdgeInsets.all(12.0),
-    decoration: BoxDecoration(
-      color: Colors.red.shade50,
-      border: Border.all(color: Colors.red.shade300),
-      borderRadius: BorderRadius.circular(8.0),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: errors.entries.map((entry) {
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 4.0),
-          child: Text(
-            '${entry.key}: ${entry.value.join(', ')}',
-            style: TextStyle(
-              color: Colors.red.shade700,
-              fontSize: 12,
-            ),
-          ),
-        );
-      }).toList(),
-    ),
-  );
-}
-
-// =============================================================================
-// INTERNAL IMPLEMENTATION WIDGETS
-// =============================================================================
-
-/// Internal widget that handles state management for regular providers
+/// State widget for a single provider
 class _StateWidget<T> extends JetConsumerWidget {
   const _StateWidget({
     required this.provider,
@@ -527,7 +232,7 @@ class _StateWidget<T> extends JetConsumerWidget {
     this.error,
   });
 
-  final FutureProvider<T> provider;
+  final ProviderListenable<AsyncValue<T>> provider;
   final Widget Function(T data, WidgetRef ref) builder;
   final Future<void> Function()? onRefresh;
   final VoidCallback? onRetry;
@@ -539,7 +244,11 @@ class _StateWidget<T> extends JetConsumerWidget {
     final asyncValue = ref.watch(provider);
 
     return CustomMaterialIndicator(
-      onRefresh: onRefresh ?? () => ref.refresh(provider.future),
+      onRefresh:
+          onRefresh ??
+          () async {
+            return ref.refresh(provider as Refreshable<AsyncValue<T>>);
+          },
       triggerMode: IndicatorTriggerMode.onEdge,
       indicatorBuilder: (context, controller) {
         return SizedBox(
@@ -560,98 +269,9 @@ class _StateWidget<T> extends JetConsumerWidget {
       ),
     );
   }
-
-  Widget _buildRefreshIndicator(
-    IndicatorController controller,
-    AsyncValue<T> asyncValue,
-  ) {
-    if (controller.state.isLoading || asyncValue.isLoading) {
-      return const SizedBox(
-        width: 20,
-        height: 20,
-        child: CircularProgressIndicator(strokeWidth: 2.0),
-      );
-    }
-
-    final progress = controller.value.clamp(0.0, 1.0);
-    return SizedBox(
-      width: 20,
-      height: 20,
-      child: CircularProgressIndicator(
-        value: progress,
-        strokeWidth: 2.0,
-      ),
-    );
-  }
-
-  Widget _buildDefaultErrorWidget(
-    Object error,
-    StackTrace? stackTrace,
-    Jet jet,
-    WidgetRef ref,
-    BuildContext context,
-  ) {
-    // Use the error handler to process the error
-    final jetError = jet.config.errorHandler.handle(
-      error,
-      context,
-      stackTrace: stackTrace,
-    );
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: constraints.maxHeight,
-            ),
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    _buildErrorIcon(jetError),
-                    const SizedBox(height: 16),
-                    Text(
-                      _getErrorTitle(jetError, context),
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      jetError.message,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(color: Colors.grey),
-                    ),
-                    if (jetError.isValidation && jetError.errors != null) ...[
-                      const SizedBox(height: 12),
-                      _buildValidationErrors(jetError.errors!),
-                    ],
-                    const SizedBox(height: 16),
-
-                    _buildRetryButton(
-                      jetError: jetError,
-                      ref: ref,
-                      onRetry: onRetry ?? () => ref.invalidate(provider),
-                      provider: provider,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
 }
 
-/// Internal widget that handles state management for family providers
+/// State widget for provider families
 class _StateFamilyWidget<T, Param> extends JetConsumerWidget {
   const _StateFamilyWidget({
     required this.provider,
@@ -663,7 +283,7 @@ class _StateFamilyWidget<T, Param> extends JetConsumerWidget {
     this.error,
   });
 
-  final FutureProvider<T> Function(Param) provider;
+  final ProviderListenable<AsyncValue<T>> Function(Param) provider;
   final Param param;
   final Widget Function(T data, WidgetRef ref) builder;
   final Future<void> Function()? onRefresh;
@@ -673,11 +293,14 @@ class _StateFamilyWidget<T, Param> extends JetConsumerWidget {
 
   @override
   Widget jetBuild(BuildContext context, WidgetRef ref, Jet jet) {
-    final familyProvider = provider(param);
-    final asyncValue = ref.watch(familyProvider);
+    final asyncValue = ref.watch(provider(param));
 
     return CustomMaterialIndicator(
-      onRefresh: onRefresh ?? () => ref.refresh(familyProvider.future),
+      onRefresh:
+          onRefresh ??
+          () async {
+            return ref.refresh(provider(param) as Refreshable<AsyncValue<T>>);
+          },
       triggerMode: IndicatorTriggerMode.onEdge,
       indicatorBuilder: (context, controller) {
         return SizedBox(
@@ -698,95 +321,69 @@ class _StateFamilyWidget<T, Param> extends JetConsumerWidget {
       ),
     );
   }
+}
 
-  Widget _buildRefreshIndicator(
-    IndicatorController controller,
-    AsyncValue<T> asyncValue,
-  ) {
-    if (controller.state.isLoading || asyncValue.isLoading) {
-      return const SizedBox(
-        width: 20,
-        height: 20,
-        child: CircularProgressIndicator(strokeWidth: 2.0),
+Widget _buildRefreshIndicator<T>(
+  IndicatorController controller,
+  AsyncValue<T> asyncValue,
+) {
+  return AnimatedBuilder(
+    animation: controller,
+    builder: (context, _) {
+      return CircularProgressIndicator(
+        value: controller.isLoading ? null : controller.value,
       );
-    }
+    },
+  );
+}
 
-    final progress = controller.value.clamp(0.0, 1.0);
-    return SizedBox(
-      width: 20,
-      height: 20,
-      child: CircularProgressIndicator(
-        value: progress,
-        strokeWidth: 2.0,
-      ),
-    );
-  }
+Widget _buildDefaultErrorWidget<T>(
+  Object error,
+  StackTrace? stackTrace,
+  Jet jet,
+  WidgetRef ref,
+  BuildContext context,
+) {
+  final jetError = JetError(
+    message: error.toString(),
+    stackTrace: stackTrace,
+  );
+  return Center(
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          jetError.message,
+          style: Theme.of(context).textTheme.bodyMedium,
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 16),
+        _buildRetryButton(
+          jetError: jetError,
+          ref: ref,
+          provider: null, // Not used here
+          onRetry: () => ref.refresh, // fallback
+        ),
+      ],
+    ),
+  );
+}
 
-  Widget _buildDefaultErrorWidget(
-    Object error,
-    StackTrace? stackTrace,
-    Jet jet,
-    WidgetRef ref,
-    BuildContext context,
-  ) {
-    final familyProvider = provider(param);
-
-    // Use the error handler to process the error
-    final jetError = jet.config.errorHandler.handle(
-      error,
-      context,
-      stackTrace: stackTrace,
-    );
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: constraints.maxHeight,
-            ),
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    _buildErrorIcon(jetError),
-                    const SizedBox(height: 16),
-                    Text(
-                      _getErrorTitle(jetError, context),
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      jetError.message,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(color: Colors.grey),
-                    ),
-                    if (jetError.isValidation && jetError.errors != null) ...[
-                      const SizedBox(height: 12),
-                      _buildValidationErrors(jetError.errors!),
-                    ],
-                    const SizedBox(height: 16),
-
-                    _buildRetryButton<T>(
-                      jetError: jetError,
-                      ref: ref,
-                      onRetry: onRetry ?? () => ref.invalidate(familyProvider),
-                      provider: familyProvider,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
+Widget _buildRetryButton<T>({
+  required JetError jetError,
+  required WidgetRef ref,
+  required VoidCallback? onRetry,
+  ProviderListenable<AsyncValue<T>>? provider,
+}) {
+  final isLoading = provider != null ? ref.watch(provider).isLoading : false;
+  return FilledButton(
+    onPressed: isLoading ? null : onRetry,
+    child: isLoading
+        ? const SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          )
+        : const Text("Retry"),
+  );
 }

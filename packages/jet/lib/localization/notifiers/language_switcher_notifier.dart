@@ -73,6 +73,7 @@ class LanguageSwitcherNotifier extends Notifier<Locale> {
         return locale;
       }
     }
+    JetStorage.write(_localeStorageKey, 'en');
     return const Locale('en');
   }
 

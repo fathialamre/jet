@@ -12,6 +12,7 @@ class JetBearerTokenInterceptor extends Interceptor {
     String token = JetStorage.getSession()?.token ?? '';
     dump(token, tag: 'token');
     final savedLocaleCode = JetStorage.read<String>(localeStorageKey);
+    dump(savedLocaleCode, tag: 'savedLocaleCode');
     options.headers.addAll(
       {
         'Authorization': 'Bearer $token',

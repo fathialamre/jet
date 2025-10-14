@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jet/config/jet_config.dart';
+import 'package:jet/helpers/provider_observer.dart';
 import 'package:jet/jet.dart';
 import 'package:jet/adapters/jet_adapter.dart';
 import 'package:jet/widgets/main/jet_app.dart';
@@ -17,6 +18,9 @@ class Boot {
     final container = ProviderContainer(
       overrides: [
         jetProvider.overrideWith((ref) => jet),
+      ],
+      observers: [
+        LoggerObserver(),
       ],
     );
 
