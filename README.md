@@ -944,9 +944,9 @@ JetPinField(
 )
 ```
 
-### Riverpod 3 Generators Support
+### Riverpod 3 Generators Support with JetFormMixin
 
-Jet Framework fully supports **Riverpod 3 generators** for enhanced developer experience and code generation:
+Jet Framework fully supports **Riverpod 3 generators** with the new **JetFormMixin** for enhanced developer experience and code generation:
 
 ```dart
 // Add to your pubspec.yaml
@@ -958,9 +958,18 @@ dev_dependencies:
   riverpod_generator: ^3.0.0
   build_runner: ^2.4.7
 
-// Enable code generation
+// Enable code generation with JetFormMixin
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'user_form.g.dart';
+
 @riverpod
-class UserForm extends _$UserForm implements JetFormNotifier<UserRequest, User> {
+class UserForm extends _$UserForm with JetFormMixin<UserRequest, User> {
+  @override
+  AsyncFormValue<UserRequest, User> build(int userId) {
+    return const AsyncFormIdle();
+  }
+
   @override
   UserRequest decoder(Map<String, dynamic> formData) {
     return UserRequest.fromJson(formData);
@@ -978,7 +987,7 @@ class UserFormPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return JetFormBuilder<UserRequest, User>(
-      provider: userFormProvider, // Generated provider
+      provider: userFormProvider(userId), // Generated provider with family support
       builder: (context, ref, form, state) => [
         // Your form fields
       ],
@@ -990,6 +999,12 @@ class UserFormPage extends StatelessWidget {
 // dart run build_runner build
 ```
 
+**Key points for code generation:**
+- Use `extends _$YourForm with JetFormMixin<Request, Response>` instead of `extends JetFormNotifier`
+- Add `@riverpod` annotation for automatic provider generation
+- Add `part 'filename.g.dart';` directive
+- Support for family providers with parameters
+
 **Form Features:**
 - **Two approaches** - useJetForm hook for simple forms, JetFormNotifier for complex forms
 - **Type-safe** form state with Request/Response generics
@@ -999,9 +1014,11 @@ class UserFormPage extends StatelessWidget {
 - **Enhanced input components** (password, phone, PIN/OTP)
 - **Built-in loading states** and form submission
 - **Server validation integration** with automatic field invalidation
-- **Riverpod 3 integration** with generator support for reactive state management
+- **Riverpod 3 integration** with JetFormMixin and generator support
 - **JetSimpleForm widget** for streamlined form UI with useJetForm
 - **Form state access** (isLoading, hasError, hasValue, response, request)
+
+**📖 [View Complete Forms Documentation](packages/jet/USE_JET_FORM.md)**
 
 ## 🧩 Components
 
@@ -1737,6 +1754,17 @@ class InfiniteProductsList extends StatelessWidget {
   }
 }
 ```
+
+**JetPaginator Features:**
+- ✅ Works with ANY API format (offset, page, cursor-based)
+- ✅ Built on `infinite_scroll_pagination` for reliability
+- ✅ Pull-to-refresh with customizable indicators
+- ✅ Smart error handling with automatic retry
+- ✅ List and grid layouts
+- ✅ Riverpod provider integration
+- ✅ Full type safety
+
+**📖 [View Complete JetPaginator Documentation](packages/jet/JET_PAGINATOR.md)**
 
 ### JetConsumerWidget - Enhanced Consumer
 
