@@ -153,9 +153,9 @@ class JetEmailField extends StatelessWidget {
       ),
       validator:
           validator ??
-          FormBuilderValidators.compose([
-            if (isRequired) FormBuilderValidators.required(),
-            FormBuilderValidators.email(),
+          JetValidators.compose([
+            if (isRequired) JetValidators.required(),
+            JetValidators.email(),
           ]),
     );
   }

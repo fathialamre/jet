@@ -186,8 +186,8 @@ class JetPasswordField extends HookWidget {
       ),
       validator:
           validator ??
-          FormBuilderValidators.compose([
-            if (isRequired) FormBuilderValidators.required(),
+          JetValidators.compose([
+            if (isRequired) JetValidators.required(),
             (value) {
               if (identicalWith != null) {
                 if (formKey == null) {

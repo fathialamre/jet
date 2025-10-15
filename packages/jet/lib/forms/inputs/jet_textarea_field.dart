@@ -186,10 +186,10 @@ class JetTextAreaField extends StatelessWidget {
       ),
       validator:
           validator ??
-          FormBuilderValidators.compose([
-            if (isRequired) FormBuilderValidators.required(),
+          JetValidators.compose([
+            if (isRequired) JetValidators.required(),
             if (maxLength != null)
-              FormBuilderValidators.maxLength(
+              JetValidators.maxLength(
                 maxLength!,
                 errorText: 'Maximum length is $maxLength characters',
               ),
