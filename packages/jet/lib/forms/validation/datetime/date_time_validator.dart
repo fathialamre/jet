@@ -23,7 +23,7 @@ class DateTimeValidator extends BaseValidator<String> {
       DateTime.parse(valueCandidate);
       return null;
     } catch (e) {
-      return errorText ?? 'Please enter a valid date and time';
+      return errorText ?? JetFormLocalizations.current.dateStringErrorText;
     }
   }
 }

@@ -29,6 +29,6 @@ class MacAddressValidator extends BaseValidator<String> {
       if (pattern.hasMatch(valueCandidate)) return null;
     }
 
-    return errorText ?? 'Please enter a valid MAC address';
+    return errorText ?? JetFormLocalizations.current.macAddressErrorText;
   }
 }

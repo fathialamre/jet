@@ -53,7 +53,7 @@ class ZipCodeValidator extends BaseValidator<String> {
     }
 
     if (!pattern.hasMatch(valueCandidate)) {
-      return errorText ?? 'Please enter a valid ZIP/postal code';
+      return errorText ?? JetFormLocalizations.current.zipCodeErrorText;
     }
 
     return null;
