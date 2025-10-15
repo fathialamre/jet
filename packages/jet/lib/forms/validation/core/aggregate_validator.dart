@@ -58,4 +58,3 @@ class AggregateValidator<T> extends BaseValidator<T> {
     return null;
   }
 }
-

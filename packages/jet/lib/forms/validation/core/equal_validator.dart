@@ -32,4 +32,3 @@ class EqualValidator<T> extends BaseValidator<T> {
     return null;
   }
 }
-

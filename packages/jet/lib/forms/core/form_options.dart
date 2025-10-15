@@ -24,4 +24,3 @@ enum ControlAffinity {
   /// Control appears after the label (right/bottom)
   trailing,
 }
-

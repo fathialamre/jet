@@ -87,4 +87,3 @@ abstract class JetFormMessages {
   String minWordsCountErrorText(int minWordsCount);
   String maxWordsCountErrorText(int maxWordsCount);
 }
-

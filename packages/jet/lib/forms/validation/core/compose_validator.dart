@@ -44,4 +44,3 @@ class ComposeValidator<T> extends BaseValidator<T> {
     return null;
   }
 }
-

@@ -29,4 +29,3 @@ class RequiredValidator<T> extends BaseValidator<T> {
   @override
   String? get errorText => super.errorText ?? 'This field is required';
 }
-

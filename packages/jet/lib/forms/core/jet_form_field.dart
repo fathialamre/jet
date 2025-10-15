@@ -57,7 +57,8 @@ class JetFormField<T> extends FormField<T> {
 }
 
 /// State for [JetFormField].
-class JetFormFieldState<F extends JetFormField<T>, T> extends FormFieldState<T> {
+class JetFormFieldState<F extends JetFormField<T>, T>
+    extends FormFieldState<T> {
   String? _customErrorText;
   JetFormState? _formState;
   bool _touched = false;
@@ -85,9 +86,7 @@ class JetFormFieldState<F extends JetFormField<T>, T> extends FormFieldState<T> 
 
   /// Returns the transformed value using the valueTransformer if provided.
   dynamic get transformedValue =>
-      widget.valueTransformer == null
-          ? value
-          : widget.valueTransformer!(value);
+      widget.valueTransformer == null ? value : widget.valueTransformer!(value);
 
   @override
   String? get errorText => super.errorText ?? _customErrorText;
@@ -218,7 +217,8 @@ class JetFormFieldState<F extends JetFormField<T>, T> extends FormFieldState<T> 
     }
     final isValid = super.validate() && !hasError;
 
-    final fields = _formState?.fields ??
+    final fields =
+        _formState?.fields ??
         <String, JetFormFieldState<JetFormField<dynamic>, dynamic>>{};
 
     if (!isValid &&
@@ -311,11 +311,11 @@ class JetFormState extends State<JetForm> {
   bool get isTouched => fields.values.any((field) => field.isTouched);
 
   Map<String, String> get errors => {
-        for (var element in fields.entries.where(
-          (element) => element.value.hasError,
-        ))
-          element.key.toString(): element.value.errorText ?? '',
-      };
+    for (var element in fields.entries.where(
+      (element) => element.value.hasError,
+    ))
+      element.key.toString(): element.value.errorText ?? '',
+  };
 
   Map<String, dynamic> get initialValue => widget.initialValue;
 
@@ -323,22 +323,22 @@ class JetFormState extends State<JetForm> {
       _fields;
 
   Map<String, dynamic> get instantValue => Map<String, dynamic>.unmodifiable(
-        _instantValue.map(
-          (key, value) => MapEntry(
-            key,
-            _transformers[key] == null ? value : _transformers[key]!(value),
-          ),
-        ),
-      );
+    _instantValue.map(
+      (key, value) => MapEntry(
+        key,
+        _transformers[key] == null ? value : _transformers[key]!(value),
+      ),
+    ),
+  );
 
   Map<String, dynamic> get value => Map<String, dynamic>.unmodifiable(
-        _savedValue.map(
-          (key, value) => MapEntry(
-            key,
-            _transformers[key] == null ? value : _transformers[key]!(value),
-          ),
-        ),
-      );
+    _savedValue.map(
+      (key, value) => MapEntry(
+        key,
+        _transformers[key] == null ? value : _transformers[key]!(value),
+      ),
+    ),
+  );
 
   dynamic transformValue<T>(String name, T? v) {
     final t = _transformers[name];
@@ -422,8 +422,9 @@ class JetFormState extends State<JetForm> {
     _focusOnInvalid = focusOnInvalid;
     final hasError = !_formKey.currentState!.validate();
     if (hasError) {
-      final wrongFields =
-          fields.values.where((element) => element.hasError).toList();
+      final wrongFields = fields.values
+          .where((element) => element.hasError)
+          .toList();
       if (wrongFields.isNotEmpty) {
         if (focusOnInvalid) {
           wrongFields.first.focus();
@@ -497,4 +498,3 @@ class _JetFormScope extends InheritedWidget {
   bool updateShouldNotify(_JetFormScope oldWidget) =>
       oldWidget._formState != _formState;
 }
-

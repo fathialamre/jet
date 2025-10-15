@@ -74,4 +74,3 @@ extension NullableValidatorExtensions<T> on FormFieldValidator<T>? {
   /// Returns null if the validator is null.
   FormFieldValidator<T>? orNull() => this;
 }
-
