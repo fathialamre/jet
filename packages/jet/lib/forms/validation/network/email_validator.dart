@@ -1,3 +1,4 @@
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 import '../base_validator.dart';
 
 /// Validator that requires a valid email address.
@@ -29,7 +30,7 @@ class EmailValidator extends BaseValidator<String> {
         );
 
     if (!pattern.hasMatch(valueCandidate)) {
-      return errorText ?? 'Please enter a valid email address';
+      return errorText ?? JetFormLocalizations.current.emailErrorText;
     }
     return null;
   }

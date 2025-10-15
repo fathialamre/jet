@@ -1,3 +1,4 @@
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 import '../base_validator.dart';
 
 /// Validator that requires a numeric value.
@@ -19,7 +20,7 @@ class NumericValidator extends BaseValidator<String> {
   @override
   String? validateValue(String valueCandidate) {
     if (num.tryParse(valueCandidate) == null) {
-      return errorText ?? 'Value must be numeric';
+      return errorText ?? JetFormLocalizations.current.numericErrorText;
     }
     return null;
   }

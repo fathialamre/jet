@@ -1,3 +1,4 @@
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 import '../base_validator.dart';
 
 /// Validator that requires a minimum length for collections/strings.
@@ -38,7 +39,7 @@ class MinLengthValidator<T> extends BaseValidator<T> {
 
     if (length < minLength) {
       return errorText ??
-          'Value must have a length greater than or equal to $minLength';
+          JetFormLocalizations.current.minLengthErrorText(minLength);
     }
     return null;
   }

@@ -41,6 +41,26 @@ class JetFormLocalizations {
     const Locale('en'),
   );
 
+  static JetFormLocalizations? _current;
+
+  /// Sets the current localization instance.
+  ///
+  /// This is automatically called by the delegate when loading localizations.
+  static void _setCurrent(JetFormLocalizations localization) {
+    _current = localization;
+  }
+
+  /// Returns the current localized messages.
+  ///
+  /// This can be used in validators and other contexts where BuildContext
+  /// is not available. Falls back to English if not set.
+  ///
+  /// Example:
+  /// ```dart
+  /// final errorText = JetFormLocalizations.current.messages.requiredErrorText;
+  /// ```
+  static JetFormMessages get current => _current?.messages ?? _default.messages;
+
   /// The delegate for loading localizations.
   static const LocalizationsDelegate<JetFormLocalizations> delegate =
       _JetFormLocalizationsDelegate();
@@ -102,9 +122,9 @@ class _JetFormLocalizationsDelegate
   @override
   Future<JetFormLocalizations> load(Locale locale) {
     final messages = JetFormLocalizations._loadMessages(locale);
-    return SynchronousFuture<JetFormLocalizations>(
-      JetFormLocalizations._(messages, locale),
-    );
+    final localization = JetFormLocalizations._(messages, locale);
+    JetFormLocalizations._setCurrent(localization);
+    return SynchronousFuture<JetFormLocalizations>(localization);
   }
 
   @override
