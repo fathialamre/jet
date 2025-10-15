@@ -17,22 +17,6 @@ export 'package:flutter_screenutil/flutter_screenutil.dart';
 export 'package:phosphor_flutter/phosphor_flutter.dart';
 export 'package:guardo/guardo.dart';
 
-// Flutter Form Builder - only export necessary types
-export 'package:flutter_form_builder/flutter_form_builder.dart'
-    show
-        FormBuilderState,
-        FormFieldValidator,
-        FormBuilderTextField,
-        FormBuilderDropdown,
-        FormBuilderCheckbox,
-        FormBuilderSwitch,
-        FormBuilderDateTimePicker,
-        InputType,
-        FormBuilderField,
-        DropdownMenuItem,
-        ValueTransformer,
-        AutovalidateMode;
-
 // Widgets
 export 'widgets/widgets.dart';
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
+import '../core/jet_form_field.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jet/extensions/build_context.dart';
 import 'package:jet/widgets/widgets/buttons/jet_button.dart';
@@ -91,7 +91,7 @@ class JetSimpleForm<Request, Response> extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return FormBuilder(
+    return JetForm(
       key: controller.formKey,
       initialValue: initialValues,
       child: Column(

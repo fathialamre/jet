@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
+import '../core/jet_form_field.dart';
 
-/// Jet framework wrapper for FormBuilder.
+/// Jet framework form widget.
 ///
-/// This widget wraps flutter_form_builder's FormBuilder to provide
-/// a consistent Jet API without requiring users to import external packages.
+/// This widget provides form functionality with validation,
+/// state management, and a consistent Jet API.
 ///
 /// Example usage:
 /// ```dart
-/// final formKey = GlobalKey<FormBuilderState>();
+/// final formKey = GlobalKey<JetFormState>();
 ///
 /// JetFormWidget(
 ///   key: formKey,
@@ -58,8 +58,8 @@ class JetFormWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FormBuilder(
-      key: key as GlobalKey<FormBuilderState>?,
+    return JetForm(
+      key: key as GlobalKey<JetFormState>?,
       onChanged: onChanged,
       autovalidateMode: autovalidateMode,
       initialValue: initialValue,
@@ -70,14 +70,14 @@ class JetFormWidget extends StatelessWidget {
     );
   }
 
-  /// Get the FormBuilderState from the closest JetFormWidget ancestor.
-  static FormBuilderState? of(BuildContext context) {
+  /// Get the JetFormState from the closest JetFormWidget ancestor.
+  static JetFormState? of(BuildContext context) {
     return FormBuilder.of(context);
   }
 }
 
 /// Type alias for form key.
-typedef JetFormKey = GlobalKey<FormBuilderState>;
+typedef JetFormKey = GlobalKey<JetFormState>;
 
 /// Type alias for form field validator.
 typedef JetFieldValidator<T> = FormFieldValidator<T>;

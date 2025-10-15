@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
+import '../core/jet_form_field.dart';
 import 'package:pinput/pinput.dart';
 import 'package:jet/forms/validators/jet_validators.dart';
 
