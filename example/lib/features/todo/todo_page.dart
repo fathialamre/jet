@@ -45,9 +45,9 @@ class TodoPage extends JetConsumerWidget {
                               labelText: 'Todo Title',
                               border: OutlineInputBorder(),
                             ),
-                            validator: FormBuilderValidators.compose([
-                              FormBuilderValidators.required(),
-                              FormBuilderValidators.minLength(3),
+                            validator: JetValidators.compose([
+                              JetValidators.required(),
+                              JetValidators.minLength(3),
                             ]),
                           ),
                           const SizedBox(height: 16),
@@ -58,9 +58,9 @@ class TodoPage extends JetConsumerWidget {
                               border: OutlineInputBorder(),
                             ),
                             maxLines: 3,
-                            validator: FormBuilderValidators.compose([
-                              FormBuilderValidators.required(),
-                              FormBuilderValidators.minLength(10),
+                            validator: JetValidators.compose([
+                              JetValidators.required(),
+                              JetValidators.minLength(10),
                             ]),
                           ),
                           const SizedBox(height: 16),

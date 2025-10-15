@@ -1,0 +1,84 @@
+# Jet Framework Documentation Rules
+
+## Documentation Organization
+
+### Structure
+- All detailed component documentation must be stored in `/docs/` folder at project root
+- Each major component must have its own documentation file (e.g., `FORMS.md`, `COMPONENTS.md`)
+- Main README.md must remain concise with brief overviews and links to detailed docs
+
+### README.md Guidelines
+- Keep feature descriptions to 1-2 paragraphs maximum
+- Include only simple, illustrative code examples (10-15 lines max)
+- Always end feature sections with a link: `📖 **[View Complete Documentation](docs/FEATURE_NAME.md)**`
+- Maintain clear table of contents with links to docs folder
+- README should be under 1000 lines total
+
+### Component Documentation Guidelines
+- Each doc file should include:
+  - Overview and purpose
+  - Installation/setup (if required)
+  - Basic usage examples
+  - Advanced usage with detailed examples
+  - API reference with all parameters
+  - Best practices
+  - Common pitfalls and troubleshooting
+  - Links to related documentation
+- Use clear headings and subheadings
+- Include code examples for all major features
+- Keep examples realistic and practical
+- Use tables for parameter documentation
+- Include "See Also" section at the end
+
+### Maintenance Rules
+- When adding new features, create corresponding docs file if it's a major component
+- Update both README.md (brief) and docs file (detailed)
+- Never let README.md become a wall of text - move detailed content to docs folder
+- Keep documentation in sync with code changes
+- Delete outdated documentation files
+- Update the documentation index when adding new docs
+
+### Code Example Guidelines
+- Keep README examples under 15 lines
+- Use realistic, practical examples
+- Show the most common use case first
+- Include comments when necessary for clarity
+- Use proper formatting and indentation
+- Test all code examples before publishing
+
+### File Naming Conventions
+- Use UPPERCASE for all documentation files (e.g., `FORMS.md`, `NETWORKING.md`)
+- Use underscores for multi-word docs (e.g., `ERROR_HANDLING.md`, `FORM_FIELDS.md`)
+- Keep names descriptive and concise
+
+### Documentation Categories
+- **Core Features**: Configuration, Routing, Adapters, Storage, Theming, Localization
+- **Advanced Features**: Networking, Error Handling, Forms, Form Fields, Components, Dialogs & Sheets
+- **Utilities**: Extensions, Security, Sessions, State Management, Notifications, Debugging, Helpers
+
+## Documentation Best Practices
+
+### Writing Style
+- Use clear, concise language
+- Write in present tense
+- Use active voice
+- Be specific and actionable
+- Avoid jargon when possible
+
+### Code Formatting
+- Always use syntax highlighting with language tags
+- Include imports when necessary
+- Show complete, runnable examples
+- Use consistent formatting across all docs
+
+### Version Control
+- Update documentation in the same commit as code changes
+- Include doc updates in pull request descriptions
+- Review documentation changes as carefully as code changes
+
+### Accessibility
+- Use descriptive link text
+- Include alt text for images
+- Use proper heading hierarchy
+- Ensure examples are copy-paste ready
+

@@ -129,9 +129,9 @@ class SimpleTodoPage extends HookConsumerWidget {
                             border: OutlineInputBorder(),
                             hintText: 'Enter a title for your todo',
                           ),
-                          validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(),
-                            FormBuilderValidators.minLength(3),
+                          validator: JetValidators.compose([
+                            JetValidators.required(),
+                            JetValidators.minLength(3),
                           ]),
                         ),
                         FormBuilderTextField(
@@ -142,9 +142,9 @@ class SimpleTodoPage extends HookConsumerWidget {
                             hintText: 'Describe your todo',
                           ),
                           maxLines: 3,
-                          validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(),
-                            FormBuilderValidators.minLength(10),
+                          validator: JetValidators.compose([
+                            JetValidators.required(),
+                            JetValidators.minLength(10),
                           ]),
                         ),
                         FormBuilderCheckbox(
