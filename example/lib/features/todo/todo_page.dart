@@ -24,8 +24,8 @@ class TodoPage extends JetConsumerWidget {
               (
                 context,
                 ref,
-                JetForm<TodoRequest, TodoResponse> form,
-                AsyncFormValue<TodoRequest, TodoResponse> formState,
+                notifier,
+                formState,
               ) {
                 return [
                   Card(
@@ -39,7 +39,7 @@ class TodoPage extends JetConsumerWidget {
                             style: Theme.of(context).textTheme.headlineSmall,
                           ),
                           const SizedBox(height: 16),
-                          FormBuilderTextField(
+                          JetTextField(
                             name: 'title',
                             decoration: const InputDecoration(
                               labelText: 'Todo Title',
@@ -51,7 +51,7 @@ class TodoPage extends JetConsumerWidget {
                             ]),
                           ),
                           const SizedBox(height: 16),
-                          FormBuilderTextField(
+                          JetTextField(
                             name: 'description',
                             decoration: const InputDecoration(
                               labelText: 'Description',
@@ -64,7 +64,7 @@ class TodoPage extends JetConsumerWidget {
                             ]),
                           ),
                           const SizedBox(height: 16),
-                          FormBuilderCheckbox(
+                          JetCheckbox(
                             name: 'isCompleted',
                             title: const Text('Mark as completed'),
                             initialValue: false,
@@ -72,7 +72,7 @@ class TodoPage extends JetConsumerWidget {
                           const SizedBox(height: 24),
                           JetButton.filled(
                             text: 'Create Todo',
-                            onTap: () => form.submit(),
+                            onTap: notifier.submit,
                           ),
                         ],
                       ),
