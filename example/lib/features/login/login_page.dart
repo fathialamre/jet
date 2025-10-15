@@ -176,33 +176,37 @@ class LoginPage extends HookConsumerWidget {
                       expandSubmitButton: true,
                       showSubmitButton: false,
                       children: [
-                        JetEmailField(
+                        JetTextField(
                           name: 'email',
+                          decoration: const InputDecoration(
+                            labelText: 'Email',
+                            hintText: 'Enter your email',
+                            prefixIcon: Icon(Icons.email),
+                          ),
+                          keyboardType: TextInputType.emailAddress,
                           validator: JetValidators.compose([
                             JetValidators.required(),
                             JetValidators.email(),
                           ]),
                         ),
-                        JetPasswordField(
+                        JetTextField(
                           name: 'password',
-                          labelText: 'Password',
-                          hintText: 'Enter your password',
-                          isRequired: true,
-                          formKey: form.formKey,
+                          decoration: const InputDecoration(
+                            labelText: 'Password',
+                            hintText: 'Enter your password',
+                            prefixIcon: Icon(Icons.lock),
+                          ),
+                          obscureText: true,
                           validator: JetValidators.compose([
                             JetValidators.required(),
                             JetValidators.minLength(6),
                           ]),
                         ),
-                        FormBuilderCheckbox(
+                        JetCheckbox(
                           name: 'rememberMe',
-                          title: Row(
-                            children: [
-                              Text(
-                                'Remember me',
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                            ],
+                          title: Text(
+                            'Remember me',
+                            style: Theme.of(context).textTheme.bodyMedium,
                           ),
                           initialValue: false,
                         ),

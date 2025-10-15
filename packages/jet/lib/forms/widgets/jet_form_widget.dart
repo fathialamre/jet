@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jet/forms/widgets/jet_form_builder.dart';
 import '../core/jet_form_field.dart';
 
 /// Jet framework form widget.
@@ -72,7 +73,7 @@ class JetFormWidget extends StatelessWidget {
 
   /// Get the JetFormState from the closest JetFormWidget ancestor.
   static JetFormState? of(BuildContext context) {
-    return FormBuilder.of(context);
+    return JetForm.of(context);
   }
 }
 

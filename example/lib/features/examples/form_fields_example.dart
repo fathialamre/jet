@@ -123,10 +123,18 @@ class FormFieldsExamplePage extends HookConsumerWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            const JetEmailField(
+            JetTextField(
               name: 'email',
-              labelText: 'Email Address',
-              hintText: 'Enter your email',
+              decoration: const InputDecoration(
+                labelText: 'Email Address',
+                hintText: 'Enter your email',
+                prefixIcon: Icon(Icons.email),
+              ),
+              keyboardType: TextInputType.emailAddress,
+              validator: JetValidators.compose([
+                JetValidators.required(),
+                JetValidators.email(),
+              ]),
             ),
 
             // Date Field Section
@@ -135,12 +143,15 @@ class FormFieldsExamplePage extends HookConsumerWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            JetDateField(
+            JetDateTimePicker(
               name: 'birthdate',
-              labelText: 'Date of Birth',
-              hintText: 'Select your birthdate',
+              decoration: const InputDecoration(
+                labelText: 'Date of Birth',
+              ),
+              inputType: DateTimePickerInputType.date,
               firstDate: DateTime(1900),
               lastDate: DateTime.now(),
+              hintText: 'Select your birthdate',
             ),
 
             // Dropdown Field Section
@@ -149,16 +160,18 @@ class FormFieldsExamplePage extends HookConsumerWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            JetDropdownField<String>(
+            JetDropdown<String>(
               name: 'country',
-              labelText: 'Country',
-              hintText: 'Select your country',
-              items: const [
-                DropdownMenuItem(value: 'us', child: Text('United States')),
-                DropdownMenuItem(value: 'uk', child: Text('United Kingdom')),
-                DropdownMenuItem(value: 'ca', child: Text('Canada')),
-                DropdownMenuItem(value: 'au', child: Text('Australia')),
-                DropdownMenuItem(value: 'de', child: Text('Germany')),
+              decoration: const InputDecoration(
+                labelText: 'Country',
+              ),
+              hint: const Text('Select your country'),
+              options: const [
+                JetFormOption(value: 'us', child: Text('United States')),
+                JetFormOption(value: 'uk', child: Text('United Kingdom')),
+                JetFormOption(value: 'ca', child: Text('Canada')),
+                JetFormOption(value: 'au', child: Text('Australia')),
+                JetFormOption(value: 'de', child: Text('Germany')),
               ],
             ),
 
@@ -168,14 +181,15 @@ class FormFieldsExamplePage extends HookConsumerWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            const JetTextAreaField(
+            JetTextField(
               name: 'description',
-              labelText: 'Description',
-              hintText: 'Enter a description',
+              decoration: const InputDecoration(
+                labelText: 'Description',
+                hintText: 'Enter a description',
+              ),
               minLines: 3,
               maxLines: 6,
               maxLength: 500,
-              showCharacterCounter: true,
             ),
 
             // Checkbox Field Section
@@ -184,16 +198,18 @@ class FormFieldsExamplePage extends HookConsumerWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            const JetCheckboxField(
+            JetCheckbox(
               name: 'terms',
-              title: 'I agree to the terms and conditions',
-              isRequired: true,
+              title: const Text('I agree to the terms and conditions'),
+              validator: JetValidators.equal(
+                true,
+                errorText: 'You must accept the terms',
+              ),
             ),
-            const JetCheckboxField(
+            JetCheckbox(
               name: 'newsletter',
-              title: 'Subscribe to newsletter',
-              subtitle: 'Receive weekly updates and promotions',
-              isRequired: false,
+              title: const Text('Subscribe to newsletter'),
+              subtitle: const Text('Receive weekly updates and promotions'),
             ),
 
             // Switch Field Section
@@ -202,12 +218,10 @@ class FormFieldsExamplePage extends HookConsumerWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            const JetCheckboxField(
+            JetSwitch(
               name: 'notifications',
-              title: 'Enable notifications',
-              subtitle: 'Receive push notifications',
-              useSwitch: true,
-              isRequired: false,
+              title: const Text('Enable notifications'),
+              subtitle: const Text('Receive push notifications'),
             ),
 
             // Show success message if form was submitted
@@ -220,7 +234,7 @@ class FormFieldsExamplePage extends HookConsumerWidget {
                   child: Row(
                     children: [
                       Icon(
-                        PhosphorIcons.checkCircle(),
+                        Icons.check_circle,
                         color: Colors.green.shade700,
                       ),
                       const SizedBox(width: 12),
