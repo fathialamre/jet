@@ -1,29 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:jet/extensions/build_context.dart';
 import 'package:jet/jet_framework.dart';
 
-/// A customizable password field widget with built-in validation and visibility toggle.
+/// A customizable email field widget with built-in validation.
 ///
-/// This widget provides:1
-/// - Password visibility toggle
-/// - Password confirmation validation
+/// This widget provides:
+/// - Email-specific keyboard
+/// - Built-in email validation with regex
 /// - Customizable validation rules
+/// - Optional prefix icon (envelope)
 /// - Integrated with Flutter Form Builder
 ///
 /// Example usage:
 /// ```dart
-/// JetPasswordField(
-///   name: 'password',
-///   hintText: 'Enter your password',
-///   identicalWith: 'confirmPassword', // For password confirmation
-///   formKey: formKey,
+/// JetEmailField(
+///   name: 'email',
+///   hintText: 'Enter your email',
+///   labelText: 'Email Address',
 /// )
 /// ```
-class JetPasswordField extends HookWidget {
+class JetEmailField extends StatelessWidget {
   /// The name identifier for this form field
   final String name;
 
-  /// Initial value for the password field
+  /// Initial value for the email field
   final String? initialValue;
 
   /// Custom validator function
@@ -32,29 +31,14 @@ class JetPasswordField extends HookWidget {
   /// Custom prefix icon widget
   final Widget? prefixIcon;
 
-  /// Whether to show the default lock icon
+  /// Whether to show the default email icon
   final bool showPrefixIcon;
 
   /// Whether this field is required
   final bool isRequired;
 
-  /// Form key reference for password confirmation validation
-  final GlobalKey<FormBuilderState>? formKey;
-
-  /// Field name to match for password confirmation
-  final String? identicalWith;
-
   /// Hint text to display when field is empty
   final String hintText;
-
-  /// Whether to initially obscure the password text
-  final bool obscureText;
-
-  /// Keyboard type for this field
-  final TextInputType? keyboardType;
-
-  /// Whether the field is read-only
-  final bool readOnly;
 
   /// Whether to autofocus this field
   final bool autofocus;
@@ -104,28 +88,23 @@ class JetPasswordField extends HookWidget {
   /// Constraints for the input field
   final BoxConstraints? constraints;
 
-  /// Value transformer for the field
-  final ValueTransformer<String?>? valueTransformer;
+  /// Whether to convert email to lowercase automatically
+  final bool toLowerCase;
 
-  const JetPasswordField({
+  const JetEmailField({
     super.key,
     required this.name,
     this.initialValue,
     this.validator,
-    this.prefixIcon,
     this.showPrefixIcon = true,
-    this.isRequired = true,
-    this.formKey,
-    this.identicalWith,
-    this.hintText = '',
-    this.obscureText = true,
-    this.keyboardType,
-    this.readOnly = false,
+    this.prefixIcon,
     this.autofocus = false,
+    this.isRequired = true,
+    this.hintText = '',
     this.enabled = true,
     this.labelText,
     this.labelStyle,
-    this.filled = false,
+    this.filled = true,
     this.fillColor,
     this.border,
     this.enabledBorder,
@@ -137,39 +116,28 @@ class JetPasswordField extends HookWidget {
     this.helperText,
     this.helperStyle,
     this.constraints,
-    this.valueTransformer,
+    this.toLowerCase = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    final obscureTextState = useState(true);
-
-    void toggleVisibility() {
-      obscureTextState.value = !obscureTextState.value;
-    }
-
     return FormBuilderTextField(
       name: name,
       initialValue: initialValue,
-      obscureText: obscureTextState.value,
-      valueTransformer: valueTransformer,
-      enabled: enabled,
-      readOnly: readOnly,
+      keyboardType: TextInputType.emailAddress,
+      textInputAction: TextInputAction.done,
       autofocus: autofocus,
-      keyboardType: keyboardType,
+      enabled: enabled,
+      valueTransformer: toLowerCase
+          ? (value) => value?.trim().toLowerCase()
+          : (value) => value?.trim(),
       decoration: InputDecoration(
         labelText: labelText,
         labelStyle: labelStyle,
         hintText: hintText,
-        prefixIcon: showPrefixIcon ? Icon(PhosphorIcons.lock()) : prefixIcon,
-        suffixIcon: IconButton(
-          icon: Icon(
-            obscureTextState.value
-                ? PhosphorIcons.eye()
-                : PhosphorIcons.eyeClosed(),
-          ),
-          onPressed: toggleVisibility,
-        ),
+        prefixIcon: showPrefixIcon
+            ? Icon(PhosphorIcons.envelope())
+            : prefixIcon,
         filled: filled,
         fillColor: fillColor,
         border: border,
@@ -187,21 +155,7 @@ class JetPasswordField extends HookWidget {
           validator ??
           JetValidators.compose([
             if (isRequired) JetValidators.required(),
-            (value) {
-              if (identicalWith != null) {
-                if (formKey == null) {
-                  throw FlutterError(
-                    'formKey is required when using identicalWith for field: $name',
-                  );
-                }
-                final otherFieldValue =
-                    formKey?.currentState?.fields[identicalWith]?.value;
-                if (value != otherFieldValue) {
-                  return context.jetI10n.passwordNotIdentical;
-                }
-              }
-              return null;
-            },
+            JetValidators.email(),
           ]),
     );
   }

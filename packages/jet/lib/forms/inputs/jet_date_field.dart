@@ -1,60 +1,47 @@
 import 'package:flutter/material.dart';
-import 'package:jet/extensions/build_context.dart';
 import 'package:jet/jet_framework.dart';
+import 'package:intl/intl.dart';
 
-/// A customizable password field widget with built-in validation and visibility toggle.
+/// A customizable date field widget with built-in date picker.
 ///
-/// This widget provides:1
-/// - Password visibility toggle
-/// - Password confirmation validation
-/// - Customizable validation rules
+/// This widget provides:
+/// - Native date picker integration
+/// - Customizable date format
+/// - Min/max date constraints
+/// - Calendar icon with tap gesture
 /// - Integrated with Flutter Form Builder
 ///
 /// Example usage:
 /// ```dart
-/// JetPasswordField(
-///   name: 'password',
-///   hintText: 'Enter your password',
-///   identicalWith: 'confirmPassword', // For password confirmation
-///   formKey: formKey,
+/// JetDateField(
+///   name: 'birthdate',
+///   hintText: 'Select your birthdate',
+///   labelText: 'Date of Birth',
+///   firstDate: DateTime(1900),
+///   lastDate: DateTime.now(),
 /// )
 /// ```
-class JetPasswordField extends HookWidget {
+class JetDateField extends StatelessWidget {
   /// The name identifier for this form field
   final String name;
 
-  /// Initial value for the password field
-  final String? initialValue;
+  /// Initial value for the date field
+  final DateTime? initialValue;
 
   /// Custom validator function
-  final FormFieldValidator<String>? validator;
+  final FormFieldValidator<DateTime>? validator;
 
   /// Custom prefix icon widget
   final Widget? prefixIcon;
 
-  /// Whether to show the default lock icon
+  /// Whether to show the default calendar icon
   final bool showPrefixIcon;
 
   /// Whether this field is required
   final bool isRequired;
 
-  /// Form key reference for password confirmation validation
-  final GlobalKey<FormBuilderState>? formKey;
-
-  /// Field name to match for password confirmation
-  final String? identicalWith;
-
   /// Hint text to display when field is empty
   final String hintText;
-
-  /// Whether to initially obscure the password text
-  final bool obscureText;
-
-  /// Keyboard type for this field
-  final TextInputType? keyboardType;
-
-  /// Whether the field is read-only
-  final bool readOnly;
 
   /// Whether to autofocus this field
   final bool autofocus;
@@ -104,28 +91,38 @@ class JetPasswordField extends HookWidget {
   /// Constraints for the input field
   final BoxConstraints? constraints;
 
-  /// Value transformer for the field
-  final ValueTransformer<String?>? valueTransformer;
+  /// Date format for display (default: 'yyyy-MM-dd')
+  final DateFormat? format;
 
-  const JetPasswordField({
+  /// First selectable date
+  final DateTime? firstDate;
+
+  /// Last selectable date
+  final DateTime? lastDate;
+
+  /// Input type for the date picker
+  final InputType inputType;
+
+  /// Callback when date is selected
+  final ValueChanged<DateTime?>? onChanged;
+
+  /// Value transformer to transform the value before saving
+  final ValueTransformer<DateTime?>? valueTransformer;
+
+  const JetDateField({
     super.key,
     required this.name,
     this.initialValue,
     this.validator,
-    this.prefixIcon,
     this.showPrefixIcon = true,
-    this.isRequired = true,
-    this.formKey,
-    this.identicalWith,
-    this.hintText = '',
-    this.obscureText = true,
-    this.keyboardType,
-    this.readOnly = false,
+    this.prefixIcon,
     this.autofocus = false,
+    this.isRequired = true,
+    this.hintText = '',
     this.enabled = true,
     this.labelText,
     this.labelStyle,
-    this.filled = false,
+    this.filled = true,
     this.fillColor,
     this.border,
     this.enabledBorder,
@@ -137,39 +134,34 @@ class JetPasswordField extends HookWidget {
     this.helperText,
     this.helperStyle,
     this.constraints,
+    this.format,
+    this.firstDate,
+    this.lastDate,
+    this.inputType = InputType.date,
+    this.onChanged,
     this.valueTransformer,
   });
 
   @override
   Widget build(BuildContext context) {
-    final obscureTextState = useState(true);
-
-    void toggleVisibility() {
-      obscureTextState.value = !obscureTextState.value;
-    }
-
-    return FormBuilderTextField(
+    return FormBuilderDateTimePicker(
       name: name,
       initialValue: initialValue,
-      obscureText: obscureTextState.value,
-      valueTransformer: valueTransformer,
       enabled: enabled,
-      readOnly: readOnly,
-      autofocus: autofocus,
-      keyboardType: keyboardType,
+      inputType: inputType,
+      format: format ?? DateFormat('yyyy-MM-dd'),
+      firstDate: firstDate,
+      lastDate: lastDate,
+      onChanged: onChanged,
+      valueTransformer: valueTransformer,
       decoration: InputDecoration(
         labelText: labelText,
         labelStyle: labelStyle,
         hintText: hintText,
-        prefixIcon: showPrefixIcon ? Icon(PhosphorIcons.lock()) : prefixIcon,
-        suffixIcon: IconButton(
-          icon: Icon(
-            obscureTextState.value
-                ? PhosphorIcons.eye()
-                : PhosphorIcons.eyeClosed(),
-          ),
-          onPressed: toggleVisibility,
-        ),
+        prefixIcon: showPrefixIcon
+            ? Icon(PhosphorIcons.calendar())
+            : prefixIcon,
+        suffixIcon: Icon(PhosphorIcons.caretDown()),
         filled: filled,
         fillColor: fillColor,
         border: border,
@@ -187,21 +179,6 @@ class JetPasswordField extends HookWidget {
           validator ??
           JetValidators.compose([
             if (isRequired) JetValidators.required(),
-            (value) {
-              if (identicalWith != null) {
-                if (formKey == null) {
-                  throw FlutterError(
-                    'formKey is required when using identicalWith for field: $name',
-                  );
-                }
-                final otherFieldValue =
-                    formKey?.currentState?.fields[identicalWith]?.value;
-                if (value != otherFieldValue) {
-                  return context.jetI10n.passwordNotIdentical;
-                }
-              }
-              return null;
-            },
           ]),
     );
   }

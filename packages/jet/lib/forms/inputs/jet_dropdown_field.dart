@@ -1,60 +1,48 @@
 import 'package:flutter/material.dart';
-import 'package:jet/extensions/build_context.dart';
 import 'package:jet/jet_framework.dart';
 
-/// A customizable password field widget with built-in validation and visibility toggle.
+/// A customizable dropdown field widget with built-in validation.
 ///
-/// This widget provides:1
-/// - Password visibility toggle
-/// - Password confirmation validation
-/// - Customizable validation rules
+/// This widget provides:
+/// - Type-safe dropdown selection
+/// - Customizable options list
+/// - Search functionality (optional)
+/// - Hint text and validation
 /// - Integrated with Flutter Form Builder
 ///
 /// Example usage:
 /// ```dart
-/// JetPasswordField(
-///   name: 'password',
-///   hintText: 'Enter your password',
-///   identicalWith: 'confirmPassword', // For password confirmation
-///   formKey: formKey,
+/// JetDropdownField<String>(
+///   name: 'country',
+///   hintText: 'Select your country',
+///   items: [
+///     DropdownMenuItem(value: 'us', child: Text('United States')),
+///     DropdownMenuItem(value: 'uk', child: Text('United Kingdom')),
+///     DropdownMenuItem(value: 'ca', child: Text('Canada')),
+///   ],
 /// )
 /// ```
-class JetPasswordField extends HookWidget {
+class JetDropdownField<T> extends StatelessWidget {
   /// The name identifier for this form field
   final String name;
 
-  /// Initial value for the password field
-  final String? initialValue;
+  /// Initial value for the dropdown field
+  final T? initialValue;
 
   /// Custom validator function
-  final FormFieldValidator<String>? validator;
+  final FormFieldValidator<T>? validator;
 
   /// Custom prefix icon widget
   final Widget? prefixIcon;
 
-  /// Whether to show the default lock icon
+  /// Whether to show the default dropdown icon
   final bool showPrefixIcon;
 
   /// Whether this field is required
   final bool isRequired;
 
-  /// Form key reference for password confirmation validation
-  final GlobalKey<FormBuilderState>? formKey;
-
-  /// Field name to match for password confirmation
-  final String? identicalWith;
-
   /// Hint text to display when field is empty
   final String hintText;
-
-  /// Whether to initially obscure the password text
-  final bool obscureText;
-
-  /// Keyboard type for this field
-  final TextInputType? keyboardType;
-
-  /// Whether the field is read-only
-  final bool readOnly;
 
   /// Whether to autofocus this field
   final bool autofocus;
@@ -104,28 +92,42 @@ class JetPasswordField extends HookWidget {
   /// Constraints for the input field
   final BoxConstraints? constraints;
 
-  /// Value transformer for the field
-  final ValueTransformer<String?>? valueTransformer;
+  /// List of dropdown items
+  final List<DropdownMenuItem<T>> items;
 
-  const JetPasswordField({
+  /// Callback when value changes
+  final ValueChanged<T?>? onChanged;
+
+  /// Whether dropdown is expanded to full width
+  final bool isExpanded;
+
+  /// Custom dropdown icon
+  final Widget? icon;
+
+  /// Style for the selected item
+  final TextStyle? style;
+
+  /// Alignment for the dropdown hint and selected item
+  final AlignmentGeometry? alignment;
+
+  /// Value transformer to transform the value before saving
+  final ValueTransformer<T?>? valueTransformer;
+
+  const JetDropdownField({
     super.key,
     required this.name,
+    required this.items,
     this.initialValue,
     this.validator,
+    this.showPrefixIcon = false,
     this.prefixIcon,
-    this.showPrefixIcon = true,
-    this.isRequired = true,
-    this.formKey,
-    this.identicalWith,
-    this.hintText = '',
-    this.obscureText = true,
-    this.keyboardType,
-    this.readOnly = false,
     this.autofocus = false,
+    this.isRequired = true,
+    this.hintText = '',
     this.enabled = true,
     this.labelText,
     this.labelStyle,
-    this.filled = false,
+    this.filled = true,
     this.fillColor,
     this.border,
     this.enabledBorder,
@@ -137,39 +139,32 @@ class JetPasswordField extends HookWidget {
     this.helperText,
     this.helperStyle,
     this.constraints,
+    this.onChanged,
+    this.isExpanded = true,
+    this.icon,
+    this.style,
+    this.alignment,
     this.valueTransformer,
   });
 
   @override
   Widget build(BuildContext context) {
-    final obscureTextState = useState(true);
-
-    void toggleVisibility() {
-      obscureTextState.value = !obscureTextState.value;
-    }
-
-    return FormBuilderTextField(
+    return FormBuilderDropdown<T>(
       name: name,
       initialValue: initialValue,
-      obscureText: obscureTextState.value,
-      valueTransformer: valueTransformer,
+      items: items,
       enabled: enabled,
-      readOnly: readOnly,
-      autofocus: autofocus,
-      keyboardType: keyboardType,
+      onChanged: onChanged,
+      isExpanded: isExpanded,
+      icon: icon,
+      style: style,
+      alignment: alignment ?? AlignmentDirectional.centerStart,
+      valueTransformer: valueTransformer,
       decoration: InputDecoration(
         labelText: labelText,
         labelStyle: labelStyle,
         hintText: hintText,
-        prefixIcon: showPrefixIcon ? Icon(PhosphorIcons.lock()) : prefixIcon,
-        suffixIcon: IconButton(
-          icon: Icon(
-            obscureTextState.value
-                ? PhosphorIcons.eye()
-                : PhosphorIcons.eyeClosed(),
-          ),
-          onPressed: toggleVisibility,
-        ),
+        prefixIcon: showPrefixIcon ? prefixIcon : null,
         filled: filled,
         fillColor: fillColor,
         border: border,
@@ -187,21 +182,6 @@ class JetPasswordField extends HookWidget {
           validator ??
           JetValidators.compose([
             if (isRequired) JetValidators.required(),
-            (value) {
-              if (identicalWith != null) {
-                if (formKey == null) {
-                  throw FlutterError(
-                    'formKey is required when using identicalWith for field: $name',
-                  );
-                }
-                final otherFieldValue =
-                    formKey?.currentState?.fields[identicalWith]?.value;
-                if (value != otherFieldValue) {
-                  return context.jetI10n.passwordNotIdentical;
-                }
-              }
-              return null;
-            },
           ]),
     );
   }

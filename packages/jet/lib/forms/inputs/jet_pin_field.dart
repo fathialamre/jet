@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:pinput/pinput.dart';
+import 'package:jet/forms/validators/jet_validators.dart';
 
 /// A customizable PIN field widget with built-in validation using Pinput.
 ///
@@ -273,10 +273,10 @@ class _JetPinFieldState extends State<JetPinField> {
       initialValue: widget.initialValue,
       validator:
           widget.validator ??
-          FormBuilderValidators.compose([
-            if (widget.isRequired) FormBuilderValidators.required(),
-            FormBuilderValidators.minLength(widget.length),
-            FormBuilderValidators.maxLength(widget.length),
+          JetValidators.compose([
+            if (widget.isRequired) JetValidators.required(),
+            JetValidators.minLength(widget.length),
+            JetValidators.maxLength(widget.length),
           ]),
       builder: (FormFieldState<String> field) {
         final hasError = field.hasError;
