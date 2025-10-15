@@ -201,7 +201,8 @@ class JetTextField extends StatelessWidget {
       obscureText: obscureText,
       inputFormatters: inputFormatters,
       onChanged: onChanged,
-      valueTransformer: valueTransformer ??
+      valueTransformer:
+          valueTransformer ??
           (trimWhitespace ? (value) => value?.trim() : null),
       onSubmitted: onSubmitted,
       autocorrect: autocorrect,
@@ -236,4 +237,3 @@ class JetTextField extends StatelessWidget {
     );
   }
 }
-
