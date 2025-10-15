@@ -28,7 +28,9 @@ class JetValidators {
   static FormFieldValidator<T> compose<T>(
     List<FormFieldValidator<T>?> validators,
   ) {
-    return ComposeValidator<T>(validators).validate;
+    final nonNullValidators =
+        validators.whereType<FormFieldValidator<T>>().toList();
+    return ComposeValidator<T>(nonNullValidators).validate;
   }
 
   /// Creates a validator that requires at least one validator to pass.
@@ -41,7 +43,7 @@ class JetValidators {
 
   /// Creates a conditional validator.
   static FormFieldValidator<T> conditional<T>(
-    bool Function() condition,
+    bool Function(T? value) condition,
     FormFieldValidator<T> validator,
   ) {
     return ConditionalValidator<T>(condition, validator).validate;
@@ -54,7 +56,7 @@ class JetValidators {
 
   /// Creates an equal value validator.
   static FormFieldValidator<T> equal<T>(
-    T value, {
+    Object value, {
     String? errorText,
   }) {
     return EqualValidator<T>(value, errorText: errorText).validate;
@@ -62,7 +64,7 @@ class JetValidators {
 
   /// Creates a not equal value validator.
   static FormFieldValidator<T> notEqual<T>(
-    T value, {
+    Object value, {
     String? errorText,
   }) {
     return NotEqualValidator<T>(value, errorText: errorText).validate;
@@ -113,31 +115,27 @@ class JetValidators {
 
   /// Creates a regex match validator.
   static FormFieldValidator<String> match(
-    String pattern, {
+    RegExp pattern, {
     String? errorText,
     bool checkNullOrEmpty = false,
-    bool caseSensitive = true,
   }) {
     return MatchValidator(
       pattern,
       errorText: errorText,
       checkNullOrEmpty: checkNullOrEmpty,
-      caseSensitive: caseSensitive,
     ).validate;
   }
 
   /// Creates a regex non-match validator.
   static FormFieldValidator<String> matchNot(
-    String pattern, {
+    RegExp pattern, {
     String? errorText,
     bool checkNullOrEmpty = false,
-    bool caseSensitive = true,
   }) {
     return MatchNotValidator(
       pattern,
       errorText: errorText,
       checkNullOrEmpty: checkNullOrEmpty,
-      caseSensitive: caseSensitive,
     ).validate;
   }
 
@@ -160,16 +158,16 @@ class JetValidators {
 
   /// Creates a URL validator.
   static FormFieldValidator<String> url({
-    List<String>? protocols,
-    bool requireProtocol = false,
-    bool requireTld = true,
+    List<String> protocols = const ['http', 'https'],
+    bool requireProtocol = true,
+    bool allowLocalhost = false,
     String? errorText,
     bool checkNullOrEmpty = false,
   }) {
     return UrlValidator(
       protocols: protocols,
       requireProtocol: requireProtocol,
-      requireTld: requireTld,
+      allowLocalhost: allowLocalhost,
       errorText: errorText,
       checkNullOrEmpty: checkNullOrEmpty,
     ).validate;
@@ -218,12 +216,10 @@ class JetValidators {
   static FormFieldValidator<String> integer({
     String? errorText,
     bool checkNullOrEmpty = false,
-    int? radix,
   }) {
     return IntegerValidator(
       errorText: errorText,
       checkNullOrEmpty: checkNullOrEmpty,
-      radix: radix,
     ).validate;
   }
 
@@ -232,13 +228,11 @@ class JetValidators {
     num min, {
     String? errorText,
     bool checkNullOrEmpty = false,
-    bool inclusive = true,
   }) {
     return MinValidator(
       min,
       errorText: errorText,
       checkNullOrEmpty: checkNullOrEmpty,
-      inclusive: inclusive,
     ).validate;
   }
 
@@ -247,13 +241,11 @@ class JetValidators {
     num max, {
     String? errorText,
     bool checkNullOrEmpty = false,
-    bool inclusive = true,
   }) {
     return MaxValidator(
       max,
       errorText: errorText,
       checkNullOrEmpty: checkNullOrEmpty,
-      inclusive: inclusive,
     ).validate;
   }
 
@@ -299,15 +291,15 @@ class JetValidators {
   }
 
   /// Creates a date range validator.
-  static FormFieldValidator<DateTime> dateRange(
-    DateTime min,
-    DateTime max, {
+  static FormFieldValidator<DateTime> dateRange({
+    DateTime? minDate,
+    DateTime? maxDate,
     String? errorText,
     bool checkNullOrEmpty = false,
   }) {
     return DateRangeValidator(
-      min,
-      max,
+      minDate: minDate,
+      maxDate: maxDate,
       errorText: errorText,
       checkNullOrEmpty: checkNullOrEmpty,
     ).validate;
@@ -338,21 +330,19 @@ class JetValidators {
   /// Creates a password strength validator.
   static FormFieldValidator<String> password({
     int minLength = 8,
-    int maxLength = 128,
     bool requireUppercase = true,
     bool requireLowercase = true,
-    bool requireDigit = true,
-    bool requireSpecialChar = true,
+    bool requireNumbers = true,
+    bool requireSpecialChars = true,
     String? errorText,
     bool checkNullOrEmpty = false,
   }) {
     return PasswordValidator(
       minLength: minLength,
-      maxLength: maxLength,
       requireUppercase: requireUppercase,
       requireLowercase: requireLowercase,
-      requireDigit: requireDigit,
-      requireSpecialChar: requireSpecialChar,
+      requireNumbers: requireNumbers,
+      requireSpecialChars: requireSpecialChars,
       errorText: errorText,
       checkNullOrEmpty: checkNullOrEmpty,
     ).validate;
