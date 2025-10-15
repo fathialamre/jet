@@ -110,4 +110,3 @@ class _JetFormLocalizationsDelegate
   @override
   bool shouldReload(_JetFormLocalizationsDelegate old) => false;
 }
-

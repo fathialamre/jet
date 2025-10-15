@@ -44,4 +44,3 @@ class SkipWhenValidator<T> extends BaseValidator<T> {
     return null;
   }
 }
-

@@ -23,7 +23,7 @@ abstract class BaseValidator<T> {
   /// [errorText]: Custom error message to return when validation fails.
   /// [checkNullOrEmpty]: Whether to check if the value is null or empty before validating.
   const BaseValidator({String? errorText, this.checkNullOrEmpty = true})
-      : _errorText = errorText;
+    : _errorText = errorText;
 
   /// Backing field for [errorText].
   final String? _errorText;
@@ -76,4 +76,3 @@ abstract class BaseValidator<T> {
   /// This method is called by [validate] after null/empty checking.
   String? validateValue(T valueCandidate);
 }
-

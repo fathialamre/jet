@@ -30,19 +30,24 @@ class JetFormMessagesAr extends JetFormMessages {
   String get dateStringErrorText => 'هذا الحقل يتطلب تاريخًا صالحًا.';
 
   @override
-  String equalErrorText(String value) => 'يجب أن تكون قيمة هذا الحقل مساوية لـ $value.';
+  String equalErrorText(String value) =>
+      'يجب أن تكون قيمة هذا الحقل مساوية لـ $value.';
 
   @override
-  String notEqualErrorText(String value) => 'يجب ألا تكون قيمة هذا الحقل مساوية لـ $value.';
+  String notEqualErrorText(String value) =>
+      'يجب ألا تكون قيمة هذا الحقل مساوية لـ $value.';
 
   @override
-  String minLengthErrorText(int minLength) => 'يجب أن يكون الطول أكبر من أو يساوي $minLength.';
+  String minLengthErrorText(int minLength) =>
+      'يجب أن يكون الطول أكبر من أو يساوي $minLength.';
 
   @override
-  String maxLengthErrorText(int maxLength) => 'يجب أن يكون الطول أقل من أو يساوي $maxLength.';
+  String maxLengthErrorText(int maxLength) =>
+      'يجب أن يكون الطول أقل من أو يساوي $maxLength.';
 
   @override
-  String equalLengthErrorText(int length) => 'يجب أن يكون الطول مساويًا لـ $length.';
+  String equalLengthErrorText(int length) =>
+      'يجب أن يكون الطول مساويًا لـ $length.';
 
   @override
   String minErrorText(num min) => 'يجب أن تكون القيمة أكبر من أو تساوي $min.';
@@ -51,7 +56,8 @@ class JetFormMessagesAr extends JetFormMessages {
   String maxErrorText(num max) => 'يجب أن تكون القيمة أقل من أو تساوي $max.';
 
   @override
-  String betweenErrorText(num min, num max) => 'يجب أن تكون القيمة بين $min و $max.';
+  String betweenErrorText(num min, num max) =>
+      'يجب أن تكون القيمة بين $min و $max.';
 
   @override
   String get matchErrorText => 'القيمة لا تتطابق مع النمط.';
@@ -75,16 +81,20 @@ class JetFormMessagesAr extends JetFormMessages {
   String endsWithErrorText(String value) => 'يجب أن تنتهي القيمة بـ $value.';
 
   @override
-  String containsSpecialCharErrorText(int min) => 'يجب أن تحتوي القيمة على $min أحرف خاصة على الأقل.';
+  String containsSpecialCharErrorText(int min) =>
+      'يجب أن تحتوي القيمة على $min أحرف خاصة على الأقل.';
 
   @override
-  String containsUppercaseCharErrorText(int min) => 'يجب أن تحتوي القيمة على $min أحرف كبيرة على الأقل.';
+  String containsUppercaseCharErrorText(int min) =>
+      'يجب أن تحتوي القيمة على $min أحرف كبيرة على الأقل.';
 
   @override
-  String containsLowercaseCharErrorText(int min) => 'يجب أن تحتوي القيمة على $min أحرف صغيرة على الأقل.';
+  String containsLowercaseCharErrorText(int min) =>
+      'يجب أن تحتوي القيمة على $min أحرف صغيرة على الأقل.';
 
   @override
-  String containsNumberErrorText(int min) => 'يجب أن تحتوي القيمة على $min أرقام على الأقل.';
+  String containsNumberErrorText(int min) =>
+      'يجب أن تحتوي القيمة على $min أرقام على الأقل.';
 
   @override
   String get mustBeTrueErrorText => 'يجب أن يكون هذا الحقل صحيحًا.';
@@ -123,7 +133,8 @@ class JetFormMessagesAr extends JetFormMessages {
   String get notZeroNumberErrorText => 'يجب ألا تكون القيمة صفرًا.';
 
   @override
-  String portNumberErrorText(int min, int max) => 'يجب أن تكون القيمة رقم منفذ صالح بين $min و $max.';
+  String portNumberErrorText(int min, int max) =>
+      'يجب أن تكون القيمة رقم منفذ صالح بين $min و $max.';
 
   @override
   String get macAddressErrorText => 'يجب أن تكون القيمة عنوان MAC صالح.';
@@ -135,7 +146,8 @@ class JetFormMessagesAr extends JetFormMessages {
   String get jsonErrorText => 'يجب أن تكون القيمة JSON صالح.';
 
   @override
-  String colorCodeErrorText(String colorCode) => 'يجب أن تكون القيمة رمز لون $colorCode صالح.';
+  String colorCodeErrorText(String colorCode) =>
+      'يجب أن تكون القيمة رمز لون $colorCode صالح.';
 
   @override
   String get singleLineErrorText => 'يجب أن تكون القيمة سطرًا واحدًا.';
@@ -144,7 +156,8 @@ class JetFormMessagesAr extends JetFormMessages {
   String get timeErrorText => 'يجب أن تكون القيمة وقتًا صالحًا.';
 
   @override
-  String get dateMustBeInTheFutureErrorText => 'يجب أن يكون التاريخ في المستقبل.';
+  String get dateMustBeInTheFutureErrorText =>
+      'يجب أن يكون التاريخ في المستقبل.';
 
   @override
   String get dateMustBeInThePastErrorText => 'يجب أن يكون التاريخ في الماضي.';
@@ -156,10 +169,12 @@ class JetFormMessagesAr extends JetFormMessages {
   }
 
   @override
-  String fileExtensionErrorText(String extensions) => 'يجب أن يكون امتداد الملف $extensions.';
+  String fileExtensionErrorText(String extensions) =>
+      'يجب أن يكون امتداد الملف $extensions.';
 
   @override
-  String fileSizeErrorText(String maxSize, String fileSize) => 'يجب أن يكون حجم الملف أقل من $maxSize بينما هو $fileSize.';
+  String fileSizeErrorText(String maxSize, String fileSize) =>
+      'يجب أن يكون حجم الملف أقل من $maxSize بينما هو $fileSize.';
 
   @override
   String get fileNameErrorText => 'يجب أن تكون القيمة اسم ملف صالح.';
@@ -168,7 +183,8 @@ class JetFormMessagesAr extends JetFormMessages {
   String get creditCardCVCErrorText => 'هذا الحقل يتطلب رمز CVC صالح.';
 
   @override
-  String get creditCardExpirationDateErrorText => 'هذا الحقل يتطلب تاريخ انتهاء صالح.';
+  String get creditCardExpirationDateErrorText =>
+      'هذا الحقل يتطلب تاريخ انتهاء صالح.';
 
   @override
   String get creditCardExpiredErrorText => 'انتهت صلاحية بطاقة الائتمان هذه.';
@@ -228,7 +244,8 @@ class JetFormMessagesAr extends JetFormMessages {
   String get floatErrorText => 'يجب أن تكون القيمة رقم عشري صالح.';
 
   @override
-  String get hexadecimalErrorText => 'يجب أن تكون القيمة رقمًا سداسي عشري صالح.';
+  String get hexadecimalErrorText =>
+      'يجب أن تكون القيمة رقمًا سداسي عشري صالح.';
 
   @override
   String get isbnErrorText => 'يجب أن تكون القيمة ISBN صالح.';
@@ -246,9 +263,10 @@ class JetFormMessagesAr extends JetFormMessages {
   String get uniqueErrorText => 'يجب أن تكون القيمة فريدة.';
 
   @override
-  String minWordsCountErrorText(int minWordsCount) => 'يجب أن يكون عدد الكلمات أكبر من أو يساوي $minWordsCount.';
+  String minWordsCountErrorText(int minWordsCount) =>
+      'يجب أن يكون عدد الكلمات أكبر من أو يساوي $minWordsCount.';
 
   @override
-  String maxWordsCountErrorText(int maxWordsCount) => 'يجب أن يكون عدد الكلمات أقل من أو يساوي $maxWordsCount.';
+  String maxWordsCountErrorText(int maxWordsCount) =>
+      'يجب أن يكون عدد الكلمات أقل من أو يساوي $maxWordsCount.';
 }
-

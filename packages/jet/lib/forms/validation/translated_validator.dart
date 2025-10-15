@@ -55,4 +55,3 @@ abstract class TranslatedValidator<T> extends BaseValidator<T> {
     }
   }
 }
-

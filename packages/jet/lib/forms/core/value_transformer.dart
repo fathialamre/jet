@@ -11,4 +11,3 @@
 /// valueTransformer: (value) => int.tryParse(value ?? '0')
 /// ```
 typedef ValueTransformer<T> = dynamic Function(T? value);
-
