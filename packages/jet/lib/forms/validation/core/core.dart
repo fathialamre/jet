@@ -1,7 +1,7 @@
 /// Core validators for Jet Form validation.
 ///
-/// These validators provide fundamental validation logic that can be
-/// composed and combined to create complex validation rules.
+/// These validators provide fundamental validation operations
+/// like composition, conditional logic, and transformations.
 library;
 
 export 'aggregate_validator.dart';
@@ -15,4 +15,3 @@ export 'or_validator.dart';
 export 'required_validator.dart';
 export 'skip_when_validator.dart';
 export 'transform_validator.dart';
-
