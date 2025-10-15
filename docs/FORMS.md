@@ -99,19 +99,18 @@ class LoginPage extends HookConsumerWidget {
       appBar: AppBar(title: const Text('Login')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: JetSimpleForm(
+        child: JetFormBuilder.hook(
           controller: form,
-          submitButtonText: 'Sign In',
-          children: [
+          builder: (context, formKey) => [
             FormBuilderTextField(
               name: 'email',
               decoration: const InputDecoration(
                 labelText: 'Email',
                 prefixIcon: Icon(Icons.email),
               ),
-              validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(),
-                FormBuilderValidators.email(),
+              validator: JetValidators.compose([
+                JetValidators.required(),
+                JetValidators.email(),
               ]),
             ),
             JetPasswordField(
@@ -162,10 +161,9 @@ final form = useJetForm<LoginRequest, LoginResponse>(
   },
 );
 
-return JetSimpleForm(
+return JetFormBuilder.hook(
   controller: form,
-  submitButtonText: 'Login',
-  children: [
+  builder: (context, formKey) => [
     FormBuilderTextField(name: 'email'),
     JetPasswordField(name: 'password'),
   ],
@@ -208,10 +206,10 @@ final loginFormProvider = JetFormProvider<LoginRequest, User>(
 );
 
 // 3. Build form UI
-class LoginFormWidget extends StatelessWidget {
+class LoginFormWidget extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
-    return JetFormBuilder<LoginRequest, User>(
+  Widget build(BuildContext context, WidgetRef ref) {
+    return JetFormBuilder.advanced(
       provider: loginFormProvider,
       onSuccess: (user, request) {
         context.router.pushNamed('/dashboard');
@@ -227,110 +225,54 @@ class LoginFormWidget extends StatelessWidget {
 
 ## Form Builder Variants
 
-JetFormBuilder provides three constructor variants for different form complexity levels:
+Jet provides two form builder variants, each designed for a specific approach:
 
-### 1. Default Constructor
+### 1. JetFormBuilder.hook - For Simple Forms (useJetForm)
 
-Standard constructor with balanced defaults suitable for most forms.
+Use this when building simple forms with the `useJetForm` hook inside `HookConsumerWidget`.
 
-```dart
-JetFormBuilder<LoginRequest, User>(
-  provider: loginFormProvider,
-  onSuccess: (user, request) {
-    context.router.pushNamed('/dashboard');
-  },
-  builder: (context, ref, form, state) => [
-    FormBuilderTextField(name: 'email'),
-    JetPasswordField(name: 'password'),
-  ],
-)
-```
-
-**Features:**
-- Shows error snackbar on failure (`showErrorSnackBar: true`)
-- Uses default error handler (`useDefaultErrorHandler: true`)
-- Shows default submit button (`showDefaultSubmitButton: true`)
-- Perfect for standard forms with typical behavior
-
-### 2. .advanced Constructor
-
-For complex forms requiring full control over error handling and submission.
-
-```dart
-JetFormBuilder.advanced(
-  provider: loginFormProvider,
-  builder: (context, ref, form, state) => [
-    FormBuilderTextField(name: 'email'),
-    FormBuilderTextField(name: 'password'),
-    
-    // Custom submit button with loading state
-    state.isLoading
-        ? CircularProgressIndicator()
-        : ElevatedButton(
-            onPressed: () => form.submit(),
-            child: Text('Custom Submit'),
-          ),
-  ],
-  onSuccess: (response, request) {
-    showCustomSuccessDialog(response);
-  },
-  onError: (error, stackTrace, invalidateFields) {
-    if (error is JetError && error.isValidation) {
-      showValidationErrorSheet(error.errors);
-    } else {
-      showCustomErrorDialog(error.toString());
-    }
-  },
-)
-```
-
-**Features:**
-- No error snackbar (`showErrorSnackBar: false`)
-- No default error handler (`useDefaultErrorHandler: false`)
-- No default submit button (`showDefaultSubmitButton: false`)
-- Full control over error handling and UI
-
-**Use Cases:**
-- Forms with custom error displays (inline errors, dialogs)
-- Multi-step forms with custom navigation
-- Forms requiring custom submission buttons
-- Forms with custom validation feedback
-
-### 3. .hook Constructor
-
-For use within `HookConsumerWidget` where the builder needs to use Flutter hooks.
+**When to use:**
+- ✅ Simple forms with inline logic
+- ✅ Using useJetForm hook
+- ✅ Rapid prototyping
+- ✅ No need for separate notifier class
+- ✅ Need to use Flutter hooks in builder
 
 ```dart
 class LoginPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      body: JetFormBuilder.hook(
-        provider: loginFormProvider,
-        builder: (context, ref, form, state) {
-          // Use hooks inside the builder
-          final focusNode = useFocusNode();
-          final animationController = useAnimationController(
-            duration: Duration(milliseconds: 300),
-          );
-          
-          useEffect(() {
-            if (state.hasError) {
-              animationController.forward();
-            }
-            return null;
-          }, [state.hasError]);
+    final form = useJetForm<LoginRequest, User>(
+      ref: ref,
+      decoder: (json) => LoginRequest.fromJson(json),
+      action: (request) async {
+        return await ref.read(authServiceProvider).login(request);
+      },
+      onSuccess: (user, request) {
+        context.router.push(DashboardRoute());
+      },
+    );
 
+    return Scaffold(
+      appBar: AppBar(title: Text('Login')),
+      body: JetFormBuilder.hook(
+        controller: form,
+        builder: (context, formKey) {
+          // Can use hooks here if needed
+          final emailFocus = useFocusNode();
+          final passwordFocus = useFocusNode();
+          
           return [
-            FormBuilderTextField(
+            JetEmailField(
               name: 'email',
-              focusNode: focusNode,
+              focusNode: emailFocus,
+              onFieldSubmitted: (_) => passwordFocus.requestFocus(),
             ),
-            JetPasswordField(name: 'password'),
+            JetPasswordField(
+              name: 'password',
+              focusNode: passwordFocus,
+            ),
           ];
-        },
-        onSuccess: (user, request) {
-          context.router.pushNamed('/dashboard');
         },
       ),
     );
@@ -339,20 +281,121 @@ class LoginPage extends HookConsumerWidget {
 ```
 
 **Features:**
-- Identical behavior to default constructor
-- Allows use of Flutter hooks within builder
-- Perfect for forms with animations or focus management
+- ✅ Automatic loading states
+- ✅ Built-in error handling
+- ✅ Default submit button included
+- ✅ Hook support in builder
+- ✅ Pull-to-refresh support
+- ✅ Minimal boilerplate
 
-**Comparison Table:**
+### 2. JetFormBuilder.advanced - For Complex Forms (Notifier/Mixin)
 
-| Feature | Default | .advanced | .hook |
-|---------|---------|-----------|-------|
-| Error Snackbar | ✅ Yes | ❌ No | ✅ Yes |
-| Default Error Handler | ✅ Yes | ❌ No | ✅ Yes |
-| Default Submit Button | ✅ Yes | ❌ No | ✅ Yes |
-| Hook Support | ⚠️ Not intended | ⚠️ Not intended | ✅ Yes |
-| Custom Error Handling | Optional | Required | Optional |
-| Use Case | Standard forms | Custom UI/logic | Hook-based forms |
+Use this when building complex forms with `JetFormNotifier` or `JetFormMixin` (Riverpod 3).
+
+**When to use:**
+- ✅ Complex business logic
+- ✅ Reusable form logic across multiple pages
+- ✅ Using JetFormNotifier or JetFormMixin
+- ✅ Need to test form logic separately
+- ✅ Multiple API calls or complex validation
+- ✅ Custom error handling required
+
+```dart
+// 1. Create form with JetFormMixin (Riverpod 3)
+@riverpod
+class LoginForm extends _$LoginForm with JetFormMixin<LoginRequest, User> {
+  @override
+  AsyncFormValue<LoginRequest, User> build() {
+    return const AsyncFormIdle();
+  }
+  
+  @override
+  LoginRequest decoder(Map<String, dynamic> json) {
+    return LoginRequest.fromJson(json);
+  }
+  
+  @override
+  Future<User> action(LoginRequest data) async {
+    // Complex validation logic
+    if (data.email.isEmpty) {
+      throw JetError.validation(errors: {
+        'email': ['Email is required']
+      });
+    }
+    
+    // Multiple API calls
+    final verified = await ref.read(verificationProvider).verify(data.email);
+    if (!verified) {
+      throw JetError.validation(errors: {
+        'email': ['Email not verified']
+      });
+    }
+    
+    return await ref.read(authServiceProvider).login(data);
+  }
+}
+
+// 2. Use in UI with .advanced
+class LoginPage extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Login')),
+      body: JetFormBuilder.advanced(
+        provider: loginFormProvider,
+        builder: (context, ref, form, state) => [
+          JetEmailField(name: 'email'),
+          JetPasswordField(name: 'password'),
+          
+          // Custom submit button
+          if (state.isLoading)
+            CircularProgressIndicator()
+          else
+            ElevatedButton(
+              onPressed: () => form.submit(),
+              child: Text('Sign In'),
+            ),
+        ],
+        onSuccess: (user, request) {
+          context.showToast('Welcome ${user.name}!');
+          context.router.push(DashboardRoute());
+        },
+        onError: (error, stackTrace, invalidateFields) {
+          if (error is JetError && error.isValidation) {
+            // Custom error handling
+            invalidateFields(error.errors);
+          } else {
+            context.showErrorDialog(error.toString());
+          }
+        },
+      ),
+    );
+  }
+}
+```
+
+**Features:**
+- ✅ Full control over UI and submission
+- ✅ No default submit button (build your own)
+- ✅ Custom error handling via onError
+- ✅ Testable business logic
+- ✅ Reusable across app
+- ✅ Type-safe with providers
+
+**Comparison:**
+
+| Feature | .hook | .advanced |
+|---------|-------|-----------|
+| **Use With** | useJetForm | JetFormNotifier/JetFormMixin |
+| **Widget Type** | HookConsumerWidget | ConsumerWidget/StatelessWidget |
+| **Complexity** | Simple forms | Complex forms |
+| **Default Submit Button** | ✅ Included | ❌ Build your own |
+| **Error Handling** | ✅ Automatic | ⚠️ Custom required |
+| **Hook Support** | ✅ Yes | ❌ No |
+| **Reusability** | ⚠️ Limited to one widget | ✅ High - use anywhere |
+| **Testing** | ⚠️ Component testing only | ✅ Unit testable |
+| **Boilerplate** | ✅ Minimal | ⚠️ More setup |
+| **Best For** | Quick forms, prototypes | Production complex forms |
 
 ## Form Validation
 
@@ -1275,17 +1318,16 @@ class ContactPage extends HookConsumerWidget {
       appBar: AppBar(title: const Text('Contact Us')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
-        child: JetSimpleForm(
+        child: JetFormBuilder.hook(
           controller: form,
-          submitButtonText: 'Send Message',
-          children: [
+          builder: (context, formKey) => [
             FormBuilderTextField(
               name: 'name',
               decoration: const InputDecoration(
                 labelText: 'Your Name',
                 prefixIcon: Icon(Icons.person),
               ),
-              validator: FormBuilderValidators.required(),
+              validator: JetValidators.required(),
             ),
             FormBuilderTextField(
               name: 'email',
@@ -1293,9 +1335,9 @@ class ContactPage extends HookConsumerWidget {
                 labelText: 'Email Address',
                 prefixIcon: Icon(Icons.email),
               ),
-              validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(),
-                FormBuilderValidators.email(),
+              validator: JetValidators.compose([
+                JetValidators.required(),
+                JetValidators.email(),
               ]),
             ),
             FormBuilderTextField(
@@ -1305,9 +1347,9 @@ class ContactPage extends HookConsumerWidget {
                 alignLabelWithHint: true,
               ),
               maxLines: 5,
-              validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(),
-                FormBuilderValidators.minLength(20),
+              validator: JetValidators.compose([
+                JetValidators.required(),
+                JetValidators.minLength(20),
               ]),
             ),
           ],
@@ -1358,7 +1400,7 @@ class RegistrationPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      body: JetFormBuilder<RegisterRequest, User>(
+      body: JetFormBuilder.advanced(
         provider: registrationFormProvider,
         onSuccess: (user, request) {
           context.showToast('Registration successful!');
@@ -1435,21 +1477,55 @@ bool save()                                      // Save form state
 void invalidateFields(Map<String, List<String>>) // Set field errors
 ```
 
-### JetSimpleForm
+### JetFormBuilder.hook
 
 ```dart
-JetSimpleForm<Request, Response>({
+JetFormBuilder.hook<Request, Response>({
   required JetFormController<Request, Response> controller,
-  required List<Widget> children,
+  required List<Widget> Function(BuildContext, GlobalKey<FormBuilderState>) builder,
   String? submitButtonText,
   bool showSubmitButton = true,
   double fieldSpacing = 16,
   Map<String, dynamic> initialValues = const {},
-  bool Function()? onBeforeSubmit,
-  bool expandSubmitButton = true,
   Widget? submitButton,
 })
 ```
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `controller` | `JetFormController` | Yes | Form controller from useJetForm |
+| `builder` | `Function` | Yes | Builder function that returns list of widgets |
+| `submitButtonText` | `String?` | No | Text for submit button (default: 'Submit') |
+| `showSubmitButton` | `bool` | No | Show default submit button (default: true) |
+| `fieldSpacing` | `double` | No | Space between fields (default: 16) |
+| `initialValues` | `Map` | No | Initial form field values |
+| `submitButton` | `Widget?` | No | Custom submit button widget |
+
+### JetFormBuilder.advanced
+
+```dart
+JetFormBuilder.advanced<Request, Response>({
+  required AutoDisposeNotifierProvider provider,
+  required List<Widget> Function(BuildContext, WidgetRef, FormNotifier, AsyncFormValue) builder,
+  void Function(Response, Request)? onSuccess,
+  void Function(Object, StackTrace, Function)? onError,
+  Map<String, dynamic> initialValues = const {},
+  bool enablePullToRefresh = false,
+})
+```
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `provider` | `Provider` | Yes | JetFormNotifier or JetFormMixin provider |
+| `builder` | `Function` | Yes | Builder function with form state access |
+| `onSuccess` | `Function?` | No | Called when form submission succeeds |
+| `onError` | `Function?` | No | Called when form submission fails |
+| `initialValues` | `Map` | No | Initial form field values |
+| `enablePullToRefresh` | `bool` | No | Enable pull-to-refresh (default: false) |
 
 ## Best Practices
 
