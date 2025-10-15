@@ -1,3 +1,9 @@
+export 'jet_checkbox_field.dart';
+export 'jet_date_field.dart';
+export 'jet_dropdown_field.dart';
+export 'jet_email_field.dart';
+export 'jet_field_decoration_mixin.dart';
 export 'jet_password_field.dart';
 export 'jet_phone_field.dart';
 export 'jet_pin_field.dart';
+export 'jet_textarea_field.dart';
