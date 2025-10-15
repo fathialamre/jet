@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires a valid street name.
 ///
@@ -36,7 +37,7 @@ class StreetValidator extends BaseValidator<String> {
     final pattern = RegExp(r'^[a-zA-Z0-9\s\-.,#]+$');
 
     if (!pattern.hasMatch(valueCandidate)) {
-      return errorText ?? 'Please enter a valid street name';
+      return errorText ?? JetFormLocalizations.current.streetErrorText;
     }
 
     return null;

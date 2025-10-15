@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires a date to be within a specific range.
 ///
@@ -40,22 +41,22 @@ class DateRangeValidator<T> extends BaseValidator<T> {
       try {
         date = DateTime.parse(valueCandidate);
       } catch (e) {
-        return errorText ?? 'Please enter a valid date';
+        return errorText ?? JetFormLocalizations.current.dateStringErrorText;
       }
     }
 
     if (date == null) {
-      return errorText ?? 'Please enter a valid date';
+      return errorText ?? JetFormLocalizations.current.dateStringErrorText;
     }
 
     if (minDate != null && date.isBefore(minDate!)) {
       return errorText ??
-          'Date must be on or after ${minDate!.toLocal().toString().split(' ')[0]}';
+          JetFormLocalizations.current.dateRangeErrorText(minDate!, maxDate ?? DateTime(9999));
     }
 
     if (maxDate != null && date.isAfter(maxDate!)) {
       return errorText ??
-          'Date must be on or before ${maxDate!.toLocal().toString().split(' ')[0]}';
+          JetFormLocalizations.current.dateRangeErrorText(minDate ?? DateTime(1900), maxDate!);
     }
 
     return null;

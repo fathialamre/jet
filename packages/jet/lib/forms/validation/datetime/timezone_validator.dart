@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires a valid timezone string.
 ///
@@ -42,7 +43,7 @@ class TimezoneValidator extends BaseValidator<String> {
 
     if (!timezones.contains(valueCandidate) &&
         !pattern.hasMatch(valueCandidate)) {
-      return errorText ?? 'Please enter a valid timezone';
+      return errorText ?? JetFormLocalizations.current.timezoneErrorText;
     }
 
     return null;

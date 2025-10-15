@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires a valid IBAN (International Bank Account Number).
 ///
@@ -28,7 +29,7 @@ class IbanValidator extends BaseValidator<String> {
 
     // Check if it starts with 2 letters followed by 2 digits
     if (!RegExp(r'^[A-Z]{2}\d{2}[A-Z0-9]+$').hasMatch(iban)) {
-      return errorText ?? 'Please enter a valid IBAN';
+      return errorText ?? JetFormLocalizations.current.ibanErrorText;
     }
 
     // TODO: Implement MOD-97 checksum validation for full accuracy

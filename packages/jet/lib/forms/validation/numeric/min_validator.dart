@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires a minimum numeric value.
 ///
@@ -31,11 +32,11 @@ class MinValidator<T> extends BaseValidator<T> {
     }
 
     if (value == null) {
-      return errorText ?? 'Value must be numeric';
+      return errorText ?? JetFormLocalizations.current.numericErrorText;
     }
 
     if (value < min) {
-      return errorText ?? 'Value must be greater than or equal to $min';
+      return errorText ?? JetFormLocalizations.current.minErrorText(min);
     }
     return null;
   }

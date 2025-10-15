@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires a specific file extension.
 ///
@@ -45,7 +46,8 @@ class FileExtensionValidator extends BaseValidator<String> {
 
     if (!hasValidExtension) {
       final extList = normalizedExtensions.join(', ');
-      return errorText ?? 'File must have one of these extensions: $extList';
+      return errorText ??
+          JetFormLocalizations.current.fileExtensionErrorText(extList);
     }
 
     return null;

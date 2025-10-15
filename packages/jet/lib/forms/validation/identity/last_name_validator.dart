@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires a valid last name.
 ///
@@ -39,7 +40,7 @@ class LastNameValidator extends BaseValidator<String> {
     final pattern = regex ?? RegExp(r"^[a-zA-Z\s\-']+$");
 
     if (!pattern.hasMatch(valueCandidate)) {
-      return errorText ?? 'Please enter a valid last name';
+      return errorText ?? JetFormLocalizations.current.lastNameErrorText;
     }
 
     return null;

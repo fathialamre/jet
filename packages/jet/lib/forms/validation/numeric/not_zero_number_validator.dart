@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires a non-zero number.
 ///
@@ -31,7 +32,7 @@ class NotZeroNumberValidator<T> extends BaseValidator<T> {
     }
 
     if (value == 0) {
-      return errorText ?? 'Value must not be zero';
+      return errorText ?? JetFormLocalizations.current.notZeroNumberErrorText;
     }
     return null;
   }

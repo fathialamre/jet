@@ -1,5 +1,7 @@
 import 'package:flutter/widgets.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that passes if ANY of the validators pass (OR logic).
 ///

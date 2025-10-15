@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires a positive number (> 0).
 ///
@@ -31,7 +32,7 @@ class PositiveNumberValidator<T> extends BaseValidator<T> {
     }
 
     if (value <= 0) {
-      return errorText ?? 'Value must be a positive number';
+      return errorText ?? JetFormLocalizations.current.positiveNumberErrorText;
     }
     return null;
   }

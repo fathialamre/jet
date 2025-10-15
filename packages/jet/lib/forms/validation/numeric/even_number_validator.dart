@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires an even number.
 ///
@@ -33,7 +34,7 @@ class EvenNumberValidator<T> extends BaseValidator<T> {
     }
 
     if (value % 2 != 0) {
-      return errorText ?? 'Value must be an even number';
+      return errorText ?? JetFormLocalizations.current.evenNumberErrorText;
     }
     return null;
   }

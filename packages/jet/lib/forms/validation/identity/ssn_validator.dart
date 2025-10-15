@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires a valid US Social Security Number.
 ///
@@ -29,7 +30,7 @@ class SsnValidator extends BaseValidator<String> {
     // Basic format validation: XXX-XX-XXXX or XXXXXXXXX
     final pattern = RegExp(r'^\d{3}-?\d{2}-?\d{4}$');
     if (!pattern.hasMatch(valueCandidate)) {
-      return errorText ?? 'Please enter a valid SSN';
+      return errorText ?? JetFormLocalizations.current.ssnErrorText;
     }
 
     return null;

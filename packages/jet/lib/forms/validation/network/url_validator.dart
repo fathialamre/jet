@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires a valid URL.
 ///
@@ -52,7 +53,7 @@ class UrlValidator extends BaseValidator<String> {
 
       return null;
     } catch (e) {
-      return errorText ?? 'Please enter a valid URL';
+      return errorText ?? JetFormLocalizations.current.urlErrorText;
     }
   }
 }

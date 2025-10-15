@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires a valid credit card expiration date.
 ///
@@ -45,7 +46,7 @@ class CreditCardExpirationDateValidator extends BaseValidator<String> {
     final expiryDate = DateTime(fullYear, month + 1, 0); // Last day of month
 
     if (expiryDate.isBefore(now)) {
-      return errorText ?? 'Credit card has expired';
+      return errorText ?? JetFormLocalizations.current.creditCardExpiredErrorText;
     }
 
     return null;

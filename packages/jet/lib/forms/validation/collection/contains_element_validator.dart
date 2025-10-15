@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires a collection to contain a specific element.
 ///
@@ -23,7 +24,7 @@ class ContainsElementValidator<T> extends BaseValidator<Iterable<T>> {
   @override
   String? validateValue(Iterable<T> valueCandidate) {
     if (!valueCandidate.contains(element)) {
-      return errorText ?? 'Value must contain $element';
+      return errorText ?? JetFormLocalizations.current.containsElementErrorText;
     }
     return null;
   }

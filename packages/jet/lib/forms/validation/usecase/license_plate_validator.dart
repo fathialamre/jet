@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires a valid license plate number.
 ///
@@ -28,7 +29,7 @@ class LicensePlateValidator extends BaseValidator<String> {
   String? validateValue(String valueCandidate) {
     if (regex != null) {
       if (!regex!.hasMatch(valueCandidate)) {
-        return errorText ?? 'Please enter a valid license plate';
+        return errorText ?? JetFormLocalizations.current.licensePlateErrorText;
       }
       return null;
     }
@@ -37,7 +38,7 @@ class LicensePlateValidator extends BaseValidator<String> {
     final pattern = RegExp(r'^[A-Z0-9\s\-]{2,8}$', caseSensitive: false);
 
     if (!pattern.hasMatch(valueCandidate)) {
-      return errorText ?? 'Please enter a valid license plate';
+      return errorText ?? JetFormLocalizations.current.licensePlateErrorText;
     }
 
     return null;

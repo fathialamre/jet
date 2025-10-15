@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires a valid credit card number using Luhn algorithm.
 ///
@@ -48,7 +49,7 @@ class CreditCardValidator extends BaseValidator<String> {
     }
 
     if (!_luhnCheck(digitsOnly)) {
-      return errorText ?? 'Please enter a valid credit card number';
+      return errorText ?? JetFormLocalizations.current.creditCardErrorText;
     }
 
     return null;

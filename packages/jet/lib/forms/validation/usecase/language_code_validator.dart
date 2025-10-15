@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires a valid language code (ISO 639-1 or ISO 639-2).
 ///
@@ -36,6 +37,6 @@ class LanguageCodeValidator extends BaseValidator<String> {
       }
     }
 
-    return errorText ?? 'Please enter a valid language code';
+    return errorText ?? JetFormLocalizations.current.languageCodeErrorText;
   }
 }

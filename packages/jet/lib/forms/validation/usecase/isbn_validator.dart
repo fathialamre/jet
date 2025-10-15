@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires a valid ISBN (10 or 13).
 ///
@@ -57,7 +58,7 @@ class IsbnValidator extends BaseValidator<String> {
     final isbn = valueCandidate.replaceAll(RegExp(r'[-\s]'), '');
 
     if (!_isValidISBN10(isbn) && !_isValidISBN13(isbn)) {
-      return errorText ?? 'Please enter a valid ISBN';
+      return errorText ?? JetFormLocalizations.current.isbnErrorText;
     }
 
     return null;
