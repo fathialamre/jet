@@ -114,6 +114,9 @@ class JetTextAreaField extends StatelessWidget {
   /// Callback when value changes
   final ValueChanged<String?>? onChanged;
 
+  /// Value transformer to transform the value before saving
+  final ValueTransformer<String?>? valueTransformer;
+
   const JetTextAreaField({
     super.key,
     required this.name,
@@ -146,6 +149,7 @@ class JetTextAreaField extends StatelessWidget {
     this.textInputAction,
     this.textCapitalization = TextCapitalization.sentences,
     this.onChanged,
+    this.valueTransformer,
   });
 
   @override
@@ -162,6 +166,7 @@ class JetTextAreaField extends StatelessWidget {
       maxLines: maxLines,
       maxLength: maxLength,
       onChanged: onChanged,
+      valueTransformer: valueTransformer ?? (value) => value?.trim(),
       inputFormatters: maxLength != null
           ? [LengthLimitingTextInputFormatter(maxLength)]
           : null,

@@ -1,41 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:jet/jet_framework.dart';
 
-/// A customizable dropdown field widget with built-in validation.
+/// A customizable text field widget with built-in validation.
 ///
-/// This widget provides:
-/// - Type-safe dropdown selection
-/// - Customizable options list
-/// - Search functionality (optional)
-/// - Hint text and validation
-/// - Integrated with Flutter Form Builder
+/// This is the most basic and commonly used form field in the Jet framework.
+/// It provides a simple text input with comprehensive customization options.
 ///
 /// Example usage:
 /// ```dart
-/// JetDropdownField<String>(
-///   name: 'country',
-///   hintText: 'Select your country',
-///   items: [
-///     DropdownMenuItem(value: 'us', child: Text('United States')),
-///     DropdownMenuItem(value: 'uk', child: Text('United Kingdom')),
-///     DropdownMenuItem(value: 'ca', child: Text('Canada')),
-///   ],
+/// JetTextField(
+///   name: 'username',
+///   labelText: 'Username',
+///   hintText: 'Enter your username',
 /// )
 /// ```
-class JetDropdownField<T> extends StatelessWidget {
+class JetTextField extends StatelessWidget {
   /// The name identifier for this form field
   final String name;
 
-  /// Initial value for the dropdown field
-  final T? initialValue;
+  /// Initial value for the text field
+  final String? initialValue;
 
   /// Custom validator function
-  final FormFieldValidator<T>? validator;
+  final FormFieldValidator<String>? validator;
 
   /// Custom prefix icon widget
   final Widget? prefixIcon;
 
-  /// Whether to show the default dropdown icon
+  /// Custom suffix icon widget
+  final Widget? suffixIcon;
+
+  /// Whether to show the default prefix icon
   final bool showPrefixIcon;
 
   /// Whether this field is required
@@ -49,6 +45,9 @@ class JetDropdownField<T> extends StatelessWidget {
 
   /// Whether the field is enabled
   final bool enabled;
+
+  /// Whether the field is read-only
+  final bool readOnly;
 
   /// Label text for the field
   final String? labelText;
@@ -92,39 +91,67 @@ class JetDropdownField<T> extends StatelessWidget {
   /// Constraints for the input field
   final BoxConstraints? constraints;
 
-  /// List of dropdown items
-  final List<DropdownMenuItem<T>> items;
+  /// Keyboard type for this field
+  final TextInputType? keyboardType;
+
+  /// Text input action
+  final TextInputAction? textInputAction;
+
+  /// Text capitalization
+  final TextCapitalization textCapitalization;
+
+  /// Maximum length of input
+  final int? maxLength;
+
+  /// Maximum number of lines (null for single line)
+  final int? maxLines;
+
+  /// Minimum number of lines
+  final int? minLines;
+
+  /// Whether to obscure the text (for passwords)
+  final bool obscureText;
+
+  /// Input formatters for the field
+  final List<TextInputFormatter>? inputFormatters;
 
   /// Callback when value changes
-  final ValueChanged<T?>? onChanged;
-
-  /// Whether dropdown is expanded to full width
-  final bool isExpanded;
-
-  /// Custom dropdown icon
-  final Widget? icon;
-
-  /// Style for the selected item
-  final TextStyle? style;
-
-  /// Alignment for the dropdown hint and selected item
-  final AlignmentGeometry? alignment;
+  final ValueChanged<String?>? onChanged;
 
   /// Value transformer to transform the value before saving
-  final ValueTransformer<T?>? valueTransformer;
+  final ValueTransformer<String?>? valueTransformer;
 
-  const JetDropdownField({
+  /// Callback when field is submitted
+  final ValueChanged<String?>? onSubmitted;
+
+  /// Whether to autocorrect text
+  final bool autocorrect;
+
+  /// Whether to enable suggestions
+  final bool enableSuggestions;
+
+  /// Style for the input text
+  final TextStyle? style;
+
+  /// Minimum length validation
+  final int? minLength;
+
+  /// Whether to trim whitespace
+  final bool trimWhitespace;
+
+  const JetTextField({
     super.key,
     required this.name,
-    required this.items,
     this.initialValue,
     this.validator,
     this.showPrefixIcon = false,
     this.prefixIcon,
+    this.suffixIcon,
     this.autofocus = false,
-    this.isRequired = true,
+    this.isRequired = false,
     this.hintText = '',
     this.enabled = true,
+    this.readOnly = false,
     this.labelText,
     this.labelStyle,
     this.filled = true,
@@ -139,32 +166,53 @@ class JetDropdownField<T> extends StatelessWidget {
     this.helperText,
     this.helperStyle,
     this.constraints,
+    this.keyboardType,
+    this.textInputAction,
+    this.textCapitalization = TextCapitalization.none,
+    this.maxLength,
+    this.maxLines = 1,
+    this.minLines,
+    this.obscureText = false,
+    this.inputFormatters,
     this.onChanged,
-    this.isExpanded = true,
-    this.icon,
-    this.style,
-    this.alignment,
     this.valueTransformer,
+    this.onSubmitted,
+    this.autocorrect = true,
+    this.enableSuggestions = true,
+    this.style,
+    this.minLength,
+    this.trimWhitespace = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    return FormBuilderDropdown<T>(
+    return FormBuilderTextField(
       name: name,
       initialValue: initialValue,
-      items: items,
+      keyboardType: keyboardType,
+      textInputAction: textInputAction,
+      textCapitalization: textCapitalization,
+      autofocus: autofocus,
       enabled: enabled,
+      readOnly: readOnly,
+      maxLength: maxLength,
+      maxLines: maxLines,
+      minLines: minLines,
+      obscureText: obscureText,
+      inputFormatters: inputFormatters,
       onChanged: onChanged,
-      isExpanded: isExpanded,
-      icon: icon,
+      valueTransformer: valueTransformer ??
+          (trimWhitespace ? (value) => value?.trim() : null),
+      onSubmitted: onSubmitted,
+      autocorrect: autocorrect,
+      enableSuggestions: enableSuggestions,
       style: style,
-      alignment: alignment ?? AlignmentDirectional.centerStart,
-      valueTransformer: valueTransformer,
       decoration: InputDecoration(
         labelText: labelText,
         labelStyle: labelStyle,
         hintText: hintText,
         prefixIcon: showPrefixIcon ? prefixIcon : null,
+        suffixIcon: suffixIcon,
         filled: filled,
         fillColor: fillColor,
         border: border,
@@ -182,7 +230,10 @@ class JetDropdownField<T> extends StatelessWidget {
           validator ??
           JetValidators.compose([
             if (isRequired) JetValidators.required(),
+            if (minLength != null) JetValidators.minLength(minLength!),
+            if (maxLength != null) JetValidators.maxLength(maxLength!),
           ]),
     );
   }
 }
+

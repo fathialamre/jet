@@ -106,6 +106,9 @@ class JetPhoneField extends StatelessWidget {
   /// Constraints for the input field
   final BoxConstraints? constraints;
 
+  /// Value transformer to transform the value before saving
+  final ValueTransformer<String?>? valueTransformer;
+
   const JetPhoneField({
     super.key,
     required this.name,
@@ -136,6 +139,7 @@ class JetPhoneField extends StatelessWidget {
     this.helperText,
     this.helperStyle,
     this.constraints,
+    this.valueTransformer,
   });
 
   @override
@@ -185,6 +189,7 @@ class JetPhoneField extends StatelessWidget {
       autofocus: autofocus,
       enabled: enabled,
       inputFormatters: formatters,
+      valueTransformer: valueTransformer ?? (value) => value?.trim(),
       decoration: InputDecoration(
         labelText: labelText,
         labelStyle: labelStyle,
