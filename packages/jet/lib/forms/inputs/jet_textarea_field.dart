@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:jet/jet_framework.dart';
+import 'package:jet/forms/core/jet_form_field.dart';
+import 'package:jet/forms/core/value_transformer.dart';
+import 'package:jet/forms/validators/jet_validators.dart';
 
 /// A customizable textarea field widget for multi-line text input.
 ///
@@ -9,7 +11,6 @@ import 'package:jet/jet_framework.dart';
 /// - Character counter (optional)
 /// - Min/max lines configuration
 /// - Max length validation
-/// - Integrated with Flutter Form Builder
 ///
 /// Example usage:
 /// ```dart
@@ -117,6 +118,12 @@ class JetTextAreaField extends StatelessWidget {
   /// Value transformer to transform the value before saving
   final ValueTransformer<String?>? valueTransformer;
 
+  /// Focus node for this field
+  final FocusNode? focusNode;
+
+  /// Auto-validate mode
+  final AutovalidateMode? autovalidateMode;
+
   const JetTextAreaField({
     super.key,
     required this.name,
@@ -150,45 +157,20 @@ class JetTextAreaField extends StatelessWidget {
     this.textCapitalization = TextCapitalization.sentences,
     this.onChanged,
     this.valueTransformer,
+    this.focusNode,
+    this.autovalidateMode,
   });
 
   @override
   Widget build(BuildContext context) {
-    return FormBuilderTextField(
+    return JetFormField<String>(
       name: name,
       initialValue: initialValue,
-      keyboardType: TextInputType.multiline,
-      textInputAction: textInputAction ?? TextInputAction.newline,
-      textCapitalization: textCapitalization,
-      autofocus: autofocus,
       enabled: enabled,
-      minLines: minLines,
-      maxLines: maxLines,
-      maxLength: maxLength,
-      onChanged: onChanged,
+      autovalidateMode: autovalidateMode,
+      focusNode: focusNode,
       valueTransformer: valueTransformer ?? (value) => value?.trim(),
-      inputFormatters: maxLength != null
-          ? [LengthLimitingTextInputFormatter(maxLength)]
-          : null,
-      decoration: InputDecoration(
-        labelText: labelText,
-        labelStyle: labelStyle,
-        hintText: hintText,
-        prefixIcon: showPrefixIcon ? prefixIcon : null,
-        filled: filled,
-        fillColor: fillColor,
-        border: border,
-        enabledBorder: enabledBorder,
-        focusedBorder: focusedBorder,
-        errorBorder: errorBorder,
-        disabledBorder: disabledBorder,
-        contentPadding: contentPadding,
-        errorStyle: errorStyle,
-        helperText: helperText,
-        helperStyle: helperStyle,
-        constraints: constraints,
-        counterText: showCharacterCounter ? null : '',
-      ),
+      onChanged: onChanged,
       validator:
           validator ??
           JetValidators.compose([
@@ -199,6 +181,48 @@ class JetTextAreaField extends StatelessWidget {
                 errorText: 'Maximum length is $maxLength characters',
               ),
           ]),
+      builder: (FormFieldState<String> field) {
+        final state = field as JetFormFieldState<JetFormField<String>, String>;
+        return TextField(
+          controller: TextEditingController(text: field.value ?? '')
+            ..selection = TextSelection.collapsed(
+              offset: (field.value ?? '').length,
+            ),
+          focusNode: state.effectiveFocusNode,
+          keyboardType: TextInputType.multiline,
+          textInputAction: textInputAction ?? TextInputAction.newline,
+          textCapitalization: textCapitalization,
+          autofocus: autofocus,
+          enabled: enabled && state.enabled,
+          minLines: minLines,
+          maxLines: maxLines,
+          maxLength: maxLength,
+          onChanged: field.didChange,
+          inputFormatters: maxLength != null
+              ? [LengthLimitingTextInputFormatter(maxLength)]
+              : null,
+          decoration: InputDecoration(
+            labelText: labelText,
+            labelStyle: labelStyle,
+            hintText: hintText,
+            prefixIcon: showPrefixIcon ? prefixIcon : null,
+            filled: filled,
+            fillColor: fillColor,
+            border: border,
+            enabledBorder: enabledBorder,
+            focusedBorder: focusedBorder,
+            errorBorder: errorBorder,
+            disabledBorder: disabledBorder,
+            contentPadding: contentPadding,
+            errorText: field.errorText,
+            errorStyle: errorStyle,
+            helperText: helperText,
+            helperStyle: helperStyle,
+            constraints: constraints,
+            counterText: showCharacterCounter ? null : '',
+          ),
+        );
+      },
     );
   }
 }

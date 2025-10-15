@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:jet/extensions/build_context.dart';
-import 'package:jet/jet_framework.dart';
+import 'package:jet/forms/core/jet_form_field.dart';
+import 'package:jet/forms/core/value_transformer.dart';
+import 'package:jet/forms/validators/jet_validators.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// A customizable password field widget with built-in validation and visibility toggle.
 ///
-/// This widget provides:1
+/// This widget provides:
 /// - Password visibility toggle
 /// - Password confirmation validation
 /// - Customizable validation rules
-/// - Integrated with Flutter Form Builder
 ///
 /// Example usage:
 /// ```dart
@@ -107,6 +110,12 @@ class JetPasswordField extends HookWidget {
   /// Value transformer for the field
   final ValueTransformer<String?>? valueTransformer;
 
+  /// Focus node for this field
+  final FocusNode? focusNode;
+
+  /// Auto-validate mode
+  final AutovalidateMode? autovalidateMode;
+
   const JetPasswordField({
     super.key,
     required this.name,
@@ -138,6 +147,8 @@ class JetPasswordField extends HookWidget {
     this.helperStyle,
     this.constraints,
     this.valueTransformer,
+    this.focusNode,
+    this.autovalidateMode,
   });
 
   @override
@@ -148,41 +159,13 @@ class JetPasswordField extends HookWidget {
       obscureTextState.value = !obscureTextState.value;
     }
 
-    return FormBuilderTextField(
+    return JetFormField<String>(
       name: name,
       initialValue: initialValue,
-      obscureText: obscureTextState.value,
-      valueTransformer: valueTransformer,
       enabled: enabled,
-      readOnly: readOnly,
-      autofocus: autofocus,
-      keyboardType: keyboardType,
-      decoration: InputDecoration(
-        labelText: labelText,
-        labelStyle: labelStyle,
-        hintText: hintText,
-        prefixIcon: showPrefixIcon ? Icon(PhosphorIcons.lock()) : prefixIcon,
-        suffixIcon: IconButton(
-          icon: Icon(
-            obscureTextState.value
-                ? PhosphorIcons.eye()
-                : PhosphorIcons.eyeClosed(),
-          ),
-          onPressed: toggleVisibility,
-        ),
-        filled: filled,
-        fillColor: fillColor,
-        border: border,
-        enabledBorder: enabledBorder,
-        focusedBorder: focusedBorder,
-        errorBorder: errorBorder,
-        disabledBorder: disabledBorder,
-        contentPadding: contentPadding,
-        errorStyle: errorStyle,
-        helperText: helperText,
-        helperStyle: helperStyle,
-        constraints: constraints,
-      ),
+      autovalidateMode: autovalidateMode,
+      focusNode: focusNode,
+      valueTransformer: valueTransformer,
       validator:
           validator ??
           JetValidators.compose([
@@ -203,6 +186,51 @@ class JetPasswordField extends HookWidget {
               return null;
             },
           ]),
+      builder: (FormFieldState<String> field) {
+        final state = field as JetFormFieldState<JetFormField<String>, String>;
+        return TextField(
+          controller: TextEditingController(text: field.value ?? '')
+            ..selection = TextSelection.collapsed(
+              offset: (field.value ?? '').length,
+            ),
+          focusNode: state.effectiveFocusNode,
+          obscureText: obscureTextState.value,
+          enabled: enabled && state.enabled,
+          readOnly: readOnly,
+          autofocus: autofocus,
+          keyboardType: keyboardType,
+          onChanged: field.didChange,
+          decoration: InputDecoration(
+            labelText: labelText,
+            labelStyle: labelStyle,
+            hintText: hintText,
+            prefixIcon: showPrefixIcon
+                ? prefixIcon ?? Icon(PhosphorIcons.lock())
+                : null,
+            suffixIcon: IconButton(
+              icon: Icon(
+                obscureTextState.value
+                    ? PhosphorIcons.eye()
+                    : PhosphorIcons.eyeClosed(),
+              ),
+              onPressed: toggleVisibility,
+            ),
+            filled: filled,
+            fillColor: fillColor,
+            border: border,
+            enabledBorder: enabledBorder,
+            focusedBorder: focusedBorder,
+            errorBorder: errorBorder,
+            disabledBorder: disabledBorder,
+            contentPadding: contentPadding,
+            errorText: field.errorText,
+            errorStyle: errorStyle,
+            helperText: helperText,
+            helperStyle: helperStyle,
+            constraints: constraints,
+          ),
+        );
+      },
     );
   }
 }

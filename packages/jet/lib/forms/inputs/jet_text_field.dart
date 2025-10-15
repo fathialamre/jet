@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:jet/jet_framework.dart';
+import 'package:jet/forms/core/jet_form_field.dart';
+import 'package:jet/forms/core/value_transformer.dart';
+import 'package:jet/forms/validators/jet_validators.dart';
 
 /// A customizable text field widget with built-in validation.
 ///
@@ -139,6 +141,12 @@ class JetTextField extends StatelessWidget {
   /// Whether to trim whitespace
   final bool trimWhitespace;
 
+  /// Focus node for this field
+  final FocusNode? focusNode;
+
+  /// Auto-validate mode
+  final AutovalidateMode? autovalidateMode;
+
   const JetTextField({
     super.key,
     required this.name,
@@ -182,51 +190,22 @@ class JetTextField extends StatelessWidget {
     this.style,
     this.minLength,
     this.trimWhitespace = true,
+    this.focusNode,
+    this.autovalidateMode,
   });
 
   @override
   Widget build(BuildContext context) {
-    return FormBuilderTextField(
+    return JetFormField<String>(
       name: name,
       initialValue: initialValue,
-      keyboardType: keyboardType,
-      textInputAction: textInputAction,
-      textCapitalization: textCapitalization,
-      autofocus: autofocus,
       enabled: enabled,
-      readOnly: readOnly,
-      maxLength: maxLength,
-      maxLines: maxLines,
-      minLines: minLines,
-      obscureText: obscureText,
-      inputFormatters: inputFormatters,
-      onChanged: onChanged,
+      autovalidateMode: autovalidateMode,
+      focusNode: focusNode,
       valueTransformer:
           valueTransformer ??
           (trimWhitespace ? (value) => value?.trim() : null),
-      onSubmitted: onSubmitted,
-      autocorrect: autocorrect,
-      enableSuggestions: enableSuggestions,
-      style: style,
-      decoration: InputDecoration(
-        labelText: labelText,
-        labelStyle: labelStyle,
-        hintText: hintText,
-        prefixIcon: showPrefixIcon ? prefixIcon : null,
-        suffixIcon: suffixIcon,
-        filled: filled,
-        fillColor: fillColor,
-        border: border,
-        enabledBorder: enabledBorder,
-        focusedBorder: focusedBorder,
-        errorBorder: errorBorder,
-        disabledBorder: disabledBorder,
-        contentPadding: contentPadding,
-        errorStyle: errorStyle,
-        helperText: helperText,
-        helperStyle: helperStyle,
-        constraints: constraints,
-      ),
+      onChanged: onChanged,
       validator:
           validator ??
           JetValidators.compose([
@@ -234,6 +213,52 @@ class JetTextField extends StatelessWidget {
             if (minLength != null) JetValidators.minLength(minLength!),
             if (maxLength != null) JetValidators.maxLength(maxLength!),
           ]),
+      builder: (FormFieldState<String> field) {
+        final state = field as JetFormFieldState<JetFormField<String>, String>;
+        return TextField(
+          controller: TextEditingController(text: field.value ?? '')
+            ..selection = TextSelection.collapsed(
+              offset: (field.value ?? '').length,
+            ),
+          focusNode: state.effectiveFocusNode,
+          keyboardType: keyboardType,
+          textInputAction: textInputAction,
+          textCapitalization: textCapitalization,
+          autofocus: autofocus,
+          enabled: enabled && state.enabled,
+          readOnly: readOnly,
+          maxLength: maxLength,
+          maxLines: maxLines,
+          minLines: minLines,
+          obscureText: obscureText,
+          inputFormatters: inputFormatters,
+          onChanged: field.didChange,
+          onSubmitted: onSubmitted,
+          autocorrect: autocorrect,
+          enableSuggestions: enableSuggestions,
+          style: style,
+          decoration: InputDecoration(
+            labelText: labelText,
+            labelStyle: labelStyle,
+            hintText: hintText,
+            prefixIcon: showPrefixIcon ? prefixIcon : null,
+            suffixIcon: suffixIcon,
+            filled: filled,
+            fillColor: fillColor,
+            border: border,
+            enabledBorder: enabledBorder,
+            focusedBorder: focusedBorder,
+            errorBorder: errorBorder,
+            disabledBorder: disabledBorder,
+            contentPadding: contentPadding,
+            errorText: field.errorText,
+            errorStyle: errorStyle,
+            helperText: helperText,
+            helperStyle: helperStyle,
+            constraints: constraints,
+          ),
+        );
+      },
     );
   }
 }
