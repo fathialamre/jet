@@ -176,14 +176,8 @@ class LoginPage extends HookConsumerWidget {
                       expandSubmitButton: true,
                       showSubmitButton: false,
                       children: [
-                        FormBuilderTextField(
+                        JetEmailField(
                           name: 'email',
-                          decoration: const InputDecoration(
-                            labelText: 'Email Address',
-                            hintText: 'Enter your email',
-                            prefixIcon: Icon(Icons.email_outlined),
-                          ),
-                          keyboardType: TextInputType.emailAddress,
                           validator: JetValidators.compose([
                             JetValidators.required(),
                             JetValidators.email(),

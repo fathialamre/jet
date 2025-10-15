@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../networking/errors/jet_error.dart';
 import '../common.dart';
+import '../core/jet_form_field.dart';
 import '../mixins/mixins.dart';
 
 typedef JetFormProvider<Request, Response> =
@@ -15,7 +15,7 @@ abstract class FormNotifierBase<Request, Response> {
   AsyncFormValue<Request, Response> get state;
   set state(AsyncFormValue<Request, Response> value);
 
-  GlobalKey<FormBuilderState> get formKey;
+  GlobalKey<JetFormState> get formKey;
   Future<void> submit();
   void invalidateFormFields(Map<String, List<String>> fieldErrors);
   void reset();
@@ -39,7 +39,7 @@ mixin JetFormMixin<Request, Response>
         FormErrorHandlingMixin,
         FormLifecycleMixin<Request, Response> {
   @override
-  final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
+  final GlobalKey<JetFormState> formKey = GlobalKey<JetFormState>();
 
   // FormLifecycleMixin implementation
   FormLifecycleCallbacks<Request, Response>? _callbacks;
@@ -89,7 +89,7 @@ mixin JetFormMixin<Request, Response>
   @override
   void validateSpecificField(
     String fieldName,
-    GlobalKey<FormBuilderState> formKey,
+    GlobalKey<JetFormState> formKey,
   ) {
     final formState = formKey.currentState;
     if (formState == null) return;
@@ -106,7 +106,7 @@ mixin JetFormMixin<Request, Response>
   }
 
   @override
-  bool validateAllFields(GlobalKey<FormBuilderState> formKey) {
+  bool validateAllFields(GlobalKey<JetFormState> formKey) {
     final formState = formKey.currentState;
     if (formState == null) return false;
 
@@ -126,7 +126,7 @@ mixin JetFormMixin<Request, Response>
   }
 
   @override
-  Map<String, List<String>> extractFormErrors(FormBuilderState? formState) {
+  Map<String, List<String>> extractFormErrors(JetFormState? formState) {
     if (formState == null) return {};
 
     final errors = <String, List<String>>{};
@@ -141,7 +141,7 @@ mixin JetFormMixin<Request, Response>
   @override
   void invalidateFields(
     Map<String, List<String>> fieldErrors,
-    GlobalKey<FormBuilderState> formKey,
+    GlobalKey<JetFormState> formKey,
   ) {
     fieldErrors.forEach((field, errorText) {
       formKey.currentState?.fields[field]?.invalidate(errorText.first);

@@ -462,7 +462,7 @@ class JetFormState extends State<JetForm> {
   void initState() {
     super.initState();
     // Auto validate if enabled
-    if (enabled && (widget.autovalidateMode?.isAlways ?? false)) {
+    if (enabled && widget.autovalidateMode == AutovalidateMode.always) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         validate(focusOnInvalid: false);
       });

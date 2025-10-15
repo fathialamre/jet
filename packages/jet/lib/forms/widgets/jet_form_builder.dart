@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jet/forms/core/jet_form_field.dart';
 import 'package:hooks_riverpod/misc.dart';
 import 'package:jet/bootstrap/boot.dart';
 import 'package:jet/extensions/build_context.dart';
@@ -33,7 +33,7 @@ class JetFormBuilder<Request, Response> extends ConsumerWidget {
   final bool showErrorSnackBar;
   final double fieldSpacing;
 
-  const JetFormBuilder({
+  const JetJetForm({
     super.key,
     required this.provider,
     required this.builder,
@@ -199,7 +199,7 @@ class JetFormBuilder<Request, Response> extends ConsumerWidget {
       );
     });
 
-    return FormBuilder(
+    return JetForm(
       key: form.formKey,
       initialValue: initialValues,
       child: Column(

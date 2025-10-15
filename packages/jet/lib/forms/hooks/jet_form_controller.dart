@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
 import '../common.dart';
+import '../core/jet_form_field.dart';
 
 /// A controller that manages form state and actions for simple forms.
 ///
@@ -24,7 +24,7 @@ import '../common.dart';
 /// ```
 class JetFormController<Request, Response> {
   /// The form key used to access form state and validation
-  final GlobalKey<FormBuilderState> formKey;
+  final GlobalKey<JetFormState> formKey;
 
   /// The current state of the form
   final AsyncFormValue<Request, Response> state;

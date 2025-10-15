@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
+import '../core/jet_form_field.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../common.dart';
@@ -66,7 +66,7 @@ JetFormController<Request, Response> useJetForm<Request, Response>({
   final hookId = useRef(DateTime.now().microsecondsSinceEpoch.toString());
 
   // Create form key that persists across rebuilds
-  final formKey = useMemoized(() => GlobalKey<FormBuilderState>());
+  final formKey = useMemoized(() => GlobalKey<JetFormState>());
 
   // Create a provider for this specific form instance
   final provider =
@@ -115,12 +115,12 @@ class _InlineFormNotifier<Request, Response>
     extends JetFormNotifier<Request, Response> {
   final Request Function(Map<String, dynamic> json) _decoder;
   final Future<Response> Function(Request data) _action;
-  final GlobalKey<FormBuilderState> _formKey;
+  final GlobalKey<JetFormState> _formKey;
 
   _InlineFormNotifier({
     required Request Function(Map<String, dynamic> json) decoder,
     required Future<Response> Function(Request data) action,
-    required GlobalKey<FormBuilderState> formKey,
+    required GlobalKey<JetFormState> formKey,
     void Function(Response response, Request request)? onSuccess,
     void Function(Object error, StackTrace stackTrace)? onError,
     void Function(Object error, StackTrace stackTrace)? onValidationError,
@@ -140,7 +140,7 @@ class _InlineFormNotifier<Request, Response>
   }
 
   @override
-  GlobalKey<FormBuilderState> get formKey => _formKey;
+  GlobalKey<JetFormState> get formKey => _formKey;
 
   @override
   AsyncFormValue<Request, Response> build() {

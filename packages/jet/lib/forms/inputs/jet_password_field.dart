@@ -39,7 +39,7 @@ class JetPasswordField extends HookWidget {
   final bool isRequired;
 
   /// Form key reference for password confirmation validation
-  final GlobalKey<FormBuilderState>? formKey;
+  final GlobalKey<JetFormState>? formKey;
 
   /// Field name to match for password confirmation
   final String? identicalWith;

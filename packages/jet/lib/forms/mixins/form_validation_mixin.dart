@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:jet/forms/core/jet_form_field.dart';
 
 /// Mixin that provides validation capabilities for forms
 mixin FormValidationMixin {
@@ -16,7 +16,7 @@ mixin FormValidationMixin {
   /// Validate a specific field and update its error state
   void validateSpecificField(
     String fieldName,
-    GlobalKey<FormBuilderState> formKey,
+    GlobalKey<JetFormState> formKey,
   ) {
     final formState = formKey.currentState;
     if (formState == null) return;
@@ -33,7 +33,7 @@ mixin FormValidationMixin {
   }
 
   /// Validate all fields without triggering submission
-  bool validateAllFields(GlobalKey<FormBuilderState> formKey) {
+  bool validateAllFields(GlobalKey<JetFormState> formKey) {
     final formState = formKey.currentState;
     if (formState == null) return false;
 
@@ -53,7 +53,7 @@ mixin FormValidationMixin {
   }
 
   /// Extract validation errors from form state
-  Map<String, List<String>> extractFormErrors(FormBuilderState? formState) {
+  Map<String, List<String>> extractFormErrors(JetFormState? formState) {
     if (formState == null) return {};
 
     final errors = <String, List<String>>{};
@@ -68,7 +68,7 @@ mixin FormValidationMixin {
   /// Invalidate specific fields with error messages
   void invalidateFields(
     Map<String, List<String>> fieldErrors,
-    GlobalKey<FormBuilderState> formKey,
+    GlobalKey<JetFormState> formKey,
   ) {
     fieldErrors.forEach((field, errorText) {
       formKey.currentState?.fields[field]?.invalidate(errorText.first);
