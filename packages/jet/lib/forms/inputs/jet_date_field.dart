@@ -106,6 +106,9 @@ class JetDateField extends StatelessWidget {
   /// Callback when date is selected
   final ValueChanged<DateTime?>? onChanged;
 
+  /// Value transformer to transform the value before saving
+  final ValueTransformer<DateTime?>? valueTransformer;
+
   const JetDateField({
     super.key,
     required this.name,
@@ -136,6 +139,7 @@ class JetDateField extends StatelessWidget {
     this.lastDate,
     this.inputType = InputType.date,
     this.onChanged,
+    this.valueTransformer,
   });
 
   @override
@@ -149,6 +153,7 @@ class JetDateField extends StatelessWidget {
       firstDate: firstDate,
       lastDate: lastDate,
       onChanged: onChanged,
+      valueTransformer: valueTransformer,
       decoration: InputDecoration(
         labelText: labelText,
         labelStyle: labelStyle,

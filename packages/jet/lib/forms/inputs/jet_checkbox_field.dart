@@ -87,6 +87,9 @@ class JetCheckboxField extends StatelessWidget {
   /// Error style for validation messages
   final TextStyle? errorStyle;
 
+  /// Value transformer to transform the value before saving
+  final ValueTransformer<bool?>? valueTransformer;
+
   const JetCheckboxField({
     super.key,
     required this.name,
@@ -110,6 +113,7 @@ class JetCheckboxField extends StatelessWidget {
     this.titleTextStyle,
     this.subtitleTextStyle,
     this.errorStyle,
+    this.valueTransformer,
   });
 
   @override
@@ -124,6 +128,7 @@ class JetCheckboxField extends StatelessWidget {
         onChanged: onChanged,
         controlAffinity: controlAffinity,
         contentPadding: contentPadding ?? EdgeInsets.zero,
+        valueTransformer: valueTransformer,
         title: Text(
           title,
           style: titleTextStyle,
@@ -155,6 +160,7 @@ class JetCheckboxField extends StatelessWidget {
       controlAffinity: controlAffinity,
       contentPadding: contentPadding ?? EdgeInsets.zero,
       shape: shape,
+      valueTransformer: valueTransformer,
       title: Text(
         title,
         style: titleTextStyle,
