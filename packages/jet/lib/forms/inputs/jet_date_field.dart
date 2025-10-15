@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:jet/jet_framework.dart';
 import 'package:intl/intl.dart';
 
@@ -22,7 +21,7 @@ import 'package:intl/intl.dart';
 ///   lastDate: DateTime.now(),
 /// )
 /// ```
-class JetDateField extends HookWidget {
+class JetDateField extends StatelessWidget {
   /// The name identifier for this form field
   final String name;
 

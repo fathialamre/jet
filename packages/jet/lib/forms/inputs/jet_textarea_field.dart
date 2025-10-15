@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:jet/jet_framework.dart';
 
 /// A customizable textarea field widget for multi-line text input.
@@ -24,7 +23,7 @@ import 'package:jet/jet_framework.dart';
 ///   showCharacterCounter: true,
 /// )
 /// ```
-class JetTextAreaField extends HookWidget {
+class JetTextAreaField extends StatelessWidget {
   /// The name identifier for this form field
   final String name;
 
