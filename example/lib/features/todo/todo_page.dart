@@ -65,8 +65,13 @@ class TodoPage extends JetConsumerWidget {
                           ),
                           const SizedBox(height: 16),
                           JetCheckbox(
+                            decoration: const InputDecoration(
+                              labelText: 'Password',
+                              hintText: 'Enter your password',
+                              prefixIcon: Icon(Icons.lock),
+                            ),
                             name: 'isCompleted',
-                            title: const Text('Mark as completed'),
+                            title: const Text('Mark as complete ->>'),
                             initialValue: false,
                           ),
                           const SizedBox(height: 24),

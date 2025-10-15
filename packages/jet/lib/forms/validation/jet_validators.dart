@@ -28,8 +28,9 @@ class JetValidators {
   static FormFieldValidator<T> compose<T>(
     List<FormFieldValidator<T>?> validators,
   ) {
-    final nonNullValidators =
-        validators.whereType<FormFieldValidator<T>>().toList();
+    final nonNullValidators = validators
+        .whereType<FormFieldValidator<T>>()
+        .toList();
     return ComposeValidator<T>(nonNullValidators).validate;
   }
 

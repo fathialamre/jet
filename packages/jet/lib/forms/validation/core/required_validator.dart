@@ -1,3 +1,4 @@
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 import '../base_validator.dart';
 
 /// Validator that requires a non-empty value.
@@ -26,5 +27,6 @@ class RequiredValidator<T> extends BaseValidator<T> {
   }
 
   @override
-  String? get errorText => super.errorText ?? 'This field is required';
+  String? get errorText =>
+      super.errorText ?? JetFormLocalizations.current.requiredErrorText;
 }
