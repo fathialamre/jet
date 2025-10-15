@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:jet/jet_framework.dart';
+import 'package:jet/forms/core/jet_form_field.dart';
+import 'package:jet/forms/core/value_transformer.dart';
+import 'package:jet/forms/validators/jet_validators.dart';
 
 /// A customizable checkbox/switch field widget with built-in validation.
 ///
