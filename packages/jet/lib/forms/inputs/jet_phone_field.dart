@@ -205,11 +205,11 @@ class JetPhoneField extends StatelessWidget {
       ),
       validator:
           validator ??
-          FormBuilderValidators.compose([
-            if (isRequired) FormBuilderValidators.required(),
-            if (!allowInternational) FormBuilderValidators.numeric(),
-            FormBuilderValidators.minLength(minLength),
-            FormBuilderValidators.maxLength(maxLength),
+          JetValidators.compose([
+            if (isRequired) JetValidators.required(),
+            if (!allowInternational) JetValidators.numeric(),
+            JetValidators.minLength(minLength),
+            JetValidators.maxLength(maxLength),
             // Custom phone validation for international numbers
             if (allowInternational)
               (value) {

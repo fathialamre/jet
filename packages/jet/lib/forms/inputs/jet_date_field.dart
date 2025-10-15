@@ -172,8 +172,8 @@ class JetDateField extends StatelessWidget {
       ),
       validator:
           validator ??
-          FormBuilderValidators.compose([
-            if (isRequired) FormBuilderValidators.required(),
+          JetValidators.compose([
+            if (isRequired) JetValidators.required(),
           ]),
     );
   }

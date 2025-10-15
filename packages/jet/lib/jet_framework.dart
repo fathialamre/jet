@@ -12,12 +12,26 @@ export 'networking/networking.dart';
 export 'package:auto_route/auto_route.dart';
 export 'package:hooks_riverpod/hooks_riverpod.dart';
 export 'package:flutter_hooks/flutter_hooks.dart';
-export 'package:flutter_form_builder/flutter_form_builder.dart';
 export 'helpers/helpers.dart';
 export 'package:flutter_screenutil/flutter_screenutil.dart';
-export 'package:form_builder_validators/form_builder_validators.dart';
 export 'package:phosphor_flutter/phosphor_flutter.dart';
 export 'package:guardo/guardo.dart';
+
+// Flutter Form Builder - only export necessary types
+export 'package:flutter_form_builder/flutter_form_builder.dart'
+    show
+        FormBuilderState,
+        FormFieldValidator,
+        FormBuilderTextField,
+        FormBuilderDropdown,
+        FormBuilderCheckbox,
+        FormBuilderSwitch,
+        FormBuilderDateTimePicker,
+        InputType,
+        FormBuilderField,
+        DropdownMenuItem,
+        ValueTransformer,
+        AutovalidateMode;
 
 // Widgets
 export 'widgets/widgets.dart';
@@ -30,6 +44,8 @@ export 'package:smooth_page_indicator/smooth_page_indicator.dart';
 export '../forms/common.dart';
 export '../forms/notifiers/jet_form_notifier.dart';
 export '../forms/widgets/jet_form_builder.dart';
+export '../forms/widgets/jet_form_widget.dart';
+export '../forms/validators/jet_validators.dart';
 export '../forms/inputs/inputs.dart';
 
 // Error Handling

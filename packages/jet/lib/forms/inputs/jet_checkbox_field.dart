@@ -137,7 +137,7 @@ class JetCheckboxField extends StatelessWidget {
         validator:
             validator ??
             (isRequired
-                ? FormBuilderValidators.equal(
+                ? JetValidators.equal(
                     true,
                     errorText: 'This field must be checked',
                   )
@@ -168,7 +168,7 @@ class JetCheckboxField extends StatelessWidget {
       validator:
           validator ??
           (isRequired
-              ? FormBuilderValidators.equal(
+              ? JetValidators.equal(
                   true,
                   errorText: 'This field must be checked',
                 )
