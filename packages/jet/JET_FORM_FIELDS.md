@@ -8,6 +8,7 @@ Comprehensive documentation for all Jet form field widgets built on top of `flut
 - [Installation](#installation)
 - [Common Features](#common-features)
 - [Available Fields](#available-fields)
+  - [JetTextField](#jettextfield)
   - [JetEmailField](#jetemail field)
   - [JetPasswordField](#jetpasswordfield)
   - [JetPhoneField](#jetphonefield)
@@ -47,6 +48,7 @@ All Jet form fields share these common features:
 ### Common Optional Parameters
 - `initialValue` - Pre-filled value
 - `validator` - Custom validation function
+- `valueTransformer` - Transform value before saving (e.g., trim, lowercase)
 - `isRequired` - Whether the field is required (default: true for most fields)
 - `enabled` - Whether the field is interactive
 - `labelText` - Label displayed above the field
@@ -56,7 +58,100 @@ All Jet form fields share these common features:
 - `fillColor` - Background color of the field
 - Various border parameters (`border`, `enabledBorder`, `focusedBorder`, etc.)
 
+### Value Transformers
+
+All Jet form fields support `valueTransformer` for preprocessing data before submission:
+
+```dart
+// Trim whitespace (default for text fields)
+JetTextField(
+  name: 'username',
+  valueTransformer: (value) => value?.trim(),
+)
+
+// Uppercase transformation
+JetTextField(
+  name: 'code',
+  valueTransformer: (value) => value?.toUpperCase(),
+)
+
+// Custom transformation
+JetPhoneField(
+  name: 'phone',
+  valueTransformer: (value) => value?.replaceAll(RegExp(r'[^\d]'), ''),
+)
+```
+
 ## Available Fields
+
+### JetTextField
+
+The most basic and commonly used form field for general text input.
+
+#### Features
+- General text input
+- Built-in validation (required, minLength, maxLength)
+- Automatic whitespace trimming
+- Multiple keyboard types
+- Text capitalization options
+- Obscure text for sensitive input
+- Input formatters support
+
+#### Basic Usage
+
+```dart
+JetTextField(
+  name: 'username',
+  labelText: 'Username',
+  hintText: 'Enter your username',
+)
+```
+
+#### Advanced Usage
+
+```dart
+JetTextField(
+  name: 'code',
+  labelText: 'Activation Code',
+  hintText: 'Enter code',
+  minLength: 6,
+  maxLength: 12,
+  keyboardType: TextInputType.text,
+  textCapitalization: TextCapitalization.characters,
+  valueTransformer: (value) => value?.toUpperCase().trim(),
+)
+```
+
+#### As Number Input
+
+```dart
+JetTextField(
+  name: 'age',
+  labelText: 'Age',
+  keyboardType: TextInputType.number,
+  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+  validator: JetValidators.compose([
+    JetValidators.required(),
+    JetValidators.numeric(),
+  ]),
+)
+```
+
+#### Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `name` | `String` | required | Field identifier |
+| `keyboardType` | `TextInputType?` | `null` | Keyboard type (text, number, etc.) |
+| `textCapitalization` | `TextCapitalization` | `none` | Auto-capitalize behavior |
+| `obscureText` | `bool` | `false` | Hide text (for passwords) |
+| `maxLength` | `int?` | `null` | Maximum character length |
+| `minLength` | `int?` | `null` | Minimum character length for validation |
+| `trimWhitespace` | `bool` | `true` | Auto-trim whitespace |
+| `valueTransformer` | `ValueTransformer?` | trim | Custom value transformation |
+| `inputFormatters` | `List<TextInputFormatter>?` | `null` | Input format restrictions |
+
+---
 
 ### JetEmailField
 
@@ -103,6 +198,7 @@ JetEmailField(
 | `name` | `String` | required | Field identifier |
 | `toLowerCase` | `bool` | `true` | Auto-convert to lowercase |
 | `showPrefixIcon` | `bool` | `true` | Show envelope icon |
+| `valueTransformer` | `ValueTransformer?` | lowercase+trim | Custom value transformation |
 
 ---
 
@@ -204,6 +300,7 @@ JetPhoneField(
 | `minLength` | `int` | `10` | Minimum phone length |
 | `maxLength` | `int` | `15` | Maximum phone length |
 | `allowInternational` | `bool` | `true` | Allow international format |
+| `valueTransformer` | `ValueTransformer?` | trim | Custom value transformation |
 
 ---
 
@@ -313,6 +410,7 @@ JetDateField(
 | `firstDate` | `DateTime?` | `null` | Minimum selectable date |
 | `lastDate` | `DateTime?` | `null` | Maximum selectable date |
 | `inputType` | `InputType` | `InputType.date` | Date, time, or both |
+| `valueTransformer` | `ValueTransformer?` | `null` | Custom value transformation |
 
 ---
 
@@ -373,6 +471,7 @@ JetDropdownField<Country>(
 | `items` | `List<DropdownMenuItem<T>>` | required | Dropdown options |
 | `isExpanded` | `bool` | `true` | Expand to full width |
 | `onChanged` | `ValueChanged<T?>?` | `null` | Callback on selection |
+| `valueTransformer` | `ValueTransformer?` | `null` | Custom value transformation |
 
 ---
 
@@ -429,6 +528,7 @@ JetCheckboxField(
 | `useSwitch` | `bool` | `false` | Use switch instead of checkbox |
 | `activeColor` | `Color?` | `null` | Color when active |
 | `controlAffinity` | `ListTileControlAffinity` | `leading` | Position of control |
+| `valueTransformer` | `ValueTransformer?` | `null` | Custom value transformation |
 
 ---
 
@@ -477,6 +577,7 @@ JetTextAreaField(
 | `maxLines` | `int?` | `6` | Maximum visible lines |
 | `maxLength` | `int?` | `null` | Maximum character count |
 | `showCharacterCounter` | `bool` | `false` | Display character counter |
+| `valueTransformer` | `ValueTransformer?` | trim | Custom value transformation |
 
 ---
 
@@ -640,6 +741,15 @@ class RegistrationForm extends HookConsumerWidget {
       key: formKey,
       child: Column(
         children: [
+          // Name
+          JetTextField(
+            name: 'name',
+            labelText: 'Full Name',
+            hintText: 'John Doe',
+            textCapitalization: TextCapitalization.words,
+          ),
+          const SizedBox(height: 16),
+          
           // Email
           const JetEmailField(
             name: 'email',
