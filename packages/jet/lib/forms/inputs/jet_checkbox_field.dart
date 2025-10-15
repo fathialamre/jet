@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:jet/jet_framework.dart';
 
 /// A customizable checkbox/switch field widget with built-in validation.
@@ -24,7 +23,7 @@ import 'package:jet/jet_framework.dart';
 ///   useSwitch: true,
 /// )
 /// ```
-class JetCheckboxField extends HookWidget {
+class JetCheckboxField extends StatelessWidget {
   /// The name identifier for this form field
   final String name;
 

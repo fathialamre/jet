@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:jet/jet_framework.dart';
 
 /// A customizable dropdown field widget with built-in validation.
@@ -23,7 +22,7 @@ import 'package:jet/jet_framework.dart';
 ///   ],
 /// )
 /// ```
-class JetDropdownField<T> extends HookWidget {
+class JetDropdownField<T> extends StatelessWidget {
   /// The name identifier for this form field
   final String name;
 

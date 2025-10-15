@@ -18,7 +18,7 @@ import 'package:jet/jet_framework.dart';
 ///   labelText: 'Email Address',
 /// )
 /// ```
-class JetEmailField extends HookWidget {
+class JetEmailField extends StatelessWidget {
   /// The name identifier for this form field
   final String name;
 

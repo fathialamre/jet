@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:jet/jet_framework.dart';
 
 /// A customizable phone number field widget with built-in validation.
@@ -22,7 +21,7 @@ import 'package:jet/jet_framework.dart';
 ///   maxLength: 15,
 /// )
 /// ```
-class JetPhoneField extends HookWidget {
+class JetPhoneField extends StatelessWidget {
   /// The name identifier for this form field
   final String name;
 
