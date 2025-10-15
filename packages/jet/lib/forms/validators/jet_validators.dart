@@ -327,7 +327,7 @@ class JetValidators {
   }) {
     return (T? value) {
       if (!test(value)) {
-        return errorText ?? 'Invalid value';
+        return errorText;
       }
       return null;
     };
@@ -378,6 +378,369 @@ class JetValidators {
     return (bool? value) {
       if (value != false) {
         return errorText ?? 'This field must be unchecked';
+      }
+      return null;
+    };
+  }
+
+  /// Validates that the string contains special characters
+  static FormFieldValidator<String> hasSpecialChars({
+    String? errorText,
+    int atLeast = 1,
+  }) {
+    return FormBuilderValidators.hasSpecialChars(
+      errorText: errorText,
+      atLeast: atLeast,
+    );
+  }
+
+  /// Validates that the string contains numeric characters
+  static FormFieldValidator<String> hasNumericChars({
+    String? errorText,
+    int atLeast = 1,
+  }) {
+    return FormBuilderValidators.hasNumericChars(
+      errorText: errorText,
+      atLeast: atLeast,
+    );
+  }
+
+  /// Validates that the string contains uppercase characters
+  static FormFieldValidator<String> hasUppercaseChars({
+    String? errorText,
+    int atLeast = 1,
+  }) {
+    return FormBuilderValidators.hasUppercaseChars(
+      errorText: errorText,
+      atLeast: atLeast,
+    );
+  }
+
+  /// Validates that the string contains lowercase characters
+  static FormFieldValidator<String> hasLowercaseChars({
+    String? errorText,
+    int atLeast = 1,
+  }) {
+    return FormBuilderValidators.hasLowercaseChars(
+      errorText: errorText,
+      atLeast: atLeast,
+    );
+  }
+
+  /// Validates that the value is a valid DateTime
+  static FormFieldValidator<DateTime> dateTime({
+    String? errorText,
+  }) {
+    return FormBuilderValidators.dateTime(errorText: errorText);
+  }
+
+  /// Validates that the value is a valid time
+  static FormFieldValidator<String> time({
+    String? errorText,
+  }) {
+    return FormBuilderValidators.time(errorText: errorText);
+  }
+
+  /// Validates that the value is a valid credit card expiration date
+  static FormFieldValidator<String> creditCardExpirationDate({
+    String? errorText,
+  }) {
+    return FormBuilderValidators.creditCardExpirationDate(errorText: errorText);
+  }
+
+  /// Validates that the value is a valid credit card CVC
+  static FormFieldValidator<String> creditCardCVC({
+    String? errorText,
+  }) {
+    return FormBuilderValidators.creditCardCVC(errorText: errorText);
+  }
+
+  /// Validates that the value is a valid IBAN
+  static FormFieldValidator<String> iban({
+    String? errorText,
+  }) {
+    return FormBuilderValidators.iban(errorText: errorText);
+  }
+
+  /// Validates that the value is a valid BIC
+  static FormFieldValidator<String> bic({
+    String? errorText,
+  }) {
+    return FormBuilderValidators.bic(errorText: errorText);
+  }
+
+  /// Validates that the value contains a specific substring
+  static FormFieldValidator<String> contains(
+    String substring, {
+    String? errorText,
+    bool caseSensitive = true,
+  }) {
+    return FormBuilderValidators.contains(
+      substring,
+      errorText: errorText,
+      caseSensitive: caseSensitive,
+    );
+  }
+
+  /// Validates that the value starts with a specific substring
+  static FormFieldValidator<String> startsWith(
+    String prefix, {
+    String? errorText,
+    bool caseSensitive = true,
+  }) {
+    return (String? value) {
+      if (value == null || value.isEmpty) return null;
+      final valueToCheck = caseSensitive ? value : value.toLowerCase();
+      final prefixToCheck = caseSensitive ? prefix : prefix.toLowerCase();
+      if (!valueToCheck.startsWith(prefixToCheck)) {
+        return errorText;
+      }
+      return null;
+    };
+  }
+
+  /// Validates that the value ends with a specific substring
+  static FormFieldValidator<String> endsWith(
+    String suffix, {
+    String? errorText,
+    bool caseSensitive = true,
+  }) {
+    return (String? value) {
+      if (value == null || value.isEmpty) return null;
+      final valueToCheck = caseSensitive ? value : value.toLowerCase();
+      final suffixToCheck = caseSensitive ? suffix : suffix.toLowerCase();
+      if (!valueToCheck.endsWith(suffixToCheck)) {
+        return errorText;
+      }
+      return null;
+    };
+  }
+
+  /// Validates minimum word count
+  static FormFieldValidator<String> minWordsCount(
+    int minWords, {
+    String? errorText,
+  }) {
+    return FormBuilderValidators.minWordsCount(
+      minWords,
+      errorText: errorText,
+    );
+  }
+
+  /// Validates maximum word count
+  static FormFieldValidator<String> maxWordsCount(
+    int maxWords, {
+    String? errorText,
+  }) {
+    return FormBuilderValidators.maxWordsCount(
+      maxWords,
+      errorText: errorText,
+    );
+  }
+
+  /// Validates word count range
+  static FormFieldValidator<String> wordsCount(
+    int minWords,
+    int maxWords, {
+    String? errorText,
+  }) {
+    return (String? value) {
+      if (value == null || value.isEmpty) return null;
+      final words = value.trim().split(RegExp(r'\s+'));
+      if (words.length < minWords || words.length > maxWords) {
+        return errorText;
+      }
+      return null;
+    };
+  }
+
+  /// Validates using OR logic (at least one validator must pass)
+  static FormFieldValidator<T> or<T>(
+    List<FormFieldValidator<T>> validators, {
+    String? errorText,
+  }) {
+    return (T? value) {
+      // If any validator passes, return null (valid)
+      for (final validator in validators) {
+        final result = validator(value);
+        if (result == null) {
+          return null;
+        }
+      }
+      // All validators failed
+      return errorText;
+    };
+  }
+
+  /// Validates using AND logic with custom condition
+  static FormFieldValidator<T> conditional<T>(
+    FormFieldValidator<T> validator, {
+    required bool Function() condition,
+  }) {
+    return (T? value) {
+      if (!condition()) return null;
+      return validator(value);
+    };
+  }
+
+  /// Validates that password has minimum length (alias for common use case)
+  static FormFieldValidator<String> hasMinLength(
+    int minLength, {
+    String? errorText,
+  }) {
+    return FormBuilderValidators.minLength(
+      minLength,
+      errorText: errorText,
+    );
+  }
+
+  /// Validates strong password (min 8 chars, uppercase, lowercase, number, special char)
+  static FormFieldValidator<String> strongPassword({
+    String? errorText,
+    int minLength = 8,
+  }) {
+    return compose([
+      hasMinLength(minLength),
+      hasUppercaseChars(),
+      hasLowercaseChars(),
+      hasNumericChars(),
+      hasSpecialChars(),
+    ]);
+  }
+
+  /// Validates medium password (min 6 chars, uppercase, lowercase, number)
+  static FormFieldValidator<String> mediumPassword({
+    String? errorText,
+    int minLength = 6,
+  }) {
+    return compose([
+      hasMinLength(minLength),
+      hasUppercaseChars(),
+      hasLowercaseChars(),
+      hasNumericChars(),
+    ]);
+  }
+
+  /// Validates that two fields match (e.g., password confirmation)
+  /// Alias for [equal] with better name for field matching scenarios
+  static FormFieldValidator<String> matchValue(
+    String matchValue, {
+    String? errorText,
+  }) {
+    return equal(matchValue, errorText: errorText);
+  }
+
+  /// Validates username format (alphanumeric, underscore, hyphen, 3-20 chars)
+  static FormFieldValidator<String> username({
+    String? errorText,
+    int minLength = 3,
+    int maxLength = 20,
+  }) {
+    return compose([
+      required(errorText: errorText),
+      FormBuilderValidators.match(
+        RegExp(r'^[a-zA-Z0-9_-]+$'),
+        errorText: errorText,
+      ),
+      FormBuilderValidators.minLength(minLength),
+      FormBuilderValidators.maxLength(maxLength),
+    ]);
+  }
+
+  /// Validates age is at least the specified minimum
+  static FormFieldValidator<num> minAge(
+    int minAge, {
+    String? errorText,
+  }) {
+    return (num? value) {
+      if (value == null) return null;
+      if (value < minAge) {
+        return errorText;
+      }
+      return null;
+    };
+  }
+
+  /// Validates age is no more than the specified maximum
+  static FormFieldValidator<num> maxAge(
+    int maxAge, {
+    String? errorText,
+  }) {
+    return (num? value) {
+      if (value == null) return null;
+      if (value > maxAge) {
+        return errorText;
+      }
+      return null;
+    };
+  }
+
+  /// Validates that the list/array is not empty
+  static FormFieldValidator<List<T>> notEmpty<T>({
+    String? errorText,
+  }) {
+    return (List<T>? value) {
+      if (value == null || value.isEmpty) {
+        return errorText ?? 'Please select at least one option';
+      }
+      return null;
+    };
+  }
+
+  /// Validates minimum list length
+  static FormFieldValidator<List<T>> minListLength<T>(
+    int minLength, {
+    String? errorText,
+  }) {
+    return (List<T>? value) {
+      if (value == null || value.length < minLength) {
+        return errorText ??
+            'Please select at least $minLength option${minLength > 1 ? 's' : ''}';
+      }
+      return null;
+    };
+  }
+
+  /// Validates maximum list length
+  static FormFieldValidator<List<T>> maxListLength<T>(
+    int maxLength, {
+    String? errorText,
+  }) {
+    return (List<T>? value) {
+      if (value != null && value.length > maxLength) {
+        return errorText ??
+            'Please select no more than $maxLength option${maxLength > 1 ? 's' : ''}';
+      }
+      return null;
+    };
+  }
+
+  /// Validates that the file size is within the specified limit (in bytes)
+  static FormFieldValidator<int> fileSize(
+    int maxSizeInBytes, {
+    String? errorText,
+  }) {
+    return (int? value) {
+      if (value == null) return null;
+      if (value > maxSizeInBytes) {
+        final maxSizeInMB = (maxSizeInBytes / (1024 * 1024)).toStringAsFixed(2);
+        return errorText ?? 'File size must not exceed $maxSizeInMB MB';
+      }
+      return null;
+    };
+  }
+
+  /// Validates file extension
+  static FormFieldValidator<String> fileExtension(
+    List<String> allowedExtensions, {
+    String? errorText,
+  }) {
+    return (String? value) {
+      if (value == null || value.isEmpty) return null;
+      final extension = value.split('.').last.toLowerCase();
+      if (!allowedExtensions.map((e) => e.toLowerCase()).contains(extension)) {
+        return errorText ??
+            'Allowed file types: ${allowedExtensions.join(', ')}';
       }
       return null;
     };

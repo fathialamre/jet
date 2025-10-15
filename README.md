@@ -283,13 +283,12 @@ return JetSimpleForm(
 
 **Key Features:**
 - Type-safe form state with Request/Response generics
-- Automatic validation with 20+ built-in validators
+- Automatic validation with 70+ built-in validators
 - Enhanced input components (password, phone, PIN/OTP with **[pinput](https://pub.dev/packages/pinput)**)
+- Custom validator support with three approaches
 - Riverpod 3 code generation support with JetFormMixin
 
-📖 **[View Complete Documentation](docs/FORMS.md)**
-
-📖 **[View Form Fields Documentation](docs/FORM_FIELDS.md)**
+📖 **[View Complete Documentation](docs/FORMS.md)** - Includes validation guide and all form fields
 
 ---
 
@@ -559,8 +558,7 @@ final testUsers = List.generate(10, (_) => User(
 ### Advanced Features
 - [Networking](docs/NETWORKING.md) - HTTP client
 - [Error Handling](docs/ERROR_HANDLING.md) - Error management
-- [Forms](docs/FORMS.md) - Form management
-- [Form Fields](docs/FORM_FIELDS.md) - Form input widgets
+- [Forms](docs/FORMS.md) - Form management, validation, and fields
 - [Components](docs/COMPONENTS.md) - UI components
 - [Dialogs & Sheets](docs/DIALOGS_AND_SHEETS.md) - Confirmation workflows
 
