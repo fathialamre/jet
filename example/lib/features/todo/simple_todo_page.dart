@@ -122,7 +122,7 @@ class SimpleTodoPage extends HookConsumerWidget {
                       submitButtonText: 'Create Todo',
                       fieldSpacing: 16,
                       children: [
-                        FormBuilderTextField(
+                        JetTextField(
                           name: 'title',
                           decoration: const InputDecoration(
                             labelText: 'Todo Title',
@@ -134,7 +134,7 @@ class SimpleTodoPage extends HookConsumerWidget {
                             JetValidators.minLength(3),
                           ]),
                         ),
-                        FormBuilderTextField(
+                        JetTextField(
                           name: 'description',
                           decoration: const InputDecoration(
                             labelText: 'Description',
@@ -147,7 +147,7 @@ class SimpleTodoPage extends HookConsumerWidget {
                             JetValidators.minLength(10),
                           ]),
                         ),
-                        FormBuilderCheckbox(
+                        JetCheckbox(
                           name: 'isCompleted',
                           title: const Text('Mark as completed'),
                           initialValue: false,

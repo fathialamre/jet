@@ -384,4 +384,3 @@ class JetValidators {
     ).validate;
   }
 }
-
