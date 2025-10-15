@@ -32,7 +32,20 @@ Jet provides powerful form management built on **[Flutter Form Builder](https://
   - [useJetForm Hook](#usejetform-hook)
   - [JetFormNotifier](#jetformnotifier)
 - [Form Builder Variants](#form-builder-variants)
-- [Form Inputs](#form-inputs)
+- [Form Validation](#form-validation)
+  - [Built-in Validators](#built-in-validators)
+  - [Creating Custom Validators](#creating-custom-validators)
+  - [Composing Validators](#composing-validators)
+- [Form Fields](#form-fields)
+  - [JetTextField](#jettextfield)
+  - [JetEmailField](#jetemailfield)
+  - [JetPasswordField](#jetpasswordfield)
+  - [JetPhoneField](#jetphonefield)
+  - [JetPinField](#jetpinfield)
+  - [JetDateField](#jetdatefield)
+  - [JetDropdownField](#jetdropdownfield)
+  - [JetCheckboxField](#jetcheckboxfield)
+  - [JetTextAreaField](#jettextareafield)
 - [Riverpod 3 Code Generation](#riverpod-3-code-generation)
 - [Complete Examples](#complete-examples)
 - [API Reference](#api-reference)
@@ -341,79 +354,795 @@ class LoginPage extends HookConsumerWidget {
 | Custom Error Handling | Optional | Required | Optional |
 | Use Case | Standard forms | Custom UI/logic | Hook-based forms |
 
-## Form Inputs
+## Form Validation
 
-Jet provides specialized input components with built-in validation:
+Jet provides **70+ built-in validators** through `JetValidators`, a type-safe wrapper around **[form_builder_validators](https://pub.dev/packages/form_builder_validators)**. All validators support custom error messages and work seamlessly with Flutter Form Builder.
+
+### Built-in Validators
+
+#### Common Validators
+
+```dart
+// Required field
+JetValidators.required()
+
+// Email validation
+JetValidators.email()
+
+// String length
+JetValidators.minLength(3)
+JetValidators.maxLength(20)
+
+// Number range
+JetValidators.min(18)
+JetValidators.max(100)
+JetValidators.range(18, 65)
+
+// Equality checks
+JetValidators.equal('expected value')
+JetValidators.notEqual('forbidden value')
+```
+
+#### String Validators
+
+```dart
+// Character type validation
+JetValidators.alphabetical()       // Only letters
+JetValidators.alphanumeric()       // Letters and numbers
+JetValidators.numeric()            // Only numbers
+JetValidators.lowercase()          // Only lowercase
+JetValidators.uppercase()          // Only uppercase
+
+// Pattern matching
+JetValidators.match(r'^[A-Z]{2}\d{4}$')  // Regex pattern
+JetValidators.contains('substring')       // Contains text
+JetValidators.startsWith('prefix')        // Starts with
+JetValidators.endsWith('suffix')          // Ends with
+
+// Word count
+JetValidators.minWordsCount(10)    // Min words
+JetValidators.maxWordsCount(500)   // Max words
+JetValidators.wordsCount(10, 500)  // Word range
+
+// Other
+JetValidators.singleLine()         // No line breaks
+```
+
+#### Number Validators
+
+```dart
+// Basic checks
+JetValidators.positive()           // Value > 0
+JetValidators.negative()           // Value < 0
+JetValidators.even()               // Even number
+JetValidators.odd()                // Odd number
+
+// Age validation
+JetValidators.minAge(18)           // Minimum age
+JetValidators.maxAge(65)           // Maximum age
+
+// Type validation
+JetValidators.integer()            // Whole number
+```
+
+#### Date & Time Validators
+
+```dart
+// Date/Time validation
+JetValidators.dateTime()           // Valid DateTime
+JetValidators.time()               // Valid time string
+JetValidators.dateString()         // Valid date string
+
+// Future/Past dates
+JetValidators.futureDate()         // Date in future
+JetValidators.pastDate()           // Date in past
+```
+
+#### Format Validators
+
+```dart
+// Internet formats
+JetValidators.url()                // Valid URL
+JetValidators.email()              // Valid email
+JetValidators.ip()                 // IP address (v4 or v6)
+JetValidators.phoneNumber()        // Phone number
+
+// Financial formats
+JetValidators.creditCard()         // Credit card number
+JetValidators.creditCardCVC()      // CVC code
+JetValidators.creditCardExpirationDate()  // Expiry date
+JetValidators.iban()               // IBAN
+JetValidators.bic()                // BIC/SWIFT code
+
+// Data formats
+JetValidators.uuid()               // UUID
+JetValidators.json()               // Valid JSON
+JetValidators.base64()             // Base64 string
+JetValidators.colorCode()          // Color code (#RRGGBB)
+
+// Location
+JetValidators.latitude()           // Latitude
+JetValidators.longitude()          // Longitude
+JetValidators.path()               // File/folder path
+```
+
+#### Character Validators
+
+```dart
+// Character requirements
+JetValidators.hasUppercaseChars(atLeast: 1)  // Min uppercase
+JetValidators.hasLowercaseChars(atLeast: 1)  // Min lowercase
+JetValidators.hasNumericChars(atLeast: 1)    // Min numbers
+JetValidators.hasSpecialChars(atLeast: 1)    // Min special chars
+```
+
+#### Password Validators
+
+```dart
+// Composite password validators
+JetValidators.strongPassword(minLength: 8)
+// Requires: 8+ chars, uppercase, lowercase, number, special char
+
+JetValidators.mediumPassword(minLength: 6)
+// Requires: 6+ chars, uppercase, lowercase, number
+
+// Individual password checks
+JetValidators.hasMinLength(8)     // Alias for minLength
+JetValidators.matchValue('password')  // Match another field
+```
+
+#### List Validators
+
+```dart
+// List/Array validation
+JetValidators.notEmpty<T>()        // List not empty
+JetValidators.minListLength<T>(3)  // Min items
+JetValidators.maxListLength<T>(10) // Max items
+```
+
+#### File Validators
+
+```dart
+// File validation
+JetValidators.fileSize(5 * 1024 * 1024)  // Max 5MB
+JetValidators.fileExtension(['.pdf', '.doc', '.docx'])
+```
+
+#### Boolean Validators
+
+```dart
+// Boolean validation
+JetValidators.mustBeTrue()         // Must be checked
+JetValidators.mustBeFalse()        // Must be unchecked
+```
+
+#### Logic Validators
+
+```dart
+// Composite logic
+JetValidators.compose([            // AND logic (all must pass)
+  JetValidators.required(),
+  JetValidators.minLength(3),
+])
+
+JetValidators.or([                 // OR logic (any must pass)
+  JetValidators.email(),
+  JetValidators.phoneNumber(),
+])
+
+JetValidators.conditional(         // Conditional validation
+  validator: JetValidators.required(),
+  condition: () => someCondition,
+)
+```
+
+### Creating Custom Validators
+
+There are three approaches to create custom validators, each suited for different scenarios.
+
+#### Approach 1: Using JetValidators.custom() ⚡
+
+Perfect for **quick inline validators** that are used in a single place.
+
+```dart
+JetTextField(
+  name: 'promo_code',
+  validator: JetValidators.custom<String>(
+    (value) => value?.toUpperCase().startsWith('JET') ?? false,
+    errorText: 'Promo code must start with JET',
+  ),
+)
+```
+
+**Pros:**
+- ✅ Zero boilerplate
+- ✅ Perfect for simple, one-off validations
+- ✅ Easy to read inline
+
+**Cons:**
+- ❌ Not reusable
+- ❌ Hard to test in isolation
+
+#### Approach 2: Standalone Validator Function 🔄
+
+Perfect for **reusable validators** across your app.
+
+```dart
+// Define once
+FormFieldValidator<String> promoCodeValidator({
+  String? errorText,
+  String prefix = 'JET',
+  int length = 10,
+}) {
+  return (String? value) {
+    if (value == null || value.isEmpty) return null;
+    
+    if (!value.toUpperCase().startsWith(prefix)) {
+      return errorText ?? 'Promo code must start with $prefix';
+    }
+    
+    if (value.length != length) {
+      return 'Promo code must be $length characters';
+    }
+    
+    return null; // Valid
+  };
+}
+
+// Use anywhere
+JetTextField(
+  name: 'promo_code',
+  validator: promoCodeValidator(prefix: 'SUMMER', length: 12),
+)
+```
+
+**Pros:**
+- ✅ Reusable across app
+- ✅ Easy to test
+- ✅ Configurable with parameters
+
+**Cons:**
+- ❌ Requires separate file/class
+
+#### Approach 3: Static Helper Class 🏢
+
+Perfect for **framework-wide validators** used throughout your application.
+
+```dart
+// lib/core/validators/app_validators.dart
+class AppValidators {
+  /// Validates location ID format (e.g., "US-CA-12345")
+  static FormFieldValidator<String> locationId({
+    String? errorText,
+    List<String> allowedCountries = const ['US', 'CA', 'UK'],
+  }) {
+    return (String? value) {
+      if (value == null || value.isEmpty) return null;
+      
+      // Split by hyphen
+      final parts = value.split('-');
+      
+      if (parts.length != 3) {
+        return errorText ?? 
+          'Format must be COUNTRY-STATE-ID (e.g., US-CA-12345)';
+      }
+      
+      // Validate country code
+      if (!allowedCountries.contains(parts[0])) {
+        return 'Country must be: ${allowedCountries.join(", ")}';
+      }
+      
+      // Validate state code (2 letters)
+      if (!RegExp(r'^[A-Z]{2}$').hasMatch(parts[1])) {
+        return 'State must be 2 uppercase letters';
+      }
+      
+      // Validate ID (5 digits)
+      if (!RegExp(r'^\d{5}$').hasMatch(parts[2])) {
+        return 'ID must be 5 digits';
+      }
+      
+      return null;
+    };
+  }
+  
+  /// Validates strong password with custom rules
+  static FormFieldValidator<String> customStrongPassword({
+    int minLength = 10,
+    bool requireSymbol = true,
+    bool requireNumber = true,
+  }) {
+    return JetValidators.compose([
+      JetValidators.required(),
+      JetValidators.hasMinLength(minLength),
+      JetValidators.hasUppercaseChars(),
+      JetValidators.hasLowercaseChars(),
+      if (requireNumber) JetValidators.hasNumericChars(),
+      if (requireSymbol) JetValidators.hasSpecialChars(),
+    ]);
+  }
+}
+
+// Use throughout app
+JetTextField(
+  name: 'location',
+  validator: AppValidators.locationId(
+    allowedCountries: ['US', 'CA'],
+  ),
+)
+```
+
+**Pros:**
+- ✅ Consistent across entire app
+- ✅ Easy to maintain and update
+- ✅ Centralized validation logic
+- ✅ Easy to test
+
+**Cons:**
+- ❌ More initial setup
+
+### Composing Validators
+
+Combine multiple validators for complex validation rules.
+
+#### Basic Composition (AND Logic)
+
+All validators must pass:
+
+```dart
+JetTextField(
+  name: 'username',
+  validator: JetValidators.compose([
+    JetValidators.required(),
+    JetValidators.minLength(3),
+    JetValidators.maxLength(20),
+    JetValidators.alphanumeric(),
+  ]),
+)
+```
+
+#### OR Logic
+
+At least one validator must pass:
+
+```dart
+JetTextField(
+  name: 'contact',
+  labelText: 'Email or Phone',
+  validator: JetValidators.or([
+    JetValidators.email(),
+    JetValidators.phoneNumber(),
+  ], errorText: 'Enter a valid email or phone number'),
+)
+```
+
+#### Conditional Validation
+
+Validate only when a condition is met:
+
+```dart
+final agreeToTerms = useState(false);
+
+JetTextField(
+  name: 'referral_code',
+  validator: JetValidators.conditional(
+    validator: JetValidators.required(),
+    condition: () => agreeToTerms.value,
+  ),
+)
+```
+
+#### Complex Example: Username Validation
+
+```dart
+JetTextField(
+  name: 'username',
+  validator: JetValidators.compose([
+    JetValidators.required(errorText: 'Username is required'),
+    JetValidators.minLength(3, errorText: 'Too short (min 3)'),
+    JetValidators.maxLength(20, errorText: 'Too long (max 20)'),
+    JetValidators.match(
+      r'^[a-zA-Z0-9_]+$',
+      errorText: 'Only letters, numbers, and underscores',
+    ),
+    JetValidators.custom<String>(
+      (value) => !value!.startsWith('_'),
+      errorText: 'Cannot start with underscore',
+    ),
+    JetValidators.custom<String>(
+      (value) => !['admin', 'root', 'system'].contains(value),
+      errorText: 'Username not available',
+    ),
+  ]),
+)
+```
+
+### Password Confirmation
+
+Use `matchValue` or `identicalWith` for password confirmation:
+
+```dart
+final formKey = GlobalKey<FormBuilderState>();
+
+FormBuilder(
+  key: formKey,
+  child: Column(
+    children: [
+      JetPasswordField(
+        name: 'password',
+        labelText: 'Password',
+        formKey: formKey,
+      ),
+      JetPasswordField(
+        name: 'confirm_password',
+        labelText: 'Confirm Password',
+        identicalWith: 'password',
+        formKey: formKey,
+      ),
+    ],
+  ),
+)
+```
+
+### Validation Best Practices
+
+#### 1. Provide Clear Error Messages
+
+```dart
+// Good
+JetValidators.minLength(8, errorText: 'Password must be at least 8 characters')
+
+// Bad
+JetValidators.minLength(8)  // Generic error message
+```
+
+#### 2. Validate on Field Level, Not Form Level
+
+```dart
+// Good
+JetEmailField(
+  name: 'email',
+  validator: JetValidators.compose([
+    JetValidators.required(),
+    JetValidators.email(),
+  ]),
+)
+
+// Avoid - hard to show which field has error
+void validateForm() {
+  if (email.isEmpty || !email.contains('@')) {
+    showError('Invalid form');
+  }
+}
+```
+
+#### 3. Use Composition for Complex Rules
+
+```dart
+// Good - clear and reusable
+final passwordValidator = JetValidators.compose([
+  JetValidators.hasMinLength(8),
+  JetValidators.hasUppercaseChars(),
+  JetValidators.hasNumericChars(),
+]);
+
+// Avoid - hard to read and maintain
+final passwordValidator = (String? value) {
+  if (value == null || value.length < 8) return 'Too short';
+  if (!value.contains(RegExp(r'[A-Z]'))) return 'Need uppercase';
+  if (!value.contains(RegExp(r'[0-9]'))) return 'Need number';
+  return null;
+};
+```
+
+#### 4. Return null for Valid Values
+
+```dart
+FormFieldValidator<String> customValidator() {
+  return (String? value) {
+    if (value == null || value.isEmpty) return null;  // Allow empty
+    
+    if (/* validation fails */) {
+      return 'Error message';
+    }
+    
+    return null;  // ✅ Valid - must return null
+  };
+}
+```
+
+## Form Fields
+
+Jet provides specialized input components with built-in validation, consistent styling, and enhanced functionality.
+
+### JetTextField
+
+General text input for any text data.
+
+```dart
+JetTextField(
+  name: 'username',
+  labelText: 'Username',
+  hintText: 'Enter your username',
+  minLength: 3,
+  maxLength: 20,
+  validator: JetValidators.username(),
+)
+```
+
+**Key Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `name` | String | Form field identifier (required) |
+| `labelText` | String? | Label displayed above field |
+| `hintText` | String? | Placeholder text |
+| `keyboardType` | TextInputType | Keyboard type (text, number, etc.) |
+| `textCapitalization` | TextCapitalization | Auto-capitalize behavior |
+| `obscureText` | bool | Hide text (for passwords) |
+| `maxLength` | int? | Maximum character count |
+| `minLength` | int? | Minimum character count |
+| `trimWhitespace` | bool | Auto-trim whitespace (default: true) |
+| `validator` | FormFieldValidator? | Validation function |
+| `valueTransformer` | Function? | Transform value before submission |
+
+### JetEmailField
+
+Email input with built-in validation.
+
+```dart
+JetEmailField(
+  name: 'email',
+  labelText: 'Email Address',
+  hintText: 'name@example.com',
+  toLowerCase: true,
+  isRequired: true,
+)
+```
+
+**Key Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `toLowerCase` | bool | Auto-convert to lowercase (default: true) |
+| `showPrefixIcon` | bool | Show envelope icon (default: true) |
+| `isRequired` | bool | Add required validation (default: false) |
 
 ### JetPasswordField
 
-Password field with visibility toggle and confirmation support.
+Password input with visibility toggle and confirmation support.
 
 ```dart
 // Basic password field
 JetPasswordField(
   name: 'password',
+  labelText: 'Password',
   hintText: 'Enter your password',
   isRequired: true,
-  showPrefixIcon: true,
 )
 
 // Password confirmation
 JetPasswordField(
   name: 'confirm_password',
-  hintText: 'Confirm password',
+  labelText: 'Confirm Password',
   identicalWith: 'password',
   formKey: formKey,
-  isRequired: true,
 )
 ```
 
+**Key Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `identicalWith` | String? | Field name to match (for confirmation) |
+| `formKey` | GlobalKey? | Required when using `identicalWith` |
+| `showPrefixIcon` | bool | Show lock icon (default: true) |
+| `obscureText` | bool | Initially obscure text (default: true) |
+
 ### JetPhoneField
 
-Phone number field with validation.
+Phone number input with validation.
 
 ```dart
 JetPhoneField(
   name: 'phone',
-  hintText: 'Phone number',
+  labelText: 'Phone Number',
+  countryCode: '+1',
+  minLength: 10,
+  maxLength: 10,
   isRequired: true,
-  showPrefixIcon: true,
-  validator: FormBuilderValidators.compose([
-    FormBuilderValidators.required(),
-    FormBuilderValidators.minLength(10),
-    FormBuilderValidators.numeric(),
-  ]),
 )
 ```
 
+**Key Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `countryCode` | String? | Country code prefix (e.g., '+1') |
+| `minLength` | int | Minimum phone length (default: 10) |
+| `maxLength` | int | Maximum phone length (default: 15) |
+| `allowInternational` | bool | Allow international format (default: true) |
+
 ### JetPinField
 
-PIN/OTP field with customizable appearance.
+PIN/OTP input with visual boxes.
 
 ```dart
 JetPinField(
   name: 'otp',
   length: 6,
-  isRequired: true,
+  obscureText: false,
   autofocus: true,
   spacing: 12.0,
   onCompleted: (pin) {
-    formKey.currentState?.save();
+    verifyOTP(pin);
   },
-  onSubmitted: (pin) => verifyOTP(pin),
 )
 ```
 
-### Other Form Inputs
+**Key Parameters:**
 
-- **JetTextField** - General text input
-- **JetEmailField** - Email input with validation
-- **JetDateField** - Date picker
-- **JetDropdownField** - Dropdown selection
-- **JetCheckboxField** - Checkbox or switch
-- **JetTextAreaField** - Multi-line text input
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `length` | int | Number of PIN digits (default: 6) |
+| `obscureText` | bool | Hide entered digits (default: false) |
+| `onCompleted` | Function? | Callback when all digits entered |
+| `spacing` | double | Space between boxes (default: 8.0) |
+| `hapticFeedback` | bool | Enable haptic feedback (default: false) |
+| `closeKeyboardWhenCompleted` | bool | Auto-close keyboard (default: false) |
 
-**📖 [View Complete Form Fields Documentation](FORM_FIELDS.md)**
+### JetDateField
+
+Date picker with customizable format.
+
+```dart
+JetDateField(
+  name: 'birthdate',
+  labelText: 'Date of Birth',
+  format: DateFormat('MMM dd, yyyy'),
+  firstDate: DateTime(1900),
+  lastDate: DateTime.now(),
+  isRequired: true,
+)
+```
+
+**Key Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `format` | DateFormat? | Date display format |
+| `firstDate` | DateTime? | Minimum selectable date |
+| `lastDate` | DateTime? | Maximum selectable date |
+| `inputType` | InputType | Date, time, or both |
+
+### JetDropdownField
+
+Type-safe dropdown selection.
+
+```dart
+JetDropdownField<String>(
+  name: 'country',
+  labelText: 'Country',
+  items: [
+    DropdownMenuItem(value: 'us', child: Text('United States')),
+    DropdownMenuItem(value: 'uk', child: Text('United Kingdom')),
+    DropdownMenuItem(value: 'ca', child: Text('Canada')),
+  ],
+  isRequired: true,
+)
+```
+
+**Key Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `items` | List | Dropdown options |
+| `isExpanded` | bool | Expand to full width (default: true) |
+| `onChanged` | Function? | Callback on selection |
+
+### JetCheckboxField
+
+Checkbox or switch with title and subtitle.
+
+```dart
+// Checkbox
+JetCheckboxField(
+  name: 'terms',
+  title: 'I agree to the terms and conditions',
+  subtitle: 'By checking this box, you accept our terms',
+  isRequired: true,
+)
+
+// Switch variant
+JetCheckboxField(
+  name: 'notifications',
+  title: 'Enable notifications',
+  useSwitch: true,
+  activeColor: Colors.green,
+)
+```
+
+**Key Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `title` | String | Main label text |
+| `subtitle` | String? | Additional description |
+| `useSwitch` | bool | Use switch instead of checkbox (default: false) |
+| `activeColor` | Color? | Color when active |
+
+### JetTextAreaField
+
+Multi-line text input.
+
+```dart
+JetTextAreaField(
+  name: 'description',
+  labelText: 'Description',
+  minLines: 3,
+  maxLines: 6,
+  maxLength: 500,
+  showCharacterCounter: true,
+)
+```
+
+**Key Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `minLines` | int | Minimum visible lines (default: 3) |
+| `maxLines` | int | Maximum visible lines (default: 6) |
+| `maxLength` | int? | Maximum character count |
+| `showCharacterCounter` | bool | Display character counter (default: false) |
+
+### Common Field Features
+
+#### Value Transformers
+
+All fields support `valueTransformer` for preprocessing data:
+
+```dart
+JetTextField(
+  name: 'username',
+  valueTransformer: (value) => value?.trim().toLowerCase(),
+)
+```
+
+#### Custom Validation
+
+Fields can have custom validation in addition to built-in:
+
+```dart
+JetEmailField(
+  name: 'email',
+  validator: JetValidators.compose([
+    JetValidators.required(),
+    JetValidators.email(),
+    (value) => value?.contains('@company.com') == true 
+      ? null 
+      : 'Must be a company email',
+  ]),
+)
+```
+
+#### Styling
+
+All fields support extensive styling options:
+
+```dart
+JetTextField(
+  name: 'field',
+  filled: true,
+  fillColor: Colors.grey[100],
+  border: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(12),
+  ),
+  focusedBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(12),
+    borderSide: BorderSide(color: Colors.blue, width: 2),
+  ),
+)
+```
 
 ## Riverpod 3 Code Generation
 
@@ -832,7 +1561,7 @@ JetPasswordField(
 
 ## See Also
 
-- [Form Fields Documentation](FORM_FIELDS.md) - Complete guide to all form inputs
-- [Error Handling Documentation](ERROR_HANDLING.md) - JetError and validation
+- [Error Handling Documentation](ERROR_HANDLING.md) - JetError and validation errors
 - [State Management Documentation](STATE_MANAGEMENT.md) - Riverpod integration
+- [Components Documentation](COMPONENTS.md) - UI components and buttons
 
