@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:jet/jet_framework.dart';
+import 'package:jet/forms/core/jet_form_field.dart';
+import 'package:jet/forms/core/value_transformer.dart';
+import 'package:jet/forms/validators/jet_validators.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// A customizable phone number field widget with built-in validation.
 ///
@@ -181,33 +184,11 @@ class JetPhoneField extends StatelessWidget {
       prefixWidget = prefixIcon;
     }
 
-    return FormBuilderTextField(
+    return JetFormField<String>(
       name: name,
       initialValue: initialValue,
-      keyboardType: TextInputType.phone,
-      textInputAction: TextInputAction.done,
-      autofocus: autofocus,
       enabled: enabled,
-      inputFormatters: formatters,
       valueTransformer: valueTransformer ?? (value) => value?.trim(),
-      decoration: InputDecoration(
-        labelText: labelText,
-        labelStyle: labelStyle,
-        hintText: hintText,
-        prefixIcon: prefixWidget,
-        filled: filled,
-        fillColor: fillColor,
-        border: border,
-        enabledBorder: enabledBorder,
-        focusedBorder: focusedBorder,
-        errorBorder: errorBorder,
-        disabledBorder: disabledBorder,
-        contentPadding: contentPadding,
-        errorStyle: errorStyle,
-        helperText: helperText,
-        helperStyle: helperStyle,
-        constraints: constraints,
-      ),
       validator:
           validator ??
           JetValidators.compose([
@@ -229,6 +210,41 @@ class JetPhoneField extends StatelessWidget {
                 return null;
               },
           ]),
+      builder: (FormFieldState<String> field) {
+        final state = field as JetFormFieldState<JetFormField<String>, String>;
+        return TextField(
+          controller: TextEditingController(text: field.value ?? '')
+            ..selection = TextSelection.collapsed(
+              offset: (field.value ?? '').length,
+            ),
+          focusNode: state.effectiveFocusNode,
+          keyboardType: TextInputType.phone,
+          textInputAction: TextInputAction.done,
+          autofocus: autofocus,
+          enabled: enabled && state.enabled,
+          inputFormatters: formatters,
+          onChanged: field.didChange,
+          decoration: InputDecoration(
+            labelText: labelText,
+            labelStyle: labelStyle,
+            hintText: hintText,
+            prefixIcon: prefixWidget,
+            filled: filled,
+            fillColor: fillColor,
+            border: border,
+            enabledBorder: enabledBorder,
+            focusedBorder: focusedBorder,
+            errorBorder: errorBorder,
+            disabledBorder: disabledBorder,
+            contentPadding: contentPadding,
+            errorText: field.errorText,
+            errorStyle: errorStyle,
+            helperText: helperText,
+            helperStyle: helperStyle,
+            constraints: constraints,
+          ),
+        );
+      },
     );
   }
 }

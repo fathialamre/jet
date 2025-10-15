@@ -8,8 +8,6 @@ import '../mixins/mixins.dart';
 typedef JetFormProvider<Request, Response> =
     Provider<AsyncFormValue<Request, Response>>;
 
-typedef JetForm<Request, Response> = FormNotifierBase<Request, Response>;
-
 /// Base interface for form notifiers that provides access to state and methods
 abstract class FormNotifierBase<Request, Response> {
   AsyncFormValue<Request, Response> get state;
