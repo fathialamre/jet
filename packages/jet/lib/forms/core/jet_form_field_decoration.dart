@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'jet_form_field.dart';
-import 'value_transformer.dart';
 
 /// A [JetFormField] that provides [InputDecoration] for fields.
 ///
