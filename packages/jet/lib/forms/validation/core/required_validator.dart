@@ -1,4 +1,3 @@
-import 'package:flutter/widgets.dart';
 import '../base_validator.dart';
 
 /// Validator that requires a non-empty value.
