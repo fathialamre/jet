@@ -1,3 +1,5 @@
+import 'package:jet/forms/localization/jet_form_localizations.dart';
+
 import '../../networking/errors/jet_error.dart';
 
 /// Mixin that provides error handling capabilities for forms
@@ -18,7 +20,7 @@ mixin FormErrorHandlingMixin {
   /// Create a validation error from form errors
   JetError createValidationError(Map<String, List<String>> formErrors) {
     return JetError.validation(
-      message: 'Please fix the form errors',
+      message: JetFormLocalizations.current.alphabeticalErrorText,
       errors: formErrors,
     );
   }
