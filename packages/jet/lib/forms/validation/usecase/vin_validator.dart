@@ -35,4 +35,3 @@ class VinValidator extends BaseValidator<String> {
     return null;
   }
 }
-

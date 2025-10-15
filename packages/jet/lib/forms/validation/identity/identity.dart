@@ -15,4 +15,3 @@ export 'state_validator.dart';
 export 'street_validator.dart';
 export 'username_validator.dart';
 export 'zip_code_validator.dart';
-

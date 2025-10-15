@@ -31,4 +31,3 @@ class MacAddressValidator extends BaseValidator<String> {
     return errorText ?? 'Please enter a valid MAC address';
   }
 }
-

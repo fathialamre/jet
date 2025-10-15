@@ -25,8 +25,10 @@ class DateRangeValidator<T> extends BaseValidator<T> {
     this.maxDate,
     super.errorText,
     super.checkNullOrEmpty,
-  }) : assert(minDate != null || maxDate != null,
-            'At least one of minDate or maxDate must be provided');
+  }) : assert(
+         minDate != null || maxDate != null,
+         'At least one of minDate or maxDate must be provided',
+       );
 
   @override
   String? validateValue(T valueCandidate) {
@@ -59,4 +61,3 @@ class DateRangeValidator<T> extends BaseValidator<T> {
     return null;
   }
 }
-

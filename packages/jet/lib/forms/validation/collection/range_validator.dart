@@ -22,8 +22,10 @@ class RangeValidator<T> extends BaseValidator<T> {
     this.maxLength,
     super.errorText,
     super.checkNullOrEmpty,
-  }) : assert(minLength != null || maxLength != null,
-            'At least one of minLength or maxLength must be provided');
+  }) : assert(
+         minLength != null || maxLength != null,
+         'At least one of minLength or maxLength must be provided',
+       );
 
   @override
   String? validateValue(T valueCandidate) {
@@ -54,4 +56,3 @@ class RangeValidator<T> extends BaseValidator<T> {
     return null;
   }
 }
-

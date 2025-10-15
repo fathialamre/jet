@@ -27,4 +27,3 @@ class MimeTypeValidator extends BaseValidator<String> {
     return null;
   }
 }
-

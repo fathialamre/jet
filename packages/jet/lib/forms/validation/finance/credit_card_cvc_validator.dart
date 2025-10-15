@@ -39,4 +39,3 @@ class CreditCardCvcValidator extends BaseValidator<String> {
     return null;
   }
 }
-

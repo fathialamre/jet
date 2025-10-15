@@ -24,4 +24,3 @@ class FloatValidator extends BaseValidator<String> {
     return null;
   }
 }
-

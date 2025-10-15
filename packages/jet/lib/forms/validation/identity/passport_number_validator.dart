@@ -32,4 +32,3 @@ class PassportNumberValidator extends BaseValidator<String> {
     return null;
   }
 }
-

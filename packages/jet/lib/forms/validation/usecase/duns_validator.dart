@@ -29,4 +29,3 @@ class DunsValidator extends BaseValidator<String> {
     return null;
   }
 }
-

@@ -63,4 +63,3 @@ class IsbnValidator extends BaseValidator<String> {
     return null;
   }
 }
-

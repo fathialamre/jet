@@ -19,4 +19,3 @@ export 'min_words_count_validator.dart';
 export 'single_line_validator.dart';
 export 'starts_with_validator.dart';
 export 'uppercase_validator.dart';
-

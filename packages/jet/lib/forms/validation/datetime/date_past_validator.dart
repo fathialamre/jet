@@ -41,4 +41,3 @@ class DatePastValidator<T> extends BaseValidator<T> {
     return null;
   }
 }
-

@@ -39,4 +39,3 @@ class LanguageCodeValidator extends BaseValidator<String> {
     return errorText ?? 'Please enter a valid language code';
   }
 }
-

@@ -24,4 +24,3 @@ class IsFalseValidator extends BaseValidator<bool> {
     return null;
   }
 }
-

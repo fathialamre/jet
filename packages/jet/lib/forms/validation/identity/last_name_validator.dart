@@ -30,13 +30,14 @@ class LastNameValidator extends BaseValidator<String> {
 
   @override
   String? validateValue(String valueCandidate) {
-    if (valueCandidate.length < minLength || valueCandidate.length > maxLength) {
+    if (valueCandidate.length < minLength ||
+        valueCandidate.length > maxLength) {
       return errorText ??
           'Last name must be between $minLength and $maxLength characters';
     }
 
     final pattern = regex ?? RegExp(r"^[a-zA-Z\s\-']+$");
-    
+
     if (!pattern.hasMatch(valueCandidate)) {
       return errorText ?? 'Please enter a valid last name';
     }
@@ -44,4 +45,3 @@ class LastNameValidator extends BaseValidator<String> {
     return null;
   }
 }
-

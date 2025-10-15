@@ -36,4 +36,3 @@ class NotZeroNumberValidator<T> extends BaseValidator<T> {
     return null;
   }
 }
-

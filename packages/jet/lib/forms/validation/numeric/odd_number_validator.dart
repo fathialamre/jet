@@ -38,4 +38,3 @@ class OddNumberValidator<T> extends BaseValidator<T> {
     return null;
   }
 }
-

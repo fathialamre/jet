@@ -27,4 +27,3 @@ class JsonValidator extends BaseValidator<String> {
     }
   }
 }
-

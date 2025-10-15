@@ -40,4 +40,3 @@ class MinValidator<T> extends BaseValidator<T> {
     return null;
   }
 }
-

@@ -32,4 +32,3 @@ class MaxWordsCountValidator extends BaseValidator<String> {
     return null;
   }
 }
-

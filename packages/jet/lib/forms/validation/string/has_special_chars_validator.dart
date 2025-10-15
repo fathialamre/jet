@@ -36,4 +36,3 @@ class HasSpecialCharsValidator extends BaseValidator<String> {
     return null;
   }
 }
-

@@ -12,4 +12,3 @@ export 'mac_address_validator.dart';
 export 'phone_number_validator.dart';
 export 'port_number_validator.dart';
 export 'url_validator.dart';
-

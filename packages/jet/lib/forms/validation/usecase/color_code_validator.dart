@@ -26,7 +26,9 @@ class ColorCodeValidator extends BaseValidator<String> {
 
     if (format == null || format == 'hex') {
       // Hex color: #RGB, #RRGGBB, #RRGGBBAA
-      final hexPattern = RegExp(r'^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$');
+      final hexPattern = RegExp(
+        r'^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$',
+      );
       if (hexPattern.hasMatch(value)) return null;
       if (format == 'hex') {
         return errorText ?? 'Please enter a valid hex color code';
@@ -80,4 +82,3 @@ class ColorCodeValidator extends BaseValidator<String> {
     return errorText ?? 'Please enter a valid color code';
   }
 }
-
