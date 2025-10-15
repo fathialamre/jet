@@ -37,7 +37,7 @@ class StateValidator extends BaseValidator<String> {
     final pattern = RegExp(r'^[a-zA-Z\s\-]+$');
 
     if (!pattern.hasMatch(valueCandidate)) {
-      return errorText ?? 'Please enter a valid state';
+      return errorText ?? JetFormLocalizations.current.stateErrorText;
     }
 
     return null;

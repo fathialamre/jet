@@ -52,6 +52,6 @@ class IpValidator extends BaseValidator<String> {
     }
 
     final versionText = version != null ? 'IPv$version' : 'IP';
-    return errorText ?? 'Please enter a valid $versionText address';
+    return errorText ?? JetFormLocalizations.current.ipErrorText;
   }
 }
