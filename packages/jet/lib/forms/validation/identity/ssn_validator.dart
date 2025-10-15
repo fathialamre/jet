@@ -35,4 +35,3 @@ class SsnValidator extends BaseValidator<String> {
     return null;
   }
 }
-

@@ -38,4 +38,3 @@ class EvenNumberValidator<T> extends BaseValidator<T> {
     return null;
   }
 }
-

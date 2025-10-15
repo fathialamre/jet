@@ -40,4 +40,3 @@ class BicValidator extends BaseValidator<String> {
     return null;
   }
 }
-

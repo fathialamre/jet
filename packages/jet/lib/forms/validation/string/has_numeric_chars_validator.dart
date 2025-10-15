@@ -36,4 +36,3 @@ class HasNumericCharsValidator extends BaseValidator<String> {
     return null;
   }
 }
-

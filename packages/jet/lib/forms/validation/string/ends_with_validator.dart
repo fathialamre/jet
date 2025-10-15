@@ -28,4 +28,3 @@ class EndsWithValidator extends BaseValidator<String> {
     return null;
   }
 }
-

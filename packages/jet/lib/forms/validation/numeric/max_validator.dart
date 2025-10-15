@@ -40,4 +40,3 @@ class MaxValidator<T> extends BaseValidator<T> {
     return null;
   }
 }
-

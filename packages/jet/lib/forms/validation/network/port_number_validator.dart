@@ -45,4 +45,3 @@ class PortNumberValidator<T> extends BaseValidator<T> {
     return null;
   }
 }
-

@@ -23,17 +23,16 @@ class HexadecimalValidator extends BaseValidator<String> {
   @override
   String? validateValue(String valueCandidate) {
     String value = valueCandidate;
-    
+
     if (allowPrefix && value.startsWith('0x')) {
       value = value.substring(2);
     }
 
     final pattern = RegExp(r'^[0-9A-Fa-f]+$');
-    
+
     if (!pattern.hasMatch(value)) {
       return errorText ?? 'Value must be a valid hexadecimal number';
     }
     return null;
   }
 }
-

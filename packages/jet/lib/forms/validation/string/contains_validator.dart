@@ -35,4 +35,3 @@ class ContainsValidator extends BaseValidator<String> {
     return null;
   }
 }
-

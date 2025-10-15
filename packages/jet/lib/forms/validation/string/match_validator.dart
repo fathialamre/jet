@@ -28,4 +28,3 @@ class MatchValidator extends BaseValidator<String> {
     return null;
   }
 }
-

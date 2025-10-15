@@ -43,4 +43,3 @@ class LicensePlateValidator extends BaseValidator<String> {
     return null;
   }
 }
-

@@ -26,7 +26,8 @@ class CityValidator extends BaseValidator<String> {
 
   @override
   String? validateValue(String valueCandidate) {
-    if (valueCandidate.length < minLength || valueCandidate.length > maxLength) {
+    if (valueCandidate.length < minLength ||
+        valueCandidate.length > maxLength) {
       return errorText ??
           'City name must be between $minLength and $maxLength characters';
     }
@@ -41,4 +42,3 @@ class CityValidator extends BaseValidator<String> {
     return null;
   }
 }
-

@@ -50,4 +50,3 @@ class PrimeNumberValidator<T> extends BaseValidator<T> {
     return null;
   }
 }
-

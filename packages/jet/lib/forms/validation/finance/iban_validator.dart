@@ -37,4 +37,3 @@ class IbanValidator extends BaseValidator<String> {
     return null;
   }
 }
-

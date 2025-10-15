@@ -20,8 +20,10 @@ class FileSizeValidator<T> extends BaseValidator<T> {
     this.minSizeInBytes,
     super.errorText,
     super.checkNullOrEmpty,
-  }) : assert(maxSizeInBytes != null || minSizeInBytes != null,
-            'At least one of maxSizeInBytes or minSizeInBytes must be provided');
+  }) : assert(
+         maxSizeInBytes != null || minSizeInBytes != null,
+         'At least one of maxSizeInBytes or minSizeInBytes must be provided',
+       );
 
   String _formatBytes(int bytes) {
     if (bytes < 1024) return '$bytes B';
@@ -59,4 +61,3 @@ class FileSizeValidator<T> extends BaseValidator<T> {
     return null;
   }
 }
-

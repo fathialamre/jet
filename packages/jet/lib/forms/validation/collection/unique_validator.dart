@@ -19,11 +19,10 @@ class UniqueValidator<T> extends BaseValidator<Iterable<T>> {
   @override
   String? validateValue(Iterable<T> valueCandidate) {
     final set = valueCandidate.toSet();
-    
+
     if (set.length != valueCandidate.length) {
       return errorText ?? 'All values must be unique';
     }
     return null;
   }
 }
-

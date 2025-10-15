@@ -23,11 +23,10 @@ class AlphabeticalValidator extends BaseValidator<String> {
   @override
   String? validateValue(String valueCandidate) {
     final pattern = regex ?? RegExp(r'^[a-zA-Z]+$');
-    
+
     if (!pattern.hasMatch(valueCandidate)) {
       return errorText ?? 'Value must contain only alphabetical characters';
     }
     return null;
   }
 }
-

@@ -43,4 +43,3 @@ class UuidValidator extends BaseValidator<String> {
     return null;
   }
 }
-

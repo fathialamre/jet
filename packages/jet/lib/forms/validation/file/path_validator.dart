@@ -23,9 +23,9 @@ class PathValidator extends BaseValidator<String> {
     super.errorText,
     super.checkNullOrEmpty,
   }) : assert(
-            !(absoluteOnly && relativeOnly),
-            'Cannot require both absolute and relative paths',
-        );
+         !(absoluteOnly && relativeOnly),
+         'Cannot require both absolute and relative paths',
+       );
 
   @override
   String? validateValue(String valueCandidate) {
@@ -35,7 +35,8 @@ class PathValidator extends BaseValidator<String> {
       return errorText ?? 'Path contains invalid characters';
     }
 
-    final isAbsolute = valueCandidate.startsWith('/') ||
+    final isAbsolute =
+        valueCandidate.startsWith('/') ||
         RegExp(r'^[A-Za-z]:\\').hasMatch(valueCandidate);
 
     if (absoluteOnly && !isAbsolute) {
@@ -49,4 +50,3 @@ class PathValidator extends BaseValidator<String> {
     return null;
   }
 }
-

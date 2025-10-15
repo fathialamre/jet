@@ -20,11 +20,10 @@ class TimeValidator extends BaseValidator<String> {
   String? validateValue(String valueCandidate) {
     // Validates HH:MM or HH:MM:SS format
     final pattern = RegExp(r'^([01]?\d|2[0-3]):([0-5]\d)(?::([0-5]\d))?$');
-    
+
     if (!pattern.hasMatch(valueCandidate)) {
       return errorText ?? 'Please enter a valid time (HH:MM or HH:MM:SS)';
     }
     return null;
   }
 }
-

@@ -24,4 +24,3 @@ class SingleLineValidator extends BaseValidator<String> {
     return null;
   }
 }
-

@@ -24,4 +24,3 @@ class UppercaseValidator extends BaseValidator<String> {
     return null;
   }
 }
-

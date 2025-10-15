@@ -34,12 +34,14 @@ class UsernameValidator extends BaseValidator<String> {
 
   @override
   String? validateValue(String valueCandidate) {
-    if (valueCandidate.length < minLength || valueCandidate.length > maxLength) {
+    if (valueCandidate.length < minLength ||
+        valueCandidate.length > maxLength) {
       return errorText ??
           'Username must be between $minLength and $maxLength characters';
     }
 
-    final pattern = regex ??
+    final pattern =
+        regex ??
         (allowSpecialChars
             ? RegExp(r'^[a-zA-Z0-9_\-\.]+$')
             : RegExp(r'^[a-zA-Z0-9]+$'));
@@ -51,4 +53,3 @@ class UsernameValidator extends BaseValidator<String> {
     return null;
   }
 }
-

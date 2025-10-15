@@ -26,19 +26,22 @@ class FileExtensionValidator extends BaseValidator<String> {
 
   @override
   String? validateValue(String valueCandidate) {
-    final fileName =
-        caseSensitive ? valueCandidate : valueCandidate.toLowerCase();
+    final fileName = caseSensitive
+        ? valueCandidate
+        : valueCandidate.toLowerCase();
 
     final extensions = allowedExtensions
         .map((ext) => caseSensitive ? ext : ext.toLowerCase())
         .toList();
 
     // Ensure extensions start with dot
-    final normalizedExtensions =
-        extensions.map((ext) => ext.startsWith('.') ? ext : '.$ext').toList();
+    final normalizedExtensions = extensions
+        .map((ext) => ext.startsWith('.') ? ext : '.$ext')
+        .toList();
 
-    final hasValidExtension =
-        normalizedExtensions.any((ext) => fileName.endsWith(ext));
+    final hasValidExtension = normalizedExtensions.any(
+      (ext) => fileName.endsWith(ext),
+    );
 
     if (!hasValidExtension) {
       final extList = normalizedExtensions.join(', ');
@@ -48,4 +51,3 @@ class FileExtensionValidator extends BaseValidator<String> {
     return null;
   }
 }
-

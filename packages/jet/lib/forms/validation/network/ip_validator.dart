@@ -54,4 +54,3 @@ class IpValidator extends BaseValidator<String> {
     return errorText ?? 'Please enter a valid $versionText address';
   }
 }
-

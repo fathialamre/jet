@@ -24,4 +24,3 @@ class LowercaseValidator extends BaseValidator<String> {
     return null;
   }
 }
-

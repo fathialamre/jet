@@ -32,4 +32,3 @@ class MinWordsCountValidator extends BaseValidator<String> {
     return null;
   }
 }
-

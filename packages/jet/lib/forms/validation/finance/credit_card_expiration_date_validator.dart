@@ -51,4 +51,3 @@ class CreditCardExpirationDateValidator extends BaseValidator<String> {
     return null;
   }
 }
-

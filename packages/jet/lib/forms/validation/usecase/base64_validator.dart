@@ -30,4 +30,3 @@ class Base64Validator extends BaseValidator<String> {
     return null;
   }
 }
-

@@ -58,4 +58,3 @@ class ZipCodeValidator extends BaseValidator<String> {
     return null;
   }
 }
-

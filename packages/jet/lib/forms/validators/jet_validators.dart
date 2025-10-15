@@ -73,8 +73,9 @@ class JetValidators {
   static FormFieldValidator<T> compose<T>(
     List<FormFieldValidator<T>?> validators,
   ) {
-    final nonNullValidators =
-        validators.whereType<FormFieldValidator<T>>().toList();
+    final nonNullValidators = validators
+        .whereType<FormFieldValidator<T>>()
+        .toList();
     return ComposeValidator<T>(nonNullValidators).validate;
   }
 
@@ -718,11 +719,17 @@ class JetValidators {
     return minLength<List<T>>(1, errorText: errorText);
   }
 
-  static FormFieldValidator<List<T>> minListLength<T>(int minLength, {String? errorText}) {
+  static FormFieldValidator<List<T>> minListLength<T>(
+    int minLength, {
+    String? errorText,
+  }) {
     return JetValidators.minLength<List<T>>(minLength, errorText: errorText);
   }
 
-  static FormFieldValidator<List<T>> maxListLength<T>(int maxLength, {String? errorText}) {
+  static FormFieldValidator<List<T>> maxListLength<T>(
+    int maxLength, {
+    String? errorText,
+  }) {
     return JetValidators.maxLength<List<T>>(maxLength, errorText: errorText);
   }
 
@@ -761,13 +768,24 @@ class JetValidators {
   }
 
   /// Requires valid phone number.
-  static FormFieldValidator<String> phoneNumber({RegExp? regex, String? errorText}) {
+  static FormFieldValidator<String> phoneNumber({
+    RegExp? regex,
+    String? errorText,
+  }) {
     return PhoneNumberValidator(regex: regex, errorText: errorText).validate;
   }
 
   /// Requires valid port number.
-  static FormFieldValidator<T> portNumber<T>({int min = 1, int max = 65535, String? errorText}) {
-    return PortNumberValidator<T>(min: min, max: max, errorText: errorText).validate;
+  static FormFieldValidator<T> portNumber<T>({
+    int min = 1,
+    int max = 65535,
+    String? errorText,
+  }) {
+    return PortNumberValidator<T>(
+      min: min,
+      max: max,
+      errorText: errorText,
+    ).validate;
   }
 
   /// Requires valid latitude.
@@ -804,8 +822,16 @@ class JetValidators {
   }
 
   /// Requires date to be within a range.
-  static FormFieldValidator<T> dateRange<T>({DateTime? minDate, DateTime? maxDate, String? errorText}) {
-    return DateRangeValidator<T>(minDate: minDate, maxDate: maxDate, errorText: errorText).validate;
+  static FormFieldValidator<T> dateRange<T>({
+    DateTime? minDate,
+    DateTime? maxDate,
+    String? errorText,
+  }) {
+    return DateRangeValidator<T>(
+      minDate: minDate,
+      maxDate: maxDate,
+      errorText: errorText,
+    ).validate;
   }
 
   /// Requires date to be in the future.
@@ -819,8 +845,14 @@ class JetValidators {
   }
 
   /// Requires valid timezone.
-  static FormFieldValidator<String> timezone({List<String>? validTimezones, String? errorText}) {
-    return TimezoneValidator(validTimezones: validTimezones, errorText: errorText).validate;
+  static FormFieldValidator<String> timezone({
+    List<String>? validTimezones,
+    String? errorText,
+  }) {
+    return TimezoneValidator(
+      validTimezones: validTimezones,
+      errorText: errorText,
+    ).validate;
   }
 
   // ==========================================================================
@@ -908,7 +940,10 @@ class JetValidators {
   }
 
   /// Requires valid passport number.
-  static FormFieldValidator<String> passportNumber({RegExp? regex, String? errorText}) {
+  static FormFieldValidator<String> passportNumber({
+    RegExp? regex,
+    String? errorText,
+  }) {
     return PassportNumberValidator(regex: regex, errorText: errorText).validate;
   }
 
@@ -918,7 +953,11 @@ class JetValidators {
     int maxLength = 50,
     String? errorText,
   }) {
-    return CityValidator(minLength: minLength, maxLength: maxLength, errorText: errorText).validate;
+    return CityValidator(
+      minLength: minLength,
+      maxLength: maxLength,
+      errorText: errorText,
+    ).validate;
   }
 
   /// Requires valid country name.
@@ -927,7 +966,11 @@ class JetValidators {
     int maxLength = 60,
     String? errorText,
   }) {
-    return CountryValidator(minLength: minLength, maxLength: maxLength, errorText: errorText).validate;
+    return CountryValidator(
+      minLength: minLength,
+      maxLength: maxLength,
+      errorText: errorText,
+    ).validate;
   }
 
   /// Requires valid state name.
@@ -936,7 +979,11 @@ class JetValidators {
     int maxLength = 50,
     String? errorText,
   }) {
-    return StateValidator(minLength: minLength, maxLength: maxLength, errorText: errorText).validate;
+    return StateValidator(
+      minLength: minLength,
+      maxLength: maxLength,
+      errorText: errorText,
+    ).validate;
   }
 
   /// Requires valid street name.
@@ -945,7 +992,11 @@ class JetValidators {
     int maxLength = 100,
     String? errorText,
   }) {
-    return StreetValidator(minLength: minLength, maxLength: maxLength, errorText: errorText).validate;
+    return StreetValidator(
+      minLength: minLength,
+      maxLength: maxLength,
+      errorText: errorText,
+    ).validate;
   }
 
   /// Requires valid ZIP/postal code.
@@ -954,7 +1005,11 @@ class JetValidators {
     RegExp? regex,
     String? errorText,
   }) {
-    return ZipCodeValidator(countryCode: countryCode, regex: regex, errorText: errorText).validate;
+    return ZipCodeValidator(
+      countryCode: countryCode,
+      regex: regex,
+      errorText: errorText,
+    ).validate;
   }
 
   // ==========================================================================
@@ -967,12 +1022,20 @@ class JetValidators {
   }
 
   /// Requires valid credit card CVC.
-  static FormFieldValidator<String> creditCardCVC({int? length, String? errorText}) {
-    return CreditCardCvcValidator(length: length, errorText: errorText).validate;
+  static FormFieldValidator<String> creditCardCVC({
+    int? length,
+    String? errorText,
+  }) {
+    return CreditCardCvcValidator(
+      length: length,
+      errorText: errorText,
+    ).validate;
   }
 
   /// Requires valid credit card expiration date.
-  static FormFieldValidator<String> creditCardExpirationDate({String? errorText}) {
+  static FormFieldValidator<String> creditCardExpirationDate({
+    String? errorText,
+  }) {
     return CreditCardExpirationDateValidator(errorText: errorText).validate;
   }
 
@@ -999,7 +1062,7 @@ class JetValidators {
     return FileExtensionValidator(
       allowedExtensions,
       caseSensitive: caseSensitive,
-        errorText: errorText,
+      errorText: errorText,
     ).validate;
   }
 
@@ -1081,7 +1144,10 @@ class JetValidators {
   }
 
   /// Requires valid color code.
-  static FormFieldValidator<String> colorCode({String? format, String? errorText}) {
+  static FormFieldValidator<String> colorCode({
+    String? format,
+    String? errorText,
+  }) {
     return ColorCodeValidator(format: format, errorText: errorText).validate;
   }
 
@@ -1091,7 +1157,10 @@ class JetValidators {
   }
 
   /// Requires valid language code.
-  static FormFieldValidator<String> languageCode({String? format, String? errorText}) {
+  static FormFieldValidator<String> languageCode({
+    String? format,
+    String? errorText,
+  }) {
     return LanguageCodeValidator(format: format, errorText: errorText).validate;
   }
 
@@ -1118,7 +1187,10 @@ class JetValidators {
   // ==========================================================================
 
   /// Alias for equal - validates that two fields match.
-  static FormFieldValidator<String> matchValue(String matchValue, {String? errorText}) {
+  static FormFieldValidator<String> matchValue(
+    String matchValue, {
+    String? errorText,
+  }) {
     return equal<String>(matchValue, errorText: errorText);
   }
 
@@ -1144,17 +1216,27 @@ class JetValidators {
   }
 
   /// Alias for minLength with better name.
-  static FormFieldValidator<String> hasMinLength(int minLength, {String? errorText}) {
+  static FormFieldValidator<String> hasMinLength(
+    int minLength, {
+    String? errorText,
+  }) {
     return JetValidators.minLength<String>(minLength, errorText: errorText);
   }
 
   /// Convenience for alphanumeric validation.
   static FormFieldValidator<String> alphanumeric({String? errorText}) {
-    return match(RegExp(r'^[a-zA-Z0-9]+$'), errorText: errorText ?? 'Only alphanumeric characters are allowed');
+    return match(
+      RegExp(r'^[a-zA-Z0-9]+$'),
+      errorText: errorText ?? 'Only alphanumeric characters are allowed',
+    );
   }
 
   /// Word count range validator.
-  static FormFieldValidator<String> wordsCount(int minWords, int maxWords, {String? errorText}) {
+  static FormFieldValidator<String> wordsCount(
+    int minWords,
+    int maxWords, {
+    String? errorText,
+  }) {
     return compose([
       minWordsCount(minWords),
       maxWordsCount(maxWords),

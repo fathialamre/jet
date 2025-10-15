@@ -45,13 +45,11 @@ class PasswordValidator extends BaseValidator<String> {
     }
 
     if (requireUppercase && !RegExp(r'[A-Z]').hasMatch(valueCandidate)) {
-      return errorText ??
-          'Password must contain at least one uppercase letter';
+      return errorText ?? 'Password must contain at least one uppercase letter';
     }
 
     if (requireLowercase && !RegExp(r'[a-z]').hasMatch(valueCandidate)) {
-      return errorText ??
-          'Password must contain at least one lowercase letter';
+      return errorText ?? 'Password must contain at least one lowercase letter';
     }
 
     if (requireNumbers && !RegExp(r'[0-9]').hasMatch(valueCandidate)) {
@@ -67,4 +65,3 @@ class PasswordValidator extends BaseValidator<String> {
     return null;
   }
 }
-

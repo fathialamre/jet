@@ -36,4 +36,3 @@ class HasUppercaseCharsValidator extends BaseValidator<String> {
     return null;
   }
 }
-

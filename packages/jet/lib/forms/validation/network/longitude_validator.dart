@@ -39,4 +39,3 @@ class LongitudeValidator<T> extends BaseValidator<T> {
     return null;
   }
 }
-

@@ -36,4 +36,3 @@ class PositiveNumberValidator<T> extends BaseValidator<T> {
     return null;
   }
 }
-

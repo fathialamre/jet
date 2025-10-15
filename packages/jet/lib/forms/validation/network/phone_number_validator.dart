@@ -24,7 +24,8 @@ class PhoneNumberValidator extends BaseValidator<String> {
   String? validateValue(String valueCandidate) {
     // Basic international phone number pattern
     // Supports: +1234567890, (123) 456-7890, 123-456-7890, etc.
-    final pattern = regex ??
+    final pattern =
+        regex ??
         RegExp(
           r'^\+?[\d\s\-\(\)]+$',
         );
@@ -39,4 +40,3 @@ class PhoneNumberValidator extends BaseValidator<String> {
     return null;
   }
 }
-

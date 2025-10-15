@@ -30,4 +30,3 @@ class DateValidator extends BaseValidator<String> {
     }
   }
 }
-

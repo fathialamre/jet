@@ -39,8 +39,8 @@ class TimezoneValidator extends BaseValidator<String> {
 
     // Check if timezone is in the list or matches pattern
     final pattern = RegExp(r'^[A-Z][a-zA-Z]*\/[A-Z][a-zA-Z_]*$');
-    
-    if (!timezones.contains(valueCandidate) && 
+
+    if (!timezones.contains(valueCandidate) &&
         !pattern.hasMatch(valueCandidate)) {
       return errorText ?? 'Please enter a valid timezone';
     }
@@ -48,4 +48,3 @@ class TimezoneValidator extends BaseValidator<String> {
     return null;
   }
 }
-

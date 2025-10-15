@@ -24,4 +24,3 @@ class NumericValidator extends BaseValidator<String> {
     return null;
   }
 }
-

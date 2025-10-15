@@ -41,7 +41,8 @@ class UrlValidator extends BaseValidator<String> {
         return errorText ?? 'URL must use one of: ${protocols.join(', ')}';
       }
 
-      if (!allowLocalhost && (uri.host == 'localhost' || uri.host == '127.0.0.1')) {
+      if (!allowLocalhost &&
+          (uri.host == 'localhost' || uri.host == '127.0.0.1')) {
         return errorText ?? 'Localhost URLs are not allowed';
       }
 
@@ -55,4 +56,3 @@ class UrlValidator extends BaseValidator<String> {
     }
   }
 }
-
