@@ -11,4 +11,5 @@ library;
 export 'form_options.dart';
 export 'jet_form_field.dart';
 export 'jet_form_field_decoration.dart';
+export 'jet_form_option.dart';
 export 'value_transformer.dart';
