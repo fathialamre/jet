@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires a valid date string.
 ///
@@ -26,7 +27,7 @@ class DateValidator extends BaseValidator<String> {
       DateTime.parse(valueCandidate);
       return null;
     } catch (e) {
-      return errorText ?? 'Please enter a valid date';
+      return errorText ?? JetFormLocalizations.current.dateStringErrorText;
     }
   }
 }

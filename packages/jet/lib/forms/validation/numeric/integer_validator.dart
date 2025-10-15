@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires an integer value.
 ///
@@ -19,7 +20,7 @@ class IntegerValidator extends BaseValidator<String> {
   @override
   String? validateValue(String valueCandidate) {
     if (int.tryParse(valueCandidate) == null) {
-      return errorText ?? 'Value must be a valid integer';
+      return errorText ?? JetFormLocalizations.current.integerErrorText;
     }
     return null;
   }

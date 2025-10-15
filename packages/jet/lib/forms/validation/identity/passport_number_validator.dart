@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires a valid passport number.
 ///
@@ -26,7 +27,7 @@ class PassportNumberValidator extends BaseValidator<String> {
     final pattern = regex ?? RegExp(r'^[A-Z0-9]{6,9}$');
 
     if (!pattern.hasMatch(valueCandidate)) {
-      return errorText ?? 'Please enter a valid passport number';
+      return errorText ?? JetFormLocalizations.current.passportNumberErrorText;
     }
 
     return null;

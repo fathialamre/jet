@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires a past date.
 ///
@@ -26,16 +27,16 @@ class DatePastValidator<T> extends BaseValidator<T> {
       try {
         date = DateTime.parse(valueCandidate);
       } catch (e) {
-        return errorText ?? 'Please enter a valid date';
+        return errorText ?? JetFormLocalizations.current.dateStringErrorText;
       }
     }
 
     if (date == null) {
-      return errorText ?? 'Please enter a valid date';
+      return errorText ?? JetFormLocalizations.current.dateStringErrorText;
     }
 
     if (!date.isBefore(DateTime.now())) {
-      return errorText ?? 'Date must be in the past';
+      return errorText ?? JetFormLocalizations.current.dateMustBeInThePastErrorText;
     }
 
     return null;

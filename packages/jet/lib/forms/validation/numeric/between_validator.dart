@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires a value to be between min and max (inclusive).
 ///
@@ -39,7 +40,8 @@ class BetweenValidator<T> extends BaseValidator<T> {
     }
 
     if (value < min || value > max) {
-      return errorText ?? 'Value must be between $min and $max';
+      return errorText ??
+          JetFormLocalizations.current.betweenErrorText(min, max);
     }
     return null;
   }

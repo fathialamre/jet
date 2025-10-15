@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires a valid country name.
 ///
@@ -36,7 +37,7 @@ class CountryValidator extends BaseValidator<String> {
     final pattern = RegExp(r"^[a-zA-Z\s\-'.]+$");
 
     if (!pattern.hasMatch(valueCandidate)) {
-      return errorText ?? 'Please enter a valid country name';
+      return errorText ?? JetFormLocalizations.current.countryErrorText;
     }
 
     return null;

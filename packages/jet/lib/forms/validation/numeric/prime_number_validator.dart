@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires a prime number.
 ///
@@ -45,7 +46,7 @@ class PrimeNumberValidator<T> extends BaseValidator<T> {
     }
 
     if (!_isPrime(value)) {
-      return errorText ?? 'Value must be a prime number';
+      return errorText ?? JetFormLocalizations.current.primeNumberErrorText;
     }
     return null;
   }

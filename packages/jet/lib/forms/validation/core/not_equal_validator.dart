@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires the value to NOT equal a specific value.
 ///
@@ -27,7 +28,10 @@ class NotEqualValidator<T> extends BaseValidator<T> {
   @override
   String? validateValue(T valueCandidate) {
     if (valueCandidate == comparisonValue) {
-      return errorText ?? 'Value must not be equal to $comparisonValue';
+      return errorText ??
+          JetFormLocalizations.current.notEqualErrorText(
+            comparisonValue.toString(),
+          );
     }
     return null;
   }

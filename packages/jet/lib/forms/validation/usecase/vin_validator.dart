@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires a valid VIN (Vehicle Identification Number).
 ///
@@ -27,7 +28,7 @@ class VinValidator extends BaseValidator<String> {
     final pattern = RegExp(r'^[A-HJ-NPR-Z0-9]{17}$', caseSensitive: false);
 
     if (!pattern.hasMatch(valueCandidate)) {
-      return errorText ?? 'Please enter a valid VIN';
+      return errorText ?? JetFormLocalizations.current.vinErrorText;
     }
 
     // TODO: Implement checksum validation for full accuracy

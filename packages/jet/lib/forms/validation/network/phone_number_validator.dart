@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires a valid phone number.
 ///
@@ -34,7 +35,7 @@ class PhoneNumberValidator extends BaseValidator<String> {
     final digitsOnly = valueCandidate.replaceAll(RegExp(r'[^\d]'), '');
 
     if (!pattern.hasMatch(valueCandidate) || digitsOnly.length < 7) {
-      return errorText ?? 'Please enter a valid phone number';
+      return errorText ?? JetFormLocalizations.current.phoneErrorText;
     }
 
     return null;

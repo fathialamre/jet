@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires a valid username.
 ///
@@ -47,7 +48,7 @@ class UsernameValidator extends BaseValidator<String> {
             : RegExp(r'^[a-zA-Z0-9]+$'));
 
     if (!pattern.hasMatch(valueCandidate)) {
-      return errorText ?? 'Please enter a valid username';
+      return errorText ?? JetFormLocalizations.current.usernameErrorText;
     }
 
     return null;

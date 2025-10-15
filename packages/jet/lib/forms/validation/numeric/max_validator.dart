@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires a maximum numeric value.
 ///
@@ -31,11 +32,11 @@ class MaxValidator<T> extends BaseValidator<T> {
     }
 
     if (value == null) {
-      return errorText ?? 'Value must be numeric';
+      return errorText ?? JetFormLocalizations.current.numericErrorText;
     }
 
     if (value > max) {
-      return errorText ?? 'Value must be less than or equal to $max';
+      return errorText ?? JetFormLocalizations.current.maxErrorText(max);
     }
     return null;
   }

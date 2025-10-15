@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires the value to be true.
 ///
@@ -19,7 +20,7 @@ class IsTrueValidator extends BaseValidator<bool> {
   @override
   String? validateValue(bool valueCandidate) {
     if (valueCandidate != true) {
-      return errorText ?? 'This field must be accepted';
+      return errorText ?? JetFormLocalizations.current.mustBeTrueErrorText;
     }
     return null;
   }

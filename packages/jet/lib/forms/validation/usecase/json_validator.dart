@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires valid JSON.
 ///

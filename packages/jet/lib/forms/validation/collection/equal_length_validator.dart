@@ -1,4 +1,5 @@
 import '../base_validator.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 
 /// Validator that requires an exact length for collections/strings.
 ///
@@ -37,7 +38,8 @@ class EqualLengthValidator<T> extends BaseValidator<T> {
     }
 
     if (actualLength != length) {
-      return errorText ?? 'Value must have a length equal to $length';
+      return errorText ??
+          JetFormLocalizations.current.equalLengthErrorText(length);
     }
     return null;
   }
