@@ -35,14 +35,14 @@ class FormFieldsRequest {
   }
 
   Map<String, dynamic> toJson() => {
-        'email': email,
-        'birthdate': birthdate?.toIso8601String(),
-        'country': country,
-        'description': description,
-        'terms': terms,
-        'newsletter': newsletter,
-        'notifications': notifications,
-      };
+    'email': email,
+    'birthdate': birthdate?.toIso8601String(),
+    'country': country,
+    'description': description,
+    'terms': terms,
+    'newsletter': newsletter,
+    'notifications': notifications,
+  };
 }
 
 /// Response model for the form fields example
@@ -219,8 +219,10 @@ class FormFieldsExamplePage extends HookConsumerWidget {
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
                     children: [
-                      Icon(PhosphorIcons.checkCircle(),
-                          color: Colors.green.shade700),
+                      Icon(
+                        PhosphorIcons.checkCircle(),
+                        color: Colors.green.shade700,
+                      ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
