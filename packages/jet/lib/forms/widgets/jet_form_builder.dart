@@ -14,7 +14,7 @@ class JetFormBuilder<Request, Response> extends ConsumerWidget {
   final List<Widget> Function(
     BuildContext context,
     WidgetRef ref,
-    JetForm<Request, Response> form,
+    FormNotifierBase<Request, Response> form,
     AsyncFormValue<Request, Response> formState,
   )
   builder;
@@ -33,7 +33,7 @@ class JetFormBuilder<Request, Response> extends ConsumerWidget {
   final bool showErrorSnackBar;
   final double fieldSpacing;
 
-  const JetJetForm({
+  const JetFormBuilder({
     super.key,
     required this.provider,
     required this.builder,
@@ -132,7 +132,7 @@ class JetFormBuilder<Request, Response> extends ConsumerWidget {
   void _handleFormError(
     WidgetRef ref,
     BuildContext context,
-    JetForm<Request, Response> form,
+    FormNotifierBase<Request, Response> form,
     Object error,
     StackTrace stackTrace,
   ) {

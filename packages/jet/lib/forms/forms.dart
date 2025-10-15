@@ -73,9 +73,10 @@ library;
 
 // Core types and state management
 export 'common.dart';
+export 'core/core.dart';
 
 // Notifiers
-export 'notifiers/notifiers.dart';
+export 'notifiers/jet_form_notifier.dart';
 
 // Widgets
 export 'widgets/widgets.dart';
@@ -87,7 +88,6 @@ export 'inputs/inputs.dart';
 export 'hooks/hooks.dart';
 
 // Validators
-export 'validators/jet_validators.dart';
 export 'validation/validation.dart';
 
 // Localization
