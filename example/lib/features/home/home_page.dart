@@ -37,6 +37,14 @@ class HomePage extends JetConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   _ExampleCard(
+                    title: 'Registration Form (Password Confirmation)',
+                    description:
+                        'Registration form with JetPasswordField.withConfirmation()',
+                    icon: Icons.person_add,
+                    onTap: () => context.router.push(RegistrationExampleRoute()),
+                  ),
+                  const SizedBox(height: 12),
+                  _ExampleCard(
                     title: 'Simple Todo (useJetForm)',
                     description:
                         'Todo form with useJetForm hook - no separate notifier',
