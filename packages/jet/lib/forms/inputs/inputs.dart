@@ -1,6 +1,7 @@
 // Text & Basic Inputs
 export 'jet_text_field.dart';
 export 'jet_password_field.dart';
+export 'jet_phone_field.dart';
 export 'jet_pin_field.dart';
 export 'jet_checkbox.dart';
 export 'jet_switch.dart';
