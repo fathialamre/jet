@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:jet/extensions/build_context.dart';
 import 'package:jet/jet_framework.dart';
 
@@ -196,8 +195,8 @@ class JetPasswordField extends HookWidget {
       ),
       validator:
           validator ??
-          FormBuilderValidators.compose([
-            if (isRequired) FormBuilderValidators.required(),
+          JetValidators.compose([
+            if (isRequired) JetValidators.required(),
             (value) {
               if (identicalWith != null) {
                 if (formKey == null) {

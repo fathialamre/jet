@@ -46,7 +46,7 @@ class JetErrorWidget extends StatelessWidget {
           if (showRetry)
             JetButton(
               text: retryText ?? context.jetI10n.retry,
-              onTap: onTap ?? () {},
+              onTap: onTap,
             ),
         ],
       ),

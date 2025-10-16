@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **JetTab keep-alive feature** - Preserve tab state when switching (scroll position, form input, media playback)
+- **JetTab lazy loading feature** - Build tab content only when first visited for improved performance
+- **Comprehensive JetTab documentation** - See [JET_TAB.md](JET_TAB.md) for complete guide
+
+### Changed
+- Enhanced `JetTab.simple()` with `keepAlive` and `lazyLoad` parameters
+- Enhanced `JetTab.router()` with `keepAlive` and `lazyLoad` parameters
+- Improved `JetTab` performance for apps with many tabs
+
 ## [0.0.3-alpha.2] - 2025-01-27
 
 ### Added

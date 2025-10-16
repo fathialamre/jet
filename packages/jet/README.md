@@ -1,75 +1,67 @@
-# 🚀 Jet Framework
+# Jet Framework
 
-**Jet** is a lightweight, modular Flutter framework for scalable app architecture, providing dependency injection, lifecycle management, and streamlined setup for rapid development. Built with **Riverpod 3** for enhanced state management and code generation capabilities.
+A production-ready, lightweight Flutter framework for building scalable, maintainable applications.
 
-## 📦 Installation
+## Overview
 
-Add Jet to your Flutter project:
+This is the core Jet framework package. For complete documentation, examples, and getting started guides, please visit the main project repository.
+
+## Documentation
+
+**📖 [Complete Documentation](../../README.md)** - Main README with quick start guide
+
+**📚 [Detailed Documentation](../../docs/)** - Comprehensive guides for all features
+
+### Quick Links
+
+- [Configuration](../../docs/CONFIGURATION.md)
+- [Routing](../../docs/ROUTING.md)
+- [Forms](../../docs/FORMS.md)
+- [State Management](../../docs/STATE_MANAGEMENT.md)
+- [Networking](../../docs/NETWORKING.md)
+- [Components](../../docs/COMPONENTS.md)
+
+## Installation
+
+Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  jet: ^0.0.3-alpha.2
+  jet:
+    path: ../packages/jet
 ```
 
-## 🚀 Quick Start
-
-1. **Create your app configuration:**
+## Quick Example
 
 ```dart
 import 'package:jet/jet.dart';
 
-class AppConfig extends JetConfig {
+class MyApp extends JetConsumerWidget {
   @override
-  List<JetAdapter> get adapters => [RouterAdapter()];
-
-  @override
-  List<LocaleInfo> get supportedLocales => [
-    LocaleInfo(locale: const Locale('en'), displayName: 'English', nativeName: 'English'),
-  ];
+  Widget jetBuild(BuildContext context, WidgetRef ref, Jet jet) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Jet Framework')),
+      body: Center(
+        child: Text('Hello from Jet!').titleLarge(context).bold(),
+      ),
+    );
+  }
 }
 ```
 
-2. **Set up main.dart:**
+## Features
 
-```dart
-import 'package:jet/jet.dart';
-import 'core/config/app_config.dart';
+- 🎯 Batteries Included - Everything you need from day one
+- 📐 Opinionated Architecture - Best practices built-in
+- ⚡ Developer Experience - Minimal boilerplate, fluent APIs
+- 🔐 Production Ready - Security, error handling, logging
+- 🌍 Global Ready - Built-in i18n and RTL support
+- 🧩 Modular Design - Use what you need
 
-void main() async {
-  final config = AppConfig();
-  Jet.fly(
-    setup: () => Boot.start(config),
-    setupFinished: (jet) => Boot.finished(jet, config),
-  );
-}
-```
-
-## 🎯 Key Features
-
-- **🚀 Rapid Development** - Get started in minutes with comprehensive setup
-- **📱 Modern Architecture** - Built on Riverpod 3 with code generation support
-- **🔧 Type Safety** - Full type safety across forms, networking, and state management
-- **🌐 Internationalization** - Built-in localization with RTL support
-- **🎨 Theming** - Complete theme management with persistent storage
-- **🔐 Security** - App locking with biometric authentication
-- **📝 Forms** - Advanced form management with validation and error handling
-- **🌐 Networking** - Type-safe HTTP client with configurable logging
-- **💾 Storage** - Secure storage for sensitive data and regular preferences
-- **🗄️ Caching** - TTL-based caching with Hive for offline capabilities
-- **🔄 State Management** - Unified state widgets with automatic loading/error states
-- **🔔 Notifications** - Cross-platform local notifications with scheduling and management
-- **🐛 Debugging** - Enhanced debugging tools with stack trace formatting
-- **🔐 Sessions** - Built-in authentication and session management
-- **🧩 Components** - Pre-built UI components for common patterns
-
-## 📚 Documentation
-
-For complete documentation, visit our [GitHub repository](https://github.com/fathialamre/jet).
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [contributing guidelines](https://github.com/fathialamre/jet/blob/main/CONTRIBUTING.md) for details.
-
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Contributing
+
+For contribution guidelines and development setup, please see the main project repository.

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:jet/jet_framework.dart';
 
 /// A customizable phone number field widget with built-in validation.
@@ -22,7 +21,7 @@ import 'package:jet/jet_framework.dart';
 ///   maxLength: 15,
 /// )
 /// ```
-class JetPhoneField extends HookWidget {
+class JetPhoneField extends StatelessWidget {
   /// The name identifier for this form field
   final String name;
 
@@ -112,6 +111,9 @@ class JetPhoneField extends HookWidget {
   /// Constraints for the input field
   final BoxConstraints? constraints;
 
+  /// Value transformer to transform the value before saving
+  final ValueTransformer<String?>? valueTransformer;
+
   const JetPhoneField({
     super.key,
     required this.name,
@@ -144,6 +146,7 @@ class JetPhoneField extends HookWidget {
     this.helperText,
     this.helperStyle,
     this.constraints,
+    this.valueTransformer,
   });
 
   @override
@@ -153,7 +156,7 @@ class JetPhoneField extends HookWidget {
       if (!allowInternational)
         FilteringTextInputFormatter.digitsOnly
       else
-        FilteringTextInputFormatter.allow(RegExp(r'[\d+\-\(\)\s]')),
+        FilteringTextInputFormatter.allow(RegExp(r'[\d+\-()\s]')),
       LengthLimitingTextInputFormatter(
         allowInternational
             ? maxLength + 5
@@ -194,6 +197,7 @@ class JetPhoneField extends HookWidget {
       enabled: enabled,
       inputFormatters: formatters,
       onChanged: onChanged,
+      valueTransformer: valueTransformer ?? (value) => value?.trim(),
       decoration: InputDecoration(
         labelText: labelText,
         labelStyle: labelStyle,
@@ -214,18 +218,18 @@ class JetPhoneField extends HookWidget {
       ),
       validator:
           validator ??
-          FormBuilderValidators.compose([
-            if (isRequired) FormBuilderValidators.required(),
-            if (!allowInternational) FormBuilderValidators.numeric(),
-            FormBuilderValidators.minLength(minLength),
-            FormBuilderValidators.maxLength(maxLength),
+          JetValidators.compose([
+            if (isRequired) JetValidators.required(),
+            if (!allowInternational) JetValidators.numeric(),
+            JetValidators.minLength(minLength),
+            JetValidators.maxLength(maxLength),
             // Custom phone validation for international numbers
             if (allowInternational)
               (value) {
                 if (value == null || value.isEmpty) return null;
                 // Basic international phone validation
                 final phoneRegex = RegExp(
-                  r'^[\+]?[(]?[0-9]{1,3}[)]?[-\s\.]?[(]?[0-9]{1,4}[)]?[-\s\.]?[0-9]{1,4}[-\s\.]?[0-9]{1,9}$',
+                  r'^[+]?[(]?[0-9]{1,3}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,4}[-\s.]?[0-9]{1,9}$',
                 );
                 if (!phoneRegex.hasMatch(value)) {
                   return 'Please enter a valid phone number';

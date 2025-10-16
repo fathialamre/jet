@@ -10,24 +10,31 @@ part of 'todo_form.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(TodoForm)
-const todoFormProvider = TodoFormProvider._();
+const todoFormProvider = TodoFormFamily._();
 
 final class TodoFormProvider
     extends
         $NotifierProvider<TodoForm, AsyncFormValue<TodoRequest, TodoResponse>> {
-  const TodoFormProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'todoFormProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
+  const TodoFormProvider._({
+    required TodoFormFamily super.from,
+    required int super.argument,
+  }) : super(
+         retry: null,
+         name: r'todoFormProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
 
   @override
   String debugGetCreateSourceHash() => _$todoFormHash();
+
+  @override
+  String toString() {
+    return r'todoFormProvider'
+        ''
+        '($argument)';
+  }
 
   @$internal
   @override
@@ -41,17 +48,54 @@ final class TodoFormProvider
           $SyncValueProvider<AsyncFormValue<TodoRequest, TodoResponse>>(value),
     );
   }
+
+  @override
+  bool operator ==(Object other) {
+    return other is TodoFormProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
 }
 
-String _$todoFormHash() => r'7a867c9c34c50a77d63c38c2ea69abaf8c73285f';
+String _$todoFormHash() => r'0c78295d9498dd9dc76c7aa8b49f3ee814682612';
+
+final class TodoFormFamily extends $Family
+    with
+        $ClassFamilyOverride<
+          TodoForm,
+          AsyncFormValue<TodoRequest, TodoResponse>,
+          AsyncFormValue<TodoRequest, TodoResponse>,
+          AsyncFormValue<TodoRequest, TodoResponse>,
+          int
+        > {
+  const TodoFormFamily._()
+    : super(
+        retry: null,
+        name: r'todoFormProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  TodoFormProvider call(int id) => TodoFormProvider._(argument: id, from: this);
+
+  @override
+  String toString() => r'todoFormProvider';
+}
 
 abstract class _$TodoForm
     extends $Notifier<AsyncFormValue<TodoRequest, TodoResponse>> {
-  AsyncFormValue<TodoRequest, TodoResponse> build();
+  late final _$args = ref.$arg as int;
+  int get id => _$args;
+
+  AsyncFormValue<TodoRequest, TodoResponse> build(int id);
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
+    final created = build(_$args);
     final ref =
         this.ref
             as $Ref<

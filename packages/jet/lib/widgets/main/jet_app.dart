@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:guardo/guardo.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jet/helpers/jet_logger.dart';
 import 'package:jet/security/app_locker/app_locker_notifier.dart';
 import 'package:jet/jet.dart';
 import 'package:jet/localization/intl/messages.dart';
@@ -23,6 +24,7 @@ class JetApp extends ConsumerWidget {
     final themeMode = ref.watch(currentThemeModeProvider);
     final lockState = ref.watch(appLockProvider);
     final config = jet.config;
+    dump(locale, tag: 'locale');
 
     return ScreenUtilInit(
       designSize: const Size(375, 812),

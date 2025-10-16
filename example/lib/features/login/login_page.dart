@@ -184,9 +184,9 @@ class LoginPage extends HookConsumerWidget {
                             prefixIcon: Icon(Icons.email_outlined),
                           ),
                           keyboardType: TextInputType.emailAddress,
-                          validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(),
-                            FormBuilderValidators.email(),
+                          validator: JetValidators.compose([
+                            JetValidators.required(),
+                            JetValidators.email(),
                           ]),
                         ),
                         JetPasswordField(
@@ -195,9 +195,9 @@ class LoginPage extends HookConsumerWidget {
                           hintText: 'Enter your password',
                           isRequired: true,
                           formKey: form.formKey,
-                          validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(),
-                            FormBuilderValidators.minLength(6),
+                          validator: JetValidators.compose([
+                            JetValidators.required(),
+                            JetValidators.minLength(6),
                           ]),
                         ),
                         FormBuilderCheckbox(
