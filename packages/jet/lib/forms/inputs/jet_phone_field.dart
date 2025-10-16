@@ -43,6 +43,9 @@ class JetPhoneField extends StatelessWidget {
   /// Hint text to display when field is empty
   final String hintText;
 
+  /// Hint text style
+  final TextStyle? hintStyle;
+
   /// Whether to autofocus this field
   final bool autofocus;
 
@@ -100,6 +103,8 @@ class JetPhoneField extends StatelessWidget {
   /// Helper text to display below the field
   final String? helperText;
 
+  final void Function(String?)? onChanged;
+
   /// Helper text style
   final TextStyle? helperStyle;
 
@@ -119,6 +124,7 @@ class JetPhoneField extends StatelessWidget {
     this.autofocus = false,
     this.isRequired = true,
     this.hintText = '',
+    this.hintStyle = const TextStyle(color: Color(0xFF7A7A7A)),
     this.enabled = true,
     this.minLength = 10,
     this.maxLength = 15,
@@ -127,6 +133,7 @@ class JetPhoneField extends StatelessWidget {
     this.allowInternational = true,
     this.labelText,
     this.labelStyle,
+    this.onChanged,
     this.filled = true,
     this.fillColor,
     this.border,
@@ -189,6 +196,7 @@ class JetPhoneField extends StatelessWidget {
       autofocus: autofocus,
       enabled: enabled,
       inputFormatters: formatters,
+      onChanged: onChanged,
       valueTransformer: valueTransformer ?? (value) => value?.trim(),
       decoration: InputDecoration(
         labelText: labelText,
