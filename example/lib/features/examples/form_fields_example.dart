@@ -5,6 +5,7 @@ import 'package:jet/forms/forms.dart';
 /// Request model for the form fields example
 class FormFieldsRequest {
   final String email;
+  final String? phone;
   final DateTime? birthdate;
   final String? country;
   final String? description;
@@ -14,6 +15,7 @@ class FormFieldsRequest {
 
   FormFieldsRequest({
     required this.email,
+    this.phone,
     this.birthdate,
     this.country,
     this.description,
@@ -25,6 +27,7 @@ class FormFieldsRequest {
   factory FormFieldsRequest.fromJson(Map<String, dynamic> json) {
     return FormFieldsRequest(
       email: json['email'] as String,
+      phone: json['phone'] as String?,
       birthdate: json['birthdate'] as DateTime?,
       country: json['country'] as String?,
       description: json['description'] as String?,
@@ -36,6 +39,7 @@ class FormFieldsRequest {
 
   Map<String, dynamic> toJson() => {
     'email': email,
+    'phone': phone,
     'birthdate': birthdate?.toIso8601String(),
     'country': country,
     'description': description,
@@ -135,6 +139,25 @@ class FormFieldsExamplePage extends HookConsumerWidget {
                 JetValidators.required(),
                 JetValidators.email(),
               ]),
+            ),
+
+            // Phone Field Section
+            const Text(
+              'Phone Field',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            JetPhoneField(
+              name: 'phone',
+              decoration: const InputDecoration(
+                labelText: 'Phone Number',
+                hintText: 'Enter your phone number',
+                prefixIcon: Icon(Icons.phone),
+                helperText: 'Numbers only',
+              ),
+              isRequired: true,
+              minLength: 10,
+              maxPhoneLength: 15,
             ),
 
             // Date Field Section

@@ -1029,27 +1029,72 @@ The JetPasswordField extends JetFormFieldDecoration and supports all standard Te
 
 ### JetPhoneField
 
-Phone number input with validation.
+Phone number input with automatic numeric-only validation and keyboard. This field restricts input to digits only and automatically uses the phone keyboard.
 
 ```dart
+// Basic phone field with required validation
 JetPhoneField(
   name: 'phone',
-  labelText: 'Phone Number',
-  countryCode: '+1',
-  minLength: 10,
-  maxLength: 10,
+  decoration: const InputDecoration(
+    labelText: 'Phone Number',
+    hintText: 'Enter your phone number',
+  ),
   isRequired: true,
 )
+
+// With custom length validation
+JetPhoneField(
+  name: 'phone',
+  decoration: const InputDecoration(
+    labelText: 'Phone Number',
+  ),
+  isRequired: true,
+  minLength: 10,
+  maxPhoneLength: 15,
+)
+
+// With custom validator
+JetPhoneField(
+  name: 'phone',
+  decoration: const InputDecoration(
+    labelText: 'Phone Number',
+  ),
+  isRequired: true,
+  validator: (value) {
+    if (value != null && value.startsWith('0')) {
+      return 'Phone number should not start with 0';
+    }
+    return null;
+  },
+)
 ```
+
+**Key Features:**
+- 📱 Automatically uses numeric keyboard (`TextInputType.phone`)
+- 🔢 Restricts input to digits only using `FilteringTextInputFormatter.digitsOnly`
+- ✅ Built-in numeric validation
+- 📏 Optional minimum/maximum length validation
+- ⚡ Quick `isRequired` parameter for convenience
 
 **Key Parameters:**
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `countryCode` | String? | Country code prefix (e.g., '+1') |
-| `minLength` | int | Minimum phone length (default: 10) |
-| `maxLength` | int | Maximum phone length (default: 15) |
-| `allowInternational` | bool | Allow international format (default: true) |
+| `name` | String | Form field identifier (required) |
+| `isRequired` | bool | Automatically adds required validator (default: false) |
+| `minLength` | int? | Minimum phone number length |
+| `maxPhoneLength` | int? | Maximum phone number length |
+| `decoration` | InputDecoration | Field decoration (label, hint, etc.) |
+| `validator` | FormFieldValidator? | Additional custom validation |
+| `keyboardType` | TextInputType? | Keyboard type (default: phone) |
+| `inputFormatters` | List? | Additional input formatters (digits-only is always applied first) |
+| `autofillHints` | Iterable? | Autofill hints (default: [AutofillHints.telephoneNumber]) |
+
+**All TextField Parameters Supported:**
+The JetPhoneField extends JetFormFieldDecoration and supports all standard TextField parameters including:
+- `controller`, `focusNode`, `style`, `textAlign`, `maxLength`
+- `cursorColor`, `readOnly`, `enabled`, `onChanged`
+- And all other TextField properties
 
 ### JetPinField
 
