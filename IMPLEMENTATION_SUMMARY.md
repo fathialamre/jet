@@ -139,12 +139,14 @@ JetForm(
 ## Key Features
 
 ✅ Automatically creates two fields: `{name}` and `{name}_confirmation`
+✅ Both fields are required by default (`isRequired: true`)
 ✅ Both fields validate password strength (if validator provided)
 ✅ Confirmation field automatically validates matching
 ✅ Customizable spacing between fields (default: 16)
 ✅ Auto-generates confirmation label if not provided
 ✅ Works with any field type (not just passwords)
 ✅ Type-safe with generic support
+✅ `isRequired` parameter in both `JetPasswordField` and `JetPasswordField.withConfirmation()`
 
 ## Files Modified
 
