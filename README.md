@@ -259,36 +259,80 @@ try {
 
 ### 📝 Forms
 
-Powerful form management built on **[Flutter Form Builder](https://pub.dev/packages/flutter_form_builder)** (v9.1.1) with **[form_builder_validators](https://pub.dev/packages/form_builder_validators)** (20+ validators) and **[flutter_hooks](https://pub.dev/packages/flutter_hooks)**. Two approaches: `useJetForm` hook for simple forms and `JetFormNotifier` for complex forms with business logic.
+Powerful, type-safe form management built with **[flutter_hooks](https://pub.dev/packages/flutter_hooks)** and **[Riverpod 3](https://pub.dev/packages/riverpod)** code generation support. Provides two complementary approaches: `useJetForm` hook for simple forms and `JetFormNotifier` with `JetFormMixin` for complex forms with business logic and reusability.
+
+#### Simple Forms with useJetForm Hook
+
+Perfect for single-use forms and rapid prototyping:
 
 ```dart
-// Simple form with hook
 final form = useJetForm<LoginRequest, LoginResponse>(
   ref: ref,
   decoder: (json) => LoginRequest.fromJson(json),
   action: (request) => authService.login(request),
   onSuccess: (response, request) {
     context.showToast('Welcome back!');
+    context.router.push(HomeRoute());
   },
 );
 
 return JetSimpleForm(
-  controller: form,
+  form: form,
   children: [
-    FormBuilderTextField(name: 'email'),
+    JetTextField(
+      name: 'email',
+      validator: JetValidators.compose([
+        JetValidators.required(),
+        JetValidators.email(),
+      ]),
+    ),
     JetPasswordField(name: 'password'),
   ],
 );
 ```
 
-**Key Features:**
-- Type-safe form state with Request/Response generics
-- Automatic validation with 70+ built-in validators
-- Enhanced input components (password, phone, PIN/OTP with **[pinput](https://pub.dev/packages/pinput)**)
-- Custom validator support with three approaches
-- Riverpod 3 code generation support with JetFormMixin
+#### Advanced Forms with JetFormNotifier
 
-📖 **[View Complete Documentation](docs/FORMS.md)** - Includes validation guide and all form fields
+For complex forms with business logic and Riverpod code generation:
+
+```dart
+@riverpod
+class LoginForm extends _$LoginForm 
+    with JetFormMixin<LoginRequest, LoginResponse> {
+  
+  @override
+  AsyncFormValue<LoginRequest, LoginResponse> build() {
+    setLifecycleCallbacks(
+      FormLifecycleCallbacks(
+        onSuccess: (response, request) {
+          ref.read(appRouterProvider).push(HomeRoute());
+        },
+      ),
+    );
+    return const AsyncFormValue.idle();
+  }
+
+  @override
+  LoginRequest decoder(Map<String, dynamic> json) => 
+      LoginRequest.fromJson(json);
+
+  @override
+  Future<LoginResponse> action(LoginRequest data) async =>
+      await ref.read(authApiServiceProvider).login(data);
+}
+```
+
+**Key Features:**
+- 🔒 Type-safe form state with `Request`/`Response` generics
+- ✅ 70+ built-in validators (email, phone, password strength, credit card, etc.)
+- 🎯 Rich form fields: text, password, dropdown, date/time, chips, sliders, and more
+- 📌 PIN/OTP input with **[pinput](https://pub.dev/packages/pinput)** integration
+- 🌍 Automatic error message localization (English, Arabic, French)
+- 🔄 Form change detection with `JetFormChangeListener`
+- 📝 Password confirmation helper with auto-matching validation
+- 🎨 Custom field creation support
+
+📖 **[View Complete Documentation](docs/FORMS.md)** - Comprehensive guide with validations, all form fields, and custom field creation
 
 ---
 
@@ -577,7 +621,6 @@ final testUsers = List.generate(10, (_) => User(
 - [Riverpod Documentation](https://riverpod.dev/)
 - [AutoRoute Documentation](https://auto-route.vercel.app/)
 - [Dio Documentation](https://pub.dev/packages/dio)
-- [Flutter Form Builder](https://pub.dev/packages/flutter_form_builder)
 
 ### Learning Resources
 - [Flutter Official Docs](https://flutter.dev/docs)

@@ -52,6 +52,7 @@ class RegistrationExamplePage extends HookConsumerWidget {
         padding: const EdgeInsets.all(16.0),
         child: JetForm(
           key: formKey,
+
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -76,18 +77,6 @@ class RegistrationExamplePage extends HookConsumerWidget {
                 isRequired: true, // Default is true, shown here for clarity
                 spacing: 16,
               ),
-
-              SizedBox(height: 16),
-              // Submit button
-              if (form.isLoading)
-                const Center(
-                  child: CircularProgressIndicator(),
-                )
-              else
-                JetButton(
-                  text: 'Create Account',
-                  onTap: () => form.submit(),
-                ),
             ],
           ),
         ),

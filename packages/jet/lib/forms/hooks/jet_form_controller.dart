@@ -78,6 +78,9 @@ class JetFormController<Request, Response> {
   /// Get the current form values as a Map
   Map<String, dynamic>? get values => formKey.currentState?.value;
 
+  /// Returns true if any form field value differs from its initial value
+  bool get hasChanges => formKey.currentState?.hasChanges ?? false;
+
   /// Save the current form state
   bool save() => formKey.currentState?.saveAndValidate() ?? false;
 }

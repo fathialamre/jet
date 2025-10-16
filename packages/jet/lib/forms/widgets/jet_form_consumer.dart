@@ -466,6 +466,7 @@ class JetFormConsumer<Request, Response> extends ConsumerWidget {
     // Build the form with fields and optional submit button
     return JetForm(
       key: form.formKey,
+      // autovalidateMode: AutovalidateMode.always,
       initialValue: initialValues,
       child: Column(
         spacing: fieldSpacing,

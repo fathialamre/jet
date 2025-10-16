@@ -19,6 +19,7 @@ abstract class FormNotifierBase<Request, Response> {
   void reset();
   Request decoder(Map<String, dynamic> json);
   Future<Response> action(Request data);
+  bool get hasChanges;
 }
 
 /// Mixin version of JetFormNotifier for use with Riverpod's @riverpod annotation
@@ -246,6 +247,9 @@ mixin JetFormMixin<Request, Response>
       setValue(fieldName, value);
     });
   }
+
+  /// Returns true if any form field value differs from its initial value
+  bool get hasChanges => formKey.currentState?.hasChanges ?? false;
 }
 
 /// Traditional class-based JetFormNotifier for backward compatibility

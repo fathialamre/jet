@@ -16,30 +16,27 @@ class TodoPage extends JetConsumerWidget {
         title: const Text('Todo Example'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: JetFormConsumer<TodoRequest, TodoResponse>(
-          provider: todoFormProvider(1),
-          builder:
-              (
-                context,
-                ref,
-                notifier,
-                formState,
-              ) {
-                return [
-                  Card(
-                    child: Padding(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: JetFormConsumer<TodoRequest, TodoResponse>(
+            showDefaultSubmitButton: false,
+            provider: todoFormProvider(1),
+            builder:
+                (
+                  context,
+                  ref,
+                  form,
+                  formState,
+                ) {
+                  return [
+                    Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Create Todo',
-                            style: Theme.of(context).textTheme.headlineSmall,
-                          ),
-                          const SizedBox(height: 16),
                           JetTextField(
+                            initialValue: 'Title',
                             name: 'title',
                             decoration: const InputDecoration(
                               labelText: 'Todo Title',
@@ -64,81 +61,23 @@ class TodoPage extends JetConsumerWidget {
                             ]),
                           ),
                           const SizedBox(height: 16),
-                          JetCheckbox(
-                            decoration: const InputDecoration(
-                              labelText: 'Password',
-                              hintText: 'Enter your password',
-                              prefixIcon: Icon(Icons.lock),
-                            ),
-                            name: 'isCompleted',
-                            title: const Text('Mark as complete ->>'),
-                            initialValue: false,
-                          ),
                           const SizedBox(height: 24),
-                          JetButton.filled(
-                            text: 'Create Todo',
-                            onTap: notifier.submit,
+                          JetFormChangeListener(
+                            form: form,
+                            builder: (context) {
+                              return JetButton.filled(
+                                text: 'Create Todo',
+                                isEnabled: form.hasChanges,
+                                onTap: () => form.submit(),
+                              );
+                            },
                           ),
                         ],
                       ),
                     ),
-                  ),
-                  if (formState.hasValue) ...[
-                    const SizedBox(height: 16),
-                    Card(
-                      color: Theme.of(context).colorScheme.primaryContainer,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Todo Created Successfully!',
-                              style: Theme.of(context).textTheme.titleMedium
-                                  ?.copyWith(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onPrimaryContainer,
-                                  ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'ID: ${formState.response!.id}',
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                            Text(
-                              'Title: ${formState.response!.title}',
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                            Text(
-                              'Created: ${formState.response!.createdAt.toString().substring(0, 19)}',
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                  if (formState.hasError) ...[
-                    const SizedBox(height: 16),
-                    Card(
-                      color: Theme.of(context).colorScheme.errorContainer,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(
-                          'Error: ${(formState as AsyncFormError).error}',
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onErrorContainer,
-                              ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ];
-              },
+                  ];
+                },
+          ),
         ),
       ),
     );
