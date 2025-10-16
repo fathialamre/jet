@@ -424,6 +424,9 @@ JetValidators.range(18, 65)
 // Equality checks
 JetValidators.equal('expected value')
 JetValidators.notEqual('forbidden value')
+
+// Field matching (for password confirmation, email confirmation, etc.)
+JetValidators.matchField<String>(formKey, 'password')
 ```
 
 #### String Validators
@@ -802,30 +805,93 @@ JetTextField(
 
 ### Password Confirmation
 
-Use `matchValue` or `identicalWith` for password confirmation:
+Jet provides two approaches for password confirmation fields:
+
+#### Approach 1: Using `withConfirmation()` (Recommended)
+
+The simplest way to add password confirmation is using the `withConfirmation()` static method, which creates both fields automatically:
 
 ```dart
-final formKey = GlobalKey<FormBuilderState>();
+final formKey = GlobalKey<JetFormState>();
 
-FormBuilder(
+JetForm(
   key: formKey,
   child: Column(
     children: [
-      JetPasswordField(
+      JetPasswordField.withConfirmation(
         name: 'password',
-        labelText: 'Password',
         formKey: formKey,
-      ),
-      JetPasswordField(
-        name: 'confirm_password',
-        labelText: 'Confirm Password',
-        identicalWith: 'password',
-        formKey: formKey,
+        decoration: const InputDecoration(
+          labelText: 'Password',
+          hintText: 'Enter your password',
+        ),
+        confirmationDecoration: const InputDecoration(
+          labelText: 'Confirm Password',
+          hintText: 'Re-enter your password',
+        ),
+        validator: JetValidators.compose([
+          JetValidators.required(),
+          JetValidators.minLength(8),
+        ]),
       ),
     ],
   ),
 )
 ```
+
+**Key Features:**
+- ✅ Automatically creates two fields: `password` and `password_confirmation`
+- ✅ Both fields validate password strength (if validator provided)
+- ✅ Confirmation field automatically validates matching
+- ✅ Customizable spacing between fields (default: 16)
+- ✅ Auto-generates confirmation label if not provided
+
+#### Approach 2: Using `matchField()` Validator
+
+For more control, use the `matchField` validator manually:
+
+```dart
+final formKey = GlobalKey<JetFormState>();
+
+JetForm(
+  key: formKey,
+  child: Column(
+    children: [
+      JetPasswordField(
+        name: 'password',
+        decoration: const InputDecoration(
+          labelText: 'Password',
+        ),
+        validator: JetValidators.compose([
+          JetValidators.required(),
+          JetValidators.minLength(8),
+        ]),
+      ),
+      const SizedBox(height: 16),
+      JetPasswordField(
+        name: 'confirm_password',
+        decoration: const InputDecoration(
+          labelText: 'Confirm Password',
+        ),
+        validator: JetValidators.compose([
+          JetValidators.required(),
+          JetValidators.matchField<String>(
+            formKey,
+            'password',
+            errorText: 'Passwords do not match',
+          ),
+        ]),
+      ),
+    ],
+  ),
+)
+```
+
+**When to use this approach:**
+- Need custom field names (not `{name}_confirmation`)
+- Different layouts or styling for each field
+- Conditional validation logic
+- Match validation for non-password fields (email confirmation, etc.)
 
 ### Validation Best Practices
 
@@ -1795,12 +1861,30 @@ Check that:
 
 ### Password confirmation not working
 
-Make sure you provide the `formKey` parameter:
+**If using `withConfirmation()`:**
+
+Make sure you provide the required `formKey` parameter:
+```dart
+final formKey = GlobalKey<JetFormState>();
+
+JetPasswordField.withConfirmation(
+  name: 'password',
+  formKey: formKey, // Required!
+  decoration: const InputDecoration(labelText: 'Password'),
+)
+```
+
+**If using `matchField()` validator manually:**
+
+Ensure the form key is passed correctly and the field name matches:
 ```dart
 JetPasswordField(
-  name: 'confirmPassword',
-  formKey: formKey, // Required!
-  identicalWith: 'password',
+  name: 'confirm_password',
+  validator: JetValidators.matchField<String>(
+    formKey,
+    'password', // Must match the first password field's name
+    errorText: 'Passwords do not match',
+  ),
 )
 ```
 

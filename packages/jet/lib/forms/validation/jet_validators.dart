@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'validation.dart';
+import '../core/jet_form_field.dart';
 
 /// Facade for accessing all Jet form validators with a clean API.
 ///
@@ -69,6 +70,35 @@ class JetValidators {
     String? errorText,
   }) {
     return NotEqualValidator<T>(value, errorText: errorText).validate;
+  }
+
+  /// Creates a validator that matches another field's value in the form.
+  ///
+  /// Useful for password confirmation, email confirmation, etc.
+  ///
+  /// Example:
+  /// ```dart
+  /// final formKey = GlobalKey<JetFormState>();
+  ///
+  /// JetPasswordField(
+  ///   name: 'password_confirmation',
+  ///   validator: JetValidators.matchField<String>(
+  ///     formKey,
+  ///     'password',
+  ///     errorText: 'Passwords do not match',
+  ///   ),
+  /// )
+  /// ```
+  static FormFieldValidator<T> matchField<T>(
+    GlobalKey<JetFormState> formKey,
+    String fieldName, {
+    String? errorText,
+  }) {
+    return MatchFieldValidator<T>(
+      formKey,
+      fieldName,
+      errorText: errorText,
+    ).validate;
   }
 
   // ============================================================================
