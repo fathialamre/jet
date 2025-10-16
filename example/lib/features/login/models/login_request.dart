@@ -1,28 +1,26 @@
 class LoginRequest {
   final String email;
   final String password;
-  final bool rememberMe;
 
-  const LoginRequest({
+  LoginRequest({
     required this.email,
     required this.password,
-    this.rememberMe = false,
   });
 
-  factory LoginRequest.fromJson(Map<String, dynamic> json) => LoginRequest(
-    email: json['email'] as String,
-    password: json['password'] as String,
-    rememberMe: json['rememberMe'] as bool? ?? false,
-  );
+  factory LoginRequest.fromJson(Map<String, dynamic> json) {
+    return LoginRequest(
+      email: json['email'] as String? ?? '',
+      password: json['password'] as String? ?? '',
+    );
+  }
 
-  Map<String, dynamic> toJson() => {
-    'email': email,
-    'password': password,
-    'rememberMe': rememberMe,
-  };
+  Map<String, dynamic> toJson() {
+    return {
+      'email': email,
+      'password': password,
+    };
+  }
 
   @override
-  String toString() {
-    return 'LoginRequest(email: $email, rememberMe: $rememberMe)';
-  }
+  String toString() => 'LoginRequest(email: $email, password: ***)';
 }

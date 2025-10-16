@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jet/forms/advanced/jet_form_notifier.dart';
 import 'package:jet/forms/core/jet_form_field.dart';
 import 'package:hooks_riverpod/misc.dart';
 import 'package:jet/bootstrap/boot.dart';
 import 'package:jet/extensions/build_context.dart';
 import 'package:jet/forms/common.dart';
-import 'package:jet/forms/notifiers/jet_form_notifier.dart';
 import 'package:jet/networking/errors/jet_error.dart';
 import 'package:jet/widgets/widgets/buttons/jet_button.dart';
 
@@ -244,6 +244,7 @@ class JetFormConsumer<Request, Response> extends ConsumerWidget {
   const JetFormConsumer({
     super.key,
     required this.provider,
+
     required this.builder,
     this.showErrorSnackBar = true,
     this.onSuccess,
@@ -448,17 +449,44 @@ class JetFormConsumer<Request, Response> extends ConsumerWidget {
     final formState = ref.watch(provider);
 
     // Listen for state changes to trigger callbacks
+    // Only trigger callbacks when transitioning to new states
     ref.listen<AsyncFormValue<Request, Response>>(provider, (previous, next) {
+      // Ignore if state type hasn't changed (prevents duplicate callbacks)
+      if (previous != null && previous.runtimeType == next.runtimeType) {
+        // For data state, also check if response actually changed
+        if (next is AsyncFormData<Request, Response> &&
+            previous is AsyncFormData<Request, Response>) {
+          if (identical(next.response, previous.response)) {
+            return;
+          }
+        } else if (next is AsyncFormError<Request, Response> &&
+            previous is AsyncFormError<Request, Response>) {
+          // For error state, check if it's the same error
+          if (identical(next.error, previous.error)) {
+            return;
+          }
+        } else {
+          // For loading/idle states, skip if they're the same type
+          return;
+        }
+      }
+
       next.map(
         idle: (idle) {}, // No action needed for idle state
-        data: (data) => onSuccess?.call(data.response, data.request),
-        error: (e) => _handleFormError(
-          ref,
-          context,
-          form,
-          e.error,
-          e.stackTrace,
-        ),
+        data: (data) {
+          // Only call onSuccess when transitioning to data state
+          onSuccess?.call(data.response, data.request);
+        },
+        error: (e) {
+          // Only handle error when transitioning to error state
+          _handleFormError(
+            ref,
+            context,
+            form,
+            e.error,
+            e.stackTrace,
+          );
+        },
         loading: (_) {}, // Loading state is handled by UI reactivity
       );
     });

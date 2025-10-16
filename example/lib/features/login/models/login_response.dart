@@ -1,36 +1,35 @@
 class LoginResponse {
   final String token;
   final String userId;
-  final String name;
   final String email;
-  final DateTime loginAt;
+  final String name;
 
-  const LoginResponse({
+  LoginResponse({
     required this.token,
     required this.userId,
-    required this.name,
     required this.email,
-    required this.loginAt,
+    required this.name,
   });
 
-  factory LoginResponse.fromJson(Map<String, dynamic> json) => LoginResponse(
-    token: json['token'] as String,
-    userId: json['userId'] as String,
-    name: json['name'] as String,
-    email: json['email'] as String,
-    loginAt: DateTime.parse(json['loginAt'] as String),
-  );
+  factory LoginResponse.fromJson(Map<String, dynamic> json) {
+    return LoginResponse(
+      token: json['token'] as String? ?? '',
+      userId: json['userId'] as String? ?? '',
+      email: json['email'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+    );
+  }
 
-  Map<String, dynamic> toJson() => {
-    'token': token,
-    'userId': userId,
-    'name': name,
-    'email': email,
-    'loginAt': loginAt.toIso8601String(),
-  };
+  Map<String, dynamic> toJson() {
+    return {
+      'token': token,
+      'userId': userId,
+      'email': email,
+      'name': name,
+    };
+  }
 
   @override
-  String toString() {
-    return 'LoginResponse(userId: $userId, name: $name, email: $email)';
-  }
+  String toString() =>
+      'LoginResponse(userId: $userId, email: $email, name: $name)';
 }

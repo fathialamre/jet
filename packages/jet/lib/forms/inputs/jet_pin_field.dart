@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:jet/jet_framework.dart';
+import 'package:jet/forms/inputs/mixins/controller_sync_mixin.dart';
 import 'package:pinput/pinput.dart';
 
 /// A PIN/OTP input field for Jet forms using the Pinput package.
@@ -315,31 +316,8 @@ class _JetPinFieldWidget extends HookWidget {
     // Use the external controller if provided, otherwise use the hook-managed one
     final effectiveController = externalController ?? controller;
 
-    // Sync controller changes with form state
-    useEffect(
-      () {
-        void listener() {
-          if (effectiveController.text != state.value) {
-            state.didChange(effectiveController.text);
-          }
-        }
-
-        effectiveController.addListener(listener);
-        return () => effectiveController.removeListener(listener);
-      },
-      [effectiveController],
-    );
-
-    // Sync form state changes back to controller
-    useEffect(
-      () {
-        if (effectiveController.text != (state.value ?? '')) {
-          effectiveController.text = state.value ?? '';
-        }
-        return null;
-      },
-      [state.value],
-    );
+    // Set up bidirectional sync between controller and form state with circular update protection
+    useControllerSync(effectiveController, state);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

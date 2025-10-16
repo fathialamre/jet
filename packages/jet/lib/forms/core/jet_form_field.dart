@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'value_transformer.dart';
 
@@ -63,6 +64,12 @@ class JetFormFieldState<F extends JetFormField<T>, T>
   JetFormState? _formState;
   bool _touched = false;
   bool _dirty = false;
+
+  /// Timer for debounced validation
+  Timer? _validationDebounceTimer;
+
+  /// Default debounce duration for validation (in milliseconds)
+  static const int defaultValidationDebounceDuration = 300;
 
   /// The focus node that is used to focus this field.
   late FocusNode effectiveFocusNode;
@@ -155,6 +162,10 @@ class JetFormFieldState<F extends JetFormField<T>, T>
 
   @override
   void dispose() {
+    // Cancel any pending debounced validation
+    _validationDebounceTimer?.cancel();
+    _validationDebounceTimer = null;
+
     effectiveFocusNode.removeListener(_touchedHandler);
     // Only dispose if we created the focus node
     if (widget.focusNode == null) {
@@ -199,11 +210,57 @@ class JetFormFieldState<F extends JetFormField<T>, T>
   @override
   void reset() {
     super.reset();
+    // Cancel any pending validation when resetting
+    _validationDebounceTimer?.cancel();
+    _validationDebounceTimer = null;
+
     didChange(initialValue);
     _dirty = false;
     if (_customErrorText != null) {
       setState(() => _customErrorText = null);
     }
+  }
+
+  /// Validates the field with debouncing to reduce validation frequency.
+  ///
+  /// This is particularly useful for expensive validators like API calls
+  /// or complex regex patterns. The validation will be delayed until the
+  /// user stops typing for [debounceDuration] milliseconds.
+  ///
+  /// If [debounceDuration] is 0 or null, validation runs immediately.
+  void validateDebounced({
+    int? debounceDuration,
+    bool clearCustomError = true,
+    bool focusOnInvalid = true,
+    bool autoScrollWhenFocusOnInvalid = false,
+  }) {
+    final duration = debounceDuration ?? defaultValidationDebounceDuration;
+
+    // Cancel any pending validation
+    _validationDebounceTimer?.cancel();
+
+    if (duration <= 0) {
+      // Validate immediately if duration is 0 or negative
+      validate(
+        clearCustomError: clearCustomError,
+        focusOnInvalid: focusOnInvalid,
+        autoScrollWhenFocusOnInvalid: autoScrollWhenFocusOnInvalid,
+      );
+      return;
+    }
+
+    // Schedule debounced validation
+    _validationDebounceTimer = Timer(
+      Duration(milliseconds: duration),
+      () {
+        validate(
+          clearCustomError: clearCustomError,
+          focusOnInvalid: focusOnInvalid,
+          autoScrollWhenFocusOnInvalid: autoScrollWhenFocusOnInvalid,
+        );
+        _validationDebounceTimer = null;
+      },
+    );
   }
 
   @override
@@ -307,6 +364,12 @@ class JetFormState extends State<JetForm> {
   /// Notifier that triggers when form field values change
   final ValueNotifier<int> _changeNotifier = ValueNotifier<int>(0);
 
+  /// Cached hasChanges result to avoid recomputation on every access
+  bool? _cachedHasChanges;
+
+  /// Track which fields have changed for granular updates
+  final Set<String> _changedFields = {};
+
   bool get focusOnInvalid => _focusOnInvalid;
   bool get enabled => widget.enabled;
   bool get isValid => fields.values.every((field) => field.isValid);
@@ -318,7 +381,22 @@ class JetFormState extends State<JetForm> {
 
   /// Returns true if any field value differs from its initial value.
   /// Empty strings, lists, and maps are considered equal to null.
+  ///
+  /// This getter is cached and only recomputed when field values change,
+  /// significantly improving performance for forms with change listeners.
   bool get hasChanges {
+    // Return cached result if available
+    if (_cachedHasChanges != null) {
+      return _cachedHasChanges!;
+    }
+
+    // Compute and cache the result
+    _cachedHasChanges = _computeHasChanges();
+    return _cachedHasChanges!;
+  }
+
+  /// Internal method to compute hasChanges without caching
+  bool _computeHasChanges() {
     // Compare each registered field's current value with its initial value
     for (final entry in _fields.entries) {
       final fieldName = entry.key;
@@ -398,10 +476,24 @@ class JetFormState extends State<JetForm> {
   }
 
   void setInternalFieldValue<T>(String name, T? value) {
+    final oldValue = _instantValue[name];
     _instantValue[name] = value;
+
+    // Track which fields have changed for granular listening
+    _changedFields.add(name);
+
+    // Invalidate hasChanges cache only if value actually changed
+    if (oldValue != value) {
+      _cachedHasChanges = null;
+    }
+
     widget.onChanged?.call();
+
     // Notify listeners that form values have changed
-    _changeNotifier.value++;
+    // Only increment if the value actually changed to reduce unnecessary notifications
+    if (oldValue != value) {
+      _changeNotifier.value++;
+    }
   }
 
   void removeInternalFieldValue(String name) {
@@ -495,12 +587,17 @@ class JetFormState extends State<JetForm> {
 
   void reset() {
     _formKey.currentState?.reset();
+    // Invalidate cache after reset
+    _cachedHasChanges = null;
+    _changedFields.clear();
   }
 
   void patchValue(Map<String, dynamic> val) {
     val.forEach((key, dynamic value) {
       _fields[key]?.didChange(value);
     });
+    // Invalidate cache after patching values
+    _cachedHasChanges = null;
   }
 
   @override

@@ -1,6 +1,6 @@
 import 'package:jet/forms/localization/jet_form_localizations.dart';
+import 'package:jet/networking/errors/jet_error.dart';
 
-import '../../networking/errors/jet_error.dart';
 
 /// Mixin that provides error handling capabilities for forms
 mixin FormErrorHandlingMixin {

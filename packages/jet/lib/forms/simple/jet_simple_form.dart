@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:jet/forms/simple/jet_form_controller.dart';
 import '../core/jet_form_field.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jet/extensions/build_context.dart';
 import 'package:jet/widgets/widgets/buttons/jet_button.dart';
-import '../hooks/jet_form_controller.dart';
 
 /// A simplified form widget that works with [JetFormController] from [useJetForm].
 ///
@@ -95,6 +95,7 @@ class JetSimpleForm<Request, Response> extends ConsumerWidget {
       key: form.formKey,
       initialValue: initialValues,
       child: Column(
+        // Note: spacing parameter requires Flutter 3.16+
         spacing: fieldSpacing,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

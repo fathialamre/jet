@@ -3,8 +3,8 @@ import '../core/jet_form_field.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../common.dart';
-import '../mixins/mixins.dart';
-import '../notifiers/jet_form_notifier.dart';
+import '../advanced/mixins/mixins.dart';
+import '../advanced/jet_form_notifier.dart';
 import 'jet_form_controller.dart';
 
 /// A hook that creates a simple form controller without requiring a separate notifier class.
