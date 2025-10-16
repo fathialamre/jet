@@ -8,159 +8,52 @@
 // ignore_for_file: type=lint
 // coverage:ignore-file
 
-// ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:auto_route/auto_route.dart' as _i10;
-import 'package:example/features/carousel/carousel_example_page.dart' as _i1;
-import 'package:example/features/examples/registration_example.dart' as _i5;
-import 'package:example/features/home/home_page.dart' as _i2;
-import 'package:example/features/login/login_page.dart' as _i3;
-import 'package:example/features/notifications/notifications_example.dart'
-    as _i4;
-import 'package:example/features/settings/settings_page.dart' as _i6;
-import 'package:example/features/todo/simple_todo_page.dart' as _i7;
-import 'package:example/features/todo/todo_page.dart' as _i8;
-import 'package:example/features/users/pages/users_page.dart' as _i9;
+part of 'app_router.dart';
 
 /// generated route for
-/// [_i1.CarouselExamplePage]
-class CarouselExampleRoute extends _i10.PageRouteInfo<void> {
-  const CarouselExampleRoute({List<_i10.PageRouteInfo>? children})
-    : super(CarouselExampleRoute.name, initialChildren: children);
+/// [BigFormPage]
+class BigFormRoute extends PageRouteInfo<void> {
+  const BigFormRoute({List<PageRouteInfo>? children})
+    : super(BigFormRoute.name, initialChildren: children);
 
-  static const String name = 'CarouselExampleRoute';
+  static const String name = 'BigFormRoute';
 
-  static _i10.PageInfo page = _i10.PageInfo(
+  static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const _i1.CarouselExamplePage();
+      return const BigFormPage();
     },
   );
 }
 
 /// generated route for
-/// [_i2.HomePage]
-class HomeRoute extends _i10.PageRouteInfo<void> {
-  const HomeRoute({List<_i10.PageRouteInfo>? children})
+/// [HomePage]
+class HomeRoute extends PageRouteInfo<void> {
+  const HomeRoute({List<PageRouteInfo>? children})
     : super(HomeRoute.name, initialChildren: children);
 
   static const String name = 'HomeRoute';
 
-  static _i10.PageInfo page = _i10.PageInfo(
+  static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const _i2.HomePage();
+      return const HomePage();
     },
   );
 }
 
 /// generated route for
-/// [_i3.LoginPage]
-class LoginRoute extends _i10.PageRouteInfo<void> {
-  const LoginRoute({List<_i10.PageRouteInfo>? children})
+/// [LoginPage]
+class LoginRoute extends PageRouteInfo<void> {
+  const LoginRoute({List<PageRouteInfo>? children})
     : super(LoginRoute.name, initialChildren: children);
 
   static const String name = 'LoginRoute';
 
-  static _i10.PageInfo page = _i10.PageInfo(
+  static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const _i3.LoginPage();
-    },
-  );
-}
-
-/// generated route for
-/// [_i4.NotificationsExamplePage]
-class NotificationsExampleRoute extends _i10.PageRouteInfo<void> {
-  const NotificationsExampleRoute({List<_i10.PageRouteInfo>? children})
-    : super(NotificationsExampleRoute.name, initialChildren: children);
-
-  static const String name = 'NotificationsExampleRoute';
-
-  static _i10.PageInfo page = _i10.PageInfo(
-    name,
-    builder: (data) {
-      return const _i4.NotificationsExamplePage();
-    },
-  );
-}
-
-/// generated route for
-/// [_i5.RegistrationExamplePage]
-class RegistrationExampleRoute extends _i10.PageRouteInfo<void> {
-  const RegistrationExampleRoute({List<_i10.PageRouteInfo>? children})
-    : super(RegistrationExampleRoute.name, initialChildren: children);
-
-  static const String name = 'RegistrationExampleRoute';
-
-  static _i10.PageInfo page = _i10.PageInfo(
-    name,
-    builder: (data) {
-      return const _i5.RegistrationExamplePage();
-    },
-  );
-}
-
-/// generated route for
-/// [_i6.SettingsPage]
-class SettingsRoute extends _i10.PageRouteInfo<void> {
-  const SettingsRoute({List<_i10.PageRouteInfo>? children})
-    : super(SettingsRoute.name, initialChildren: children);
-
-  static const String name = 'SettingsRoute';
-
-  static _i10.PageInfo page = _i10.PageInfo(
-    name,
-    builder: (data) {
-      return const _i6.SettingsPage();
-    },
-  );
-}
-
-/// generated route for
-/// [_i7.SimpleTodoPage]
-class SimpleTodoRoute extends _i10.PageRouteInfo<void> {
-  const SimpleTodoRoute({List<_i10.PageRouteInfo>? children})
-    : super(SimpleTodoRoute.name, initialChildren: children);
-
-  static const String name = 'SimpleTodoRoute';
-
-  static _i10.PageInfo page = _i10.PageInfo(
-    name,
-    builder: (data) {
-      return const _i7.SimpleTodoPage();
-    },
-  );
-}
-
-/// generated route for
-/// [_i8.TodoPage]
-class TodoRoute extends _i10.PageRouteInfo<void> {
-  const TodoRoute({List<_i10.PageRouteInfo>? children})
-    : super(TodoRoute.name, initialChildren: children);
-
-  static const String name = 'TodoRoute';
-
-  static _i10.PageInfo page = _i10.PageInfo(
-    name,
-    builder: (data) {
-      return const _i8.TodoPage();
-    },
-  );
-}
-
-/// generated route for
-/// [_i9.UsersPage]
-class UsersRoute extends _i10.PageRouteInfo<void> {
-  const UsersRoute({List<_i10.PageRouteInfo>? children})
-    : super(UsersRoute.name, initialChildren: children);
-
-  static const String name = 'UsersRoute';
-
-  static _i10.PageInfo page = _i10.PageInfo(
-    name,
-    builder: (data) {
-      return const _i9.UsersPage();
+      return const LoginPage();
     },
   );
 }

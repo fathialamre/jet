@@ -1,9 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jet/forms/advanced/mixins/form_error_handling_mixin.dart';
+import 'package:jet/forms/advanced/mixins/form_lifecycle_mixin.dart';
+import 'package:jet/forms/advanced/mixins/form_validation_mixin.dart';
 import '../../networking/errors/jet_error.dart';
 import '../common.dart';
 import '../core/jet_form_field.dart';
-import '../mixins/mixins.dart';
 
 typedef JetFormProvider<Request, Response> =
     Provider<AsyncFormValue<Request, Response>>;
@@ -39,6 +42,12 @@ mixin JetFormMixin<Request, Response>
         FormLifecycleMixin<Request, Response> {
   @override
   final GlobalKey<JetFormState> formKey = GlobalKey<JetFormState>();
+
+  /// Cache for validation results to avoid redundant validations
+  final Map<String, List<String>> _validationCache = {};
+
+  /// Track last validated values to detect when cache should be invalidated
+  final Map<String, dynamic> _lastValidatedValues = {};
 
   // FormLifecycleMixin implementation
   FormLifecycleCallbacks<Request, Response>? _callbacks;
@@ -85,6 +94,80 @@ mixin JetFormMixin<Request, Response>
     return [];
   }
 
+  /// Internal method to validate field with caching support
+  List<String> _validateFieldWithCache(String fieldName, dynamic value) {
+    // Check if value changed since last validation
+    final lastValue = _lastValidatedValues[fieldName];
+
+    // Return cached result if value hasn't changed (using deep equality)
+    if (_valuesEqual(lastValue, value) &&
+        _validationCache.containsKey(fieldName)) {
+      return _validationCache[fieldName]!;
+    }
+
+    // Value changed or no cache, perform validation
+    final errors = validateField(fieldName, value);
+
+    // Update cache
+    _lastValidatedValues[fieldName] = value;
+    _validationCache[fieldName] = errors;
+
+    return errors;
+  }
+
+  /// Compare two values with deep equality for common types
+  ///
+  /// Supports:
+  /// - Lists (using listEquals)
+  /// - Maps (using mapEquals)
+  /// - Sets (converting to lists)
+  /// - Primitives (using ==)
+  ///
+  /// Note: For custom classes, implement proper equality (== and hashCode)
+  /// or the cache will always miss on those values.
+  bool _valuesEqual(dynamic a, dynamic b) {
+    // Same reference
+    if (identical(a, b)) return true;
+
+    // Both null
+    if (a == null && b == null) return true;
+
+    // One null
+    if (a == null || b == null) return false;
+
+    // Different types
+    if (a.runtimeType != b.runtimeType) return false;
+
+    // Lists - use deep equality
+    if (a is List && b is List) {
+      return listEquals(a, b);
+    }
+
+    // Maps - use deep equality
+    if (a is Map && b is Map) {
+      return mapEquals(a, b);
+    }
+
+    // Sets - convert to lists and compare
+    if (a is Set && b is Set) {
+      return listEquals(a.toList(), b.toList());
+    }
+
+    // Fallback to standard equality
+    return a == b;
+  }
+
+  /// Invalidate validation cache for a specific field or all fields
+  void invalidateValidationCache([String? fieldName]) {
+    if (fieldName != null) {
+      _validationCache.remove(fieldName);
+      _lastValidatedValues.remove(fieldName);
+    } else {
+      _validationCache.clear();
+      _lastValidatedValues.clear();
+    }
+  }
+
   @override
   void validateSpecificField(
     String fieldName,
@@ -96,7 +179,8 @@ mixin JetFormMixin<Request, Response>
     final field = formState.fields[fieldName];
     if (field == null) return;
 
-    final errors = validateField(fieldName, field.value);
+    // Use cached validation
+    final errors = _validateFieldWithCache(fieldName, field.value);
     if (errors.isNotEmpty) {
       field.invalidate(errors.first);
     } else {
@@ -114,7 +198,8 @@ mixin JetFormMixin<Request, Response>
       final fieldName = entry.key;
       final field = entry.value;
 
-      final errors = validateField(fieldName, field.value);
+      // Use cached validation for better performance
+      final errors = _validateFieldWithCache(fieldName, field.value);
       if (errors.isNotEmpty) {
         field.invalidate(errors.first);
         isValid = false;
@@ -222,6 +307,8 @@ mixin JetFormMixin<Request, Response>
   @override
   void reset() {
     formKey.currentState?.reset();
+    // Clear validation cache on reset
+    invalidateValidationCache();
     state = const AsyncFormValue.idle();
   }
 
@@ -249,6 +336,7 @@ mixin JetFormMixin<Request, Response>
   }
 
   /// Returns true if any form field value differs from its initial value
+  @override
   bool get hasChanges => formKey.currentState?.hasChanges ?? false;
 }
 

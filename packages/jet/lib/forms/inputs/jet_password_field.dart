@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:jet/forms/core/jet_form_field_decoration.dart';
 import 'package:jet/forms/core/jet_form_field.dart';
+import 'package:jet/forms/inputs/mixins/controller_sync_mixin.dart';
 import 'package:jet/forms/validation/jet_validators.dart';
 
 /// A Material Design password field input for Jet forms with show/hide functionality.
@@ -505,31 +506,8 @@ class _JetPasswordFieldWidget extends HookWidget {
     // Use the external controller if provided, otherwise use the hook-managed one
     final effectiveController = externalController ?? controller;
 
-    // Sync controller changes with form state
-    useEffect(
-      () {
-        void listener() {
-          if (effectiveController.text != state.value) {
-            state.didChange(effectiveController.text);
-          }
-        }
-
-        effectiveController.addListener(listener);
-        return () => effectiveController.removeListener(listener);
-      },
-      [effectiveController],
-    );
-
-    // Sync form state changes back to controller
-    useEffect(
-      () {
-        if (effectiveController.text != (state.value ?? '')) {
-          effectiveController.text = state.value ?? '';
-        }
-        return null;
-      },
-      [state.value],
-    );
+    // Set up bidirectional sync between controller and form state with circular update protection
+    useControllerSync(effectiveController, state);
 
     // Get effective decoration with suffix icon for password toggle
     final effectiveDecoration = state.decoration.copyWith(

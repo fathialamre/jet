@@ -207,25 +207,38 @@ class _JetDropdownState<T>
   void didUpdateWidget(covariant JetDropdown<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    final oldValues = oldWidget.options.map((e) => e.value).toList();
-    final currentValues = widget.options.map((e) => e.value).toList();
-    final oldChildren = oldWidget.options
-        .map((e) => e.child.toString())
-        .toList();
-    final currentChildren = widget.options
-        .map((e) => e.child.toString())
-        .toList();
+    // Only perform expensive comparisons if list length changed or object identity changed
+    // This is much faster than toString() conversion and listEquals()
+    if (oldWidget.options.length != widget.options.length ||
+        !identical(oldWidget.options, widget.options)) {
+      // Extract current values once (avoid repeated map operations)
+      final currentValues = widget.options.map((e) => e.value).toSet();
 
-    // Reset value if initialValue is not in the current options
-    if (!currentValues.contains(initialValue) && initialValue != null) {
-      setValue(null);
-    }
+      // Reset value if initialValue is not in the current options
+      if (initialValue != null && !currentValues.contains(initialValue)) {
+        setValue(null);
+        return;
+      }
 
-    // Update value if options changed but initialValue is still valid
-    if ((!listEquals(oldChildren, currentChildren) ||
-            !listEquals(oldValues, currentValues)) &&
-        (currentValues.contains(initialValue) || initialValue == null)) {
-      setValue(initialValue);
+      // Only compare values if we need to update (initial value is still valid)
+      if (currentValues.contains(initialValue) || initialValue == null) {
+        // Extract old values once and cache for comparison
+        final oldValues = oldWidget.options.map((e) => e.value).toSet();
+
+        // Only update if options actually changed
+        // Use Set operations which are O(n) instead of O(n²)
+        if (oldValues.length != currentValues.length ||
+            !_setsEqual(oldValues, currentValues)) {
+          setValue(initialValue);
+        }
+      }
     }
+  }
+
+  /// Efficiently compare two sets for equality
+  /// Uses Set.difference which is optimized for set operations
+  bool _setsEqual(Set<T> a, Set<T> b) {
+    if (a.length != b.length) return false;
+    return a.difference(b).isEmpty;
   }
 }
