@@ -51,6 +51,26 @@ class HomePage extends StatelessWidget {
               },
             ),
           ),
+          const SizedBox(height: 8),
+
+          // Posts Example
+          Card(
+            color: Colors.blue.shade50,
+            child: ListTile(
+              leading: Icon(
+                Icons.article,
+                color: Colors.blue.shade700,
+              ),
+              title: const Text('Posts (Network Layer)'),
+              subtitle: const Text(
+                'Fetch and display posts using Jet Network Layer',
+              ),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () {
+                context.router.push(const PostsRoute());
+              },
+            ),
+          ),
         ],
       ),
     );

@@ -412,7 +412,6 @@ class JetFormConsumer<Request, Response> extends ConsumerWidget {
 
         jetError = handler.handle(
           error,
-          context,
           stackTrace: stackTrace,
           showErrorStackTrace: jet.config.showErrorStackTrace,
         );

@@ -205,7 +205,10 @@ class JetPaginator {
   /// - [fetchMoreErrorIndicator]: Custom error widget builder for pagination errors (receives raw error + ref)
   static Widget list<T, TResponse>({
     required Future<TResponse> Function(dynamic pageKey) fetchPage,
-    required PaginatorPageInfo<T> Function(TResponse response, dynamic currentPageKey)
+    required PaginatorPageInfo<T> Function(
+      TResponse response,
+      dynamic currentPageKey,
+    )
     parseResponse,
     required Widget Function(T item, int index) itemBuilder,
     dynamic firstPageKey = 0,
@@ -292,7 +295,10 @@ class JetPaginator {
   /// For full-width indicators, consider using [list] with custom itemBuilder for grid-like layouts.
   static Widget grid<T, TResponse>({
     required Future<TResponse> Function(dynamic pageKey) fetchPage,
-    required PaginatorPageInfo<T> Function(TResponse response, dynamic currentPageKey)
+    required PaginatorPageInfo<T> Function(
+      TResponse response,
+      dynamic currentPageKey,
+    )
     parseResponse,
     required Widget Function(T item, int index) itemBuilder,
     required int crossAxisCount,
@@ -422,7 +428,10 @@ class _PaginationListWidget<T, TResponse> extends ConsumerStatefulWidget {
   });
 
   final Future<TResponse> Function(dynamic pageKey) fetchPage;
-  final PaginatorPageInfo<T> Function(TResponse response, dynamic currentPageKey)
+  final PaginatorPageInfo<T> Function(
+    TResponse response,
+    dynamic currentPageKey,
+  )
   parseResponse;
   final Widget Function(T item, int index) itemBuilder;
   final dynamic firstPageKey;
@@ -629,7 +638,7 @@ class _PaginationListWidgetState<T, TResponse>
     }
 
     final jet = ref.read(jetProvider);
-    final jetError = jet.config.errorHandler.handle(error, context);
+    final jetError = jet.config.errorHandler.handle(error);
 
     return JetErrorWidget(
       icon: _getErrorIconData(jetError),
@@ -649,7 +658,7 @@ class _PaginationListWidgetState<T, TResponse>
     }
 
     final jet = ref.read(jetProvider);
-    final jetError = jet.config.errorHandler.handle(error, context);
+    final jetError = jet.config.errorHandler.handle(error);
 
     return JetFetchMoreErrorWidget(
       showAction: true,
@@ -684,17 +693,17 @@ class _PaginationListWidgetState<T, TResponse>
   String _getErrorTitle(JetError jetError, BuildContext context) {
     switch (jetError.type) {
       case JetErrorType.noInternet:
-        return 'No Internet Connection';
+        return context.jetI10n.noInternetConnection;
       case JetErrorType.server:
-        return 'Server Error';
+        return context.jetI10n.serverError;
       case JetErrorType.client:
-        return 'Request Error';
+        return context.jetI10n.requestError;
       case JetErrorType.validation:
-        return 'Validation Error';
+        return context.jetI10n.validationError;
       case JetErrorType.timeout:
-        return 'Request Timeout';
+        return context.jetI10n.requestTimeout;
       case JetErrorType.cancelled:
-        return 'Request Cancelled';
+        return context.jetI10n.requestCancelled;
       case JetErrorType.unknown:
         return context.jetI10n.somethingWentWrongWhileFetchingNewPage;
     }
@@ -704,9 +713,9 @@ class _PaginationListWidgetState<T, TResponse>
   String _getRetryButtonText(JetError jetError, BuildContext context) {
     switch (jetError.type) {
       case JetErrorType.noInternet:
-        return 'Check Connection';
+        return context.jetI10n.checkConnection;
       case JetErrorType.cancelled:
-        return 'Restart';
+        return context.jetI10n.restart;
       default:
         return context.jetI10n.retry;
     }
@@ -756,7 +765,10 @@ class _PaginationGridWidget<T, TResponse> extends ConsumerStatefulWidget {
   });
 
   final Future<TResponse> Function(dynamic pageKey) fetchPage;
-  final PaginatorPageInfo<T> Function(TResponse response, dynamic currentPageKey)
+  final PaginatorPageInfo<T> Function(
+    TResponse response,
+    dynamic currentPageKey,
+  )
   parseResponse;
   final Widget Function(T item, int index) itemBuilder;
   final int crossAxisCount;
@@ -976,7 +988,7 @@ class _PaginationGridWidgetState<T, TResponse>
     }
 
     final jet = ref.read(jetProvider);
-    final jetError = jet.config.errorHandler.handle(error, context);
+    final jetError = jet.config.errorHandler.handle(error);
 
     return JetErrorWidget(
       icon: _getErrorIconData(jetError),
@@ -1013,17 +1025,17 @@ class _PaginationGridWidgetState<T, TResponse>
   String _getErrorTitle(JetError jetError, BuildContext context) {
     switch (jetError.type) {
       case JetErrorType.noInternet:
-        return 'No Internet Connection';
+        return context.jetI10n.noInternetConnection;
       case JetErrorType.server:
-        return 'Server Error';
+        return context.jetI10n.serverError;
       case JetErrorType.client:
-        return 'Request Error';
+        return context.jetI10n.requestError;
       case JetErrorType.validation:
-        return 'Validation Error';
+        return context.jetI10n.validationError;
       case JetErrorType.timeout:
-        return 'Request Timeout';
+        return context.jetI10n.requestTimeout;
       case JetErrorType.cancelled:
-        return 'Request Cancelled';
+        return context.jetI10n.requestCancelled;
       case JetErrorType.unknown:
         return context.jetI10n.somethingWentWrongWhileFetchingNewPage;
     }
@@ -1033,9 +1045,9 @@ class _PaginationGridWidgetState<T, TResponse>
   String _getRetryButtonText(JetError jetError, BuildContext context) {
     switch (jetError.type) {
       case JetErrorType.noInternet:
-        return 'Check Connection';
+        return context.jetI10n.checkConnection;
       case JetErrorType.cancelled:
-        return 'Restart';
+        return context.jetI10n.restart;
       default:
         return context.jetI10n.retry;
     }
@@ -1051,7 +1063,7 @@ class _PaginationGridWidgetState<T, TResponse>
     }
 
     final jet = ref.read(jetProvider);
-    final jetError = jet.config.errorHandler.handle(error, context);
+    final jetError = jet.config.errorHandler.handle(error);
 
     return JetFetchMoreErrorWidget(
       showAction: true,

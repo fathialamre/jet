@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:flutter/widgets.dart';
-import 'package:jet/extensions/build_context.dart';
+import 'package:jet/localization/jet_localizations.dart';
 import 'jet_error.dart';
 
 /// Abstract base class for handling errors in the Jet framework
@@ -12,8 +11,7 @@ abstract class JetBaseErrorHandler {
   /// This method should be overridden by concrete implementations
   /// to provide custom error handling logic
   JetError handle(
-    Object error,
-    BuildContext context, {
+    Object error, {
     StackTrace? stackTrace,
     bool showErrorStackTrace = true,
   });
@@ -124,7 +122,7 @@ abstract class JetBaseErrorHandler {
   /// Get user-friendly error message
   ///
   /// Override this method to customize error messages
-  String getErrorMessage(Object error, BuildContext context) {
+  String getErrorMessage(Object error) {
     if (error is DioException) {
       if (error.response?.data is Map<String, dynamic>) {
         final data = error.response!.data as Map<String, dynamic>;
@@ -136,19 +134,19 @@ abstract class JetBaseErrorHandler {
       // Handle different types of Dio exceptions
       switch (error.type) {
         case DioExceptionType.connectionTimeout:
-          return context.jetI10n.connectionTimeoutDescription;
+          return JetLocalizations.current.connectionTimeoutDescription;
         case DioExceptionType.sendTimeout:
-          return context.jetI10n.sendTimeoutDescription;
+          return JetLocalizations.current.sendTimeoutDescription;
         case DioExceptionType.receiveTimeout:
-          return context.jetI10n.receiveTimeoutDescription;
+          return JetLocalizations.current.receiveTimeoutDescription;
         case DioExceptionType.badCertificate:
-          return context.jetI10n.badCertificate;
+          return JetLocalizations.current.badCertificate;
         case DioExceptionType.badResponse:
-          return _handleBadResponse(error, context);
+          return _handleBadResponse(error);
         case DioExceptionType.cancel:
-          return context.jetI10n.requestCancelledDescription;
+          return JetLocalizations.current.requestCancelledDescription;
         case DioExceptionType.connectionError:
-          return context.jetI10n.connectionErrorDescription;
+          return JetLocalizations.current.connectionErrorDescription;
 
         case DioExceptionType.unknown:
           return _handleUnknownDioError(error);
@@ -159,35 +157,35 @@ abstract class JetBaseErrorHandler {
   }
 
   /// Handle bad response errors (4xx, 5xx status codes)
-  String _handleBadResponse(DioException error, BuildContext context) {
+  String _handleBadResponse(DioException error) {
     final statusCode = error.response?.statusCode;
 
     if (statusCode == null) {
-      return context.jetI10n.noInternetConnection;
+      return JetLocalizations.current.noInternetConnection;
     }
 
     // Client errors (4xx)
     if (statusCode >= 400 && statusCode < 500) {
       switch (statusCode) {
         case 400:
-          return context.jetI10n.badRequestDescription;
+          return JetLocalizations.current.badRequestDescription;
 
         case 401:
-          return context.jetI10n.authenticationFailedDescription;
+          return JetLocalizations.current.authenticationFailedDescription;
         case 403:
-          return context.jetI10n.accessDeniedDescription;
+          return JetLocalizations.current.accessDeniedDescription;
 
         case 404:
-          return context.jetI10n.notFoundDescription;
+          return JetLocalizations.current.notFoundDescription;
 
         case 422:
-          return context.jetI10n.validationFailedDescription;
+          return JetLocalizations.current.validationFailedDescription;
 
         case 429:
-          return context.jetI10n.tooManyRequestsDescription;
+          return JetLocalizations.current.tooManyRequestsDescription;
 
         default:
-          return context.jetI10n.clientErrorDescription;
+          return JetLocalizations.current.clientErrorDescription;
       }
     }
 
@@ -195,19 +193,19 @@ abstract class JetBaseErrorHandler {
     if (statusCode >= 500 && statusCode < 600) {
       switch (statusCode) {
         case 500:
-          return context.jetI10n.serverErrorDescription;
+          return JetLocalizations.current.serverErrorDescription;
         case 502:
-          return context.jetI10n.badGatewayDescription;
+          return JetLocalizations.current.badGatewayDescription;
         case 503:
-          return context.jetI10n.serviceUnavailableDescription;
+          return JetLocalizations.current.serviceUnavailableDescription;
         case 504:
-          return context.jetI10n.gatewayTimeoutDescription;
+          return JetLocalizations.current.gatewayTimeoutDescription;
         default:
-          return context.jetI10n.serverErrorDescription;
+          return JetLocalizations.current.serverErrorDescription;
       }
     }
 
-    return 'HTTP error $statusCode occurred.';
+    return JetLocalizations.current.unknownError;
   }
 
   /// Handle unknown Dio errors
@@ -215,16 +213,16 @@ abstract class JetBaseErrorHandler {
     final message = error.message?.toLowerCase() ?? '';
 
     if (message.contains('socket') || message.contains('network')) {
-      return 'Network connection error. Please check your internet connection.';
+      return JetLocalizations.current.connectionErrorDescription;
     }
 
     if (message.contains('certificate') ||
         message.contains('ssl') ||
         message.contains('tls')) {
-      return 'Security certificate error. Please try again later.';
+      return JetLocalizations.current.badCertificateDescription;
     }
 
-    return 'Network error occurred. Please try again.';
+    return JetLocalizations.current.connectionErrorDescription;
   }
 
   /// Get the error type based on the error

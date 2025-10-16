@@ -1,4 +1,3 @@
-import 'package:flutter/widgets.dart';
 import 'package:jet/helpers/jet_logger.dart';
 
 import 'jet_base_error_handler.dart';
@@ -23,8 +22,7 @@ class JetErrorHandler extends JetBaseErrorHandler {
 
   @override
   JetError handle(
-    Object error,
-    BuildContext context, {
+    Object error, {
     StackTrace? stackTrace,
     bool showErrorStackTrace = true,
   }) {
@@ -42,7 +40,7 @@ class JetErrorHandler extends JetBaseErrorHandler {
     if (isValidationError(error)) {
       final validationErrors = extractValidationErrors(error);
       return JetError.validation(
-        message: getErrorMessage(error, context),
+        message: getErrorMessage(error),
         errors: validationErrors,
         rawError: error,
         stackTrace: stackTrace,
@@ -51,7 +49,7 @@ class JetErrorHandler extends JetBaseErrorHandler {
 
     // Get error type and other properties
     final errorType = getErrorType(error);
-    final message = getErrorMessage(error, context);
+    final message = getErrorMessage(error);
     final statusCode = getStatusCode(error);
 
     // Create appropriate JetError based on type
