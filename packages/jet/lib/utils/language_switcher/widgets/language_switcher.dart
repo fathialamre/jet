@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jet/extensions/build_context.dart';
-import 'package:jet/localization/models/locale_info.dart';
-import 'package:jet/localization/notifiers/language_switcher_notifier.dart';
-import 'package:jet/localization/widgets/base_language_switcher.dart';
+import 'package:jet/utils/language_switcher/models/locale_info.dart';
+import 'package:jet/utils/language_switcher/notifiers/language_switcher_notifier.dart';
+import 'package:jet/utils/language_switcher/widgets/base_language_switcher.dart';
 
 /// Widget that shows a locale selection bottom sheet
 class LanguageSwitcher extends BaseLanguageSwitcher {

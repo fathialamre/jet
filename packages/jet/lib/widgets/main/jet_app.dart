@@ -1,15 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:guardo/guardo.dart';
-import 'package:jet/forms/localization/jet_form_localizations.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jet/helpers/jet_logger.dart';
+import 'package:jet/jet_framework.dart';
 import 'package:jet/security/app_locker/app_locker_notifier.dart';
-import 'package:jet/jet.dart';
-import 'package:jet/localization/intl/messages.dart';
-import 'package:jet/localization/notifiers/language_switcher_notifier.dart';
-import 'package:jet/resources/theme/notifiers/theme_switcher_notifier.dart';
 
 class JetApp extends ConsumerWidget {
   const JetApp({super.key, required this.jet});
@@ -45,7 +38,7 @@ class JetApp extends ConsumerWidget {
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
-              JetLocalizationsDelegate(),
+              JetLocalizations.delegate,
               JetFormLocalizations.delegate,
               ...config.localizationsDelegates,
             ],

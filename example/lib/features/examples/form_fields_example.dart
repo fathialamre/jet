@@ -113,7 +113,7 @@ class FormFieldsExamplePage extends HookConsumerWidget {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: JetSimpleForm(
-          controller: form,
+          form: form,
           submitButtonText: 'Submit Form',
           fieldSpacing: 24,
           children: [

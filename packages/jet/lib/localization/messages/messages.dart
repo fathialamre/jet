@@ -1,22 +1,23 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:jet/localization/i10n.dart';
+import 'package:jet/localization/jet_localizations.dart';
 
 import 'messages_ar.dart';
 import 'messages_en.dart';
+import 'messages_fr.dart';
 
-abstract class JetLocalizationsImpl {
-  static JetLocalizationsImpl of(BuildContext context) {
-    return Localizations.of<JetLocalizationsImpl>(
+abstract class JetMessages {
+  static JetMessages of(BuildContext context) {
+    return Localizations.of<JetMessages>(
           context,
-          JetLocalizationsImpl,
+          JetMessages,
         ) ??
         _default;
   }
 
-  static const LocalizationsDelegate<JetLocalizationsImpl> delegate =
-      JetLocalizationsDelegate();
+  static const LocalizationsDelegate<JetMessages> delegate =
+      JetMessagesDelegate();
 
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = [
     delegate,
@@ -26,11 +27,12 @@ abstract class JetLocalizationsImpl {
   ];
 
   static const List<Locale> supportedLocales = [
-    Locale('ar'),
     Locale('en'),
+    Locale('ar'),
+    Locale('fr'),
   ];
 
-  static final JetLocalizationsImpl _default = JetLocalizationsImplEn();
+  static final JetMessages _default = JetMessagesEn();
 
   String get appName;
   String get cancel;
@@ -113,36 +115,36 @@ abstract class JetLocalizationsImpl {
   String get gatewayTimeoutDescription;
 }
 
-class JetLocalizationsDelegate
-    extends LocalizationsDelegate<JetLocalizationsImpl> {
-  const JetLocalizationsDelegate();
+class JetMessagesDelegate extends LocalizationsDelegate<JetMessages> {
+  const JetMessagesDelegate();
 
   @override
-  bool isSupported(Locale locale) => JetLocalizationsImpl.supportedLocales
+  bool isSupported(Locale locale) => JetMessages.supportedLocales
       .map((Locale e) => e.languageCode)
       .contains(locale.languageCode);
 
   @override
-  Future<JetLocalizationsImpl> load(Locale locale) {
-    final JetLocalizationsImpl instance = lookupJetLocalizationsImpl(locale);
+  Future<JetMessages> load(Locale locale) {
+    final JetMessages instance = lookupJetMessages(locale);
     JetLocalizations.setCurrentInstance(instance);
-    return SynchronousFuture<JetLocalizationsImpl>(instance);
+    return SynchronousFuture<JetMessages>(instance);
   }
 
   @override
-  bool shouldReload(covariant LocalizationsDelegate<JetLocalizationsImpl> old) {
+  bool shouldReload(covariant LocalizationsDelegate<JetMessages> old) {
     return false;
   }
 }
 
-JetLocalizationsImpl lookupJetLocalizationsImpl(Locale locale) {
+JetMessages lookupJetMessages(Locale locale) {
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
     case 'ar':
-      return JetLocalizationsImplAr();
+      return JetMessagesAr();
+    case 'fr':
+      return JetMessagesFr();
     case 'en':
-      return JetLocalizationsImplEn();
     default:
-      return JetLocalizationsImplEn();
+      return JetMessagesEn();
   }
 }

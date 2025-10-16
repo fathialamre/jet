@@ -6,25 +6,26 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:jet/forms/core/jet_form_field_decoration.dart';
 
-/// A Material Design text field input for Jet forms.
+/// A Material Design password field input for Jet forms with show/hide functionality.
 ///
-/// This widget extends [JetFormFieldDecoration] and wraps Flutter's [TextField].
+/// This widget extends [JetFormFieldDecoration] and wraps Flutter's [TextField]
+/// with password visibility toggle.
 ///
 /// Example:
 /// ```dart
-/// JetTextField(
-///   name: 'username',
+/// JetPasswordField(
+///   name: 'password',
 ///   decoration: InputDecoration(
-///     labelText: 'Username',
-///     hintText: 'Enter your username',
+///     labelText: 'Password',
+///     hintText: 'Enter your password',
 ///   ),
 ///   validator: JetValidators.compose([
 ///     JetValidators.required(),
-///     JetValidators.minLength(3),
+///     JetValidators.minLength(8),
 ///   ]),
 /// )
 /// ```
-class JetTextField extends JetFormFieldDecoration<String> {
+class JetPasswordField extends JetFormFieldDecoration<String> {
   /// Controls the text being edited.
   ///
   /// If null, this widget will create its own [TextEditingController].
@@ -59,11 +60,8 @@ class JetTextField extends JetFormFieldDecoration<String> {
   /// focused.
   final bool autofocus;
 
-  /// The character to use for obscuring text if [obscureText] is true.
+  /// The character to use for obscuring text when password is hidden.
   final String obscuringCharacter;
-
-  /// Whether to hide the text being edited.
-  final bool obscureText;
 
   /// Whether to enable autocorrection.
   final bool autocorrect;
@@ -76,15 +74,6 @@ class JetTextField extends JetFormFieldDecoration<String> {
 
   /// Whether to show input suggestions as the user types.
   final bool enableSuggestions;
-
-  /// The maximum number of lines for the text to span.
-  final int? maxLines;
-
-  /// The minimum number of lines to occupy when the content spans fewer lines.
-  final int? minLines;
-
-  /// Whether this widget's height will be sized to fill its parent.
-  final bool expands;
 
   /// Whether the text field is read-only.
   final bool readOnly;
@@ -169,8 +158,14 @@ class JetTextField extends JetFormFieldDecoration<String> {
   /// The color of the cursor when the input is showing an error.
   final Color? cursorErrorColor;
 
-  /// Creates a Material Design text field input.
-  JetTextField({
+  /// Icon to show when password is visible.
+  final Icon? visibilityIcon;
+
+  /// Icon to show when password is hidden.
+  final Icon? visibilityOffIcon;
+
+  /// Creates a Material Design password field input.
+  JetPasswordField({
     super.key,
     required super.name,
     super.validator,
@@ -187,15 +182,13 @@ class JetTextField extends JetFormFieldDecoration<String> {
     super.errorBuilder,
     this.controller,
     this.readOnly = false,
-    this.maxLines = 1,
-    this.obscureText = false,
     this.textCapitalization = TextCapitalization.none,
     this.scrollPadding = const EdgeInsets.all(20.0),
     this.enableInteractiveSelection = true,
     this.maxLengthEnforcement,
     this.textAlign = TextAlign.start,
     this.autofocus = false,
-    this.autocorrect = true,
+    this.autocorrect = false,
     this.cursorWidth = 2.0,
     this.cursorHeight,
     this.keyboardType,
@@ -211,12 +204,10 @@ class JetTextField extends JetFormFieldDecoration<String> {
     this.cursorColor,
     this.keyboardAppearance,
     this.buildCounter,
-    this.expands = false,
-    this.minLines,
     this.showCursor,
     this.onTap,
     this.onTapOutside,
-    this.enableSuggestions = true,
+    this.enableSuggestions = false,
     this.textAlignVertical,
     this.dragStartBehavior = DragStartBehavior.start,
     this.scrollController,
@@ -225,38 +216,25 @@ class JetTextField extends JetFormFieldDecoration<String> {
     this.smartDashesType,
     this.smartQuotesType,
     this.selectionHeightStyle = ui.BoxHeightStyle.tight,
-    this.autofillHints,
+    this.autofillHints = const [AutofillHints.password],
     this.obscuringCharacter = '•',
     this.mouseCursor,
     this.contextMenuBuilder,
     this.spellCheckConfiguration,
     this.cursorErrorColor,
+    this.visibilityIcon,
+    this.visibilityOffIcon,
   }) : assert(initialValue == null || controller == null),
-       assert(minLines == null || minLines > 0),
-       assert(maxLines == null || maxLines > 0),
-       assert(
-         (minLines == null) || (maxLines == null) || (maxLines >= minLines),
-         'minLines can\'t be greater than maxLines',
-       ),
-       assert(
-         !expands || (minLines == null && maxLines == null),
-         'minLines and maxLines must be null when expands is true.',
-       ),
-       assert(
-         !obscureText || maxLines == 1,
-         'Obscured fields cannot be multiline.',
-       ),
-       assert(maxLength == null || maxLength > 0),
        super(
          initialValue: controller != null ? controller.text : initialValue,
          builder: (FormFieldState<String?> field) {
-           final state = field as _JetTextFieldState;
+           final state = field as _JetPasswordFieldState;
 
-           return _JetTextFieldWidget(
+           return _JetPasswordFieldWidget(
              state: state,
              externalController: controller,
              restorationId: restorationId,
-             keyboardType: keyboardType,
+             keyboardType: keyboardType ?? TextInputType.visiblePassword,
              textInputAction: textInputAction,
              style: style,
              strutStyle: strutStyle,
@@ -267,13 +245,9 @@ class JetTextField extends JetFormFieldDecoration<String> {
              autofocus: autofocus,
              readOnly: readOnly,
              showCursor: showCursor,
-             obscureText: obscureText,
              autocorrect: autocorrect,
              enableSuggestions: enableSuggestions,
              maxLengthEnforcement: maxLengthEnforcement,
-             maxLines: maxLines,
-             minLines: minLines,
-             expands: expands,
              maxLength: maxLength,
              onTap: onTap,
              onTapOutside: onTapOutside,
@@ -301,21 +275,23 @@ class JetTextField extends JetFormFieldDecoration<String> {
              autofillHints: autofillHints,
              spellCheckConfiguration: spellCheckConfiguration,
              cursorErrorColor: cursorErrorColor,
+             visibilityIcon: visibilityIcon,
+             visibilityOffIcon: visibilityOffIcon,
            );
          },
        );
 
   @override
-  JetFormFieldDecorationState<JetTextField, String> createState() =>
-      _JetTextFieldState();
+  JetFormFieldDecorationState<JetPasswordField, String> createState() =>
+      _JetPasswordFieldState();
 }
 
-class _JetTextFieldState
-    extends JetFormFieldDecorationState<JetTextField, String> {}
+class _JetPasswordFieldState
+    extends JetFormFieldDecorationState<JetPasswordField, String> {}
 
-/// Internal widget that uses hooks for controller management.
-class _JetTextFieldWidget extends HookWidget {
-  const _JetTextFieldWidget({
+/// Internal widget that uses hooks for password visibility toggle and controller management.
+class _JetPasswordFieldWidget extends HookWidget {
+  const _JetPasswordFieldWidget({
     required this.state,
     required this.externalController,
     required this.restorationId,
@@ -330,13 +306,9 @@ class _JetTextFieldWidget extends HookWidget {
     required this.autofocus,
     required this.readOnly,
     required this.showCursor,
-    required this.obscureText,
     required this.autocorrect,
     required this.enableSuggestions,
     required this.maxLengthEnforcement,
-    required this.maxLines,
-    required this.minLines,
-    required this.expands,
     required this.maxLength,
     required this.onTap,
     required this.onTapOutside,
@@ -364,9 +336,11 @@ class _JetTextFieldWidget extends HookWidget {
     required this.autofillHints,
     required this.spellCheckConfiguration,
     required this.cursorErrorColor,
+    required this.visibilityIcon,
+    required this.visibilityOffIcon,
   });
 
-  final _JetTextFieldState state;
+  final _JetPasswordFieldState state;
   final TextEditingController? externalController;
   final String? restorationId;
   final TextInputType? keyboardType;
@@ -380,13 +354,9 @@ class _JetTextFieldWidget extends HookWidget {
   final bool autofocus;
   final bool readOnly;
   final bool? showCursor;
-  final bool obscureText;
   final bool autocorrect;
   final bool enableSuggestions;
   final MaxLengthEnforcement? maxLengthEnforcement;
-  final int? maxLines;
-  final int? minLines;
-  final bool expands;
   final int? maxLength;
   final GestureTapCallback? onTap;
   final TapRegionCallback? onTapOutside;
@@ -414,9 +384,14 @@ class _JetTextFieldWidget extends HookWidget {
   final Iterable<String>? autofillHints;
   final SpellCheckConfiguration? spellCheckConfiguration;
   final Color? cursorErrorColor;
+  final Icon? visibilityIcon;
+  final Icon? visibilityOffIcon;
 
   @override
   Widget build(BuildContext context) {
+    // Use hook to manage password visibility state
+    final isPasswordVisible = useState(false);
+
     // Use hook for controller management - creates and disposes automatically
     final controller = useTextEditingController(
       text: externalController?.text ?? state.initialValue ?? '',
@@ -451,11 +426,23 @@ class _JetTextFieldWidget extends HookWidget {
       [state.value],
     );
 
+    // Get effective decoration with suffix icon for password toggle
+    final effectiveDecoration = state.decoration.copyWith(
+      suffixIcon: IconButton(
+        icon: isPasswordVisible.value
+            ? (visibilityIcon ?? const Icon(Icons.visibility))
+            : (visibilityOffIcon ?? const Icon(Icons.visibility_off)),
+        onPressed: () {
+          isPasswordVisible.value = !isPasswordVisible.value;
+        },
+      ),
+    );
+
     return TextField(
       restorationId: restorationId,
       controller: effectiveController,
       focusNode: state.effectiveFocusNode,
-      decoration: state.decoration,
+      decoration: effectiveDecoration,
       keyboardType: keyboardType,
       textInputAction: textInputAction,
       style: style,
@@ -467,13 +454,10 @@ class _JetTextFieldWidget extends HookWidget {
       autofocus: autofocus,
       readOnly: readOnly,
       showCursor: showCursor,
-      obscureText: obscureText,
+      obscureText: !isPasswordVisible.value,
       autocorrect: autocorrect,
       enableSuggestions: enableSuggestions,
       maxLengthEnforcement: maxLengthEnforcement,
-      maxLines: maxLines,
-      minLines: minLines,
-      expands: expands,
       maxLength: maxLength,
       onTap: onTap,
       onTapOutside: onTapOutside,
