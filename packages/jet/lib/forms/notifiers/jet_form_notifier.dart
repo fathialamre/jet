@@ -236,6 +236,16 @@ mixin JetFormMixin<Request, Response>
 
   @override
   Future<Response> action(Request data);
+
+  void setValue(String fieldName, dynamic value) {
+    formKey.currentState?.fields[fieldName]?.didChange(value);
+  }
+
+  void setValues(Map<String, dynamic> values) {
+    values.forEach((fieldName, value) {
+      setValue(fieldName, value);
+    });
+  }
 }
 
 /// Traditional class-based JetFormNotifier for backward compatibility
