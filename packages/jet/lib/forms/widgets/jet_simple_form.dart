@@ -41,7 +41,7 @@ import '../hooks/jet_form_controller.dart';
 /// ```
 class JetSimpleForm<Request, Response> extends ConsumerWidget {
   /// The form controller from useJetForm hook
-  final JetFormController<Request, Response> controller;
+  final JetFormController<Request, Response> form;
 
   /// The form field widgets
   final List<Widget> children;
@@ -71,7 +71,7 @@ class JetSimpleForm<Request, Response> extends ConsumerWidget {
 
   const JetSimpleForm({
     super.key,
-    required this.controller,
+    required this.form,
     required this.children,
     this.submitButtonText,
     this.showSubmitButton = true,
@@ -86,13 +86,13 @@ class JetSimpleForm<Request, Response> extends ConsumerWidget {
     if (onBeforeSubmit != null && !onBeforeSubmit!()) {
       return;
     }
-    controller.submit();
+    form.submit();
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return JetForm(
-      key: controller.formKey,
+      key: form.formKey,
       initialValue: initialValues,
       child: Column(
         spacing: fieldSpacing,

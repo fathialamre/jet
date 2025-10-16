@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jet/jet_framework.dart';
 import 'package:jet/resources/state/jet_consumer.dart';
-import 'package:jet/localization/notifiers/language_switcher_notifier.dart';
+import 'package:jet/utils/language_switcher/notifiers/language_switcher_notifier.dart';
 
 @RoutePage()
 class SettingsPage extends JetConsumerWidget {

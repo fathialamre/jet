@@ -118,7 +118,7 @@ class SimpleTodoPage extends HookConsumerWidget {
 
                     // Use JetSimpleForm with the controller from the hook
                     JetSimpleForm<TodoRequest, TodoResponse>(
-                      controller: form,
+                      form: form,
                       submitButtonText: 'Create Todo',
                       fieldSpacing: 16,
                       children: [

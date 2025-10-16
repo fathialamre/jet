@@ -65,7 +65,7 @@ class LoginPage extends HookConsumerWidget {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: JetSimpleForm<LoginRequest, LoginResponse>(
-          controller: form,
+          form: form,
           submitButtonText: 'Submit All Fields',
           fieldSpacing: 24,
           children: [
@@ -99,14 +99,13 @@ class LoginPage extends HookConsumerWidget {
               ]),
             ),
 
-            JetTextField(
+            JetPasswordField(
               name: 'password',
               decoration: const InputDecoration(
                 labelText: 'Password',
                 hintText: 'Enter your password',
                 prefixIcon: Icon(Icons.lock),
               ),
-              obscureText: true,
               validator: JetValidators.compose([
                 JetValidators.required(),
                 JetValidators.minLength(8),
@@ -136,6 +135,22 @@ class LoginPage extends HookConsumerWidget {
               maxLines: 3,
               maxLength: 200,
               validator: JetValidators.maxLength(200),
+            ),
+
+            JetPinField(
+              name: 'otp',
+              length: 6,
+              decoration: const InputDecoration(
+                labelText: 'OTP Verification',
+                helperText: 'Enter the 6-digit code sent to your email',
+              ),
+              onCompleted: (pin) {
+                dump('OTP entered: $pin');
+              },
+              validator: JetValidators.compose([
+                JetValidators.required(),
+                JetValidators.equalLength(6),
+              ]),
             ),
 
             const Divider(height: 32),

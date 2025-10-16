@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:jet/jet_framework.dart';
-import 'package:jet/localization/models/locale_info.dart';
-import 'package:jet/networking/interceptors/jet_dio_logger_config.dart';
 import 'package:jet/resources/components/jet_loader.dart';
 import 'package:jet/notifications/observers/jet_notification_observer.dart';
 

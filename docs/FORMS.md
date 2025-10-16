@@ -953,34 +953,79 @@ JetEmailField(
 
 ### JetPasswordField
 
-Password input with visibility toggle and confirmation support.
+Password input with built-in show/hide toggle functionality using Flutter hooks. The field automatically manages password visibility state and provides an eye icon to toggle between visible and obscured text.
 
 ```dart
-// Basic password field
+// Basic password field with auto show/hide toggle
 JetPasswordField(
   name: 'password',
-  labelText: 'Password',
-  hintText: 'Enter your password',
-  isRequired: true,
+  decoration: const InputDecoration(
+    labelText: 'Password',
+    hintText: 'Enter your password',
+    prefixIcon: Icon(Icons.lock),
+  ),
+  validator: JetValidators.compose([
+    JetValidators.required(),
+    JetValidators.minLength(8),
+  ]),
 )
 
-// Password confirmation
+// Password with custom visibility icons
+JetPasswordField(
+  name: 'password',
+  decoration: const InputDecoration(
+    labelText: 'Password',
+    prefixIcon: Icon(Icons.lock),
+  ),
+  visibilityIcon: const Icon(Icons.visibility_outlined),
+  visibilityOffIcon: const Icon(Icons.visibility_off_outlined),
+  validator: JetValidators.password(),
+)
+
+// Password confirmation (use Equal validator)
 JetPasswordField(
   name: 'confirm_password',
-  labelText: 'Confirm Password',
-  identicalWith: 'password',
-  formKey: formKey,
+  decoration: const InputDecoration(
+    labelText: 'Confirm Password',
+    prefixIcon: Icon(Icons.lock),
+  ),
+  validator: (value) {
+    if (value != formState.getValue('password')) {
+      return 'Passwords do not match';
+    }
+    return null;
+  },
 )
 ```
+
+**Key Features:**
+- ✅ Built-in show/hide toggle with eye icon
+- ✅ Uses Flutter hooks for state management
+- ✅ Customizable visibility icons
+- ✅ Auto-configured for password input (disabled autocorrect, suggestions)
+- ✅ Supports all TextField parameters
+- ✅ Autofill hints pre-configured for password managers
 
 **Key Parameters:**
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `identicalWith` | String? | Field name to match (for confirmation) |
-| `formKey` | GlobalKey? | Required when using `identicalWith` |
-| `showPrefixIcon` | bool | Show lock icon (default: true) |
-| `obscureText` | bool | Initially obscure text (default: true) |
+| `name` | String | Form field identifier (required) |
+| `decoration` | InputDecoration | Field decoration (label, hint, etc.) |
+| `validator` | FormFieldValidator? | Validation function |
+| `visibilityIcon` | Icon? | Icon shown when password is visible |
+| `visibilityOffIcon` | Icon? | Icon shown when password is hidden |
+| `obscuringCharacter` | String | Character for obscuring text (default: '•') |
+| `keyboardType` | TextInputType? | Keyboard type (default: visiblePassword) |
+| `autocorrect` | bool | Enable autocorrect (default: false) |
+| `enableSuggestions` | bool | Show suggestions (default: false) |
+| `autofillHints` | Iterable? | Autofill hints (default: [AutofillHints.password]) |
+
+**All TextField Parameters Supported:**
+The JetPasswordField extends JetFormFieldDecoration and supports all standard TextField parameters including:
+- `controller`, `focusNode`, `style`, `textAlign`, `maxLength`
+- `inputFormatters`, `cursorColor`, `readOnly`, `enabled`
+- And all other TextField properties
 
 ### JetPhoneField
 
@@ -1008,31 +1053,110 @@ JetPhoneField(
 
 ### JetPinField
 
-PIN/OTP input with visual boxes.
+PIN/OTP input field using the [Pinput](https://pub.dev/packages/pinput) package. Provides a beautiful, customizable PIN/OTP input experience with individual boxes for each digit.
 
 ```dart
+// Basic PIN input
 JetPinField(
   name: 'otp',
   length: 6,
-  obscureText: false,
-  autofocus: true,
-  spacing: 12.0,
+  decoration: const InputDecoration(
+    labelText: 'Enter OTP',
+    helperText: 'Check your email for the code',
+  ),
   onCompleted: (pin) {
+    print('PIN entered: $pin');
     verifyOTP(pin);
   },
+  validator: JetValidators.compose([
+    JetValidators.required(),
+    JetValidators.exactLength(6),
+  ]),
+)
+
+// Obscured PIN with custom styling
+JetPinField(
+  name: 'pin',
+  length: 4,
+  obscureText: true,
+  hapticFeedback: true,
+  closeKeyboardWhenCompleted: true,
+  defaultPinTheme: PinTheme(
+    width: 60,
+    height: 60,
+    textStyle: const TextStyle(
+      fontSize: 24,
+      fontWeight: FontWeight.bold,
+    ),
+    decoration: BoxDecoration(
+      color: Colors.grey.shade100,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: Colors.grey.shade300, width: 2),
+    ),
+  ),
+  focusedPinTheme: PinTheme(
+    width: 60,
+    height: 60,
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: Colors.blue, width: 2),
+    ),
+  ),
+  onCompleted: (pin) {
+    verifyPIN(pin);
+  },
+)
+
+// With separator
+JetPinField(
+  name: 'code',
+  length: 6,
+  separatorBuilder: (index) => const SizedBox(width: 8),
+  decoration: const InputDecoration(
+    labelText: 'Verification Code',
+  ),
 )
 ```
+
+**Key Features:**
+- ✅ Beautiful animated PIN/OTP input boxes
+- ✅ Customizable themes for each state (default, focused, submitted, error)
+- ✅ Haptic feedback support
+- ✅ Obscure text option for passwords
+- ✅ Auto-close keyboard on completion
+- ✅ Separator customization between boxes
+- ✅ Full integration with Jet form validation
 
 **Key Parameters:**
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
+| `name` | String | Form field identifier (required) |
 | `length` | int | Number of PIN digits (default: 6) |
 | `obscureText` | bool | Hide entered digits (default: false) |
-| `onCompleted` | Function? | Callback when all digits entered |
-| `spacing` | double | Space between boxes (default: 8.0) |
+| `obscuringCharacter` | String | Character for obscuring (default: '•') |
+| `onCompleted` | ValueChanged<String>? | Callback when all digits entered |
 | `hapticFeedback` | bool | Enable haptic feedback (default: false) |
 | `closeKeyboardWhenCompleted` | bool | Auto-close keyboard (default: false) |
+| `defaultPinTheme` | PinTheme? | Default theme for PIN boxes |
+| `focusedPinTheme` | PinTheme? | Theme for focused PIN box |
+| `submittedPinTheme` | PinTheme? | Theme for submitted PIN box |
+| `errorPinTheme` | PinTheme? | Theme for PIN box with error |
+| `separatorBuilder` | Widget Function(int)? | Builder for separator between boxes |
+| `showCursor` | bool | Show cursor (default: true) |
+| `autofocus` | bool | Auto-focus field (default: false) |
+| `decoration` | InputDecoration? | Field label and helper text |
+| `customErrorBuilder` | Widget Function(String?)? | Custom error widget builder |
+| `errorTextStyle` | TextStyle? | Error text style |
+
+**Advanced Features:**
+- Custom cursor widget
+- Pre-filled widget support
+- Keyboard appearance customization
+- Input formatters
+- Autofill hints
+- Context menu builder support
 
 ### JetDateField
 

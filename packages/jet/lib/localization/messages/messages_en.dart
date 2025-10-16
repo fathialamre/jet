@@ -1,6 +1,6 @@
-import 'package:jet/localization/intl/messages.dart';
+import 'package:jet/localization/messages/messages.dart';
 
-class JetLocalizationsImplEn extends JetLocalizationsImpl {
+class JetMessagesEn extends JetMessages {
   @override
   String get appName => 'Jet';
 
