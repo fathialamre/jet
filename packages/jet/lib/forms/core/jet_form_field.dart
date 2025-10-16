@@ -304,11 +304,54 @@ class JetFormState extends State<JetForm> {
   final Map<String, Function> _transformers = {};
   bool _focusOnInvalid = true;
 
+  /// Notifier that triggers when form field values change
+  final ValueNotifier<int> _changeNotifier = ValueNotifier<int>(0);
+
   bool get focusOnInvalid => _focusOnInvalid;
   bool get enabled => widget.enabled;
   bool get isValid => fields.values.every((field) => field.isValid);
   bool get isDirty => fields.values.any((field) => field.isDirty);
   bool get isTouched => fields.values.any((field) => field.isTouched);
+
+  /// Listenable that notifies when form field values change
+  ValueNotifier<int> get changeNotifier => _changeNotifier;
+
+  /// Returns true if any field value differs from its initial value.
+  /// Empty strings, lists, and maps are considered equal to null.
+  bool get hasChanges {
+    // Compare each registered field's current value with its initial value
+    for (final entry in _fields.entries) {
+      final fieldName = entry.key;
+      final field = entry.value;
+      final currentValue = _instantValue[fieldName];
+      final fieldInitialValue = field.initialValue;
+
+      if (!_valuesAreEqual(currentValue, fieldInitialValue)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /// Helper method to compare two values intelligently.
+  /// Treats empty strings, lists, and maps as equal to null.
+  bool _valuesAreEqual(dynamic value1, dynamic value2) {
+    // Helper to normalize empty values to null
+    dynamic normalize(dynamic val) {
+      if (val == null) return null;
+      if (val is String && val.isEmpty) return null;
+      if (val is List && val.isEmpty) return null;
+      if (val is Map && val.isEmpty) return null;
+      return val;
+    }
+
+    final normalized1 = normalize(value1);
+    final normalized2 = normalize(value2);
+
+    // Basic equality
+    return normalized1 == normalized2;
+  }
 
   Map<String, String> get errors => {
     for (var element in fields.entries.where(
@@ -357,6 +400,8 @@ class JetFormState extends State<JetForm> {
   void setInternalFieldValue<T>(String name, T? value) {
     _instantValue[name] = value;
     widget.onChanged?.call();
+    // Notify listeners that form values have changed
+    _changeNotifier.value++;
   }
 
   void removeInternalFieldValue(String name) {
@@ -467,6 +512,12 @@ class JetFormState extends State<JetForm> {
         validate(focusOnInvalid: false);
       });
     }
+  }
+
+  @override
+  void dispose() {
+    _changeNotifier.dispose();
+    super.dispose();
   }
 
   @override
