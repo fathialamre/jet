@@ -829,10 +829,8 @@ JetForm(
           labelText: 'Confirm Password',
           hintText: 'Re-enter your password',
         ),
-        validator: JetValidators.compose([
-          JetValidators.required(),
-          JetValidators.minLength(8),
-        ]),
+        validator: JetValidators.minLength(8),
+        isRequired: true, // Default is true
       ),
     ],
   ),
@@ -841,6 +839,7 @@ JetForm(
 
 **Key Features:**
 - ✅ Automatically creates two fields: `password` and `password_confirmation`
+- ✅ Both fields are required by default (`isRequired: true`)
 - ✅ Both fields validate password strength (if validator provided)
 - ✅ Confirmation field automatically validates matching
 - ✅ Customizable spacing between fields (default: 16)
@@ -862,10 +861,8 @@ JetForm(
         decoration: const InputDecoration(
           labelText: 'Password',
         ),
-        validator: JetValidators.compose([
-          JetValidators.required(),
-          JetValidators.minLength(8),
-        ]),
+        validator: JetValidators.minLength(8),
+        isRequired: true, // Default is true
       ),
       const SizedBox(height: 16),
       JetPasswordField(
@@ -874,13 +871,14 @@ JetForm(
           labelText: 'Confirm Password',
         ),
         validator: JetValidators.compose([
-          JetValidators.required(),
+          JetValidators.minLength(8),
           JetValidators.matchField<String>(
             formKey,
             'password',
             errorText: 'Passwords do not match',
           ),
         ]),
+        isRequired: true,
       ),
     ],
   ),
@@ -892,6 +890,8 @@ JetForm(
 - Different layouts or styling for each field
 - Conditional validation logic
 - Match validation for non-password fields (email confirmation, etc.)
+
+**Note:** Both `JetPasswordField` and `JetPasswordField.withConfirmation()` have an `isRequired` parameter that defaults to `true`. Set `isRequired: false` if the field should be optional.
 
 ### Validation Best Practices
 

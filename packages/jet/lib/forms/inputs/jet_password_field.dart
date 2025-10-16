@@ -64,12 +64,36 @@ class JetPasswordField extends JetFormFieldDecoration<String> {
     InputDecoration decoration = const InputDecoration(),
     InputDecoration? confirmationDecoration,
     FormFieldValidator<String>? validator,
+    bool isRequired = true,
     double spacing = 16,
     bool enabled = true,
     AutovalidateMode autovalidateMode = AutovalidateMode.disabled,
     Icon? visibilityIcon,
     Icon? visibilityOffIcon,
   }) {
+    // Build the validator list for both fields
+    final validators = <FormFieldValidator<String>>[];
+    if (isRequired) {
+      validators.add(JetValidators.required());
+    }
+    if (validator != null) {
+      validators.add(validator);
+    }
+
+    final passwordValidator = validators.isEmpty
+        ? null
+        : JetValidators.compose(validators);
+
+    // Build the confirmation validator list
+    final confirmationValidators = <FormFieldValidator<String>>[...validators];
+    confirmationValidators.add(
+      JetValidators.matchField<String>(
+        formKey,
+        name,
+        errorText: 'Passwords do not match',
+      ),
+    );
+
     return Column(
       key: key,
       mainAxisSize: MainAxisSize.min,
@@ -77,7 +101,7 @@ class JetPasswordField extends JetFormFieldDecoration<String> {
         JetPasswordField(
           name: name,
           decoration: decoration,
-          validator: validator,
+          validator: passwordValidator,
           enabled: enabled,
           autovalidateMode: autovalidateMode,
           visibilityIcon: visibilityIcon,
@@ -91,20 +115,7 @@ class JetPasswordField extends JetFormFieldDecoration<String> {
               decoration.copyWith(
                 labelText: 'Confirm ${decoration.labelText ?? 'Password'}',
               ),
-          validator: validator != null
-              ? JetValidators.compose([
-                  validator,
-                  JetValidators.matchField<String>(
-                    formKey,
-                    name,
-                    errorText: 'Passwords do not match',
-                  ),
-                ])
-              : JetValidators.matchField<String>(
-                  formKey,
-                  name,
-                  errorText: 'Passwords do not match',
-                ),
+          validator: JetValidators.compose(confirmationValidators),
           enabled: enabled,
           autovalidateMode: autovalidateMode,
           visibilityIcon: visibilityIcon,
@@ -256,7 +267,7 @@ class JetPasswordField extends JetFormFieldDecoration<String> {
   JetPasswordField({
     super.key,
     required super.name,
-    super.validator,
+    FormFieldValidator<String>? validator,
     super.decoration = const InputDecoration(),
     super.onChanged,
     super.valueTransformer,
@@ -268,6 +279,7 @@ class JetPasswordField extends JetFormFieldDecoration<String> {
     super.restorationId,
     String? initialValue,
     super.errorBuilder,
+    bool isRequired = true,
     this.controller,
     this.readOnly = false,
     this.textCapitalization = TextCapitalization.none,
@@ -315,6 +327,11 @@ class JetPasswordField extends JetFormFieldDecoration<String> {
   }) : assert(initialValue == null || controller == null),
        super(
          initialValue: controller != null ? controller.text : initialValue,
+         validator: isRequired && validator != null
+             ? JetValidators.compose([JetValidators.required(), validator])
+             : isRequired
+             ? JetValidators.required()
+             : validator,
          builder: (FormFieldState<String?> field) {
            final state = field as _JetPasswordFieldState;
 
