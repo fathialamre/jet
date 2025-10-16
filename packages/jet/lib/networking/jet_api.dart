@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jet/bootstrap/boot.dart';
+import 'package:jet/networking/errors/jet_error.dart';
+import 'package:jet/networking/errors/jet_error_handler.dart';
 import 'package:jet/networking/interceptors/jet_dio_logger_interceptor.dart';
 
 /// Response wrapper model for standardized API responses
@@ -11,6 +13,7 @@ class ResponseModel<T> {
   final bool success;
   final int? statusCode;
   final Map<String, dynamic>? meta;
+  final dynamic raw;
 
   ResponseModel({
     this.data,
@@ -18,6 +21,7 @@ class ResponseModel<T> {
     this.success = true,
     this.statusCode,
     this.meta,
+    this.raw,
   });
 
   factory ResponseModel.fromJson(
@@ -30,6 +34,7 @@ class ResponseModel<T> {
       success: json['success'] ?? true,
       statusCode: json['status_code'],
       meta: json['meta'],
+      raw: json,
     );
   }
 
@@ -49,6 +54,7 @@ class ResponseModel<T> {
         'headers': response.headers.map,
         'requestPath': response.requestOptions.path,
       },
+      raw: response.data,
     );
   }
 }
@@ -63,7 +69,7 @@ class ResponseModel<T> {
 /// - Enhanced error handling and caching support
 abstract class JetApiService {
   late final Dio _dio;
-  late final CancelToken _cancelToken;
+  late final CancelToken _sharedCancelToken;
 
   Ref ref;
 
@@ -91,7 +97,7 @@ abstract class JetApiService {
   HttpClientAdapter? get httpClientAdapter => null;
 
   JetApiService(this.ref) {
-    _cancelToken = CancelToken();
+    _sharedCancelToken = CancelToken();
     _initializeDio();
   }
 
@@ -133,28 +139,19 @@ abstract class JetApiService {
     CancelToken? cancelToken,
     void Function(int, int)? onReceiveProgress,
     T Function(dynamic)? decoder,
-    bool useResponseModel = true,
   }) async {
     try {
       final response = await _dio.get(
         path,
         queryParameters: queryParameters,
         options: _mergeOptions(options),
-        cancelToken: cancelToken ?? _cancelToken,
+        cancelToken: cancelToken ?? CancelToken(),
         onReceiveProgress: onReceiveProgress,
       );
 
-      if (useResponseModel) {
-        return ResponseModel.fromResponse(response, decoder);
-      } else {
-        return ResponseModel<T>(
-          data: _decodeResponse<T>(response, decoder),
-          success: true,
-          statusCode: response.statusCode,
-        );
-      }
-    } catch (e) {
-      throw _handleError(e);
+      return ResponseModel.fromResponse(response, decoder);
+    } catch (e, stackTrace) {
+      throw _handleError(e, stackTrace);
     }
   }
 
@@ -168,7 +165,6 @@ abstract class JetApiService {
     void Function(int, int)? onSendProgress,
     void Function(int, int)? onReceiveProgress,
     T Function(dynamic)? decoder,
-    bool useResponseModel = true,
   }) async {
     try {
       final response = await _dio.post(
@@ -176,22 +172,14 @@ abstract class JetApiService {
         data: data,
         queryParameters: queryParameters,
         options: _mergeOptions(options),
-        cancelToken: cancelToken ?? _cancelToken,
+        cancelToken: cancelToken ?? CancelToken(),
         onSendProgress: onSendProgress,
         onReceiveProgress: onReceiveProgress,
       );
 
-      if (useResponseModel) {
-        return ResponseModel.fromResponse(response, decoder);
-      } else {
-        return ResponseModel<T>(
-          data: _decodeResponse<T>(response, decoder),
-          success: true,
-          statusCode: response.statusCode,
-        );
-      }
-    } catch (e) {
-      throw _handleError(e);
+      return ResponseModel.fromResponse(response, decoder);
+    } catch (e, stackTrace) {
+      throw _handleError(e, stackTrace);
     }
   }
 
@@ -205,7 +193,6 @@ abstract class JetApiService {
     void Function(int, int)? onSendProgress,
     void Function(int, int)? onReceiveProgress,
     T Function(dynamic)? decoder,
-    bool useResponseModel = true,
   }) async {
     try {
       final response = await _dio.put(
@@ -213,22 +200,14 @@ abstract class JetApiService {
         data: data,
         queryParameters: queryParameters,
         options: _mergeOptions(options),
-        cancelToken: cancelToken ?? _cancelToken,
+        cancelToken: cancelToken ?? CancelToken(),
         onSendProgress: onSendProgress,
         onReceiveProgress: onReceiveProgress,
       );
 
-      if (useResponseModel) {
-        return ResponseModel.fromResponse(response, decoder);
-      } else {
-        return ResponseModel<T>(
-          data: _decodeResponse<T>(response, decoder),
-          success: true,
-          statusCode: response.statusCode,
-        );
-      }
-    } catch (e) {
-      throw _handleError(e);
+      return ResponseModel.fromResponse(response, decoder);
+    } catch (e, stackTrace) {
+      throw _handleError(e, stackTrace);
     }
   }
 
@@ -240,7 +219,6 @@ abstract class JetApiService {
     Options? options,
     CancelToken? cancelToken,
     T Function(dynamic)? decoder,
-    bool useResponseModel = true,
   }) async {
     try {
       final response = await _dio.delete(
@@ -248,20 +226,12 @@ abstract class JetApiService {
         data: data,
         queryParameters: queryParameters,
         options: _mergeOptions(options),
-        cancelToken: cancelToken ?? _cancelToken,
+        cancelToken: cancelToken ?? CancelToken(),
       );
 
-      if (useResponseModel) {
-        return ResponseModel.fromResponse(response, decoder);
-      } else {
-        return ResponseModel<T>(
-          data: _decodeResponse<T>(response, decoder),
-          success: true,
-          statusCode: response.statusCode,
-        );
-      }
-    } catch (e) {
-      throw _handleError(e);
+      return ResponseModel.fromResponse(response, decoder);
+    } catch (e, stackTrace) {
+      throw _handleError(e, stackTrace);
     }
   }
 
@@ -275,7 +245,6 @@ abstract class JetApiService {
     void Function(int, int)? onSendProgress,
     void Function(int, int)? onReceiveProgress,
     T Function(dynamic)? decoder,
-    bool useResponseModel = true,
   }) async {
     try {
       final response = await _dio.patch(
@@ -283,22 +252,14 @@ abstract class JetApiService {
         data: data,
         queryParameters: queryParameters,
         options: _mergeOptions(options),
-        cancelToken: cancelToken ?? _cancelToken,
+        cancelToken: cancelToken ?? CancelToken(),
         onSendProgress: onSendProgress,
         onReceiveProgress: onReceiveProgress,
       );
 
-      if (useResponseModel) {
-        return ResponseModel.fromResponse(response, decoder);
-      } else {
-        return ResponseModel<T>(
-          data: _decodeResponse<T>(response, decoder),
-          success: true,
-          statusCode: response.statusCode,
-        );
-      }
-    } catch (e) {
-      throw _handleError(e);
+      return ResponseModel.fromResponse(response, decoder);
+    } catch (e, stackTrace) {
+      throw _handleError(e, stackTrace);
     }
   }
 
@@ -314,10 +275,10 @@ abstract class JetApiService {
         path,
         queryParameters: queryParameters,
         options: _mergeOptions(options),
-        cancelToken: cancelToken ?? _cancelToken,
+        cancelToken: cancelToken ?? CancelToken(),
       );
-    } catch (e) {
-      throw _handleError(e);
+    } catch (e, stackTrace) {
+      throw _handleError(e, stackTrace);
     }
   }
 
@@ -337,10 +298,10 @@ abstract class JetApiService {
         options: _mergeOptions(
           (requestOptions ?? Options()).copyWith(method: 'OPTIONS'),
         ),
-        cancelToken: cancelToken ?? _cancelToken,
+        cancelToken: cancelToken ?? CancelToken(),
       );
-    } catch (e) {
-      throw _handleError(e);
+    } catch (e, stackTrace) {
+      throw _handleError(e, stackTrace);
     }
   }
 
@@ -361,13 +322,13 @@ abstract class JetApiService {
         savePath,
         onReceiveProgress: onReceiveProgress,
         queryParameters: queryParameters,
-        cancelToken: cancelToken ?? _cancelToken,
+        cancelToken: cancelToken ?? CancelToken(),
         deleteOnError: deleteOnError,
         lengthHeader: lengthHeader,
         options: _mergeOptions(options),
       );
-    } catch (e) {
-      throw _handleError(e);
+    } catch (e, stackTrace) {
+      throw _handleError(e, stackTrace);
     }
   }
 
@@ -387,43 +348,37 @@ abstract class JetApiService {
         data: formData,
         queryParameters: queryParameters,
         options: _mergeOptions(options),
-        cancelToken: cancelToken ?? _cancelToken,
+        cancelToken: cancelToken ?? CancelToken(),
         onSendProgress: onSendProgress,
       );
       return ResponseModel.fromResponse(response, decoder);
-    } catch (e) {
-      throw _handleError(e);
+    } catch (e, stackTrace) {
+      throw _handleError(e, stackTrace);
     }
   }
 
-  /// Provides a clean interface for making requests with automatic response handling
-  Future<T> network<T>({
-    required Future<ResponseModel<T>> Function() request,
-    T? fallback,
-    bool throwOnError = true,
-  }) async {
-    try {
-      final responseModel = await request();
-      if (responseModel.success && responseModel.data != null) {
-        return responseModel.data!;
-      } else if (fallback != null) {
-        return fallback;
-      } else if (throwOnError) {
-        throw Exception(responseModel.message ?? 'Request failed');
-      } else {
-        return responseModel.data!;
-      }
-    } catch (e) {
-      if (fallback != null && !throwOnError) {
-        return fallback;
-      }
-      rethrow;
-    }
-  }
-
-  /// Cancel all pending requests
+  /// Cancel all pending requests that use the shared cancel token
+  ///
+  /// Note: By default, each request creates its own cancel token.
+  /// This method is maintained for backward compatibility but won't cancel
+  /// individual requests unless they explicitly use the shared token.
+  ///
+  /// To cancel a specific request, pass a custom CancelToken when making the request
+  /// and call cancel() on that token directly.
+  ///
+  /// Example:
+  /// ```dart
+  /// final token = CancelToken();
+  /// final future = apiService.get('/users', cancelToken: token);
+  /// // Later, cancel this specific request:
+  /// token.cancel('User cancelled');
+  /// ```
+  @Deprecated(
+    'Use individual cancel tokens for better control. '
+    'Each request now creates its own token by default.',
+  )
   void cancelRequests([String? reason]) {
-    _cancelToken.cancel(reason);
+    _sharedCancelToken.cancel(reason);
   }
 
   /// Create a new cancel token
@@ -484,31 +439,6 @@ abstract class JetApiService {
     );
   }
 
-  /// Decode response data to specified type
-  T _decodeResponse<T>(Response response, T Function(dynamic)? decoder) {
-    if (decoder != null) {
-      return decoder(response.data);
-    }
-
-    // Default decoding for common types
-    if (T == String) {
-      return response.data.toString() as T;
-    } else if (T == Map<String, dynamic>) {
-      return response.data as T;
-    } else if (T == List) {
-      return response.data as T;
-    } else if (T == int) {
-      return (response.data as num).toInt() as T;
-    } else if (T == double) {
-      return (response.data as num).toDouble() as T;
-    } else if (T == bool) {
-      return response.data as T;
-    }
-
-    // For custom types, return the raw data and let the caller handle it
-    return response.data as T;
-  }
-
   /// Create error interceptor for consistent error handling
   Interceptor _createErrorInterceptor() {
     return InterceptorsWrapper(
@@ -520,11 +450,9 @@ abstract class JetApiService {
   }
 
   /// Handle and transform errors
-  Exception _handleError(dynamic error) {
-    if (error is DioException) {
-      return error;
-    } else {
-      return Exception(error.toString());
-    }
+  /// Converts any error to JetError for consistent error handling
+  JetError _handleError(dynamic error, [StackTrace? stackTrace]) {
+    final handler = JetErrorHandler.instance;
+    return handler.handle(error, stackTrace: stackTrace);
   }
 }

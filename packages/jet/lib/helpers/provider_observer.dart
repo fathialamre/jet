@@ -1,5 +1,5 @@
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jet/helpers/jet_logger.dart';
-import 'package:riverpod/riverpod.dart';
 
 base class LoggerObserver extends ProviderObserver {
   @override
