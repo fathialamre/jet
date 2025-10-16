@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:jet/forms/core/jet_form_field_decoration.dart';
+import 'package:jet/forms/core/jet_form_field.dart';
+import 'package:jet/forms/validation/jet_validators.dart';
 
 /// A Material Design password field input for Jet forms with show/hide functionality.
 ///
@@ -26,6 +28,92 @@ import 'package:jet/forms/core/jet_form_field_decoration.dart';
 /// )
 /// ```
 class JetPasswordField extends JetFormFieldDecoration<String> {
+  /// Creates a password field with confirmation field.
+  ///
+  /// This static method returns a [Column] widget containing both password
+  /// and confirmation fields with automatic matching validation.
+  ///
+  /// The confirmation field will be named `{name}_confirmation` and will
+  /// automatically validate that its value matches the original password field.
+  ///
+  /// Example:
+  /// ```dart
+  /// final formKey = GlobalKey<JetFormState>();
+  ///
+  /// JetPasswordField.withConfirmation(
+  ///   name: 'password',
+  ///   formKey: formKey,
+  ///   decoration: const InputDecoration(
+  ///     labelText: 'Password',
+  ///     hintText: 'Enter your password',
+  ///   ),
+  ///   confirmationDecoration: const InputDecoration(
+  ///     labelText: 'Confirm Password',
+  ///     hintText: 'Re-enter your password',
+  ///   ),
+  ///   validator: JetValidators.compose([
+  ///     JetValidators.required(),
+  ///     JetValidators.minLength(8),
+  ///   ]),
+  /// )
+  /// ```
+  static Widget withConfirmation({
+    Key? key,
+    required String name,
+    required GlobalKey<JetFormState> formKey,
+    InputDecoration decoration = const InputDecoration(),
+    InputDecoration? confirmationDecoration,
+    FormFieldValidator<String>? validator,
+    double spacing = 16,
+    bool enabled = true,
+    AutovalidateMode autovalidateMode = AutovalidateMode.disabled,
+    Icon? visibilityIcon,
+    Icon? visibilityOffIcon,
+  }) {
+    return Column(
+      key: key,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        JetPasswordField(
+          name: name,
+          decoration: decoration,
+          validator: validator,
+          enabled: enabled,
+          autovalidateMode: autovalidateMode,
+          visibilityIcon: visibilityIcon,
+          visibilityOffIcon: visibilityOffIcon,
+        ),
+        SizedBox(height: spacing),
+        JetPasswordField(
+          name: '${name}_confirmation',
+          decoration:
+              confirmationDecoration ??
+              decoration.copyWith(
+                labelText: 'Confirm ${decoration.labelText ?? 'Password'}',
+              ),
+          validator: validator != null
+              ? JetValidators.compose([
+                  validator,
+                  JetValidators.matchField<String>(
+                    formKey,
+                    name,
+                    errorText: 'Passwords do not match',
+                  ),
+                ])
+              : JetValidators.matchField<String>(
+                  formKey,
+                  name,
+                  errorText: 'Passwords do not match',
+                ),
+          enabled: enabled,
+          autovalidateMode: autovalidateMode,
+          visibilityIcon: visibilityIcon,
+          visibilityOffIcon: visibilityOffIcon,
+        ),
+      ],
+    );
+  }
+
   /// Controls the text being edited.
   ///
   /// If null, this widget will create its own [TextEditingController].
