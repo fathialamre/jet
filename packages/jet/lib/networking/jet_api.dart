@@ -57,6 +57,22 @@ class ResponseModel<T> {
       raw: response.data,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'data': data,
+      'message': message,
+      'success': success,
+      'statusCode': statusCode,
+      'meta': meta,
+      'raw': raw,
+    };
+  }
+
+  @override
+  String toString() {
+    return 'ResponseModel(data: $data, message: $message, success: $success, statusCode: $statusCode, meta: $meta, raw: $raw)';
+  }
 }
 
 /// Abstract base class for HTTP API interactions

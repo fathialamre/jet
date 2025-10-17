@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:hooks_riverpod/misc.dart';
+import 'package:jet/extensions/build_context.dart';
 import 'package:jet/jet.dart';
 import 'package:jet/resources/components/jet_empty_widget.dart';
 import 'package:jet/resources/state/jet_consumer.dart';
@@ -64,7 +65,8 @@ class JetBuilder {
       provider: provider,
       builder: (items, ref) {
         if (items.isEmpty) {
-          return empty ?? JetEmptyWidget(title: emptyTitle ?? '');
+          return empty ??
+              JetEmptyWidget(title: emptyTitle ?? context.jetI10n.noItemsFound);
         }
         return ListView.builder(
           physics: scrollPhysics,
