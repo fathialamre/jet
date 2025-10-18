@@ -1,3 +1,7 @@
+import 'package:example/features/posts/posts_grid_page.dart';
+import 'package:example/features/posts/posts_horizontal_page.dart';
+import 'package:example/features/posts/user_posts_page.dart';
+import 'package:flutter/material.dart';
 import 'package:jet/jet_framework.dart';
 import '../../features/home/home_page.dart';
 import '../../features/login/login_page.dart';

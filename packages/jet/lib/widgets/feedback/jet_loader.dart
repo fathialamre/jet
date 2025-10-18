@@ -10,7 +10,7 @@ class JetLoader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!context.isIOS) {
+    if (context.isIOS) {
       return Center(
         child: CupertinoActivityIndicator(
           color: color,

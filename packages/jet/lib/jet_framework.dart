@@ -2,9 +2,8 @@ export 'jet.dart';
 export 'adapters/jet_adapter.dart';
 export 'config/jet_config.dart';
 export 'bootstrap/boot.dart';
-export 'utils/theme_switcher_notifier.dart';
+export 'utils/theme_switcher/notifiers/theme_switcher_notifier.dart';
 export 'utils/language_switcher/language_switcher.dart';
-export 'widgets/theme/theme_switcher.dart';
 export 'state/jet_builder.dart';
 export 'localization/localization.dart';
 export 'storage/local_storage.dart';
@@ -38,3 +37,6 @@ export 'package:dio/dio.dart';
 // Notifications
 export 'notifications/notifications.dart';
 export 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+// Utils
+export 'utils/utils.dart';

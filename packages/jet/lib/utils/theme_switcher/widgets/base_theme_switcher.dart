@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:jet/utils/theme_switcher_notifier.dart';
+import 'package:jet/utils/theme_switcher/notifiers/theme_switcher_notifier.dart';
 
 abstract class BaseThemeSwitcher extends ConsumerStatefulWidget {
   const BaseThemeSwitcher({super.key});
