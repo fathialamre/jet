@@ -3,7 +3,7 @@ import 'package:jet/forms/simple/jet_form_controller.dart';
 import '../core/jet_form_field.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jet/extensions/build_context.dart';
-import 'package:jet/widgets/widgets/buttons/jet_button.dart';
+import 'package:jet/widgets/buttons/jet_button.dart';
 
 /// A simplified form widget that works with [JetFormController] from [useJetForm].
 ///

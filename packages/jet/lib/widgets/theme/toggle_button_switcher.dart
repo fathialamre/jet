@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jet/jet_framework.dart';
-import 'package:jet/resources/theme/widgets/base_theme_switcher.dart';
+import 'package:jet/widgets/theme/base_theme_switcher.dart';
 
 class ToggleButtonSwitcher extends BaseThemeSwitcher {
   const ToggleButtonSwitcher({super.key});

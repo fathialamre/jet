@@ -2,10 +2,10 @@ export 'jet.dart';
 export 'adapters/jet_adapter.dart';
 export 'config/jet_config.dart';
 export 'bootstrap/boot.dart';
-export 'resources/theme/notifiers/theme_switcher_notifier.dart';
+export 'utils/theme_switcher_notifier.dart';
 export 'utils/language_switcher/language_switcher.dart';
-export 'resources/theme/widgets/theme_switcher.dart';
-export 'resources/state/jet_builder.dart';
+export 'widgets/theme/theme_switcher.dart';
+export 'state/jet_builder.dart';
 export 'localization/localization.dart';
 export 'storage/local_storage.dart';
 export 'networking/networking.dart';
@@ -20,8 +20,8 @@ export 'package:guardo/guardo.dart';
 // Widgets
 export 'widgets/widgets.dart';
 
-// Components
-export 'resources/components/components.dart';
+// State
+export 'state/state.dart';
 export 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 // Forms

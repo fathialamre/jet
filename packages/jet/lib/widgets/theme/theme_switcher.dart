@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:jet/resources/theme/widgets/bottom_sheet_theme_switcher.dart';
-import 'package:jet/resources/theme/widgets/segmented_button_theme_switcher.dart';
-import 'package:jet/resources/theme/widgets/toggle_button_switcher.dart';
+import 'package:jet/widgets/theme/bottom_sheet_theme_switcher.dart';
+import 'package:jet/widgets/theme/segmented_button_theme_switcher.dart';
+import 'package:jet/widgets/theme/toggle_button_switcher.dart';
 
 class ThemeSwitcher {
   static Widget segmentedButton(BuildContext context) {
