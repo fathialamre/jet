@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:jet/widgets/theme/bottom_sheet_theme_switcher.dart';
-import 'package:jet/widgets/theme/segmented_button_theme_switcher.dart';
-import 'package:jet/widgets/theme/toggle_button_switcher.dart';
+import 'package:jet/utils/theme_switcher/widgets/bottom_sheet_theme_switcher.dart';
+import 'package:jet/utils/theme_switcher/widgets/segmented_button_theme_switcher.dart';
+import 'package:jet/utils/theme_switcher/widgets/toggle_button_switcher.dart';
 
 class ThemeSwitcher {
   static Widget segmentedButton(BuildContext context) {
     return SegmentedButtonThemeSwitcher();
   }
 
-  static Widget toggleButton(BuildContext context) {
+  static ToggleButtonSwitcher toggleButton(BuildContext context) {
     return ToggleButtonSwitcher();
   }
 

@@ -28,10 +28,3 @@ export 'sheets/show_confirmation_sheet.dart';
 
 // Tabs
 export 'tabs/jet_tab.dart';
-
-// Theme
-export 'theme/base_theme_switcher.dart';
-export 'theme/bottom_sheet_theme_switcher.dart';
-export 'theme/segmented_button_theme_switcher.dart';
-export 'theme/theme_switcher.dart';
-export 'theme/toggle_button_switcher.dart';

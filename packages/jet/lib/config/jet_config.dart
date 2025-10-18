@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:jet/jet_framework.dart';
-import 'package:jet/widgets/feedback/jet_loader.dart';
 import 'package:jet/notifications/observers/jet_notification_observer.dart';
 
 /// Configuration class for Jet framework that defines app-wide settings.
