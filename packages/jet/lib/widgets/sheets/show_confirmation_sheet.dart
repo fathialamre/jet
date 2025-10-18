@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:jet/extensions/build_context.dart';
 import 'package:jet/extensions/text_extensions.dart';
-import 'package:jet/widgets/widgets/buttons/jet_button.dart';
+import 'package:jet/widgets/buttons/jet_button.dart';
 
 enum ConfirmationSheetType {
   normal,

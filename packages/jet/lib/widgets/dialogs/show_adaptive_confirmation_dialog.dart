@@ -4,8 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:jet/extensions/build_context.dart';
-import 'package:jet/widgets/widgets/buttons/jet_button.dart';
-import 'package:jet/widgets/widgets/buttons/jet_cupertino_button.dart';
+import 'package:jet/widgets/buttons/jet_button.dart';
+import 'package:jet/widgets/buttons/jet_cupertino_button.dart';
 
 Future<void> showAdaptiveConfirmationDialog({
   required BuildContext context,

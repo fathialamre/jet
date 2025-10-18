@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jet/extensions/build_context.dart';
-import 'package:jet/resources/theme/notifiers/theme_switcher_notifier.dart';
-import 'package:jet/resources/theme/widgets/base_theme_switcher.dart';
+import 'package:jet/utils/theme_switcher_notifier.dart';
+import 'package:jet/widgets/theme/base_theme_switcher.dart';
 
 class SegmentedButtonThemeSwitcher extends BaseThemeSwitcher {
   const SegmentedButtonThemeSwitcher({super.key});

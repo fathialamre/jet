@@ -7,7 +7,7 @@ import 'package:jet/bootstrap/boot.dart';
 import 'package:jet/extensions/build_context.dart';
 import 'package:jet/forms/common.dart';
 import 'package:jet/networking/errors/jet_error.dart';
-import 'package:jet/widgets/widgets/buttons/jet_button.dart';
+import 'package:jet/widgets/buttons/jet_button.dart';
 
 /// A reactive form widget that integrates with Riverpod state management.
 ///
