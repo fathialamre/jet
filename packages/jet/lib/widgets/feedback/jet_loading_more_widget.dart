@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jet/extensions/build_context.dart';
 import 'package:jet/jet_framework.dart';
-import 'package:jet/state/jet_consumer.dart';
 
 class JetLoadingMoreWidget extends JetConsumerWidget {
   const JetLoadingMoreWidget({super.key, this.loader, this.text});
@@ -10,7 +9,7 @@ class JetLoadingMoreWidget extends JetConsumerWidget {
   final String? text;
 
   @override
-  Widget jetBuild(BuildContext context, WidgetRef ref, Jet jet) {
+  Widget build(BuildContext context, WidgetRef ref, Jet jet) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
