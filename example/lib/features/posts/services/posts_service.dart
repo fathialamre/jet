@@ -1,6 +1,6 @@
 import 'package:example/core/networking/app_network.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'models/post.dart';
+import '../models/post.dart';
 
 part 'posts_service.g.dart';
 

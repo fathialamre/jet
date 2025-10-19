@@ -38,7 +38,7 @@ import 'package:jet/jet.dart';
 
 class MyApp extends JetConsumerWidget {
   @override
-  Widget jetBuild(BuildContext context, WidgetRef ref, Jet jet) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(title: Text('Jet Framework')),
       body: Center(
