@@ -4,154 +4,273 @@ Complete guide to utility helpers in the Jet framework.
 
 ## Overview
 
-Jet provides helper utilities for common development tasks, primarily focused on test data generation and development productivity. These helpers are designed to speed up development and testing without requiring external dependencies.
+Jet provides development utilities for debugging and productivity, focusing on monitoring state changes and improving the development experience. These helpers are designed to provide deep insights into your application's behavior during development.
 
 **Packages Used:**
-- Dart SDK - Core utilities and random number generation
+- Riverpod - State management observation
 
 **Key Benefits:**
-- ✅ Realistic test data generation
-- ✅ No external API dependencies
-- ✅ Consistent data formatting
-- ✅ Perfect for UI development and demos
-- ✅ Lightweight with no external packages
-- ✅ Fast and deterministic
-- ✅ Easy to extend for custom data types
+- ✅ Real-time state monitoring
+- ✅ Debug provider lifecycle
+- ✅ Track state changes
+- ✅ Identify performance issues
+- ✅ Development productivity
+- ✅ Seamless integration
 
-## JetFaker - Test Data Generation
+## LoggerObserver - Provider State Monitoring
 
-Generate realistic fake data for development and testing.
+Monitor and debug Riverpod provider state changes in real-time.
 
-### Generate Random Usernames
-
-```dart
-// Generate random usernames
-final username1 = JetFaker.username(); // Example: "brave_tiger123"
-final username2 = JetFaker.username(); // Example: "cool_panda456"
-final username3 = JetFaker.username(); // Example: "fast_eagle789"
-```
-
-### Use in Development
+### Basic Setup
 
 ```dart
-class DevTools {
-  static User createTestUser() {
-    return User(
-      username: JetFaker.username(),
-      email: '${JetFaker.username()}@example.com',
-      createdAt: DateTime.now(),
-    );
-  }
+import 'package:jet/jet.dart';
 
-  static List<User> generateTestUsers(int count) {
-    return List.generate(
-      count,
-      (index) => createTestUser(),
-    );
-  }
-}
-
-// Populate test data
-final testUsers = DevTools.generateTestUsers(10);
-```
-
-### Use in UI Previews
-
-```dart
-class UserCardPreview extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final demoUser = User(
-      username: JetFaker.username(),
-      email: '${JetFaker.username()}@test.com',
-    );
-    
-    return UserCard(user: demoUser);
-  }
+void main() {
+  runApp(
+    ProviderScope(
+      observers: [LoggerObserver()],
+      child: MyApp(),
+    ),
+  );
 }
 ```
 
-### Use in Tests
+### What It Monitors
+
+The LoggerObserver tracks three key events:
+
+1. **Provider Addition** - When a provider is first accessed
+2. **Provider Updates** - When provider state changes
+3. **Provider Disposal** - When a provider is disposed
+
+### Example Output
+
+```dart
+// Counter provider example
+final counterProvider = StateProvider<int>((ref) => 0);
+
+// When first accessed:
+// [Provider Added] StateProvider<int> = 0
+
+// When incremented:
+// [Provider Updated] StateProvider<int> from 0 to 1
+
+// When app closes:
+// [Provider Disposed] StateProvider<int>
+```
+
+### Real-World Example
+
+```dart
+// User authentication state
+final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
+  return AuthNotifier();
+});
+
+// Console output during authentication:
+// [Provider Added] StateNotifierProvider<AuthNotifier, AuthState> = AuthState.unauthenticated
+// [Provider Updated] StateNotifierProvider<AuthNotifier, AuthState> from AuthState.unauthenticated to AuthState.loading
+// [Provider Updated] StateNotifierProvider<AuthNotifier, AuthState> from AuthState.loading to AuthState.authenticated(User)
+```
+
+### Custom Provider Names
+
+For better debugging, name your providers:
+
+```dart
+final userProfileProvider = FutureProvider.autoDispose
+    .family<UserProfile, String>((ref, userId) async {
+  // Fetch user profile
+}, name: 'UserProfile');
+
+// Output:
+// [Provider Added] UserProfile = AsyncLoading
+// [Provider Updated] UserProfile from AsyncLoading to AsyncData(UserProfile)
+```
+
+## Advanced Usage
+
+### Conditional Logging
+
+Enable only in debug mode:
 
 ```dart
 void main() {
-  group('User Widget Tests', () {
-    test('displays user information correctly', () {
-      final testUser = User(
-        username: JetFaker.username(),
-        email: '${JetFaker.username()}@test.com',
-      );
-      
-      // Test with generated data
-      expect(testUser.username, isNotEmpty);
-      expect(testUser.email, contains('@'));
-    });
-  });
+  runApp(
+    ProviderScope(
+      observers: kDebugMode ? [LoggerObserver()] : [],
+      child: MyApp(),
+    ),
+  );
 }
 ```
 
-## JetFaker Features
+### Custom Observer
 
-- ✅ Random username generation - Adjective + noun + number pattern
-- ✅ Consistent formatting - Professional-looking test data
-- ✅ Perfect for development - UI development, demos, testing
-- ✅ Lightweight - No external dependencies
+Extend LoggerObserver for custom behavior:
+
+```dart
+class CustomLoggerObserver extends LoggerObserver {
+  @override
+  void didUpdateProvider(
+    ProviderObserverContext context,
+    Object? previousValue,
+    Object? newValue,
+  ) {
+    // Custom filtering
+    if (context.provider.name?.contains('auth') ?? false) {
+      super.didUpdateProvider(context, previousValue, newValue);
+    }
+  }
+}
+```
+
+### Performance Monitoring
+
+Track provider rebuild frequency:
+
+```dart
+class PerformanceObserver extends LoggerObserver {
+  final Map<ProviderBase, int> _updateCounts = {};
+  
+  @override
+  void didUpdateProvider(
+    ProviderObserverContext context,
+    Object? previousValue,
+    Object? newValue,
+  ) {
+    _updateCounts[context.provider] = 
+        (_updateCounts[context.provider] ?? 0) + 1;
+    
+    // Warn about frequent updates
+    if (_updateCounts[context.provider]! > 10) {
+      dump(
+        'Provider updated ${_updateCounts[context.provider]} times',
+        tag: '[Performance Warning]',
+      );
+    }
+    
+    super.didUpdateProvider(context, previousValue, newValue);
+  }
+}
+```
 
 ## Best Practices
 
-### 1. Use for Development Only
+### 1. Use in Development Only
 
 ```dart
-// Good - only in debug mode
+// Good - only in debug builds
 if (kDebugMode) {
-  final testUsers = DevTools.generateTestUsers(10);
+  runApp(
+    ProviderScope(
+      observers: [LoggerObserver()],
+      child: MyApp(),
+    ),
+  );
 }
-
-// Avoid - using in production
-final users = JetFaker.generateUsers(); // Don't do this
 ```
 
-### 2. Generate Realistic Data
+### 2. Name Complex Providers
 
 ```dart
-// Good - realistic user data
-final user = User(
-  username: JetFaker.username(),
-  email: '${JetFaker.username()}@test.com',
-  createdAt: DateTime.now(),
+// Good - named provider for clarity
+final complexProvider = Provider((ref) => ComplexService(), 
+  name: 'ComplexService'
 );
 
-// Avoid - obvious fake data
-final user = User(
-  username: 'test123',
-  email: 'test@test.com',
-);
+// Avoid - anonymous providers in large apps
+final provider = Provider((ref) => Service());
 ```
 
-### 3. Use in Storybook/Widgetbook
+### 3. Filter Noisy Providers
 
 ```dart
-class UserCardStory extends StatelessWidget {
+class FilteredObserver extends LoggerObserver {
+  final Set<String> ignoredProviders = {
+    'TimerProvider',
+    'AnimationProvider',
+  };
+  
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: ListView.builder(
-        itemCount: 20,
-        itemBuilder: (context, index) {
-          final user = User(
-            username: JetFaker.username(),
-            email: '${JetFaker.username()}@test.com',
-          );
-          return UserCard(user: user);
-        },
-      ),
-    );
+  void didUpdateProvider(
+    ProviderObserverContext context,
+    Object? previousValue,
+    Object? newValue,
+  ) {
+    final name = context.provider.name ?? 
+                 context.provider.runtimeType.toString();
+    
+    if (!ignoredProviders.contains(name)) {
+      super.didUpdateProvider(context, previousValue, newValue);
+    }
   }
 }
+```
+
+### 4. Debug Provider Dependencies
+
+```dart
+// Track provider dependency chains
+class DependencyObserver extends LoggerObserver {
+  @override
+  void didAddProvider(ProviderObserverContext context, Object? value) {
+    dump(
+      'Dependencies: ${context.container.getAllProviderElements()
+        .map((e) => e.provider.name ?? e.provider.runtimeType)
+        .join(', ')}',
+      tag: '[Provider Dependencies]',
+    );
+    super.didAddProvider(context, value);
+  }
+}
+```
+
+## Common Use Cases
+
+### 1. Authentication Flow Debugging
+
+```dart
+// Monitor auth state changes
+ProviderScope(
+  observers: [LoggerObserver()],
+  child: MyApp(),
+);
+
+// See login flow in console:
+// [Provider Added] AuthStateProvider = Unauthenticated
+// [Provider Updated] AuthStateProvider from Unauthenticated to Loading
+// [Provider Updated] AuthStateProvider from Loading to Authenticated(userId: 123)
+```
+
+### 2. Form State Tracking
+
+```dart
+// Debug form validation
+final formProvider = StateNotifierProvider<FormNotifier, FormState>((ref) {
+  return FormNotifier();
+}, name: 'RegistrationForm');
+
+// Console shows each field update:
+// [Provider Updated] RegistrationForm from FormState(email: '') to FormState(email: 'user@example.com')
+```
+
+### 3. API State Management
+
+```dart
+// Monitor API calls
+final postsProvider = FutureProvider<List<Post>>((ref) async {
+  return api.fetchPosts();
+}, name: 'PostsList');
+
+// Track loading states:
+// [Provider Added] PostsList = AsyncLoading
+// [Provider Updated] PostsList from AsyncLoading to AsyncData([Post1, Post2, ...])
 ```
 
 ## See Also
 
+- [State Management Documentation](STATE_MANAGEMENT.md)
 - [Debugging Documentation](DEBUGGING.md)
-- [Forms Documentation](FORMS.md)
-
+- [Configuration Documentation](CONFIGURATION.md)

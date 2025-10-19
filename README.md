@@ -548,15 +548,18 @@ JetLogger.json(responseData);
 
 ### 🛠 Helpers
 
-Utility helpers for common development tasks.
+Development utilities for debugging and productivity.
 
 ```dart
-// Generate test data
-final username = JetFaker.username(); // "brave_tiger123"
-final testUsers = List.generate(10, (_) => User(
-  username: JetFaker.username(),
-  email: '${JetFaker.username()}@test.com',
-));
+// Monitor Riverpod state changes with LoggerObserver
+ProviderScope(
+  observers: [LoggerObserver()],
+  child: MyApp(),
+)
+
+// Logs provider updates, additions, and disposals
+// [Provider Added] myCounterProvider = 0
+// [Provider Updated] myCounterProvider from 0 to 1
 ```
 
 📖 **[View Complete Documentation](docs/HELPERS.md)**
