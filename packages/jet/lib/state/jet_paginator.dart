@@ -188,7 +188,7 @@ class JetPaginator {
   ///
   /// **Type Parameters:**
   /// - [T]: The type of items in the list
-  /// - [TResponse]: The type of the API response (usually Map<String, dynamic>)
+  /// - [R]: The type of the API response (usually Map<String, dynamic>)
   ///
   /// **Parameters:**
   /// - [fetchPage]: Function that fetches a page of data from your API
@@ -203,10 +203,10 @@ class JetPaginator {
   /// - [refreshIndicatorDisplacement]: Distance to trigger refresh (default: 40.0)
   /// - [errorIndicator]: Custom error widget builder for initial page load errors (receives raw error + ref)
   /// - [fetchMoreErrorIndicator]: Custom error widget builder for pagination errors (receives raw error + ref)
-  static Widget list<T, TResponse>({
-    required Future<TResponse> Function(dynamic pageKey) fetchPage,
+  static Widget list<T, R>({
+    required Future<R> Function(dynamic pageKey) fetchPage,
     required PaginatorPageInfo<T> Function(
-      TResponse response,
+      R response,
       dynamic currentPageKey,
     )
     parseResponse,
@@ -255,7 +255,7 @@ class JetPaginator {
     // Advanced options
     int itemsThresholdToTriggerLoad = 3,
   }) {
-    return _PaginationListWidget<T, TResponse>(
+    return _PaginationListWidget<T, R>(
       fetchPage: fetchPage,
       parseResponse: parseResponse,
       itemBuilder: itemBuilder,
