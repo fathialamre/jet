@@ -12,6 +12,7 @@ build/
 .idea/
 *.iml
 .cursor/
+.cursorrules
 
 # OS files
 .DS_Store
