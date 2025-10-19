@@ -127,7 +127,7 @@ class AppConfig extends JetConfig {
 
 ### 🧭 Routing
 
-Type-safe navigation with **[AutoRoute](https://pub.dev/packages/auto_route)** (v7.8.4) integration. AutoRoute provides code generation for type-safe routes, eliminating string-based navigation and providing compile-time safety.
+Type-safe navigation with **[AutoRoute](https://pub.dev/packages/auto_route)** integration. AutoRoute provides code generation for type-safe routes, eliminating string-based navigation and providing compile-time safety.
 
 ```dart
 // Navigate to a route
@@ -215,7 +215,7 @@ final text = context.jetI10n.confirm;
 
 ### 🌐 Networking
 
-Type-safe HTTP client built on **[Dio](https://pub.dev/packages/dio)** (v5.4.0) with automatic error handling, interceptors, and beautiful console logging via **[pretty_dio_logger](https://pub.dev/packages/pretty_dio_logger)**. Supports FormData, request cancellation, and timeout handling.
+Type-safe HTTP client built on **[Dio](https://pub.dev/packages/dio)** with automatic error handling, interceptors, and beautiful console logging via **[pretty_dio_logger](https://pub.dev/packages/pretty_dio_logger)**. Supports FormData, request cancellation, and timeout handling.
 
 ```dart
 class UserApiService extends JetApiService {
@@ -427,7 +427,7 @@ final orderId = 123.toOrderId(); // "00123"
 
 ### 🔐 Security
 
-App locking with biometric authentication using **[Guardo](https://pub.dev/packages/guardo)** (v1.1.0). Supports fingerprint, face ID, iris scan with PIN/pattern fallback and secure storage via **[flutter_secure_storage](https://pub.dev/packages/flutter_secure_storage)**.
+App locking with biometric authentication using **[Guardo](https://pub.dev/packages/guardo)** . Supports fingerprint, face ID, iris scan with PIN/pattern fallback and secure storage via **[flutter_secure_storage](https://pub.dev/packages/flutter_secure_storage)**.
 
 ```dart
 // Enable app lock
@@ -465,7 +465,7 @@ await SessionManager.clear();
 
 ### 🔄 State Management
 
-Powerful state management built on **[Riverpod 3](https://pub.dev/packages/riverpod)** (v2.4.9) with **[riverpod_annotation](https://pub.dev/packages/riverpod_annotation)** code generation and enhanced widgets. JetPaginator uses **[infinite_scroll_pagination](https://pub.dev/packages/infinite_scroll_pagination)** (v4.0.0) for infinite scroll with any API format.
+Powerful state management built on **[Riverpod 3](https://pub.dev/packages/riverpod)** with **[riverpod_annotation](https://pub.dev/packages/riverpod_annotation)** code generation and enhanced widgets. JetPaginator uses **[infinite_scroll_pagination](https://pub.dev/packages/infinite_scroll_pagination)** for infinite scroll with any API format.
 
 #### JetBuilder
 
@@ -501,7 +501,7 @@ JetPaginator.list<Product, Map<String, dynamic>>(
 
 ### 🔔 Notifications
 
-Comprehensive local notification system built on **[flutter_local_notifications](https://pub.dev/packages/flutter_local_notifications)** (v16.3.0) with **[timezone](https://pub.dev/packages/timezone)** support for scheduling. Event-driven architecture with type-safe handlers, action buttons, and custom notification channels.
+Comprehensive local notification system built on **[flutter_local_notifications](https://pub.dev/packages/flutter_local_notifications)** with **[timezone](https://pub.dev/packages/timezone)** support for scheduling. Event-driven architecture with type-safe handlers, action buttons, and custom notification channels.
 
 ```dart
 // Send notification
@@ -534,16 +534,9 @@ class OrderNotificationEvent extends JetNotificationEvent {
 
 ### 🐛 Debugging
 
-Enhanced debugging tools with **[stack_trace](https://pub.dev/packages/stack_trace)** (v1.11.1) for better stack trace formatting and comprehensive logging utilities. Colored console output with clickable file paths and environment-aware logging.
+Comprehensive logging utilities with colored console output, clickable file paths, and environment-aware logging for enhanced debugging experience.
 
 ```dart
-// Stack trace debugging
-try {
-  riskyOperation();
-} catch (error, stackTrace) {
-  stackTrace.dump(title: 'Operation Failed');
-}
-
 // Enhanced logging
 dump('Debug message', tag: 'DEBUG');
 JetLogger.json(responseData);
