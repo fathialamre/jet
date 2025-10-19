@@ -7,9 +7,9 @@ Complete guide to local notifications in the Jet framework.
 Jet provides a comprehensive local notification system built on **[flutter_local_notifications](https://pub.dev/packages/flutter_local_notifications)**, the most popular and reliable package for local notifications in Flutter. The system includes advanced event-driven architecture, type-safe configuration, and intelligent notification management with action buttons, scheduling, and custom handlers.
 
 **Packages Used:**
-- **flutter_local_notifications** - ^16.3.0 - [pub.dev](https://pub.dev/packages/flutter_local_notifications) | [Documentation](https://pub.dev/documentation/flutter_local_notifications/latest/) - Cross-platform local notifications
-- **timezone** - ^0.9.2 - [pub.dev](https://pub.dev/packages/timezone) - Timezone support for scheduled notifications
-- **flutter_timezone** - ^1.0.8 - [pub.dev](https://pub.dev/packages/flutter_timezone) - Get device timezone
+- **flutter_local_notifications** - [pub.dev](https://pub.dev/packages/flutter_local_notifications) | [Documentation](https://pub.dev/documentation/flutter_local_notifications/latest/) - Cross-platform local notifications
+- **timezone** - [pub.dev](https://pub.dev/packages/timezone) - Timezone support for scheduled notifications
+- **flutter_timezone** - [pub.dev](https://pub.dev/packages/flutter_timezone) - Get device timezone
 
 **Key Benefits:**
 - ✅ Cross-platform support (iOS and Android)

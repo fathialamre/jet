@@ -7,7 +7,7 @@ Complete guide to utility extensions in the Jet framework.
 Jet provides powerful extensions to enhance Flutter's built-in classes with commonly needed functionality. These extensions use Dart's extension methods feature to add convenient utilities without modifying the original classes.
 
 **Packages Used:**
-- **intl** - ^0.18.1 - [pub.dev](https://pub.dev/packages/intl) - Date formatting for DateTime extensions
+- **intl** - [pub.dev](https://pub.dev/packages/intl) - Date formatting for DateTime extensions
 - Flutter SDK - BuildContext, Text, and Widget extensions
 
 **Key Benefits:**

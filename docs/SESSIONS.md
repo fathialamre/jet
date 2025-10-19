@@ -7,8 +7,8 @@ Complete guide to session management in the Jet framework.
 Jet provides built-in session management for user authentication with secure storage using **[flutter_secure_storage](https://pub.dev/packages/flutter_secure_storage)** and reactive state management through Riverpod. The system handles user sessions, guest sessions, authentication tokens, and automatic session persistence.
 
 **Packages Used:**
-- **flutter_secure_storage** - ^9.0.0 - [pub.dev](https://pub.dev/packages/flutter_secure_storage) - Encrypted storage for session data
-- **riverpod** - ^2.4.9 - [pub.dev](https://pub.dev/packages/riverpod) - Reactive state management for auth state
+- **flutter_secure_storage** - [pub.dev](https://pub.dev/packages/flutter_secure_storage) - Encrypted storage for session data
+- **riverpod** - [pub.dev](https://pub.dev/packages/riverpod) - Reactive state management for auth state
 
 **Key Benefits:**
 - ✅ Secure storage for authentication tokens

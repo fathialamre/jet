@@ -7,9 +7,9 @@ Complete guide to internationalization in the Jet framework.
 Jet provides internationalization (i18n) support using Flutter's built-in **[intl](https://pub.dev/packages/intl)** package with custom language switching and RTL (Right-to-Left) support. The system allows you to easily add multiple languages to your app with persistent language preferences.
 
 **Packages Used:**
-- **intl** - ^0.18.1 - [pub.dev](https://pub.dev/packages/intl) | [Documentation](https://pub.dev/documentation/intl/latest/) - Internationalization and localization
+- **intl** - [pub.dev](https://pub.dev/packages/intl) | [Documentation](https://pub.dev/documentation/intl/latest/) - Internationalization and localization
 - **flutter_localizations** - (Flutter SDK) - Flutter's localization support
-- **shared_preferences** - ^2.2.2 - [pub.dev](https://pub.dev/packages/shared_preferences) - For language preference storage
+- **shared_preferences** - [pub.dev](https://pub.dev/packages/shared_preferences) - For language preference storage
 
 **Key Benefits:**
 - ✅ Multi-language support with easy setup

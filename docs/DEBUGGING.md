@@ -7,7 +7,7 @@ Complete guide to debugging tools in the Jet framework.
 Jet provides enhanced debugging tools for better development experience with stack trace formatting and comprehensive logging utilities. The debugging system is built on top of Dart's native debugging capabilities with enhanced visualization and filtering.
 
 **Packages Used:**
-- **stack_trace** - ^1.11.1 - [pub.dev](https://pub.dev/packages/stack_trace) - Enhanced stack trace parsing and formatting
+- **stack_trace** - [pub.dev](https://pub.dev/packages/stack_trace) - Enhanced stack trace parsing and formatting
 - Dart SDK - Native debugging and logging support
 
 **Key Benefits:**

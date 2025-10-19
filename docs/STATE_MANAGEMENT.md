@@ -7,10 +7,10 @@ Complete guide to state management in the Jet framework.
 Jet's state management is built on **[Riverpod 3](https://pub.dev/packages/riverpod)**, the latest version of Flutter's most powerful state management solution. Riverpod provides compile-time safety, easy testing, and no dependency on BuildContext. Jet enhances Riverpod with purpose-built widgets for common patterns like lists, grids, and infinite scroll pagination.
 
 **Packages Used:**
-- **riverpod** - ^2.4.9 - [pub.dev](https://pub.dev/packages/riverpod) | [Documentation](https://riverpod.dev/) - Core state management
-- **flutter_riverpod** - ^2.4.9 - [pub.dev](https://pub.dev/packages/flutter_riverpod) - Flutter integration for Riverpod
-- **riverpod_annotation** - ^2.3.3 - [pub.dev](https://pub.dev/packages/riverpod_annotation) - Code generation annotations
-- **infinite_scroll_pagination** - ^4.0.0 - [pub.dev](https://pub.dev/packages/infinite_scroll_pagination) - Official pagination package for JetPaginator
+- **riverpod** - [pub.dev](https://pub.dev/packages/riverpod) | [Documentation](https://riverpod.dev/) - Core state management
+- **flutter_riverpod** - [pub.dev](https://pub.dev/packages/flutter_riverpod) - Flutter integration for Riverpod
+- **riverpod_annotation** - [pub.dev](https://pub.dev/packages/riverpod_annotation) - Code generation annotations
+- **infinite_scroll_pagination** - [pub.dev](https://pub.dev/packages/infinite_scroll_pagination) - Official pagination package for JetPaginator
 
 **Key Benefits:**
 - ✅ Compile-time safe state management

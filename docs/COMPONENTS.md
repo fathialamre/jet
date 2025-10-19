@@ -15,9 +15,9 @@ Complete guide to UI components in the Jet framework.
 Jet provides pre-built UI components with consistent styling, automatic loading states, and extensive customization options. These components are built on top of Flutter's Material and Cupertino widgets with enhanced functionality and developer experience.
 
 **Packages Used:**
-- **smooth_page_indicator** - ^1.1.0 - [pub.dev](https://pub.dev/packages/smooth_page_indicator) - Beautiful page indicators for JetCarousel
-- **flutter_hooks** - ^0.20.5 - [pub.dev](https://pub.dev/packages/flutter_hooks) - React-style hooks for component state
-- **auto_route** - ^7.8.4 - [pub.dev](https://pub.dev/packages/auto_route) - Router integration for JetTab
+- **smooth_page_indicator** - [pub.dev](https://pub.dev/packages/smooth_page_indicator) - Beautiful page indicators for JetCarousel
+- **flutter_hooks** - [pub.dev](https://pub.dev/packages/flutter_hooks) - React-style hooks for component state
+- **auto_route** - [pub.dev](https://pub.dev/packages/auto_route) - Router integration for JetTab
 
 **Key Benefits:**
 - ✅ Material and Cupertino design support

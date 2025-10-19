@@ -7,7 +7,7 @@ Complete guide to theme management in the Jet framework.
 Jet provides built-in theme management with persistent storage using **JetStorage** and pre-built UI components. The system supports light mode, dark mode, and system theme following, with automatic persistence across app sessions.
 
 **Packages Used:**
-- **riverpod** - ^2.4.9 - [pub.dev](https://pub.dev/packages/riverpod) - State management for theme switching
+- **riverpod** - [pub.dev](https://pub.dev/packages/riverpod) - State management for theme switching
 
 **Storage:**
 - **JetStorage** - Built-in Jet framework storage system for theme preference persistence

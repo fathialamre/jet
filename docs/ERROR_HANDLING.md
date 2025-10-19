@@ -7,7 +7,7 @@ Complete guide to error handling in the Jet framework.
 Jet provides comprehensive error handling with `JetError` for consistent, type-safe error management across your application. The system automatically converts HTTP errors from Dio into structured JetError instances with helpful properties and methods for different error scenarios.
 
 **Packages Used:**
-- **dio** - ^5.4.0 - [pub.dev](https://pub.dev/packages/dio) - HTTP errors are converted to JetError
+- **dio** - [pub.dev](https://pub.dev/packages/dio) - HTTP errors are converted to JetError
 - Dart SDK - Exception and Error handling
 
 **Key Benefits:**

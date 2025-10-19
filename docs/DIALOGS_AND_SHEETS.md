@@ -8,7 +8,7 @@ Jet provides beautiful, adaptive dialogs and bottom sheets with built-in confirm
 
 **Packages Used:**
 - Flutter SDK - Material and Cupertino dialog widgets
-- **flutter_hooks** - ^0.20.5 - [pub.dev](https://pub.dev/packages/flutter_hooks) - For stateful dialog management
+- **flutter_hooks** - [pub.dev](https://pub.dev/packages/flutter_hooks) - For stateful dialog management
 
 **Key Benefits:**
 - ✅ Platform-aware design (Material on Android, Cupertino on iOS)

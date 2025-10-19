@@ -7,8 +7,8 @@ Complete guide to local storage in the Jet framework.
 JetStorage provides secure local storage for lightweight data with support for regular and encrypted storage. It combines the power of **SharedPreferences** for regular data and **Flutter Secure Storage** for sensitive information that needs encryption.
 
 **Packages Used:**
-- **shared_preferences** - ^2.2.2 - [pub.dev](https://pub.dev/packages/shared_preferences) - For regular key-value storage
-- **flutter_secure_storage** - ^9.0.0 - [pub.dev](https://pub.dev/packages/flutter_secure_storage) - For encrypted secure storage
+- **shared_preferences** - [pub.dev](https://pub.dev/packages/shared_preferences) - For regular key-value storage
+- **flutter_secure_storage** - [pub.dev](https://pub.dev/packages/flutter_secure_storage) - For encrypted secure storage
 
 **Key Benefits:**
 - ✅ Type-safe read/write operations with generics

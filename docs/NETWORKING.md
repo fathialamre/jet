@@ -19,8 +19,8 @@ Complete guide to HTTP networking in the Jet framework.
 Jet provides a type-safe HTTP client built on **[Dio](https://pub.dev/packages/dio)** with automatic error handling, configurable logging, and custom interceptors support. Dio is a powerful HTTP client for Dart/Flutter that supports interceptors, global configuration, FormData, request cancellation, file downloading, and timeout handling.
 
 **Packages Used:**
-- **dio** - ^5.4.0 - [pub.dev](https://pub.dev/packages/dio) | [Documentation](https://pub.dev/documentation/dio/latest/) - HTTP client with interceptors
-- **pretty_dio_logger** - ^1.3.1 - [pub.dev](https://pub.dev/packages/pretty_dio_logger) - Beautiful console logging for requests/responses
+- **dio** - [pub.dev](https://pub.dev/packages/dio) | [Documentation](https://pub.dev/documentation/dio/latest/) - HTTP client with interceptors
+- **pretty_dio_logger** - [pub.dev](https://pub.dev/packages/pretty_dio_logger) - Beautiful console logging for requests/responses
 
 **Key Features:**
 - ✅ Type-safe API requests with generic support
