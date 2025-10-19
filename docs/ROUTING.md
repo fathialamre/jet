@@ -7,7 +7,7 @@ Complete guide to navigation and routing in the Jet framework.
 Jet uses **[AutoRoute](https://pub.dev/packages/auto_route)** for type-safe navigation with declarative routing. AutoRoute is a powerful routing package that provides code generation for type-safe route navigation, eliminating the need for string-based routes and providing compile-time safety.
 
 **Package Used:**
-- **auto_route** - ^7.8.4 - [Documentation](https://auto-route.vercel.app/) | [pub.dev](https://pub.dev/packages/auto_route)
+- **auto_route** - [Documentation](https://auto-route.vercel.app/) | [pub.dev](https://pub.dev/packages/auto_route)
 
 **Key Benefits:**
 - ✅ Type-safe navigation with generated routes
