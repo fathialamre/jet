@@ -474,7 +474,7 @@ class _StateWidget<T> extends JetConsumerWidget {
   final Widget Function(Object error, StackTrace? stackTrace)? error;
 
   @override
-  Widget jetBuild(BuildContext context, WidgetRef ref, Jet jet) {
+  Widget build(BuildContext context, WidgetRef ref, Jet jet) {
     final asyncValue = ref.watch(provider);
 
     return CustomMaterialIndicator(
@@ -536,7 +536,7 @@ class _StateFamilyWidget<T, Param> extends JetConsumerWidget {
   final Widget Function(Object error, StackTrace? stackTrace)? error;
 
   @override
-  Widget jetBuild(BuildContext context, WidgetRef ref, Jet jet) {
+  Widget build(BuildContext context, WidgetRef ref, Jet jet) {
     final asyncValue = ref.watch(provider(param));
 
     return CustomMaterialIndicator(
