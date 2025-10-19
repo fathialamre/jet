@@ -14,6 +14,18 @@ class AppNetwork extends JetApiService {
   String get baseUrl => isDebugMode ? ProdEnv.baseUrl : ProdEnv.baseUrl;
 
   @override
+  // TODO: implement sendTimeout
+  Duration get sendTimeout => Duration(seconds: 2);
+
+  @override
+  // TODO: implement connectTimeout
+  Duration get connectTimeout => Duration(seconds: 2);
+
+  @override
+  // TODO: implement receiveTimeout
+  Duration get receiveTimeout =>Duration(seconds: 2);
+
+  @override
   List<Interceptor> get interceptors => [];
 }
 

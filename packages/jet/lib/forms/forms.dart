@@ -1,87 +1,127 @@
 /// Jet Forms Module
 ///
-/// A comprehensive form management solution for Flutter applications using the Jet framework.
+/// A comprehensive form management solution for Flutter applications.
 ///
-/// This module provides:
-/// - **State Management**: AsyncFormValue pattern for form states
-/// - **Form Notifiers**: JetFormNotifier for handling form logic
-/// - **Form Builder**: JetFormBuilder for constructing forms
-/// - **Form Hooks**: useJetForm for simplified inline forms
-/// - **Input Widgets**: Pre-built form fields with validation
+/// ## Two Approaches Available
 ///
-/// ## Basic Usage with JetFormNotifier
+/// ### 🎯 Simple Forms (Recommended for Getting Started)
 ///
-/// ```dart
-/// // 1. Define your form notifier
-/// class LoginFormNotifier extends JetFormNotifier<LoginRequest, LoginResponse> {
-///   @override
-///   LoginRequest decoder(Map<String, dynamic> json) {
-///     return LoginRequest.fromJson(json);
-///   }
+/// Use `useJetForm` hook with `JetSimpleForm` for straightforward forms.
+/// Perfect for most use cases: login, registration, settings, contact forms, etc.
 ///
-///   @override
-///   Future<LoginResponse> action(LoginRequest data) async {
-///     return await apiService.login(data);
-///   }
-/// }
+/// **When to use:**
+/// - Standard forms with 3-20 fields
+/// - Basic validation and error handling
+/// - Simple submit → success/error flow
+/// - 80% of typical app forms
 ///
-/// // 2. Create a provider
-/// final loginFormProvider = JetFormProvider<LoginRequest, LoginResponse>(
-///   (ref) => LoginFormNotifier(ref),
-/// );
-///
-/// // 3. Build your form UI
-/// JetFormBuilder<LoginRequest, LoginResponse>(
-///   provider: loginFormProvider,
-///   builder: (context, ref, form, state) {
-///     return [
-///       JetTextField(name: 'email'),
-///       JetPasswordField(name: 'password'),
-///     ];
-///   },
-///   onSuccess: (response, request) {
-///     // Handle success
-///   },
-/// )
-/// ```
-///
-/// ## Simplified Usage with useJetForm Hook
-///
+/// **Quick Example:**
 /// ```dart
 /// class LoginPage extends HookConsumerWidget {
 ///   @override
 ///   Widget build(BuildContext context, WidgetRef ref) {
 ///     final form = useJetForm<LoginRequest, LoginResponse>(
+///       ref: ref,
 ///       decoder: (json) => LoginRequest.fromJson(json),
 ///       action: (request) => apiService.login(request),
 ///       onSuccess: (response, request) {
-///         // Handle success
+///         context.showToast('Login successful!');
 ///       },
 ///     );
 ///
 ///     return JetSimpleForm(
-///       controller: form,
+///       form: form,
 ///       children: [
-///         FormBuilderTextField(name: 'email'),
+///         JetTextField(name: 'email'),
 ///         JetPasswordField(name: 'password'),
 ///       ],
 ///     );
 ///   }
 /// }
 /// ```
+///
+/// 📖 **See:** `docs/FORMS_SIMPLE.md` for complete guide
+///
+/// ---
+///
+/// ### 🚀 Advanced Forms (For Complex Requirements)
+///
+/// Use `JetFormNotifier` with `JetFormBuilder` for enterprise features.
+/// Needed for complex scenarios that require fine-grained control.
+///
+/// **When to use:**
+/// - Multi-step wizards (3+ steps)
+/// - Conditional field visibility
+/// - Complex cross-field validation
+/// - Server-side validation with field-specific errors
+/// - Form state persistence across navigation
+/// - Custom lifecycle hooks
+/// - Validation result caching
+///
+/// **Quick Example:**
+/// ```dart
+/// @riverpod
+/// class LoginForm extends _$LoginForm with JetFormMixin<LoginRequest, LoginResponse> {
+///   @override
+///   AsyncFormValue<LoginRequest, LoginResponse> build() {
+///     return const AsyncFormIdle();
+///   }
+///
+///   @override
+///   LoginRequest decoder(Map<String, dynamic> json) => LoginRequest.fromJson(json);
+///
+///   @override
+///   Future<LoginResponse> action(LoginRequest data) => apiService.login(data);
+///
+///   // Add custom validation, lifecycle hooks, etc.
+/// }
+/// ```
+///
+/// 📖 **See:** `docs/FORMS_ADVANCED.md` for complete guide
+///
+/// ---
+///
+/// ## Not Sure Which to Use?
+///
+/// **Start with Simple Forms** (`useJetForm`). You can always migrate to Advanced
+/// Forms later if you need enterprise features.
+///
+/// See `WHICH_APPROACH.md` for a decision tree.
+///
 library;
 
-// Core types and state management
+// ============================================================================
+// SIMPLE FORMS - Start Here (80% of use cases)
+// ============================================================================
+// Use for: login, registration, settings, contact forms
+// Learn more: docs/FORMS_SIMPLE.md
+
+export 'simple/simple.dart';
+
+// ============================================================================
+// ADVANCED FORMS - Enterprise Features (20% of use cases)
+// ============================================================================
+// Use for: multi-step wizards, conditional fields, complex validation
+// Learn more: docs/FORMS_ADVANCED.md
+
+export 'advanced/advanced.dart';
+
+// ============================================================================
+// SHARED - Used by Both Approaches
+// ============================================================================
+// Core form state and types
 export 'common.dart';
+export 'core/core.dart';
 
-// Notifiers
-export 'notifiers/notifiers.dart';
-
-// Widgets
-export 'widgets/widgets.dart';
-
-// Input fields
+// Form input widgets (works with both Simple and Advanced)
 export 'inputs/inputs.dart';
 
-// Hooks
-export 'hooks/hooks.dart';
+// Validation rules (70+ validators)
+export 'validation/validation.dart';
+
+// Localization for form messages
+export 'localization/localization.dart';
+
+// Form change detection
+export 'widgets/jet_form_change_listener.dart';
+export 'widgets/widgets.dart';

@@ -18,8 +18,6 @@ dependencies:
   hooks_riverpod: "^3.0.0"
   flutter_hooks: "^0.21.2"
   auto_route: "^10.1.0+1"
-  flutter_form_builder: "^10.1.0"
-  form_builder_validators: "^11.1.2"
   pinput: "^5.0.2"
   custom_refresh_indicator: "^4.0.1"
   infinite_scroll_pagination: "^5.1.0"

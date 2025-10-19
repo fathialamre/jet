@@ -1,208 +1,574 @@
-import 'package:flutter/material.dart';
-import 'package:jet/extensions/build_context.dart';
-import 'package:jet/jet_framework.dart';
+import 'dart:ui' as ui show BoxHeightStyle, BoxWidthStyle;
 
-/// A customizable password field widget with built-in validation and visibility toggle.
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:jet/forms/core/jet_form_field_decoration.dart';
+import 'package:jet/forms/core/jet_form_field.dart';
+import 'package:jet/forms/inputs/mixins/controller_sync_mixin.dart';
+import 'package:jet/forms/validation/jet_validators.dart';
+
+/// A Material Design password field input for Jet forms with show/hide functionality.
 ///
-/// This widget provides:1
-/// - Password visibility toggle
-/// - Password confirmation validation
-/// - Customizable validation rules
-/// - Integrated with Flutter Form Builder
+/// This widget extends [JetFormFieldDecoration] and wraps Flutter's [TextField]
+/// with password visibility toggle.
 ///
-/// Example usage:
+/// Example:
 /// ```dart
 /// JetPasswordField(
 ///   name: 'password',
-///   hintText: 'Enter your password',
-///   identicalWith: 'confirmPassword', // For password confirmation
-///   formKey: formKey,
+///   decoration: InputDecoration(
+///     labelText: 'Password',
+///     hintText: 'Enter your password',
+///   ),
+///   validator: JetValidators.compose([
+///     JetValidators.required(),
+///     JetValidators.minLength(8),
+///   ]),
 /// )
 /// ```
-class JetPasswordField extends HookWidget {
-  /// The name identifier for this form field
-  final String name;
+class JetPasswordField extends JetFormFieldDecoration<String> {
+  /// Creates a password field with confirmation field.
+  ///
+  /// This static method returns a [Column] widget containing both password
+  /// and confirmation fields with automatic matching validation.
+  ///
+  /// The confirmation field will be named `{name}_confirmation` and will
+  /// automatically validate that its value matches the original password field.
+  ///
+  /// Example:
+  /// ```dart
+  /// final formKey = GlobalKey<JetFormState>();
+  ///
+  /// JetPasswordField.withConfirmation(
+  ///   name: 'password',
+  ///   formKey: formKey,
+  ///   decoration: const InputDecoration(
+  ///     labelText: 'Password',
+  ///     hintText: 'Enter your password',
+  ///   ),
+  ///   confirmationDecoration: const InputDecoration(
+  ///     labelText: 'Confirm Password',
+  ///     hintText: 'Re-enter your password',
+  ///   ),
+  ///   validator: JetValidators.compose([
+  ///     JetValidators.required(),
+  ///     JetValidators.minLength(8),
+  ///   ]),
+  /// )
+  /// ```
+  static Widget withConfirmation({
+    Key? key,
+    required String name,
+    required GlobalKey<JetFormState> formKey,
+    InputDecoration decoration = const InputDecoration(),
+    InputDecoration? confirmationDecoration,
+    FormFieldValidator<String>? validator,
+    bool isRequired = true,
+    double spacing = 16,
+    bool enabled = true,
+    AutovalidateMode autovalidateMode = AutovalidateMode.disabled,
+    Icon? visibilityIcon,
+    Icon? visibilityOffIcon,
+  }) {
+    // Build the validator list for both fields
+    final validators = <FormFieldValidator<String>>[];
+    if (isRequired) {
+      validators.add(JetValidators.required());
+    }
+    if (validator != null) {
+      validators.add(validator);
+    }
 
-  /// Initial value for the password field
-  final String? initialValue;
+    final passwordValidator = validators.isEmpty
+        ? null
+        : JetValidators.compose(validators);
 
-  /// Custom validator function
-  final FormFieldValidator<String>? validator;
+    // Build the confirmation validator list
+    final confirmationValidators = <FormFieldValidator<String>>[...validators];
+    confirmationValidators.add(
+      JetValidators.matchField<String>(
+        formKey,
+        name,
+        errorText: 'Passwords do not match',
+      ),
+    );
 
-  /// Custom prefix icon widget
-  final Widget? prefixIcon;
+    return Column(
+      key: key,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        JetPasswordField(
+          name: name,
+          decoration: decoration,
+          validator: passwordValidator,
+          enabled: enabled,
+          autovalidateMode: autovalidateMode,
+          visibilityIcon: visibilityIcon,
+          visibilityOffIcon: visibilityOffIcon,
+        ),
+        SizedBox(height: spacing),
+        JetPasswordField(
+          name: '${name}_confirmation',
+          decoration:
+              confirmationDecoration ??
+              decoration.copyWith(
+                labelText: 'Confirm ${decoration.labelText ?? 'Password'}',
+              ),
+          validator: JetValidators.compose(confirmationValidators),
+          enabled: enabled,
+          autovalidateMode: autovalidateMode,
+          visibilityIcon: visibilityIcon,
+          visibilityOffIcon: visibilityOffIcon,
+        ),
+      ],
+    );
+  }
 
-  /// Whether to show the default lock icon
-  final bool showPrefixIcon;
+  /// Controls the text being edited.
+  ///
+  /// If null, this widget will create its own [TextEditingController].
+  final TextEditingController? controller;
 
-  /// Whether this field is required
-  final bool isRequired;
-
-  /// Form key reference for password confirmation validation
-  final GlobalKey<FormBuilderState>? formKey;
-
-  /// Field name to match for password confirmation
-  final String? identicalWith;
-
-  /// Hint text to display when field is empty
-  final String hintText;
-
-  /// Whether to initially obscure the password text
-  final bool obscureText;
-
-  /// Keyboard type for this field
+  /// The type of keyboard to use for editing the text.
   final TextInputType? keyboardType;
 
-  /// Whether the field is read-only
-  final bool readOnly;
+  /// The type of action button to use for the keyboard.
+  final TextInputAction? textInputAction;
 
-  /// Whether to autofocus this field
+  /// Configures how the platform keyboard will select an uppercase or
+  /// lowercase keyboard.
+  final TextCapitalization textCapitalization;
+
+  /// The style to use for the text being edited.
+  final TextStyle? style;
+
+  /// The strut style to use.
+  final StrutStyle? strutStyle;
+
+  /// How the text should be aligned horizontally.
+  final TextAlign textAlign;
+
+  /// The alignment of the text vertically within the input field.
+  final TextAlignVertical? textAlignVertical;
+
+  /// The directionality of the text.
+  final TextDirection? textDirection;
+
+  /// Whether this text field should focus itself if nothing else is already
+  /// focused.
   final bool autofocus;
 
-  /// Whether the field is enabled
-  final bool enabled;
+  /// The character to use for obscuring text when password is hidden.
+  final String obscuringCharacter;
 
-  /// Label text for the field
-  final String? labelText;
+  /// Whether to enable autocorrection.
+  final bool autocorrect;
 
-  /// Label style for the field
-  final TextStyle? labelStyle;
+  /// The type of smart dashes to use.
+  final SmartDashesType? smartDashesType;
 
-  /// Whether the field should be filled
-  final bool filled;
+  /// The type of smart quotes to use.
+  final SmartQuotesType? smartQuotesType;
 
-  /// Fill color for the field
-  final Color? fillColor;
+  /// Whether to show input suggestions as the user types.
+  final bool enableSuggestions;
 
-  /// Border for the field
-  final InputBorder? border;
+  /// Whether the text field is read-only.
+  final bool readOnly;
 
-  /// Border when the field is enabled
-  final InputBorder? enabledBorder;
+  /// Whether to show cursor.
+  final bool? showCursor;
 
-  /// Border when the field is focused
-  final InputBorder? focusedBorder;
+  /// The maximum number of characters (Unicode grapheme clusters) to allow.
+  final int? maxLength;
 
-  /// Border when the field has an error
-  final InputBorder? errorBorder;
+  /// Determines how the [maxLength] limit should be enforced.
+  final MaxLengthEnforcement? maxLengthEnforcement;
 
-  /// Border when the field is disabled
-  final InputBorder? disabledBorder;
+  /// Called when the user initiates a change to the TextField's value.
+  final VoidCallback? onEditingComplete;
 
-  /// Content padding for the field
-  final EdgeInsetsGeometry? contentPadding;
+  /// Called when the user indicates that they are done editing the text.
+  final ValueChanged<String>? onSubmitted;
 
-  /// Error style for validation messages
-  final TextStyle? errorStyle;
+  /// Optional input validation and formatting overrides.
+  final List<TextInputFormatter>? inputFormatters;
 
-  /// Helper text to display below the field
-  final String? helperText;
+  /// How thick the cursor will be.
+  final double cursorWidth;
 
-  /// Helper text style
-  final TextStyle? helperStyle;
+  /// How tall the cursor will be.
+  final double? cursorHeight;
 
-  /// Constraints for the input field
-  final BoxConstraints? constraints;
+  /// How rounded the corners of the cursor should be.
+  final Radius? cursorRadius;
 
-  /// Value transformer for the field
-  final ValueTransformer<String?>? valueTransformer;
+  /// The color to use when painting the cursor.
+  final Color? cursorColor;
 
-  const JetPasswordField({
+  /// The appearance of the keyboard.
+  final Brightness? keyboardAppearance;
+
+  /// The amount of space by which to inset the child.
+  final EdgeInsets scrollPadding;
+
+  /// Whether to enable user interface affordances for changing the text
+  /// selection.
+  final bool enableInteractiveSelection;
+
+  /// Builds a counter widget below the text field.
+  final InputCounterWidgetBuilder? buildCounter;
+
+  /// Determines the way that drag start behavior is handled.
+  final DragStartBehavior dragStartBehavior;
+
+  /// The [ScrollController] to use when scrolling.
+  final ScrollController? scrollController;
+
+  /// The [ScrollPhysics] to use when scrolling.
+  final ScrollPhysics? scrollPhysics;
+
+  /// Defines how the selection highlight should be painted.
+  final ui.BoxHeightStyle selectionHeightStyle;
+
+  /// Defines how wide the selection highlight should be painted.
+  final ui.BoxWidthStyle selectionWidthStyle;
+
+  /// A list of strings that helps the autofill service identify the type of
+  /// this text input.
+  final Iterable<String>? autofillHints;
+
+  /// Called when the user taps on this text field.
+  final GestureTapCallback? onTap;
+
+  /// Called when the user taps outside this text field.
+  final TapRegionCallback? onTapOutside;
+
+  /// The cursor for a mouse pointer when it enters or hovers over the widget.
+  final MouseCursor? mouseCursor;
+
+  /// Builds the text selection toolbar when requested by the user.
+  final EditableTextContextMenuBuilder? contextMenuBuilder;
+
+  /// Configuration of handler for [SpellCheckService] results.
+  final SpellCheckConfiguration? spellCheckConfiguration;
+
+  /// The color of the cursor when the input is showing an error.
+  final Color? cursorErrorColor;
+
+  /// Icon to show when password is visible.
+  final Icon? visibilityIcon;
+
+  /// Icon to show when password is hidden.
+  final Icon? visibilityOffIcon;
+
+  /// Creates a Material Design password field input.
+  JetPasswordField({
     super.key,
-    required this.name,
-    this.initialValue,
-    this.validator,
-    this.prefixIcon,
-    this.showPrefixIcon = true,
-    this.isRequired = true,
-    this.formKey,
-    this.identicalWith,
-    this.hintText = '',
-    this.obscureText = true,
-    this.keyboardType,
+    required super.name,
+    FormFieldValidator<String>? validator,
+    super.decoration = const InputDecoration(),
+    super.onChanged,
+    super.valueTransformer,
+    super.enabled = true,
+    super.onSaved,
+    super.autovalidateMode = AutovalidateMode.disabled,
+    super.onReset,
+    super.focusNode,
+    super.restorationId,
+    String? initialValue,
+    super.errorBuilder,
+    bool isRequired = true,
+    this.controller,
     this.readOnly = false,
+    this.textCapitalization = TextCapitalization.none,
+    this.scrollPadding = const EdgeInsets.all(20.0),
+    this.enableInteractiveSelection = true,
+    this.maxLengthEnforcement,
+    this.textAlign = TextAlign.start,
     this.autofocus = false,
-    this.enabled = true,
-    this.labelText,
-    this.labelStyle,
-    this.filled = false,
-    this.fillColor,
-    this.border,
-    this.enabledBorder,
-    this.focusedBorder,
-    this.errorBorder,
-    this.disabledBorder,
-    this.contentPadding,
-    this.errorStyle,
-    this.helperText,
-    this.helperStyle,
-    this.constraints,
-    this.valueTransformer,
+    this.autocorrect = false,
+    this.cursorWidth = 2.0,
+    this.cursorHeight,
+    this.keyboardType,
+    this.style,
+    this.textInputAction,
+    this.strutStyle,
+    this.textDirection,
+    this.maxLength,
+    this.onEditingComplete,
+    this.onSubmitted,
+    this.inputFormatters,
+    this.cursorRadius,
+    this.cursorColor,
+    this.keyboardAppearance,
+    this.buildCounter,
+    this.showCursor,
+    this.onTap,
+    this.onTapOutside,
+    this.enableSuggestions = false,
+    this.textAlignVertical,
+    this.dragStartBehavior = DragStartBehavior.start,
+    this.scrollController,
+    this.scrollPhysics,
+    this.selectionWidthStyle = ui.BoxWidthStyle.tight,
+    this.smartDashesType,
+    this.smartQuotesType,
+    this.selectionHeightStyle = ui.BoxHeightStyle.tight,
+    this.autofillHints = const [AutofillHints.password],
+    this.obscuringCharacter = '•',
+    this.mouseCursor,
+    this.contextMenuBuilder,
+    this.spellCheckConfiguration,
+    this.cursorErrorColor,
+    this.visibilityIcon,
+    this.visibilityOffIcon,
+  }) : assert(initialValue == null || controller == null),
+       super(
+         initialValue: controller != null ? controller.text : initialValue,
+         validator: isRequired && validator != null
+             ? JetValidators.compose([JetValidators.required(), validator])
+             : isRequired
+             ? JetValidators.required()
+             : validator,
+         builder: (FormFieldState<String?> field) {
+           final state = field as _JetPasswordFieldState;
+
+           return _JetPasswordFieldWidget(
+             state: state,
+             externalController: controller,
+             restorationId: restorationId,
+             keyboardType: keyboardType ?? TextInputType.visiblePassword,
+             textInputAction: textInputAction,
+             style: style,
+             strutStyle: strutStyle,
+             textAlign: textAlign,
+             textAlignVertical: textAlignVertical,
+             textDirection: textDirection,
+             textCapitalization: textCapitalization,
+             autofocus: autofocus,
+             readOnly: readOnly,
+             showCursor: showCursor,
+             autocorrect: autocorrect,
+             enableSuggestions: enableSuggestions,
+             maxLengthEnforcement: maxLengthEnforcement,
+             maxLength: maxLength,
+             onTap: onTap,
+             onTapOutside: onTapOutside,
+             onEditingComplete: onEditingComplete,
+             onSubmitted: onSubmitted,
+             inputFormatters: inputFormatters,
+             cursorWidth: cursorWidth,
+             cursorHeight: cursorHeight,
+             cursorRadius: cursorRadius,
+             cursorColor: cursorColor,
+             scrollPadding: scrollPadding,
+             keyboardAppearance: keyboardAppearance,
+             enableInteractiveSelection: enableInteractiveSelection,
+             buildCounter: buildCounter,
+             dragStartBehavior: dragStartBehavior,
+             scrollController: scrollController,
+             scrollPhysics: scrollPhysics,
+             selectionHeightStyle: selectionHeightStyle,
+             selectionWidthStyle: selectionWidthStyle,
+             smartDashesType: smartDashesType,
+             smartQuotesType: smartQuotesType,
+             mouseCursor: mouseCursor,
+             contextMenuBuilder: contextMenuBuilder,
+             obscuringCharacter: obscuringCharacter,
+             autofillHints: autofillHints,
+             spellCheckConfiguration: spellCheckConfiguration,
+             cursorErrorColor: cursorErrorColor,
+             visibilityIcon: visibilityIcon,
+             visibilityOffIcon: visibilityOffIcon,
+           );
+         },
+       );
+
+  @override
+  JetFormFieldDecorationState<JetPasswordField, String> createState() =>
+      _JetPasswordFieldState();
+}
+
+class _JetPasswordFieldState
+    extends JetFormFieldDecorationState<JetPasswordField, String> {}
+
+/// Internal widget that uses hooks for password visibility toggle and controller management.
+class _JetPasswordFieldWidget extends HookWidget {
+  const _JetPasswordFieldWidget({
+    required this.state,
+    required this.externalController,
+    required this.restorationId,
+    required this.keyboardType,
+    required this.textInputAction,
+    required this.style,
+    required this.strutStyle,
+    required this.textAlign,
+    required this.textAlignVertical,
+    required this.textDirection,
+    required this.textCapitalization,
+    required this.autofocus,
+    required this.readOnly,
+    required this.showCursor,
+    required this.autocorrect,
+    required this.enableSuggestions,
+    required this.maxLengthEnforcement,
+    required this.maxLength,
+    required this.onTap,
+    required this.onTapOutside,
+    required this.onEditingComplete,
+    required this.onSubmitted,
+    required this.inputFormatters,
+    required this.cursorWidth,
+    required this.cursorHeight,
+    required this.cursorRadius,
+    required this.cursorColor,
+    required this.scrollPadding,
+    required this.keyboardAppearance,
+    required this.enableInteractiveSelection,
+    required this.buildCounter,
+    required this.dragStartBehavior,
+    required this.scrollController,
+    required this.scrollPhysics,
+    required this.selectionHeightStyle,
+    required this.selectionWidthStyle,
+    required this.smartDashesType,
+    required this.smartQuotesType,
+    required this.mouseCursor,
+    required this.contextMenuBuilder,
+    required this.obscuringCharacter,
+    required this.autofillHints,
+    required this.spellCheckConfiguration,
+    required this.cursorErrorColor,
+    required this.visibilityIcon,
+    required this.visibilityOffIcon,
   });
+
+  final _JetPasswordFieldState state;
+  final TextEditingController? externalController;
+  final String? restorationId;
+  final TextInputType? keyboardType;
+  final TextInputAction? textInputAction;
+  final TextStyle? style;
+  final StrutStyle? strutStyle;
+  final TextAlign textAlign;
+  final TextAlignVertical? textAlignVertical;
+  final TextDirection? textDirection;
+  final TextCapitalization textCapitalization;
+  final bool autofocus;
+  final bool readOnly;
+  final bool? showCursor;
+  final bool autocorrect;
+  final bool enableSuggestions;
+  final MaxLengthEnforcement? maxLengthEnforcement;
+  final int? maxLength;
+  final GestureTapCallback? onTap;
+  final TapRegionCallback? onTapOutside;
+  final VoidCallback? onEditingComplete;
+  final ValueChanged<String>? onSubmitted;
+  final List<TextInputFormatter>? inputFormatters;
+  final double cursorWidth;
+  final double? cursorHeight;
+  final Radius? cursorRadius;
+  final Color? cursorColor;
+  final EdgeInsets scrollPadding;
+  final Brightness? keyboardAppearance;
+  final bool enableInteractiveSelection;
+  final InputCounterWidgetBuilder? buildCounter;
+  final DragStartBehavior dragStartBehavior;
+  final ScrollController? scrollController;
+  final ScrollPhysics? scrollPhysics;
+  final ui.BoxHeightStyle selectionHeightStyle;
+  final ui.BoxWidthStyle selectionWidthStyle;
+  final SmartDashesType? smartDashesType;
+  final SmartQuotesType? smartQuotesType;
+  final MouseCursor? mouseCursor;
+  final EditableTextContextMenuBuilder? contextMenuBuilder;
+  final String obscuringCharacter;
+  final Iterable<String>? autofillHints;
+  final SpellCheckConfiguration? spellCheckConfiguration;
+  final Color? cursorErrorColor;
+  final Icon? visibilityIcon;
+  final Icon? visibilityOffIcon;
 
   @override
   Widget build(BuildContext context) {
-    final obscureTextState = useState(true);
+    // Use hook to manage password visibility state
+    final isPasswordVisible = useState(false);
 
-    void toggleVisibility() {
-      obscureTextState.value = !obscureTextState.value;
-    }
+    // Use hook for controller management - creates and disposes automatically
+    final controller = useTextEditingController(
+      text: externalController?.text ?? state.initialValue ?? '',
+    );
 
-    return FormBuilderTextField(
-      name: name,
-      initialValue: initialValue,
-      obscureText: obscureTextState.value,
-      valueTransformer: valueTransformer,
-      enabled: enabled,
-      readOnly: readOnly,
-      autofocus: autofocus,
-      keyboardType: keyboardType,
-      decoration: InputDecoration(
-        labelText: labelText,
-        labelStyle: labelStyle,
-        hintText: hintText,
-        prefixIcon: showPrefixIcon ? Icon(PhosphorIcons.lock()) : prefixIcon,
-        suffixIcon: IconButton(
-          icon: Icon(
-            obscureTextState.value
-                ? PhosphorIcons.eye()
-                : PhosphorIcons.eyeClosed(),
-          ),
-          onPressed: toggleVisibility,
-        ),
-        filled: filled,
-        fillColor: fillColor,
-        border: border,
-        enabledBorder: enabledBorder,
-        focusedBorder: focusedBorder,
-        errorBorder: errorBorder,
-        disabledBorder: disabledBorder,
-        contentPadding: contentPadding,
-        errorStyle: errorStyle,
-        helperText: helperText,
-        helperStyle: helperStyle,
-        constraints: constraints,
+    // Use the external controller if provided, otherwise use the hook-managed one
+    final effectiveController = externalController ?? controller;
+
+    // Set up bidirectional sync between controller and form state with circular update protection
+    useControllerSync(effectiveController, state);
+
+    // Get effective decoration with suffix icon for password toggle
+    final effectiveDecoration = state.decoration.copyWith(
+      suffixIcon: IconButton(
+        icon: isPasswordVisible.value
+            ? (visibilityIcon ?? const Icon(Icons.visibility))
+            : (visibilityOffIcon ?? const Icon(Icons.visibility_off)),
+        onPressed: () {
+          isPasswordVisible.value = !isPasswordVisible.value;
+        },
       ),
-      validator:
-          validator ??
-          JetValidators.compose([
-            if (isRequired) JetValidators.required(),
-            (value) {
-              if (identicalWith != null) {
-                if (formKey == null) {
-                  throw FlutterError(
-                    'formKey is required when using identicalWith for field: $name',
-                  );
-                }
-                final otherFieldValue =
-                    formKey?.currentState?.fields[identicalWith]?.value;
-                if (value != otherFieldValue) {
-                  return context.jetI10n.passwordNotIdentical;
-                }
-              }
-              return null;
-            },
-          ]),
+    );
+
+    return TextField(
+      restorationId: restorationId,
+      controller: effectiveController,
+      focusNode: state.effectiveFocusNode,
+      decoration: effectiveDecoration,
+      keyboardType: keyboardType,
+      textInputAction: textInputAction,
+      style: style,
+      strutStyle: strutStyle,
+      textAlign: textAlign,
+      textAlignVertical: textAlignVertical,
+      textDirection: textDirection,
+      textCapitalization: textCapitalization,
+      autofocus: autofocus,
+      readOnly: readOnly,
+      showCursor: showCursor,
+      obscureText: !isPasswordVisible.value,
+      autocorrect: autocorrect,
+      enableSuggestions: enableSuggestions,
+      maxLengthEnforcement: maxLengthEnforcement,
+      maxLength: maxLength,
+      onTap: onTap,
+      onTapOutside: onTapOutside,
+      onEditingComplete: onEditingComplete,
+      onSubmitted: onSubmitted,
+      inputFormatters: inputFormatters,
+      enabled: state.enabled,
+      cursorWidth: cursorWidth,
+      cursorHeight: cursorHeight,
+      cursorRadius: cursorRadius,
+      cursorColor: cursorColor,
+      scrollPadding: scrollPadding,
+      keyboardAppearance: keyboardAppearance,
+      enableInteractiveSelection: enableInteractiveSelection,
+      buildCounter: buildCounter,
+      dragStartBehavior: dragStartBehavior,
+      scrollController: scrollController,
+      scrollPhysics: scrollPhysics,
+      selectionHeightStyle: selectionHeightStyle,
+      selectionWidthStyle: selectionWidthStyle,
+      smartDashesType: smartDashesType,
+      smartQuotesType: smartQuotesType,
+      mouseCursor: mouseCursor,
+      contextMenuBuilder: contextMenuBuilder,
+      obscuringCharacter: obscuringCharacter,
+      autofillHints: autofillHints,
+      spellCheckConfiguration: spellCheckConfiguration,
+      cursorErrorColor: cursorErrorColor,
     );
   }
 }

@@ -48,4 +48,5 @@ test/coverage_helper_test.dart
 *.temp
 
 # Reference files (should not be tracked)
+.ref
 .ref/

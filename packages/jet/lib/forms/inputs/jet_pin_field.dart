@@ -1,360 +1,453 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:flutter/services.dart';
+import 'package:jet/jet_framework.dart';
+import 'package:jet/forms/inputs/mixins/controller_sync_mixin.dart';
 import 'package:pinput/pinput.dart';
-import 'package:jet/forms/validators/jet_validators.dart';
 
-/// A customizable PIN field widget with built-in validation using Pinput.
+/// A PIN/OTP input field for Jet forms using the Pinput package.
 ///
-/// This widget provides:
-/// - PIN/OTP input with customizable length
-/// - Visual feedback for filled/focused states
-/// - Built-in validation
-/// - Customizable appearance and behavior
-/// - Integrated with Flutter Form Builder
-/// - Auto-submit functionality
+/// This widget wraps the [Pinput] package and provides a beautiful PIN/OTP
+/// input experience with individual boxes for each digit.
 ///
-/// Example usage:
+/// Example:
 /// ```dart
 /// JetPinField(
-///   name: 'pin',
+///   name: 'otp',
 ///   length: 6,
-///   onCompleted: (pin) => print('PIN entered: $pin'),
-///   onSubmitted: (pin) => submitPin(pin),
+///   decoration: const InputDecoration(
+///     labelText: 'Enter OTP',
+///   ),
+///   onCompleted: (pin) {
+///     print('PIN entered: $pin');
+///   },
+///   validator: JetValidators.compose([
+///     JetValidators.required(),
+///     JetValidators.exactLength(6),
+///   ]),
 /// )
 /// ```
-class JetPinField extends StatefulWidget {
-  /// The name identifier for this form field
-  final String name;
-
-  /// Initial value for the PIN field
-  final String? initialValue;
-
-  /// Custom validator function
-  final FormFieldValidator<String>? validator;
-
-  /// Whether this field is required
-  final bool isRequired;
-
-  /// Length of the PIN (number of digits)
+class JetPinField extends JetFormField<String> {
+  /// Number of PIN digits.
   final int length;
 
-  /// Callback when PIN is completed (all digits entered)
-  final ValueChanged<String>? onCompleted;
-
-  /// Callback when PIN is submitted (e.g., via keyboard action)
-  final ValueChanged<String>? onSubmitted;
-
-  /// Callback when PIN value changes
-  final ValueChanged<String>? onChanged;
-
-  /// Whether to autofocus this field
-  final bool autofocus;
-
-  /// Whether the field is enabled
-  final bool enabled;
-
-  /// Whether to obscure the text (for passwords)
+  /// Whether to obscure the entered digits.
   final bool obscureText;
 
-  /// Whether to show cursor
+  /// Character to use for obscuring text.
+  final String obscuringCharacter;
+
+  /// Character to show when obscuring text with a widget.
+  final Widget? obscuringWidget;
+
+  /// Whether to show cursor.
   final bool showCursor;
 
-  /// Text to display when PIN box is empty
-  final String? hintCharacter;
-
-  /// Whether to allow multiple lines
-  final bool readOnly;
-
-  /// Spacing between PIN boxes
-  final double spacing;
-
-  /// Width of each PIN box
-  final double? boxWidth;
-
-  /// Height of each PIN box
-  final double? boxHeight;
-
-  /// Border radius for PIN boxes
-  final BorderRadius? borderRadius;
-
-  /// Color for default state
-  final Color? defaultBorderColor;
-
-  /// Color for focused state
-  final Color? focusedBorderColor;
-
-  /// Color for filled state
-  final Color? filledBorderColor;
-
-  /// Color for submitted state
-  final Color? submittedBorderColor;
-
-  /// Color for error state
-  final Color? errorBorderColor;
-
-  /// Background color for default state
-  final Color? defaultFillColor;
-
-  /// Background color for focused state
-  final Color? focusedFillColor;
-
-  /// Background color for filled state
-  final Color? filledFillColor;
-
-  /// Background color for submitted state
-  final Color? submittedFillColor;
-
-  /// Background color for error state
-  final Color? errorFillColor;
-
-  /// Border width for all states
-  final double borderWidth;
-
-  /// Text style for PIN digits
-  final TextStyle? textStyle;
-
-  /// Text style for hint character
-  final TextStyle? hintStyle;
-
-  /// Text style for error text
-  final TextStyle? errorStyle;
-
-  /// Curve for animations
-  final Curve animationCurve;
-
-  /// Duration for animations
-  final Duration animationDuration;
-
-  /// Whether to use haptic feedback
+  /// Whether to enable haptic feedback.
   final bool hapticFeedback;
 
-  /// Close keyboard when completed
+  /// Called when all PIN digits are entered.
+  final ValueChanged<String>? onCompleted;
+
+  /// Called when user submits the PIN.
+  final VoidCallback? onSubmitted;
+
+  /// Called when user taps on the PIN field.
+  final VoidCallback? onTap;
+
+  /// The style to use for the PIN text.
+  final TextStyle? textStyle;
+
+  /// Whether to close keyboard when PIN is completed.
   final bool closeKeyboardWhenCompleted;
 
-  /// Error text to display (if any)
-  final String? errorText;
+  /// Default theme for the PIN boxes.
+  final PinTheme? defaultPinTheme;
 
-  /// Helper text to display below the field
-  final String? helperText;
+  /// Theme for focused PIN box.
+  final PinTheme? focusedPinTheme;
 
-  /// Helper text style
-  final TextStyle? helperStyle;
+  /// Theme for submitted PIN box.
+  final PinTheme? submittedPinTheme;
 
-  const JetPinField({
+  /// Theme for PIN box following the focused box.
+  final PinTheme? followingPinTheme;
+
+  /// Theme for disabled PIN box.
+  final PinTheme? disabledPinTheme;
+
+  /// Theme for PIN box with error.
+  final PinTheme? errorPinTheme;
+
+  /// Cursor widget to show.
+  final Widget? cursor;
+
+  /// Pre-fill PIN text.
+  final String? preFilledWidget;
+
+  /// Separator builder between PIN boxes.
+  final Widget Function(int index)? separatorBuilder;
+
+  /// Custom error widget builder for displaying validation errors below the PIN field.
+  final Widget Function(String? errorText)? customErrorBuilder;
+
+  /// Error text style.
+  final TextStyle? errorTextStyle;
+
+  /// Pinput error builder.
+  final PinputErrorBuilder? pinputErrorBuilder;
+
+  /// Controller for the Pinput widget.
+  final TextEditingController? controller;
+
+  /// Whether to enable IME personalized learning.
+  final bool enableIMEPersonalizedLearning;
+
+  /// Keyboard appearance.
+  final Brightness? keyboardAppearance;
+
+  /// List of input formatters.
+  final List<TextInputFormatter> inputFormatters;
+
+  /// Whether to enable interactivity.
+  final bool enableInteractiveSelection;
+
+  /// List of autofill hints.
+  final Iterable<String>? autofillHints;
+
+  /// The decoration for the field container.
+  final InputDecoration? decoration;
+
+  /// Keyboard type for the input.
+  final TextInputType keyboardType;
+
+  /// Text input action.
+  final TextInputAction? textInputAction;
+
+  /// Whether to autofocus the field.
+  final bool autofocus;
+
+  /// Force error state.
+  final bool forceErrorState;
+
+  /// Creates a PIN/OTP input field.
+  JetPinField({
     super.key,
-    required this.name,
-    this.initialValue,
-    this.validator,
-    this.isRequired = true,
+    required super.name,
+    super.validator,
+    super.onSaved,
+    super.autovalidateMode = AutovalidateMode.disabled,
+    super.enabled = true,
+    super.onChanged,
+    super.valueTransformer,
+    super.focusNode,
+    super.restorationId,
+    super.onReset,
+    String? initialValue,
     this.length = 6,
+    this.obscureText = false,
+    this.obscuringCharacter = '•',
+    this.obscuringWidget,
+    this.showCursor = true,
+    this.hapticFeedback = false,
     this.onCompleted,
     this.onSubmitted,
-    this.onChanged,
-    this.autofocus = false,
-    this.enabled = true,
-    this.obscureText = false,
-    this.showCursor = true,
-    this.hintCharacter,
-    this.readOnly = false,
-    this.spacing = 16.0,
-    this.boxWidth,
-    this.boxHeight,
-    this.borderRadius,
-    this.defaultBorderColor,
-    this.focusedBorderColor,
-    this.filledBorderColor,
-    this.submittedBorderColor,
-    this.errorBorderColor,
-    this.defaultFillColor,
-    this.focusedFillColor,
-    this.filledFillColor,
-    this.submittedFillColor,
-    this.errorFillColor,
-    this.borderWidth = 2.0,
+    this.onTap,
     this.textStyle,
-    this.hintStyle,
-    this.errorStyle,
-    this.animationCurve = Curves.easeInOut,
-    this.animationDuration = const Duration(milliseconds: 200),
-    this.hapticFeedback = false,
     this.closeKeyboardWhenCompleted = false,
-    this.errorText,
-    this.helperText,
-    this.helperStyle,
-  });
+    this.defaultPinTheme,
+    this.focusedPinTheme,
+    this.submittedPinTheme,
+    this.followingPinTheme,
+    this.disabledPinTheme,
+    this.errorPinTheme,
+    this.cursor,
+    this.preFilledWidget,
+    this.separatorBuilder,
+    this.customErrorBuilder,
+    this.errorTextStyle,
+    this.pinputErrorBuilder,
+    this.controller,
+    this.enableIMEPersonalizedLearning = true,
+    this.keyboardAppearance,
+    this.inputFormatters = const [],
+    this.enableInteractiveSelection = true,
+    this.autofillHints,
+    this.decoration,
+    this.keyboardType = TextInputType.number,
+    this.textInputAction,
+    this.autofocus = false,
+    this.forceErrorState = false,
+  }) : assert(length > 0, 'Length must be greater than 0'),
+       assert(initialValue == null || controller == null),
+       super(
+         initialValue: controller != null ? controller.text : initialValue,
+         builder: (FormFieldState<String?> field) {
+           final state = field as _JetPinFieldState;
+
+           return _JetPinFieldWidget(
+             state: state,
+             externalController: controller,
+             length: length,
+             obscureText: obscureText,
+             obscuringCharacter: obscuringCharacter,
+             obscuringWidget: obscuringWidget,
+             showCursor: showCursor,
+             hapticFeedback: hapticFeedback,
+             onCompleted: onCompleted,
+             closeKeyboardWhenCompleted: closeKeyboardWhenCompleted,
+             onSubmitted: onSubmitted,
+             onTap: onTap,
+             defaultPinTheme: defaultPinTheme,
+             focusedPinTheme: focusedPinTheme,
+             submittedPinTheme: submittedPinTheme,
+             followingPinTheme: followingPinTheme,
+             disabledPinTheme: disabledPinTheme,
+             errorPinTheme: errorPinTheme,
+             cursor: cursor,
+             preFilledWidget: preFilledWidget,
+             separatorBuilder: separatorBuilder,
+             pinputErrorBuilder: pinputErrorBuilder,
+             forceErrorState: forceErrorState,
+             enableIMEPersonalizedLearning: enableIMEPersonalizedLearning,
+             keyboardAppearance: keyboardAppearance,
+             inputFormatters: inputFormatters,
+             enableInteractiveSelection: enableInteractiveSelection,
+             autofillHints: autofillHints,
+             keyboardType: keyboardType,
+             textInputAction: textInputAction,
+             autofocus: autofocus,
+             decoration: decoration,
+             textStyle: textStyle,
+             customErrorBuilder: customErrorBuilder,
+             errorTextStyle: errorTextStyle,
+           );
+         },
+       );
 
   @override
-  State<JetPinField> createState() => _JetPinFieldState();
+  JetFormFieldState<JetPinField, String> createState() => _JetPinFieldState();
 }
 
-class _JetPinFieldState extends State<JetPinField> {
-  late TextEditingController _controller;
+class _JetPinFieldState extends JetFormFieldState<JetPinField, String> {}
 
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController(text: widget.initialValue ?? '');
-  }
+/// Internal widget that uses hooks for controller management.
+class _JetPinFieldWidget extends HookWidget {
+  const _JetPinFieldWidget({
+    required this.state,
+    required this.externalController,
+    required this.length,
+    required this.obscureText,
+    required this.obscuringCharacter,
+    required this.obscuringWidget,
+    required this.showCursor,
+    required this.hapticFeedback,
+    required this.onCompleted,
+    required this.closeKeyboardWhenCompleted,
+    required this.onSubmitted,
+    required this.onTap,
+    required this.defaultPinTheme,
+    required this.focusedPinTheme,
+    required this.submittedPinTheme,
+    required this.followingPinTheme,
+    required this.disabledPinTheme,
+    required this.errorPinTheme,
+    required this.cursor,
+    required this.preFilledWidget,
+    required this.separatorBuilder,
+    required this.pinputErrorBuilder,
+    required this.forceErrorState,
+    required this.enableIMEPersonalizedLearning,
+    required this.keyboardAppearance,
+    required this.inputFormatters,
+    required this.enableInteractiveSelection,
+    required this.autofillHints,
+    required this.keyboardType,
+    required this.textInputAction,
+    required this.autofocus,
+    required this.decoration,
+    required this.textStyle,
+    required this.customErrorBuilder,
+    required this.errorTextStyle,
+  });
 
-  @override
-  void didUpdateWidget(JetPinField oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.initialValue != oldWidget.initialValue) {
-      _controller.text = widget.initialValue ?? '';
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+  final _JetPinFieldState state;
+  final TextEditingController? externalController;
+  final int length;
+  final bool obscureText;
+  final String obscuringCharacter;
+  final Widget? obscuringWidget;
+  final bool showCursor;
+  final bool hapticFeedback;
+  final ValueChanged<String>? onCompleted;
+  final bool closeKeyboardWhenCompleted;
+  final VoidCallback? onSubmitted;
+  final VoidCallback? onTap;
+  final PinTheme? defaultPinTheme;
+  final PinTheme? focusedPinTheme;
+  final PinTheme? submittedPinTheme;
+  final PinTheme? followingPinTheme;
+  final PinTheme? disabledPinTheme;
+  final PinTheme? errorPinTheme;
+  final Widget? cursor;
+  final String? preFilledWidget;
+  final Widget Function(int index)? separatorBuilder;
+  final PinputErrorBuilder? pinputErrorBuilder;
+  final bool forceErrorState;
+  final bool enableIMEPersonalizedLearning;
+  final Brightness? keyboardAppearance;
+  final List<TextInputFormatter> inputFormatters;
+  final bool enableInteractiveSelection;
+  final Iterable<String>? autofillHints;
+  final TextInputType keyboardType;
+  final TextInputAction? textInputAction;
+  final bool autofocus;
+  final InputDecoration? decoration;
+  final TextStyle? textStyle;
+  final Widget Function(String? errorText)? customErrorBuilder;
+  final TextStyle? errorTextStyle;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    // Create default theme based on current theme
-    final defaultPinTheme = PinTheme(
-      width: widget.boxWidth ?? 56,
-      height: widget.boxHeight ?? 56,
-      textStyle:
-          widget.textStyle ??
-          theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-          ),
-      decoration: BoxDecoration(
-        borderRadius: widget.borderRadius ?? BorderRadius.circular(12),
-        border: Border.all(
-          color: widget.defaultBorderColor ?? colorScheme.outline,
-          width: widget.borderWidth,
-        ),
-        color: widget.defaultFillColor ?? colorScheme.surface,
-      ),
+    // Use hook for controller management - creates and disposes automatically
+    final controller = useTextEditingController(
+      text: externalController?.text ?? state.initialValue ?? '',
     );
 
-    final focusedPinTheme = defaultPinTheme.copyWith(
-      decoration: defaultPinTheme.decoration!.copyWith(
-        borderRadius: widget.borderRadius ?? BorderRadius.circular(12),
-        border: Border.all(
-          color: widget.focusedBorderColor ?? colorScheme.primary,
-          width: widget.borderWidth,
-        ),
-        color: widget.focusedFillColor ?? colorScheme.surface,
-      ),
-    );
+    // Use the external controller if provided, otherwise use the hook-managed one
+    final effectiveController = externalController ?? controller;
 
-    final submittedPinTheme = defaultPinTheme.copyWith(
-      decoration: defaultPinTheme.decoration!.copyWith(
-        borderRadius: widget.borderRadius ?? BorderRadius.circular(12),
-        border: Border.all(
-          color: widget.submittedBorderColor ?? colorScheme.primary,
-          width: widget.borderWidth,
-        ),
-        color: widget.submittedFillColor ?? colorScheme.primaryContainer,
-      ),
-    );
+    // Set up bidirectional sync between controller and form state with circular update protection
+    useControllerSync(effectiveController, state);
 
-    final errorPinTheme = defaultPinTheme.copyWith(
-      decoration: defaultPinTheme.decoration!.copyWith(
-        borderRadius: widget.borderRadius ?? BorderRadius.circular(12),
-        border: Border.all(
-          color: widget.errorBorderColor ?? colorScheme.error,
-          width: widget.borderWidth,
-        ),
-        color: widget.errorFillColor ?? colorScheme.errorContainer,
-      ),
-    );
-
-    return FormBuilderField<String>(
-      name: widget.name,
-      initialValue: widget.initialValue,
-      validator:
-          widget.validator ??
-          JetValidators.compose([
-            if (widget.isRequired) JetValidators.required(),
-            JetValidators.minLength(widget.length),
-            JetValidators.maxLength(widget.length),
-          ]),
-      builder: (FormFieldState<String> field) {
-        final hasError = field.hasError;
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Directionality(
-              textDirection: TextDirection.ltr,
-              child: Pinput(
-                length: widget.length,
-                defaultPinTheme: hasError ? errorPinTheme : defaultPinTheme,
-                focusedPinTheme: hasError ? errorPinTheme : focusedPinTheme,
-                submittedPinTheme: hasError ? errorPinTheme : submittedPinTheme,
-                errorPinTheme: errorPinTheme,
-                pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
-                showCursor: widget.showCursor,
-                obscureText: widget.obscureText,
-                obscuringCharacter: '*',
-                obscuringWidget: widget.obscureText
-                    ? const Text(
-                        '●',
-                        style: TextStyle(fontSize: 18),
-                      )
-                    : null,
-                hapticFeedbackType: widget.hapticFeedback
-                    ? HapticFeedbackType.lightImpact
-                    : HapticFeedbackType.disabled,
-                closeKeyboardWhenCompleted: widget.closeKeyboardWhenCompleted,
-                animationCurve: widget.animationCurve,
-                animationDuration: widget.animationDuration,
-                enabled: widget.enabled,
-                autofocus: widget.autofocus,
-                readOnly: widget.readOnly,
-                controller: _controller,
-                onChanged: (value) {
-                  field.didChange(value);
-                  _controller.text = value;
-                  widget.onChanged?.call(value);
-                },
-                onCompleted: (value) {
-                  field.didChange(value);
-                  _controller.text = value;
-                  widget.onCompleted?.call(value);
-                },
-                onSubmitted: (value) {
-                  field.didChange(value);
-                  _controller.text = value;
-                  widget.onSubmitted?.call(value);
-                },
-              ),
-            ),
-            if (field.hasError || widget.helperText != null) ...[
-              const SizedBox(height: 8),
-              if (field.hasError)
-                Text(
-                  field.errorText!,
-                  style:
-                      widget.errorStyle ??
-                      theme.textTheme.bodySmall?.copyWith(
-                        color: colorScheme.error,
-                        fontSize: 16,
-                      ),
-                )
-              else if (widget.helperText != null)
-                Text(
-                  widget.helperText!,
-                  style:
-                      widget.helperStyle ??
-                      theme.textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                        fontSize: 18,
-                      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (decoration?.labelText != null) ...[
+          Text(
+            decoration!.labelText!,
+            style:
+                decoration!.labelStyle ??
+                const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
                 ),
-            ],
-          ],
-        );
-      },
+          ),
+          const SizedBox(height: 8),
+        ],
+        Pinput(
+          controller: effectiveController,
+          focusNode: state.effectiveFocusNode,
+          length: length,
+          obscureText: obscureText,
+          obscuringCharacter: obscuringCharacter,
+          obscuringWidget: obscuringWidget,
+          showCursor: showCursor,
+          hapticFeedbackType: hapticFeedback
+              ? HapticFeedbackType.lightImpact
+              : HapticFeedbackType.disabled,
+          onCompleted: (pin) {
+            state.didChange(pin);
+            if (onCompleted != null) {
+              onCompleted!(pin);
+            }
+            if (closeKeyboardWhenCompleted) {
+              state.effectiveFocusNode.unfocus();
+            }
+          },
+          onSubmitted: onSubmitted != null ? (_) => onSubmitted!() : null,
+          onTap: onTap,
+          onChanged: (pin) {
+            state.didChange(pin);
+          },
+          defaultPinTheme:
+              defaultPinTheme ??
+              PinTheme(
+                width: 56,
+                height: 56,
+                textStyle:
+                    textStyle ??
+                    const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                    ),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.grey.shade300,
+                    width: 2,
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+          focusedPinTheme: focusedPinTheme,
+          submittedPinTheme: submittedPinTheme,
+          followingPinTheme: followingPinTheme,
+          disabledPinTheme: disabledPinTheme,
+          errorPinTheme:
+              errorPinTheme ??
+              (state.hasError
+                  ? PinTheme(
+                      width: 56,
+                      height: 56,
+                      textStyle:
+                          textStyle ??
+                          const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                          ),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.red,
+                          width: 2,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    )
+                  : null),
+          cursor: cursor,
+          preFilledWidget: preFilledWidget != null
+              ? Text(preFilledWidget!)
+              : null,
+          separatorBuilder: separatorBuilder,
+          errorBuilder: pinputErrorBuilder,
+          enabled: state.enabled,
+          forceErrorState: forceErrorState || state.hasError,
+          enableIMEPersonalizedLearning: enableIMEPersonalizedLearning,
+          keyboardAppearance: keyboardAppearance,
+          inputFormatters: inputFormatters,
+          enableInteractiveSelection: enableInteractiveSelection,
+          autofillHints: autofillHints,
+          keyboardType: keyboardType,
+          textInputAction: textInputAction,
+          autofocus: autofocus,
+        ),
+        if (state.hasError && state.errorText != null) ...[
+          const SizedBox(height: 8),
+          if (customErrorBuilder != null)
+            customErrorBuilder!(state.errorText)
+          else
+            Text(
+              state.errorText ?? '',
+              style:
+                  errorTextStyle ??
+                  TextStyle(
+                    color: Colors.red.shade700,
+                    fontSize: 12,
+                  ),
+            ),
+        ],
+        if (decoration?.helperText != null && !state.hasError) ...[
+          const SizedBox(height: 8),
+          Text(
+            decoration!.helperText!,
+            style:
+                decoration!.helperStyle ??
+                TextStyle(
+                  color: Colors.grey.shade600,
+                  fontSize: 12,
+                ),
+          ),
+        ],
+      ],
     );
   }
 }

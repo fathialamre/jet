@@ -8,142 +8,148 @@
 // ignore_for_file: type=lint
 // coverage:ignore-file
 
-// ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:auto_route/auto_route.dart' as _i9;
-import 'package:example/features/carousel/carousel_example_page.dart' as _i1;
-import 'package:example/features/home/home_page.dart' as _i2;
-import 'package:example/features/login/login_page.dart' as _i3;
-import 'package:example/features/notifications/notifications_example.dart'
-    as _i4;
-import 'package:example/features/settings/settings_page.dart' as _i5;
-import 'package:example/features/todo/simple_todo_page.dart' as _i6;
-import 'package:example/features/todo/todo_page.dart' as _i7;
-import 'package:example/features/users/pages/users_page.dart' as _i8;
+part of 'app_router.dart';
 
 /// generated route for
-/// [_i1.CarouselExamplePage]
-class CarouselExampleRoute extends _i9.PageRouteInfo<void> {
-  const CarouselExampleRoute({List<_i9.PageRouteInfo>? children})
-    : super(CarouselExampleRoute.name, initialChildren: children);
+/// [BigFormPage]
+class BigFormRoute extends PageRouteInfo<void> {
+  const BigFormRoute({List<PageRouteInfo>? children})
+    : super(BigFormRoute.name, initialChildren: children);
 
-  static const String name = 'CarouselExampleRoute';
+  static const String name = 'BigFormRoute';
 
-  static _i9.PageInfo page = _i9.PageInfo(
+  static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const _i1.CarouselExamplePage();
+      return const BigFormPage();
     },
   );
 }
 
 /// generated route for
-/// [_i2.HomePage]
-class HomeRoute extends _i9.PageRouteInfo<void> {
-  const HomeRoute({List<_i9.PageRouteInfo>? children})
+/// [HomePage]
+class HomeRoute extends PageRouteInfo<void> {
+  const HomeRoute({List<PageRouteInfo>? children})
     : super(HomeRoute.name, initialChildren: children);
 
   static const String name = 'HomeRoute';
 
-  static _i9.PageInfo page = _i9.PageInfo(
+  static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const _i2.HomePage();
+      return const HomePage();
     },
   );
 }
 
 /// generated route for
-/// [_i3.LoginPage]
-class LoginRoute extends _i9.PageRouteInfo<void> {
-  const LoginRoute({List<_i9.PageRouteInfo>? children})
+/// [LoginPage]
+class LoginRoute extends PageRouteInfo<void> {
+  const LoginRoute({List<PageRouteInfo>? children})
     : super(LoginRoute.name, initialChildren: children);
 
   static const String name = 'LoginRoute';
 
-  static _i9.PageInfo page = _i9.PageInfo(
+  static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const _i3.LoginPage();
+      return const LoginPage();
     },
   );
 }
 
 /// generated route for
-/// [_i4.NotificationsExamplePage]
-class NotificationsExampleRoute extends _i9.PageRouteInfo<void> {
-  const NotificationsExampleRoute({List<_i9.PageRouteInfo>? children})
-    : super(NotificationsExampleRoute.name, initialChildren: children);
+/// [PostsGridPage]
+class PostsGridRoute extends PageRouteInfo<void> {
+  const PostsGridRoute({List<PageRouteInfo>? children})
+    : super(PostsGridRoute.name, initialChildren: children);
 
-  static const String name = 'NotificationsExampleRoute';
+  static const String name = 'PostsGridRoute';
 
-  static _i9.PageInfo page = _i9.PageInfo(
+  static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const _i4.NotificationsExamplePage();
+      return const PostsGridPage();
     },
   );
 }
 
 /// generated route for
-/// [_i5.SettingsPage]
-class SettingsRoute extends _i9.PageRouteInfo<void> {
-  const SettingsRoute({List<_i9.PageRouteInfo>? children})
-    : super(SettingsRoute.name, initialChildren: children);
+/// [PostsHorizontalPage]
+class PostsHorizontalRoute extends PageRouteInfo<void> {
+  const PostsHorizontalRoute({List<PageRouteInfo>? children})
+    : super(PostsHorizontalRoute.name, initialChildren: children);
 
-  static const String name = 'SettingsRoute';
+  static const String name = 'PostsHorizontalRoute';
 
-  static _i9.PageInfo page = _i9.PageInfo(
+  static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const _i5.SettingsPage();
+      return const PostsHorizontalPage();
     },
   );
 }
 
 /// generated route for
-/// [_i6.SimpleTodoPage]
-class SimpleTodoRoute extends _i9.PageRouteInfo<void> {
-  const SimpleTodoRoute({List<_i9.PageRouteInfo>? children})
-    : super(SimpleTodoRoute.name, initialChildren: children);
+/// [PostsPage]
+class PostsRoute extends PageRouteInfo<void> {
+  const PostsRoute({List<PageRouteInfo>? children})
+    : super(PostsRoute.name, initialChildren: children);
 
-  static const String name = 'SimpleTodoRoute';
+  static const String name = 'PostsRoute';
 
-  static _i9.PageInfo page = _i9.PageInfo(
+  static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const _i6.SimpleTodoPage();
+      return const PostsPage();
     },
   );
 }
 
 /// generated route for
-/// [_i7.TodoPage]
-class TodoRoute extends _i9.PageRouteInfo<void> {
-  const TodoRoute({List<_i9.PageRouteInfo>? children})
-    : super(TodoRoute.name, initialChildren: children);
+/// [UserPostsPage]
+class UserPostsRoute extends PageRouteInfo<UserPostsRouteArgs> {
+  UserPostsRoute({Key? key, required int userId, List<PageRouteInfo>? children})
+    : super(
+        UserPostsRoute.name,
+        args: UserPostsRouteArgs(key: key, userId: userId),
+        rawPathParams: {'userId': userId},
+        initialChildren: children,
+      );
 
-  static const String name = 'TodoRoute';
+  static const String name = 'UserPostsRoute';
 
-  static _i9.PageInfo page = _i9.PageInfo(
+  static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const _i7.TodoPage();
+      final pathParams = data.inheritedPathParams;
+      final args = data.argsAs<UserPostsRouteArgs>(
+        orElse: () => UserPostsRouteArgs(userId: pathParams.getInt('userId')),
+      );
+      return UserPostsPage(key: args.key, userId: args.userId);
     },
   );
 }
 
-/// generated route for
-/// [_i8.UsersPage]
-class UsersRoute extends _i9.PageRouteInfo<void> {
-  const UsersRoute({List<_i9.PageRouteInfo>? children})
-    : super(UsersRoute.name, initialChildren: children);
+class UserPostsRouteArgs {
+  const UserPostsRouteArgs({this.key, required this.userId});
 
-  static const String name = 'UsersRoute';
+  final Key? key;
 
-  static _i9.PageInfo page = _i9.PageInfo(
-    name,
-    builder: (data) {
-      return const _i8.UsersPage();
-    },
-  );
+  final int userId;
+
+  @override
+  String toString() {
+    return 'UserPostsRouteArgs{key: $key, userId: $userId}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! UserPostsRouteArgs) return false;
+    return key == other.key && userId == other.userId;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ userId.hashCode;
 }

@@ -1,11 +1,9 @@
 import 'package:example/core/adapters/router_adapter.dart';
 import 'package:example/core/resources/theme/app_theme.dart';
-import 'package:example/features/notifications/events/order_notification_event.dart';
 import 'package:example/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:jet/adapters/notifications_adapter.dart';
 import 'package:jet/jet_framework.dart';
-import 'package:jet/localization/models/locale_info.dart';
 
 class AppConfig extends JetConfig {
   @override
@@ -15,9 +13,7 @@ class AppConfig extends JetConfig {
   ];
 
   @override
-  List<JetNotificationEvent> get notificationEvents => [
-    OrderNotificationEvent(),
-  ];
+  List<JetNotificationEvent> get notificationEvents => [];
 
   @override
   List<LocaleInfo> get supportedLocales => [

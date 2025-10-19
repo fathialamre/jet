@@ -1,12 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:jet/localization/intl/messages.dart';
+import 'package:jet/localization/jet_localizations.dart';
+import 'package:jet/localization/messages/messages.dart';
 
 extension BuildContextX on BuildContext {
   ThemeData get theme => Theme.of(this);
 
-  JetLocalizationsImpl get jetI10n => JetLocalizationsImpl.of(this);
+  JetMessages get jetI10n => JetLocalizations.of(this).messages;
 
   bool get isAndroid => Platform.isAndroid;
 

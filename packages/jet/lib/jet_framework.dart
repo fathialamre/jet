@@ -2,11 +2,10 @@ export 'jet.dart';
 export 'adapters/jet_adapter.dart';
 export 'config/jet_config.dart';
 export 'bootstrap/boot.dart';
-export 'resources/theme/notifiers/theme_switcher_notifier.dart';
-export 'localization/widgets/language_switcher.dart';
-export 'resources/theme/widgets/theme_switcher.dart';
-export 'resources/state/jet_builder.dart';
-export 'localization/i10n.dart';
+export 'utils/theme_switcher/notifiers/theme_switcher_notifier.dart';
+export 'utils/language_switcher/language_switcher.dart';
+export 'state/jet_builder.dart';
+export 'localization/localization.dart';
 export 'storage/local_storage.dart';
 export 'networking/networking.dart';
 export 'package:auto_route/auto_route.dart';
@@ -17,36 +16,18 @@ export 'package:flutter_screenutil/flutter_screenutil.dart';
 export 'package:phosphor_flutter/phosphor_flutter.dart';
 export 'package:guardo/guardo.dart';
 
-// Flutter Form Builder - only export necessary types
-export 'package:flutter_form_builder/flutter_form_builder.dart'
-    show
-        FormBuilderState,
-        FormFieldValidator,
-        FormBuilderTextField,
-        FormBuilderDropdown,
-        FormBuilderCheckbox,
-        FormBuilderSwitch,
-        FormBuilderDateTimePicker,
-        InputType,
-        FormBuilderField,
-        DropdownMenuItem,
-        ValueTransformer,
-        AutovalidateMode;
-
 // Widgets
 export 'widgets/widgets.dart';
 
-// Components
-export 'resources/components/components.dart';
+// State
+export 'state/state.dart';
 export 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 // Forms
 export '../forms/common.dart';
-export '../forms/notifiers/jet_form_notifier.dart';
-export '../forms/widgets/jet_form_builder.dart';
-export '../forms/widgets/jet_form_widget.dart';
-export '../forms/validators/jet_validators.dart';
 export '../forms/inputs/inputs.dart';
+export '../forms/validation/validation.dart';
+export '../forms/forms.dart';
 
 // Error Handling
 export 'networking/errors/jet_error.dart';
@@ -56,3 +37,6 @@ export 'package:dio/dio.dart';
 // Notifications
 export 'notifications/notifications.dart';
 export 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+// Utils
+export 'utils/utils.dart';

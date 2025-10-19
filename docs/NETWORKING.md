@@ -9,6 +9,7 @@ Complete guide to HTTP networking in the Jet framework.
 - [Making Requests](#making-requests)
 - [Response Handling](#response-handling)
 - [Error Handling](#error-handling)
+- [Request Cancellation](#request-cancellation)
 - [Network Logging](#network-logging)
 - [Interceptors](#interceptors)
 - [Best Practices](#best-practices)
@@ -23,14 +24,15 @@ Jet provides a type-safe HTTP client built on **[Dio](https://pub.dev/packages/d
 
 **Key Features:**
 - ✅ Type-safe API requests with generic support
-- ✅ Automatic error conversion to JetError
+- ✅ Automatic error conversion to JetError with localized messages
 - ✅ Configurable request/response logging
-- ✅ Interceptor support for custom headers, tokens, etc.
+- ✅ Flexible interceptor support for authentication, headers, etc.
 - ✅ Built-in timeout handling
 - ✅ Request/response transformation
 - ✅ FormData support for file uploads
-- ✅ Request cancellation support
+- ✅ Per-request cancellation support
 - ✅ Global configuration per service
+- ✅ Clean architecture (no UI dependencies in business logic)
 
 ## Basic Setup
 
@@ -285,14 +287,21 @@ class JetError {
   final String message;              // Error message
   final int? statusCode;             // HTTP status code
   final Map<String, List<String>>? errors;  // Validation errors
-  final dynamic data;                // Additional error data
+  final dynamic data;                // Additional error data (alias for metadata)
   
   // Convenience getters
   bool get isNoInternet;             // No network connection
-  bool get isServer;                 // 5xx errors
+  bool get isServer;                 // 5xx errors (alias for isServerError)
+  bool get isServerError;            // 5xx errors
+  bool get isClientError;            // 4xx errors
   bool get isValidation;             // 422 validation errors
   bool get isUnauthorized;           // 401 unauthorized
+  bool get isForbidden;              // 403 forbidden
   bool get isNotFound;               // 404 not found
+  bool get isConflict;               // 409 conflict
+  bool get isTooManyRequests;        // 429 too many requests
+  bool get isTimeout;                // Request timeout
+  bool get isCancelled;              // Request cancelled
 }
 ```
 
@@ -384,6 +393,8 @@ Add custom interceptors for advanced functionality:
 
 ### Bearer Token Interceptor
 
+The `JetBearerTokenInterceptor` automatically adds authentication tokens and locale headers to requests:
+
 ```dart
 import 'package:jet/jet.dart';
 
@@ -395,13 +406,25 @@ class AuthApiService extends JetApiService {
   List<Interceptor> get interceptors => [
     JetBearerTokenInterceptor(
       tokenProvider: () async {
+        // Return your authentication token
         return await JetStorage.readSecure('auth_token');
+      },
+      localeProvider: () {
+        // Optional: return your locale code
+        return JetStorage.read<String>('selected_locale');
       },
     ),
     ...super.interceptors,
   ];
 }
 ```
+
+**Features:**
+- ✅ Configurable token provider
+- ✅ Optional locale provider
+- ✅ Only adds headers when values are not null/empty
+- ✅ Secure (no token logging)
+- ✅ Reusable across different apps
 
 ### Custom Interceptor
 
@@ -445,6 +468,56 @@ class MyApiService extends JetApiService {
     ...super.interceptors,
   ];
 }
+```
+
+## Request Cancellation
+
+Jet provides flexible request cancellation with per-request tokens:
+
+### Individual Request Cancellation
+
+```dart
+// Create a cancel token for a specific request
+final token = CancelToken();
+final future = apiService.getLargeData(cancelToken: token);
+
+// Cancel the request if needed
+token.cancel('User navigated away');
+
+try {
+  final result = await future;
+} on JetError catch (error) {
+  if (error.isCancelled) {
+    print('Request was cancelled');
+  }
+}
+```
+
+### Automatic Per-Request Tokens
+
+By default, each request creates its own cancel token automatically:
+
+```dart
+// Each request has its own token
+final userFuture = apiService.getUser('1');    // Token 1
+final postsFuture = apiService.getPosts();     // Token 2
+
+// Cancelling one doesn't affect the other
+// (unless you explicitly pass the same token)
+```
+
+### Deprecated: Global Cancellation
+
+The `cancelRequests()` method is deprecated. Each request now creates its own token by default:
+
+```dart
+// ❌ Deprecated - cancels all requests using shared token
+apiService.cancelRequests();
+
+// ✅ Preferred - cancel specific requests
+final token = CancelToken();
+final future = apiService.getData(cancelToken: token);
+token.cancel();
 ```
 
 ## Best Practices
@@ -493,15 +566,29 @@ class PostApiService extends JetApiService {...}
 ### 3. Handle Errors Consistently
 
 ```dart
-// Good - consistent error handling
+// Good - consistent error handling with all available getters
 try {
   final response = await apiService.getData();
   // Handle success
 } on JetError catch (error) {
   if (error.isNoInternet) {
     context.showToast('No internet connection');
+  } else if (error.isUnauthorized) {
+    context.router.pushNamed('/login');
+  } else if (error.isForbidden) {
+    context.showToast('Access denied');
+  } else if (error.isNotFound) {
+    context.showToast('Resource not found');
+  } else if (error.isValidation) {
+    // Handle validation errors
+    final errors = error.errors;
+    showValidationErrors(errors);
   } else if (error.isServer) {
     context.showToast('Server error');
+  } else if (error.isTimeout) {
+    context.showToast('Request timed out');
+  } else if (error.isCancelled) {
+    // Request was cancelled - usually no action needed
   }
 } catch (error) {
   dump('Unexpected error: $error');
@@ -534,7 +621,51 @@ class AppConfig extends JetConfig {
 }
 ```
 
-### 6. Use Query Parameters Properly
+### 6. Use Request Cancellation Effectively
+
+```dart
+// Good - cancel requests when user navigates away
+class UserProfilePage extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return FutureBuilder(
+      future: ref.read(userApiProvider).getUser('123'),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          final error = snapshot.error as JetError?;
+          if (error?.isCancelled == true) {
+            return SizedBox.shrink(); // Request was cancelled
+          }
+          // Handle other errors...
+        }
+        // ...
+      },
+    );
+  }
+}
+
+// Good - cancel long-running requests
+class DataLoader {
+  CancelToken? _cancelToken;
+  
+  Future<void> loadData() async {
+    _cancelToken = CancelToken();
+    try {
+      await apiService.getLargeData(cancelToken: _cancelToken);
+    } on JetError catch (error) {
+      if (!error.isCancelled) {
+        // Handle non-cancellation errors
+      }
+    }
+  }
+  
+  void cancel() {
+    _cancelToken?.cancel('User cancelled');
+  }
+}
+```
+
+### 7. Use Query Parameters Properly
 
 ```dart
 // Good - use queryParameters

@@ -28,6 +28,7 @@ Jet's state management is built on **[Riverpod 3](https://pub.dev/packages/river
 
 - [Overview](#overview)
 - [JetConsumerWidget](#jetconsumerwidget)
+- [JetConsumerStatefulWidget](#jetconsumerstatefulwidget)
 - [JetBuilder](#jetbuilder)
 - [JetPaginator](#jetpaginator)
 - [Family Providers](#family-providers)
@@ -55,8 +56,9 @@ Enhanced consumer widget that provides access to both Riverpod and the Jet frame
 ### Features
 
 - Access to `WidgetRef` for Riverpod state
-- Access to `Jet` instance for framework features
-- Clean, concise API
+- Direct access to `Jet` instance as a parameter in build method
+- Clean, concise API - no need to call `jet(ref)`
+- Type-safe with all parameters explicit in method signature
 
 ### Basic Usage
 
@@ -65,7 +67,7 @@ import 'package:jet/jet.dart';
 
 class DashboardPage extends JetConsumerWidget {
   @override
-  Widget jetBuild(BuildContext context, WidgetRef ref, Jet jet) {
+  Widget build(BuildContext context, WidgetRef ref, Jet jet) {
     final user = ref.watch(userProvider);
     final router = jet.router;
     
@@ -88,6 +90,161 @@ class DashboardPage extends JetConsumerWidget {
   }
 }
 ```
+
+### Migration from jet(ref) Pattern
+
+The new JetConsumerWidget passes `jet` directly as a parameter, eliminating the need to call `jet(ref)`:
+
+```dart
+// Old pattern - required calling jet(ref)
+class MyWidget extends JetConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final myJet = jet(ref);
+    final router = myJet.router;
+    // ...
+  }
+}
+
+// New pattern - jet is passed directly
+class MyWidget extends JetConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref, Jet jet) {
+    final router = jet.router;
+    // ...
+  }
+}
+```
+
+**Benefits of the new pattern:**
+- ✅ Cleaner API with jet passed directly
+- ✅ No need to call `jet(ref)` anymore
+- ✅ Consistent with functional JetConsumer widget
+- ✅ Better discoverability with explicit parameter
+
+### Functional JetConsumer Widget
+
+For cases where you don't need to extend a class, use the functional `JetConsumer` widget:
+
+```dart
+import 'package:jet/jet.dart';
+
+class MyPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return JetConsumer(
+      builder: (context, ref, jet) {
+        final user = ref.watch(userProvider);
+        final router = jet.router;
+        
+        return Scaffold(
+          appBar: AppBar(
+            title: Text('Welcome ${user.name}'),
+          ),
+          body: Center(
+            child: ElevatedButton(
+              onPressed: () => router.push(ProfileRoute()),
+              child: Text('Go to Profile'),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+```
+
+**When to use JetConsumer:**
+- Simple widgets that don't need their own class
+- Quick prototyping
+- Inline widget creation
+- Reducing boilerplate for simple use cases
+
+## JetConsumerStatefulWidget
+
+Enhanced stateful consumer widget that provides access to both Riverpod and the Jet framework with full state management capabilities.
+
+### Features
+
+- All lifecycle methods of StatefulWidget (initState, dispose, etc.)
+- Access to `ref` property throughout the state lifecycle
+- Access to `jet` getter for framework features
+- Type-safe and IDE-friendly
+
+### Basic Usage
+
+```dart
+import 'package:jet/jet.dart';
+
+class CounterPage extends JetConsumerStatefulWidget {
+  const CounterPage({super.key});
+  
+  @override
+  JetConsumerState<CounterPage> createState() => _CounterPageState();
+}
+
+class _CounterPageState extends JetConsumerState<CounterPage> {
+  int _localCounter = 0;
+  
+  @override
+  void initState() {
+    super.initState();
+    // Access jet in initState
+    final config = jet.config;
+    print('App initialized with theme: ${config.themeMode}');
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    // Access both jet and ref in build
+    final globalCount = ref.watch(globalCounterProvider);
+    final router = jet.router;
+    
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Counter: $_localCounter'),
+        actions: [
+          IconButton(
+            onPressed: () => router.push(SettingsRoute()),
+            icon: Icon(Icons.settings),
+          ),
+        ],
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('Local: $_localCounter'),
+            Text('Global: $globalCount'),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _localCounter++;
+                });
+                ref.read(globalCounterProvider.notifier).increment();
+              },
+              child: Text('Increment Both'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+### When to Use Stateful vs Stateless
+
+#### Use JetConsumerWidget (Stateless) when:
+- You only need to display data from providers
+- No local state management is required
+- Simple UI without animations or controllers
+
+#### Use JetConsumerStatefulWidget (Stateful) when:
+- You need local state (e.g., form data, animations)
+- You need lifecycle methods (initState, dispose)
+- Managing controllers (TextEditingController, AnimationController)
+- Complex UI interactions requiring setState
 
 ## JetBuilder
 

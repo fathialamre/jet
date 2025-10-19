@@ -1,4 +1,3 @@
-import 'package:jet/helpers/jet_faker.dart';
 import 'package:jet/jet_framework.dart';
 import 'package:jet/session/session_manager.dart';
 
@@ -30,7 +29,7 @@ class Auth extends Notifier<AsyncValue<Session?>> {
     final session = Session(
       token: 'guest',
       isGuest: true,
-      name: JetFaker.username(),
+      name: 'user_${DateTime.now().millisecondsSinceEpoch % 10000}',
     );
     await SessionManager.authenticateAsGuest(session: session);
     state = AsyncValue.data(session);
