@@ -38,6 +38,23 @@ abstract class JetConfig {
   /// Example: [RouterAdapter, DatabaseAdapter, AnalyticsAdapter]
   List<JetAdapter> get adapters;
 
+  /// Environment configuration for loading .env files.
+  ///
+  /// This configuration determines how environment variables are loaded
+  /// and managed throughout the application. Return null to skip
+  /// environment initialization.
+  ///
+  /// Example:
+  /// ```dart
+  /// @override
+  /// EnvironmentConfig? get environmentConfig => EnvironmentConfig(
+  ///   envPath: '.env',
+  ///   envOverridePaths: ['.env.local'],
+  ///   mergeWithPlatformEnvironment: true,
+  /// );
+  /// ```
+  EnvironmentConfig? get environmentConfig => null;
+
   /// The default locale for the application.
   ///
   /// This locale will be used when the system locale is not supported

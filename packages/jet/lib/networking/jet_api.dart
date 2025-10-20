@@ -5,83 +5,12 @@ import 'package:jet/networking/errors/jet_error.dart';
 import 'package:jet/networking/errors/jet_error_handler.dart';
 import 'package:jet/networking/interceptors/jet_dio_logger_interceptor.dart';
 
-/// Response wrapper model for standardized API responses
-/// Inspired by clean architecture patterns for consistent response handling
-class ResponseModel<T> {
-  final T? data;
-  final String? message;
-  final bool success;
-  final int? statusCode;
-  final Map<String, dynamic>? meta;
-  final dynamic raw;
-
-  ResponseModel({
-    this.data,
-    this.message,
-    this.success = true,
-    this.statusCode,
-    this.meta,
-    this.raw,
-  });
-
-  factory ResponseModel.fromJson(
-    Map<String, dynamic> json,
-    T Function(dynamic)? decoder,
-  ) {
-    return ResponseModel<T>(
-      data: decoder != null ? decoder(json['data']) : json['data'] as T?,
-      message: json['message']?.toString(),
-      success: json['success'] ?? true,
-      statusCode: json['status_code'],
-      meta: json['meta'],
-      raw: json,
-    );
-  }
-
-  factory ResponseModel.fromResponse(
-    Response response,
-    T Function(dynamic)? decoder,
-  ) {
-    return ResponseModel<T>(
-      data: decoder != null ? decoder(response.data) : response.data as T?,
-      message: response.statusMessage,
-      success:
-          response.statusCode != null &&
-          response.statusCode! >= 200 &&
-          response.statusCode! < 300,
-      statusCode: response.statusCode,
-      meta: {
-        'headers': response.headers.map,
-        'requestPath': response.requestOptions.path,
-      },
-      raw: response.data,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'data': data,
-      'message': message,
-      'success': success,
-      'statusCode': statusCode,
-      'meta': meta,
-      'raw': raw,
-    };
-  }
-
-  @override
-  String toString() {
-    return 'ResponseModel(data: $data, message: $message, success: $success, statusCode: $statusCode, meta: $meta, raw: $raw)';
-  }
-}
-
 /// Abstract base class for HTTP API interactions
-/// Enhanced with response model wrapper
 /// Provides a comprehensive networking solution with:
 /// - All HTTP methods (GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS)
 /// - Custom interceptors support
 /// - Default headers management
-/// - Generic JSON response decoding with ResponseModel wrapper
+/// - Generic JSON response decoding with type T
 /// - Enhanced error handling and caching support
 abstract class JetApiService {
   late final Dio _dio;
@@ -147,8 +76,8 @@ abstract class JetApiService {
     _dio.interceptors.addAll(interceptors);
   }
 
-  /// Enhanced GET request with ResponseModel wrapper
-  Future<ResponseModel<T>> get<T>(
+  /// GET request with generic type decoding
+  Future<T> get<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
     Options? options,
@@ -158,23 +87,23 @@ abstract class JetApiService {
   }) async {
     try {
       final response = await _dio.get(
-        path,
+        '$baseUrl$path',
         queryParameters: queryParameters,
         options: _mergeOptions(options),
         cancelToken: cancelToken ?? CancelToken(),
         onReceiveProgress: onReceiveProgress,
       );
 
-      return ResponseModel.fromResponse(response, decoder);
+      return decoder != null ? decoder(response.data) : response.data as T;
     } catch (e, stackTrace) {
       throw _handleError(e, stackTrace);
     }
   }
 
-  /// Enhanced POST request with ResponseModel wrapper
-  Future<ResponseModel<T>> post<T>(
+  /// POST request with generic type decoding
+  Future<T> post<T>(
     String path, {
-    dynamic data,
+    dynamic body,
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
@@ -184,8 +113,8 @@ abstract class JetApiService {
   }) async {
     try {
       final response = await _dio.post(
-        path,
-        data: data,
+        '$baseUrl$path',
+        data: body,
         queryParameters: queryParameters,
         options: _mergeOptions(options),
         cancelToken: cancelToken ?? CancelToken(),
@@ -193,16 +122,16 @@ abstract class JetApiService {
         onReceiveProgress: onReceiveProgress,
       );
 
-      return ResponseModel.fromResponse(response, decoder);
+      return decoder != null ? decoder(response.data) : response.data as T;
     } catch (e, stackTrace) {
       throw _handleError(e, stackTrace);
     }
   }
 
-  /// Enhanced PUT request with ResponseModel wrapper
-  Future<ResponseModel<T>> put<T>(
+  /// PUT request with generic type decoding
+  Future<T> put<T>(
     String path, {
-    dynamic data,
+    dynamic body,
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
@@ -212,8 +141,8 @@ abstract class JetApiService {
   }) async {
     try {
       final response = await _dio.put(
-        path,
-        data: data,
+        '$baseUrl$path',
+        data: body,
         queryParameters: queryParameters,
         options: _mergeOptions(options),
         cancelToken: cancelToken ?? CancelToken(),
@@ -221,16 +150,16 @@ abstract class JetApiService {
         onReceiveProgress: onReceiveProgress,
       );
 
-      return ResponseModel.fromResponse(response, decoder);
+      return decoder != null ? decoder(response.data) : response.data as T;
     } catch (e, stackTrace) {
       throw _handleError(e, stackTrace);
     }
   }
 
-  /// Enhanced DELETE request with ResponseModel wrapper
-  Future<ResponseModel<T>> delete<T>(
+  /// DELETE request with generic type decoding
+  Future<T> delete<T>(
     String path, {
-    dynamic data,
+    dynamic body,
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
@@ -238,23 +167,23 @@ abstract class JetApiService {
   }) async {
     try {
       final response = await _dio.delete(
-        path,
-        data: data,
+        '$baseUrl$path',
+        data: body,
         queryParameters: queryParameters,
         options: _mergeOptions(options),
         cancelToken: cancelToken ?? CancelToken(),
       );
 
-      return ResponseModel.fromResponse(response, decoder);
+      return decoder != null ? decoder(response.data) : response.data as T;
     } catch (e, stackTrace) {
       throw _handleError(e, stackTrace);
     }
   }
 
-  /// Enhanced PATCH request with ResponseModel wrapper
-  Future<ResponseModel<T>> patch<T>(
+  /// PATCH request with generic type decoding
+  Future<T> patch<T>(
     String path, {
-    dynamic data,
+    dynamic body,
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
@@ -264,8 +193,8 @@ abstract class JetApiService {
   }) async {
     try {
       final response = await _dio.patch(
-        path,
-        data: data,
+        '$baseUrl$path',
+        data: body,
         queryParameters: queryParameters,
         options: _mergeOptions(options),
         cancelToken: cancelToken ?? CancelToken(),
@@ -273,7 +202,7 @@ abstract class JetApiService {
         onReceiveProgress: onReceiveProgress,
       );
 
-      return ResponseModel.fromResponse(response, decoder);
+      return decoder != null ? decoder(response.data) : response.data as T;
     } catch (e, stackTrace) {
       throw _handleError(e, stackTrace);
     }
@@ -288,7 +217,7 @@ abstract class JetApiService {
   }) async {
     try {
       return await _dio.head(
-        path,
+        '$baseUrl$path',
         queryParameters: queryParameters,
         options: _mergeOptions(options),
         cancelToken: cancelToken ?? CancelToken(),
@@ -301,15 +230,15 @@ abstract class JetApiService {
   /// OPTIONS request
   Future<Response> optionsRequest(
     String path, {
-    dynamic data,
+    dynamic body,
     Map<String, dynamic>? queryParameters,
     Options? requestOptions,
     CancelToken? cancelToken,
   }) async {
     try {
       return await _dio.request(
-        path,
-        data: data,
+        '$baseUrl$path',
+        data: body,
         queryParameters: queryParameters,
         options: _mergeOptions(
           (requestOptions ?? Options()).copyWith(method: 'OPTIONS'),
@@ -334,7 +263,7 @@ abstract class JetApiService {
   }) async {
     try {
       return await _dio.download(
-        urlPath,
+        '$baseUrl$urlPath',
         savePath,
         onReceiveProgress: onReceiveProgress,
         queryParameters: queryParameters,
@@ -349,7 +278,7 @@ abstract class JetApiService {
   }
 
   /// Upload files with multipart/form-data
-  Future<ResponseModel<T>> upload<T>(
+  Future<T> upload<T>(
     String path,
     FormData formData, {
     Map<String, dynamic>? queryParameters,
@@ -360,14 +289,14 @@ abstract class JetApiService {
   }) async {
     try {
       final response = await _dio.post(
-        path,
+        '$baseUrl$path',
         data: formData,
         queryParameters: queryParameters,
         options: _mergeOptions(options),
         cancelToken: cancelToken ?? CancelToken(),
         onSendProgress: onSendProgress,
       );
-      return ResponseModel.fromResponse(response, decoder);
+      return decoder != null ? decoder(response.data) : response.data as T;
     } catch (e, stackTrace) {
       throw _handleError(e, stackTrace);
     }

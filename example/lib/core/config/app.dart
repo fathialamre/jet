@@ -1,5 +1,5 @@
 import 'package:example/core/adapters/router_adapter.dart';
-import 'package:example/core/resources/theme/app_theme.dart';
+import 'package:example/core/config/app_theme.dart';
 import 'package:example/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:jet/adapters/notifications_adapter.dart';
@@ -43,6 +43,9 @@ class AppConfig extends JetConfig {
   Locale? get defaultLocale => const Locale('en');
 
   @override
+  bool get showErrorStackTrace => false;
+
+  @override
   ThemeData? get theme => ThemeData(
     colorScheme: MaterialTheme.lightScheme(),
   );
@@ -50,5 +53,10 @@ class AppConfig extends JetConfig {
   @override
   ThemeData? get darkTheme => ThemeData(
     colorScheme: MaterialTheme.darkScheme(),
+  );
+
+  @override
+  EnvironmentConfig? get environmentConfig => EnvironmentConfig(
+    envPath: 'assets/.env',
   );
 }

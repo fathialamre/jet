@@ -20,7 +20,7 @@ class Boot {
         jetProvider.overrideWith((ref) => jet),
       ],
       observers: [
-        LoggerObserver(),
+        // LoggerObserver(),
       ],
     );
 

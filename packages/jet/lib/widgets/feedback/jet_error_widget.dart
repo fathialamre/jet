@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jet/extensions/build_context.dart';
-import 'package:jet/extensions/text_extensions.dart';
+import 'package:jet/extensions/text.dart';
 import 'package:jet/jet_framework.dart';
 
 class JetErrorWidget extends StatelessWidget {

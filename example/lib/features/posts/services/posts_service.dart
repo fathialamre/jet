@@ -18,7 +18,6 @@ part 'posts_service.g.dart';
 /// AsyncValue which handles loading/error/data states automatically.
 @riverpod
 class PostsService extends _$PostsService {
-  
   @override
   FutureOr<List<Post>> build() async {
     return fetchPosts();
@@ -30,17 +29,19 @@ class PostsService extends _$PostsService {
   Future<List<Post>> fetchPosts() async {
     final network = ref.read(appNetworkProvider);
 
-    final response = await network.get(
-      'https://jsonplaceholder.typicode.com/posts',
+    final posts = await network.get<List<Post>>(
+      '/posts',
+      decoder: (data) {
+        if (data is List) {
+          return data
+              .map((json) => Post.fromJson(json as Map<String, dynamic>))
+              .toList();
+        }
+        return [];
+      },
     );
 
-    if (response.data is List) {
-      return (response.data as List)
-          .map((json) => Post.fromJson(json as Map<String, dynamic>))
-          .toList();
-    }
-
-    return [];
+    return posts;
   }
 
   /// Fetches a single post by ID
@@ -49,15 +50,17 @@ class PostsService extends _$PostsService {
   Future<Post?> fetchPostById(int id) async {
     final network = ref.read(appNetworkProvider);
 
-    final response = await network.get(
-      'https://jsonplaceholder.typicode.com/posts/$id',
+    final post = await network.get<Post?>(
+      '/posts/$id',
+      decoder: (data) {
+        if (data != null && data is Map<String, dynamic>) {
+          return Post.fromJson(data);
+        }
+        return null;
+      },
     );
 
-    if (response.data != null) {
-      return Post.fromJson(response.data as Map<String, dynamic>);
-    }
-
-    return null;
+    return post;
   }
 
   /// Refreshes the posts list

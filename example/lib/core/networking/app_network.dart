@@ -1,4 +1,3 @@
-import 'package:example/core/utilities/environments/prod.dart';
 import 'package:jet/jet_framework.dart';
 
 /// Enhanced network service with comprehensive error handling
@@ -11,19 +10,16 @@ class AppNetwork extends JetApiService {
   AppNetwork(super.ref);
 
   @override
-  String get baseUrl => isDebugMode ? ProdEnv.baseUrl : ProdEnv.baseUrl;
+  String get baseUrl => JetEnv.getString('BASE_URL');
 
   @override
-  // TODO: implement sendTimeout
   Duration get sendTimeout => Duration(seconds: 2);
 
   @override
-  // TODO: implement connectTimeout
   Duration get connectTimeout => Duration(seconds: 2);
 
   @override
-  // TODO: implement receiveTimeout
-  Duration get receiveTimeout =>Duration(seconds: 2);
+  Duration get receiveTimeout => Duration(seconds: 2);
 
   @override
   List<Interceptor> get interceptors => [];

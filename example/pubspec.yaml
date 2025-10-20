@@ -19,17 +19,16 @@ dependencies:
     
   # UI
   cupertino_icons: "^1.0.8"
-  smooth_page_indicator: "^1.2.0+3"
   
   # Networking & API
   retrofit: "^4.6.0"
   
   # Code Generation & Serialization
   riverpod_annotation: "^3.0.0"
-  envied: "^1.1.1"
   freezed_annotation: 
-  json_annotation:
+  envied: ^1.3.1
 
+  
 
 
 dev_dependencies:
@@ -54,3 +53,5 @@ flutter:
         - asset: assets/fonts/ibm.ttf
   assets:
     - assets/fonts/
+    - assets/.env
+  

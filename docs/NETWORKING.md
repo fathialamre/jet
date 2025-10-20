@@ -73,12 +73,12 @@ class UserApiService extends JetApiService {
   String get baseUrl => 'https://api.example.com/v1';
 
   // Simple GET without decoder
-  Future<ResponseModel<dynamic>> getUsers() async {
+  Future<dynamic> getUsers() async {
     return await get('/users');
   }
 
   // GET with decoder for type safety
-  Future<ResponseModel<List<User>>> getUsersTyped() async {
+  Future<List<User>> getUsersTyped() async {
     return await get<List<User>>(
       '/users',
       decoder: (data) => (data as List)
@@ -88,7 +88,7 @@ class UserApiService extends JetApiService {
   }
 
   // GET with query parameters
-  Future<ResponseModel<List<User>>> searchUsers(String query) async {
+  Future<List<User>> searchUsers(String query) async {
     return await get<List<User>>(
       '/users/search',
       queryParameters: {'q': query, 'limit': 20},
@@ -99,7 +99,7 @@ class UserApiService extends JetApiService {
   }
 
   // GET single resource
-  Future<ResponseModel<User>> getUser(String userId) async {
+  Future<User> getUser(String userId) async {
     return await get<User>(
       '/users/$userId',
       decoder: (data) => User.fromJson(data),
@@ -116,16 +116,16 @@ class UserApiService extends JetApiService {
   String get baseUrl => 'https://api.example.com/v1';
 
   // POST with request body
-  Future<ResponseModel<User>> createUser(CreateUserRequest request) async {
+  Future<User> createUser(CreateUserRequest request) async {
     return await post<User>(
       '/users',
-      data: request.toJson(),
+      body: request.toJson(),
       decoder: (data) => User.fromJson(data),
     );
   }
 
   // POST with form data
-  Future<ResponseModel<bool>> uploadAvatar(File imageFile) async {
+  Future<bool> uploadAvatar(File imageFile) async {
     final formData = FormData.fromMap({
       'avatar': await MultipartFile.fromFile(
         imageFile.path,
@@ -135,7 +135,7 @@ class UserApiService extends JetApiService {
 
     return await post<bool>(
       '/users/avatar',
-      data: formData,
+      body: formData,
       decoder: (data) => data['success'] as bool,
     );
   }
@@ -150,13 +150,13 @@ class UserApiService extends JetApiService {
   String get baseUrl => 'https://api.example.com/v1';
 
   // PUT to update resource
-  Future<ResponseModel<User>> updateUser(
+  Future<User> updateUser(
     String userId,
     UpdateUserRequest request,
   ) async {
     return await put<User>(
       '/users/$userId',
-      data: request.toJson(),
+      body: request.toJson(),
       decoder: (data) => User.fromJson(data),
     );
   }
@@ -171,13 +171,13 @@ class UserApiService extends JetApiService {
   String get baseUrl => 'https://api.example.com/v1';
 
   // PATCH for partial updates
-  Future<ResponseModel<User>> patchUser(
+  Future<User> patchUser(
     String userId,
     Map<String, dynamic> updates,
   ) async {
     return await patch<User>(
       '/users/$userId',
-      data: updates,
+      body: updates,
       decoder: (data) => User.fromJson(data),
     );
   }
@@ -192,7 +192,7 @@ class UserApiService extends JetApiService {
   String get baseUrl => 'https://api.example.com/v1';
 
   // DELETE resource
-  Future<ResponseModel<bool>> deleteUser(String userId) async {
+  Future<bool> deleteUser(String userId) async {
     return await delete<bool>(
       '/users/$userId',
       decoder: (data) => data['success'] as bool,
@@ -203,38 +203,35 @@ class UserApiService extends JetApiService {
 
 ## Response Handling
 
-### ResponseModel
+### Direct Type Returns
 
-All Jet API methods return a `ResponseModel<T>` for type-safe response handling:
+All Jet API methods return the decoded type `T` directly for cleaner, more intuitive code:
 
 ```dart
-class ResponseModel<T> {
-  final T? data;           // Decoded response data
-  final int? statusCode;   // HTTP status code
-  final String? message;   // Response message
-  final bool success;      // Request success status
-  final dynamic raw;       // Raw response data
+// API methods return T directly
+Future<List<User>> getUsers() async {
+  return await get<List<User>>(
+    '/users',
+    decoder: (data) => (data as List)
+        .map((json) => User.fromJson(json))
+        .toList(),
+  );
 }
 ```
 
-### Using ResponseModel
+### Using API Responses
 
 ```dart
 // In your UI or business logic
 Future<void> loadUsers() async {
   try {
-    final response = await ref.read(userApiServiceProvider).getUsers();
+    final users = await ref.read(userApiServiceProvider).getUsers();
     
-    if (response.success && response.data != null) {
-      // Success - use response.data
-      final users = response.data!;
-      setState(() {
-        _users = users;
-      });
-    } else {
-      // Handle unsuccessful response
-      context.showToast(response.message ?? 'Failed to load users');
-    }
+    // Direct access to typed data
+    setState(() {
+      _users = users;
+    });
+    
   } on JetError catch (error) {
     // Handle JetError
     if (error.isNoInternet) {
@@ -526,7 +523,7 @@ token.cancel();
 
 ```dart
 // Good - type-safe with decoder
-Future<ResponseModel<List<User>>> getUsers() async {
+Future<List<User>> getUsers() async {
   return await get<List<User>>(
     '/users',
     decoder: (data) => (data as List)
@@ -536,7 +533,7 @@ Future<ResponseModel<List<User>>> getUsers() async {
 }
 
 // Avoid - no type safety
-Future<ResponseModel<dynamic>> getUsers() async {
+Future<dynamic> getUsers() async {
   return await get('/users');
 }
 ```
@@ -550,12 +547,12 @@ class ApiService extends JetApiService {
   String get baseUrl => 'https://api.example.com/v1';
 
   // User endpoints
-  Future<ResponseModel<List<User>>> getUsers() async {...}
-  Future<ResponseModel<User>> createUser(CreateUserRequest request) async {...}
+  Future<List<User>> getUsers() async {...}
+  Future<User> createUser(CreateUserRequest request) async {...}
   
   // Post endpoints
-  Future<ResponseModel<List<Post>>> getPosts() async {...}
-  Future<ResponseModel<Post>> createPost(CreatePostRequest request) async {...}
+  Future<List<Post>> getPosts() async {...}
+  Future<Post> createPost(CreatePostRequest request) async {...}
 }
 
 // Or organize by resource
@@ -669,7 +666,7 @@ class DataLoader {
 
 ```dart
 // Good - use queryParameters
-Future<ResponseModel<List<User>>> searchUsers(
+Future<List<User>> searchUsers(
   String query,
   int page,
   int limit,
@@ -688,7 +685,7 @@ Future<ResponseModel<List<User>>> searchUsers(
 }
 
 // Avoid - manual URL construction
-Future<ResponseModel<List<User>>> searchUsers(String query) async {
+Future<List<User>> searchUsers(String query) async {
   return await get<List<User>>(
     '/users/search?q=$query&limit=20', // Don't do this
     decoder: (data) => ...,

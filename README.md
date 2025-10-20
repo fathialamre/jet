@@ -222,7 +222,7 @@ class UserApiService extends JetApiService {
   @override
   String get baseUrl => 'https://api.example.com/v1';
 
-  Future<ResponseModel<List<User>>> getUsers() async {
+  Future<List<User>> getUsers() async {
     return await get<List<User>>(
       '/users',
       decoder: (data) => (data as List)
@@ -566,6 +566,26 @@ ProviderScope(
 
 ---
 
+### 🔧 Environment Configuration
+
+Type-safe environment variable management using `.env` files.
+
+```dart
+// Access environment variables with type safety
+final apiUrl = JetEnv.getString('API_URL', defaultValue: 'http://localhost');
+final timeout = JetEnv.getInt('API_TIMEOUT', defaultValue: 30);
+final debugMode = JetEnv.getBool('ENABLE_DEBUG', defaultValue: false);
+
+// Check if key exists
+if (JetEnv.has('API_KEY')) {
+  final apiKey = JetEnv.getString('API_KEY');
+}
+```
+
+📖 **[View Complete Documentation](docs/ENVIRONMENT.md)**
+
+---
+
 ## 🎯 Key Features Summary
 
 - **🚀 Rapid Development** - Get started in minutes
@@ -598,6 +618,7 @@ ProviderScope(
 - [Dialogs & Sheets](docs/DIALOGS_AND_SHEETS.md) - Confirmation workflows
 
 ### Utilities
+- [Environment](docs/ENVIRONMENT.md) - Environment configuration (.env files)
 - [Extensions](docs/EXTENSIONS.md) - Utility extensions
 - [Security](docs/SECURITY.md) - App security
 - [Sessions](docs/SESSIONS.md) - Session management

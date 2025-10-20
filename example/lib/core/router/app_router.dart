@@ -1,5 +1,4 @@
 import 'package:example/features/posts/posts_page.dart';
-import 'package:flutter/material.dart';
 import 'package:jet/jet_framework.dart';
 
 part 'app_router.gr.dart';

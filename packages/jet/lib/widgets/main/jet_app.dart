@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:jet/helpers/jet_logger.dart';
 import 'package:jet/jet_framework.dart';
 import 'package:jet/security/app_locker/app_locker_notifier.dart';
 
@@ -17,7 +16,6 @@ class JetApp extends ConsumerWidget {
     final themeMode = ref.watch(currentThemeModeProvider);
     final lockState = ref.watch(appLockProvider);
     final config = jet.config;
-    dump(locale, tag: 'locale');
 
     return ScreenUtilInit(
       designSize: const Size(375, 812),

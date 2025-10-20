@@ -29,7 +29,6 @@ class ThemeSwitcherNotifier extends Notifier<ThemeMode> {
           (e) => e.name == savedTheme,
           orElse: () => ThemeMode.system,
         );
-        dump('[ThemeSwitcher] Loaded theme: ${themeMode.name}');
         return themeMode;
       }
     } catch (e, stackTrace) {
