@@ -80,6 +80,10 @@
   "containsElementErrorText": "La valeur doit être dans la liste.",
   "uniqueErrorText": "La valeur doit être unique.",
   "minWordsCountErrorText": "La valeur doit avoir un nombre de mots supérieur ou égal à {minWordsCount}.",
-  "maxWordsCountErrorText": "La valeur doit avoir un nombre de mots inférieur ou égal à {maxWordsCount}."
+  "maxWordsCountErrorText": "La valeur doit avoir un nombre de mots inférieur ou égal à {maxWordsCount}.",
+  "pleaseFixTheFormErrors": "Veuillez corriger les erreurs du formulaire.",
+  "@pleaseFixTheFormErrors": {
+    "description": "Error message shown when form has validation errors"
+  }
 }
 

@@ -1,4 +1,6 @@
-import 'package:example/features/posts/posts_page.dart';
+import 'package:example/features/posts/pages/post_details_page.dart';
+import 'package:example/features/posts/pages/posts_page.dart';
+import 'package:flutter/material.dart';
 import 'package:jet/jet_framework.dart';
 
 part 'app_router.gr.dart';
@@ -12,6 +14,7 @@ class AppRouter extends RootStackRouter {
   @override
   List<AutoRoute> get routes => [
     AutoRoute(page: PostsRoute.page, initial: true),
+    AutoRoute(page: PostDetailsRoute.page),
   ];
 
   @override

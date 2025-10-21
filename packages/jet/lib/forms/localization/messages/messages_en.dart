@@ -271,4 +271,7 @@ class JetFormMessagesEn extends JetFormMessages {
   @override
   String maxWordsCountErrorText(int maxWordsCount) =>
       'Value must have a words count less than or equal to $maxWordsCount.';
+
+  @override
+  String get pleaseFixTheFormErrors => 'Please fix the form errors.';
 }

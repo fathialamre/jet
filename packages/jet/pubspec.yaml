@@ -33,6 +33,7 @@ dependencies:
   path_provider: "^2.1.5"
   smooth_page_indicator: "^1.2.0+3"
   flutter_dotenv: ^6.0.0
+  skeletonizer: ^2.1.0+1
 
 dev_dependencies:
   flutter_test:

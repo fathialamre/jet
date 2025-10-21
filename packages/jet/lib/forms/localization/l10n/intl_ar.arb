@@ -80,6 +80,10 @@
   "containsElementErrorText": "يجب أن تكون القيمة في القائمة.",
   "uniqueErrorText": "يجب أن تكون القيمة فريدة.",
   "minWordsCountErrorText": "يجب أن يكون عدد الكلمات أكبر من أو يساوي {minWordsCount}.",
-  "maxWordsCountErrorText": "يجب أن يكون عدد الكلمات أقل من أو يساوي {maxWordsCount}."
+  "maxWordsCountErrorText": "يجب أن يكون عدد الكلمات أقل من أو يساوي {maxWordsCount}.",
+  "pleaseFixTheFormErrors": "يرجى إصلاح أخطاء النموذج.",
+  "@pleaseFixTheFormErrors": {
+    "description": "Error message shown when form has validation errors"
+  }
 }
 

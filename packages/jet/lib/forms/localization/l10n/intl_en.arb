@@ -248,6 +248,10 @@
         "type": "int"
       }
     }
+  },
+  "pleaseFixTheFormErrors": "Please fix the form errors.",
+  "@pleaseFixTheFormErrors": {
+    "description": "Error message shown when form has validation errors"
   }
 }
 

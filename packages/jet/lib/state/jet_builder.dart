@@ -7,6 +7,9 @@ import 'package:jet/jet.dart';
 import 'package:jet/widgets/feedback/jet_empty_widget.dart';
 import 'package:jet/state/jet_consumer.dart';
 import 'package:jet/networking/errors/errors.dart';
+import 'package:skeletonizer/skeletonizer.dart';
+import 'package:jet/helpers/loading_style.dart';
+import 'package:jet/helpers/skeleton_config.dart';
 
 /// Unified state management for Jet framework
 ///
@@ -115,6 +118,9 @@ class JetBuilder {
     bool shrinkWrap = false,
     Axis scrollDirection = Axis.vertical,
     Widget Function(BuildContext, int)? separatorBuilder,
+    LoadingStyle? loadingStyle,
+    SkeletonConfig? skeletonConfig,
+    Widget Function()? skeletonBuilder,
     Key? key,
   }) {
     return _StateWidget<List<T>>(
@@ -156,6 +162,9 @@ class JetBuilder {
       onRetry: onRetry,
       loading: loading,
       error: error,
+      loadingStyle: loadingStyle,
+      skeletonConfig: skeletonConfig,
+      skeletonBuilder: skeletonBuilder,
     );
   }
 
@@ -179,6 +188,9 @@ class JetBuilder {
     double mainAxisSpacing = 0.0,
     double crossAxisSpacing = 0.0,
     double childAspectRatio = 1.0,
+    LoadingStyle? loadingStyle,
+    SkeletonConfig? skeletonConfig,
+    Widget Function()? skeletonBuilder,
     Key? key,
   }) {
     return _StateWidget<List<T>>(
@@ -211,6 +223,9 @@ class JetBuilder {
       onRetry: onRetry,
       loading: loading,
       error: error,
+      loadingStyle: loadingStyle,
+      skeletonConfig: skeletonConfig,
+      skeletonBuilder: skeletonBuilder,
     );
   }
 
@@ -223,6 +238,9 @@ class JetBuilder {
     VoidCallback? onRetry,
     Widget? loading,
     Widget Function(Object error, StackTrace? stackTrace)? error,
+    LoadingStyle? loadingStyle,
+    SkeletonConfig? skeletonConfig,
+    Widget Function()? skeletonBuilder,
   }) {
     return _StateWidget<T>(
       provider: provider,
@@ -233,6 +251,9 @@ class JetBuilder {
       onRetry: onRetry,
       loading: loading,
       error: error,
+      loadingStyle: loadingStyle,
+      skeletonConfig: skeletonConfig,
+      skeletonBuilder: skeletonBuilder,
     );
   }
 
@@ -245,6 +266,9 @@ class JetBuilder {
     VoidCallback? onRetry,
     Widget? loadingBuilder,
     Widget Function(Object error, StackTrace? stackTrace)? errorBuilder,
+    LoadingStyle? loadingStyle,
+    SkeletonConfig? skeletonConfig,
+    Widget Function()? skeletonBuilder,
   }) {
     return _StateWidget<T>(
       provider: provider,
@@ -255,6 +279,9 @@ class JetBuilder {
       onRetry: onRetry,
       loading: loadingBuilder,
       error: errorBuilder,
+      loadingStyle: loadingStyle,
+      skeletonConfig: skeletonConfig,
+      skeletonBuilder: skeletonBuilder,
     );
   }
 }
@@ -270,6 +297,9 @@ class _StateWidget<T> extends JetConsumerWidget {
     this.loading,
     this.error,
     this.wrapInScroll = false,
+    this.loadingStyle,
+    this.skeletonConfig,
+    this.skeletonBuilder,
   });
 
   final ProviderBase<AsyncValue<T>> provider;
@@ -280,11 +310,22 @@ class _StateWidget<T> extends JetConsumerWidget {
   final Widget? loading;
   final Widget Function(Object error, StackTrace? stackTrace)? error;
   final bool wrapInScroll;
+  final LoadingStyle? loadingStyle;
+  final SkeletonConfig? skeletonConfig;
+  final Widget Function()? skeletonBuilder;
 
   @override
   Widget build(BuildContext context, WidgetRef ref, Jet jet) {
     final providerListenable = provider as ProviderListenable<AsyncValue<T>>;
     final asyncValue = ref.watch(providerListenable);
+
+    // Determine the loading style to use (widget-specific or global default)
+    final effectiveLoadingStyle =
+        loadingStyle ?? jet.config.defaultLoadingStyle;
+
+    // Determine the skeleton config to use (widget-specific or global default)
+    final effectiveSkeletonConfig =
+        skeletonConfig ?? jet.config.defaultSkeletonConfig;
 
     Widget content = asyncValue.when(
       skipLoadingOnReload: true,
@@ -301,7 +342,11 @@ class _StateWidget<T> extends JetConsumerWidget {
             onRetry,
             providerListenable,
           ),
-      loading: () => loading ?? jet.config.loader,
+      loading: () => _buildLoadingWidget(
+        effectiveLoadingStyle,
+        effectiveSkeletonConfig,
+        jet,
+      ),
     );
 
     // Wrap in SingleChildScrollView if needed for pull-to-refresh
@@ -326,6 +371,43 @@ class _StateWidget<T> extends JetConsumerWidget {
       child: content,
     );
   }
+
+  /// Builds the appropriate loading widget based on loading style
+  Widget _buildLoadingWidget(
+    LoadingStyle loadingStyle,
+    SkeletonConfig skeletonConfig,
+    Jet jet,
+  ) {
+    switch (loadingStyle) {
+      case LoadingStyle.normal:
+        return loading ?? jet.config.loader;
+
+      case LoadingStyle.skeleton:
+        // If a custom skeleton builder is provided, use it
+        if (skeletonBuilder != null) {
+          return Skeletonizer(
+            enabled: skeletonConfig.enabled,
+            effect: skeletonConfig.toSkeletonizerEffect(),
+            ignoreContainers: skeletonConfig.ignoreContainers,
+            containersColor: skeletonConfig.containersColor,
+            justifyMultiLineText: skeletonConfig.justifyMultiLineText,
+            child: skeletonBuilder!(),
+          );
+        }
+
+        // Otherwise return a basic skeleton
+        return Center(
+          child: Skeletonizer(
+            enabled: skeletonConfig.enabled,
+            effect: skeletonConfig.toSkeletonizerEffect(),
+            child: loading ?? jet.config.loader,
+          ),
+        );
+
+      case LoadingStyle.none:
+        return const SizedBox.shrink();
+    }
+  }
 }
 
 /// Helper method to build empty state widget
@@ -339,13 +421,18 @@ Widget _buildEmptyState(
 }
 
 /// Default refresh handler
+///
+/// Following Riverpod best practices for pull-to-refresh:
+/// https://riverpod.dev/docs/how_to/pull_to_refresh
+/// We refresh using the `.future` selector to get the Future<T> instead of AsyncValue<T>.
+/// This ensures the refresh indicator stays visible until the async operation completes.
 Future<void> _defaultRefresh<T>(
   WidgetRef ref,
   ProviderBase<AsyncValue<T>> provider,
 ) async {
-  // Most providers are Refreshable, so we cast directly
-  // If this fails at runtime, the developer will get a clear error
-  return ref.refresh(provider as Refreshable<AsyncValue<T>>);
+  // Use dynamic to access the .future property which is available
+  // on generated providers (@riverpod) and FutureProvider
+  return ref.refresh((provider as dynamic).future);
 }
 
 /// Optimized refresh indicator widget

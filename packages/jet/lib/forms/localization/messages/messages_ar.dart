@@ -269,4 +269,7 @@ class JetFormMessagesAr extends JetFormMessages {
   @override
   String maxWordsCountErrorText(int maxWordsCount) =>
       'يجب أن يكون عدد الكلمات أقل من أو يساوي $maxWordsCount.';
+
+  @override
+  String get pleaseFixTheFormErrors => 'يرجى إصلاح أخطاء النموذج.';
 }

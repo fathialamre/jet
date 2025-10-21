@@ -11,6 +11,7 @@ Jet's state management is built on **[Riverpod 3](https://pub.dev/packages/river
 - **flutter_riverpod** - [pub.dev](https://pub.dev/packages/flutter_riverpod) - Flutter integration for Riverpod
 - **riverpod_annotation** - [pub.dev](https://pub.dev/packages/riverpod_annotation) - Code generation annotations
 - **infinite_scroll_pagination** - [pub.dev](https://pub.dev/packages/infinite_scroll_pagination) - Official pagination package for JetPaginator
+- **skeletonizer** - [pub.dev](https://pub.dev/packages/skeletonizer) | [Documentation](https://pub.dev/packages/skeletonizer) - Skeleton loading animations
 
 **Key Benefits:**
 - ✅ Compile-time safe state management
@@ -23,6 +24,7 @@ Jet's state management is built on **[Riverpod 3](https://pub.dev/packages/river
 - ✅ Infinite scroll with any API format (JetPaginator)
 - ✅ Built-in pull-to-refresh functionality
 - ✅ Automatic loading and error states
+- ✅ Skeleton loading with shimmer effects
 
 ## Table of Contents
 
@@ -30,6 +32,7 @@ Jet's state management is built on **[Riverpod 3](https://pub.dev/packages/river
 - [JetConsumerWidget](#jetconsumerwidget)
 - [JetConsumerStatefulWidget](#jetconsumerstatefulwidget)
 - [JetBuilder](#jetbuilder)
+  - [Skeleton Loading](#skeleton-loading)
 - [JetPaginator](#jetpaginator)
 - [Family Providers](#family-providers)
 - [Riverpod 3 Generators](#riverpod-3-generators)
@@ -48,6 +51,7 @@ Jet provides powerful state management built on **Riverpod 3** with enhanced wid
 - ✅ Riverpod 3 code generation support
 - ✅ Automatic pull-to-refresh functionality
 - ✅ Automatic error handling and loading states
+- ✅ Skeleton loading with customizable effects
 
 ## JetConsumerWidget
 
@@ -255,6 +259,7 @@ Unified state widget for handling lists, grids, and single items with automatic 
 - ✅ Unified API for lists, grids, and single items
 - ✅ Automatic pull-to-refresh
 - ✅ Built-in loading and error handling
+- ✅ Skeleton loading with shimmer effects
 - ✅ Family provider support
 - ✅ Type-safe with generics
 - ✅ Optimized performance with minimal rebuilds
@@ -369,6 +374,9 @@ class UserDetailsPage extends StatelessWidget {
 | `shrinkWrap` | `bool` | No | Shrink wrap |
 | `scrollDirection` | `Axis` | No | Scroll direction |
 | `separatorBuilder` | `Widget Function(BuildContext, int)?` | No | Separator builder |
+| `loadingStyle` | `LoadingStyle?` | No | Loading style: normal, skeleton, or none |
+| `skeletonConfig` | `SkeletonConfig?` | No | Skeleton loading configuration |
+| `skeletonBuilder` | `Widget Function()?` | No | Custom skeleton layout builder |
 | `key` | `Key?` | No | Optional key for ListView widget for better rebuild optimization |
 
 **JetBuilder.grid Parameters:**
@@ -475,6 +483,444 @@ JetBuilder.grid<Photo>(
   crossAxisSpacing: 8,
   itemBuilder: (photo, index) => PhotoCard(photo: photo),
 )
+```
+
+### Skeleton Loading
+
+JetBuilder supports skeleton loading states powered by the [skeletonizer](https://pub.dev/packages/skeletonizer) package. Skeleton screens provide a better user experience by showing a placeholder UI with shimmer effects while content loads, giving users a preview of the content structure.
+
+**Features:**
+- ✅ Three loading styles: normal, skeleton, none
+- ✅ Multiple skeleton effects: shimmer, pulse, fade
+- ✅ Global configuration via JetConfig
+- ✅ Per-widget customization
+- ✅ Manual skeleton builders for complex layouts
+- ✅ Automatic or custom skeleton generation
+
+#### Loading Styles
+
+The `LoadingStyle` enum provides three options for displaying loading states:
+
+```dart
+enum LoadingStyle {
+  normal,    // Default CircularProgressIndicator
+  skeleton,  // Skeleton loading with shimmer effects
+  none,      // No loading indicator
+}
+```
+
+#### Basic Usage
+
+Use skeleton loading by setting the `loadingStyle` parameter:
+
+```dart
+JetBuilder.list<Post>(
+  context: context,
+  provider: postsProvider,
+  loadingStyle: LoadingStyle.skeleton,
+  itemBuilder: (post, index) => PostCard(post: post),
+)
+```
+
+#### Global Configuration
+
+Set a default loading style for your entire app in `JetConfig`:
+
+```dart
+class AppConfig extends JetConfig {
+  @override
+  LoadingStyle get defaultLoadingStyle => LoadingStyle.skeleton;
+  
+  @override
+  SkeletonConfig get defaultSkeletonConfig => SkeletonConfig.shimmer(
+    baseColor: Colors.grey[300],
+    highlightColor: Colors.grey[100],
+    duration: Duration(seconds: 2),
+  );
+  
+  // ... other config
+}
+```
+
+Now all JetBuilder widgets will use skeleton loading by default:
+
+```dart
+// Uses global skeleton loading style
+JetBuilder.list<Post>(
+  context: context,
+  provider: postsProvider,
+  itemBuilder: (post, index) => PostCard(post: post),
+)
+
+// Override to use normal loading for specific widget
+JetBuilder.list<User>(
+  context: context,
+  provider: usersProvider,
+  loadingStyle: LoadingStyle.normal,  // Override global setting
+  itemBuilder: (user, index) => UserCard(user: user),
+)
+```
+
+#### Skeleton Effects
+
+The `SkeletonConfig` class provides three built-in effects:
+
+**1. Shimmer Effect (Default)**
+
+Creates a shimmering animation that sweeps across skeleton elements:
+
+```dart
+JetBuilder.list<Product>(
+  context: context,
+  provider: productsProvider,
+  loadingStyle: LoadingStyle.skeleton,
+  skeletonConfig: SkeletonConfig.shimmer(
+    baseColor: Colors.grey[300],
+    highlightColor: Colors.grey[100],
+    duration: Duration(milliseconds: 1500),
+  ),
+  itemBuilder: (product, index) => ProductCard(product: product),
+)
+```
+
+**2. Pulse Effect**
+
+Elements fade in and out with a pulsing animation:
+
+```dart
+JetBuilder.grid<Photo>(
+  context: context,
+  provider: photosProvider,
+  crossAxisCount: 2,
+  loadingStyle: LoadingStyle.skeleton,
+  skeletonConfig: SkeletonConfig.pulse(
+    duration: Duration(milliseconds: 1000),
+  ),
+  itemBuilder: (photo, index) => PhotoCard(photo: photo),
+)
+```
+
+**3. Fade Effect**
+
+Simple fade animation on skeleton elements:
+
+```dart
+JetBuilder.list<Message>(
+  context: context,
+  provider: messagesProvider,
+  loadingStyle: LoadingStyle.skeleton,
+  skeletonConfig: SkeletonConfig.fade(),
+  itemBuilder: (message, index) => MessageTile(message: message),
+)
+```
+
+#### Custom Skeleton Builders
+
+For complex layouts, provide a custom skeleton builder that shows fake data:
+
+```dart
+JetBuilder.list<Post>(
+  context: context,
+  provider: postsProvider,
+  loadingStyle: LoadingStyle.skeleton,
+  skeletonConfig: SkeletonConfig.shimmer(),
+  skeletonBuilder: () {
+    // Return a skeleton layout with fake data
+    return ListView.builder(
+      itemCount: 5,  // Show 5 skeleton items
+      itemBuilder: (context, index) => Card(
+        margin: EdgeInsets.all(16),
+        child: ListTile(
+          leading: CircleAvatar(
+            child: Icon(Icons.person),
+          ),
+          title: Text('Loading post title here'),
+          subtitle: Text('Loading post description that will be replaced'),
+          trailing: Icon(Icons.chevron_right),
+        ),
+      ),
+    );
+  },
+  itemBuilder: (post, index) => PostCard(post: post),
+)
+```
+
+#### Advanced Customization
+
+Fine-tune skeleton appearance with detailed configuration:
+
+```dart
+JetBuilder.list<Article>(
+  context: context,
+  provider: articlesProvider,
+  loadingStyle: LoadingStyle.skeleton,
+  skeletonConfig: SkeletonConfig(
+    enabled: true,
+    effect: SkeletonEffect.shimmer,
+    baseColor: Colors.grey[300],
+    highlightColor: Colors.white,
+    duration: Duration(seconds: 2),
+    ignoreContainers: true,  // Don't skeletonize container widgets
+    justifyMultiLineText: true,  // Justify multi-line text skeletons
+  ),
+  skeletonBuilder: () => ListView.builder(
+    itemCount: 7,
+    padding: EdgeInsets.all(16),
+    itemBuilder: (context, index) => Card(
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Article Title Goes Here',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              'Article description and preview text that shows what the content will look like when loaded',
+              maxLines: 2,
+            ),
+            SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.access_time, size: 16),
+                SizedBox(width: 4),
+                Text('5 min read'),
+                SizedBox(width: 16),
+                Icon(Icons.favorite_border, size: 16),
+                SizedBox(width: 4),
+                Text('24'),
+              ],
+            ),
+          ],
+        ),
+      ),
+    ),
+  ),
+  itemBuilder: (article, index) => ArticleCard(article: article),
+)
+```
+
+#### Grid Skeleton Loading
+
+Skeleton loading works seamlessly with grid layouts:
+
+```dart
+JetBuilder.grid<Product>(
+  context: context,
+  provider: productsProvider,
+  crossAxisCount: 2,
+  crossAxisSpacing: 16,
+  mainAxisSpacing: 16,
+  padding: EdgeInsets.all(16),
+  loadingStyle: LoadingStyle.skeleton,
+  skeletonBuilder: () => GridView.builder(
+    padding: EdgeInsets.all(16),
+    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 2,
+      crossAxisSpacing: 16,
+      mainAxisSpacing: 16,
+      childAspectRatio: 0.75,
+    ),
+    itemCount: 6,  // Show 6 skeleton items
+    itemBuilder: (context, index) => Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AspectRatio(
+            aspectRatio: 1,
+            child: Container(color: Colors.grey[200]),
+          ),
+          Padding(
+            padding: EdgeInsets.all(8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Product Name', style: TextStyle(fontSize: 16)),
+                SizedBox(height: 4),
+                Text('\$99.99', style: TextStyle(fontSize: 14)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  ),
+  itemBuilder: (product, index) => ProductCard(product: product),
+)
+```
+
+#### Single Item Skeleton
+
+For single item views, skeleton loading provides a smooth loading experience:
+
+```dart
+JetBuilder.item<User>(
+  context: context,
+  provider: userProvider(userId),
+  loadingStyle: LoadingStyle.skeleton,
+  skeletonBuilder: () => Card(
+    margin: EdgeInsets.all(16),
+    child: Padding(
+      padding: EdgeInsets.all(16),
+      child: Column(
+        children: [
+          CircleAvatar(radius: 50, child: Icon(Icons.person, size: 50)),
+          SizedBox(height: 16),
+          Text('User Name', style: TextStyle(fontSize: 24)),
+          SizedBox(height: 8),
+          Text('user@email.com', style: TextStyle(fontSize: 16)),
+          SizedBox(height: 16),
+          Text(
+            'User bio and description text goes here and will be replaced with actual content',
+            textAlign: TextAlign.center,
+            maxLines: 3,
+          ),
+        ],
+      ),
+    ),
+  ),
+  builder: (user, ref) => UserProfile(user: user),
+)
+```
+
+#### Best Practices for Skeleton Loading
+
+**1. Match Your Content Structure**
+
+Design skeleton screens that closely match your actual content layout:
+
+```dart
+// Good - skeleton matches actual content structure
+skeletonBuilder: () => ListView.builder(
+  itemCount: 5,
+  itemBuilder: (context, index) => ListTile(
+    leading: CircleAvatar(),
+    title: Text('Loading title'),
+    subtitle: Text('Loading subtitle'),
+    trailing: Icon(Icons.arrow_forward),
+  ),
+),
+```
+
+**2. Use Realistic Item Counts**
+
+Show a reasonable number of skeleton items based on typical screen content:
+
+```dart
+// Mobile: 5-7 items
+skeletonBuilder: () => ListView.builder(
+  itemCount: 6,
+  itemBuilder: (context, index) => SkeletonItem(),
+),
+
+// Grid: Based on screen size
+skeletonBuilder: () => GridView.builder(
+  itemCount: MediaQuery.of(context).size.width > 600 ? 12 : 6,
+  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+    crossAxisCount: MediaQuery.of(context).size.width > 600 ? 4 : 2,
+  ),
+  itemBuilder: (context, index) => SkeletonCard(),
+),
+```
+
+**3. Keep It Simple**
+
+Don't overcomplicate skeleton screens—focus on the main content structure:
+
+```dart
+// Good - simple and clear
+skeletonBuilder: () => ListView.builder(
+  itemCount: 5,
+  itemBuilder: (context, index) => Card(
+    child: ListTile(
+      title: Text('Loading'),
+      subtitle: Text('Description'),
+    ),
+  ),
+),
+
+// Avoid - too detailed
+skeletonBuilder: () => /* Complex nested structure with many widgets */,
+```
+
+**4. Use Consistent Effects**
+
+Stick to one effect type throughout your app for consistency:
+
+```dart
+class AppConfig extends JetConfig {
+  @override
+  SkeletonConfig get defaultSkeletonConfig => SkeletonConfig.shimmer();
+  // All skeleton screens will use shimmer effect
+}
+```
+
+**5. Consider Performance**
+
+For complex screens, use simpler skeleton layouts to maintain smooth animations:
+
+```dart
+JetBuilder.list<ComplexItem>(
+  context: context,
+  provider: complexItemsProvider,
+  loadingStyle: LoadingStyle.skeleton,
+  // Simple skeleton for complex items
+  skeletonBuilder: () => ListView.builder(
+    itemCount: 5,
+    itemBuilder: (context, index) => Card(
+      margin: EdgeInsets.all(8),
+      child: Container(height: 100),  // Simple placeholder
+    ),
+  ),
+  itemBuilder: (item, index) => ComplexItemCard(item: item),
+)
+```
+
+#### API Reference
+
+**LoadingStyle Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `loadingStyle` | `LoadingStyle?` | Loading style: `normal`, `skeleton`, or `none` |
+| `skeletonConfig` | `SkeletonConfig?` | Configuration for skeleton effects |
+| `skeletonBuilder` | `Widget Function()?` | Custom skeleton layout builder |
+
+**SkeletonConfig Properties:**
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `enabled` | `bool` | `true` | Whether skeleton is enabled |
+| `effect` | `SkeletonEffect` | `shimmer` | Effect type: `shimmer`, `pulse`, or `fade` |
+| `baseColor` | `Color?` | `Colors.grey[300]` | Base color for skeleton |
+| `highlightColor` | `Color?` | `Colors.grey[100]` | Highlight color for effects |
+| `duration` | `Duration` | `1500ms` | Animation duration |
+| `ignoreContainers` | `bool` | `false` | Whether to skip container widgets |
+| `containersColor` | `Color?` | `null` | Color for container widgets |
+| `justifyMultiLineText` | `bool` | `true` | Justify multi-line text skeletons |
+
+**SkeletonConfig Factory Constructors:**
+
+```dart
+// Shimmer effect with custom settings
+SkeletonConfig.shimmer(
+  baseColor: Colors.grey[300],
+  highlightColor: Colors.grey[100],
+  duration: Duration(milliseconds: 1500),
+)
+
+// Pulse effect
+SkeletonConfig.pulse(
+  duration: Duration(milliseconds: 1000),
+)
+
+// Fade effect
+SkeletonConfig.fade()
 ```
 
 ## JetPaginator

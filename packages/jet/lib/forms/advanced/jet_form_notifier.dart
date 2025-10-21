@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jet/forms/advanced/mixins/form_error_handling_mixin.dart';
 import 'package:jet/forms/advanced/mixins/form_lifecycle_mixin.dart';
 import 'package:jet/forms/advanced/mixins/form_validation_mixin.dart';
+import 'package:jet/forms/localization/jet_form_localizations.dart';
 import '../../networking/errors/jet_error.dart';
 import '../common.dart';
 import '../core/jet_form_field.dart';
@@ -249,7 +250,7 @@ mixin JetFormMixin<Request, Response>
   @override
   JetError createValidationError(Map<String, List<String>> formErrors) {
     return JetError.validation(
-      message: 'Please fix the form errors',
+      message: JetFormLocalizations.current.pleaseFixTheFormErrors,
       errors: formErrors,
     );
   }

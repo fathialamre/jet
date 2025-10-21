@@ -103,6 +103,35 @@ abstract class JetConfig {
   /// Example: `JetLoader(color: Colors.blue)`
   JetLoader get loader => JetLoader();
 
+  /// The default loading style for JetBuilder widgets.
+  ///
+  /// Controls how loading states are displayed across all JetBuilder widgets
+  /// unless overridden per widget. Defaults to [LoadingStyle.normal].
+  ///
+  /// Options:
+  /// - [LoadingStyle.normal] - Shows CircularProgressIndicator (default)
+  /// - [LoadingStyle.skeleton] - Shows skeleton loading animation
+  /// - [LoadingStyle.none] - Shows no loading indicator
+  ///
+  /// Example: `LoadingStyle.skeleton`
+  LoadingStyle get defaultLoadingStyle => LoadingStyle.normal;
+
+  /// The default skeleton configuration for skeleton loading states.
+  ///
+  /// Provides default settings for skeleton loaders that can be overridden
+  /// per widget. Only used when [defaultLoadingStyle] is [LoadingStyle.skeleton].
+  ///
+  /// Example:
+  /// ```dart
+  /// @override
+  /// SkeletonConfig get defaultSkeletonConfig => SkeletonConfig.shimmer(
+  ///   baseColor: Colors.grey[300],
+  ///   highlightColor: Colors.grey[100],
+  ///   duration: Duration(seconds: 2),
+  /// );
+  /// ```
+  SkeletonConfig get defaultSkeletonConfig => SkeletonConfig();
+
   /// The error handler for the application.
   ///
   /// Returns the default JetErrorHandler by default.

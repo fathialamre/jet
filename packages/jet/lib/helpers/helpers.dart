@@ -2,6 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 
+export 'loading_style.dart';
+export 'skeleton_config.dart';
+
 bool get isDebugMode => kDebugMode;
 
 bool get isProductionMode => kReleaseMode;

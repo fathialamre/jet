@@ -86,4 +86,5 @@ abstract class JetFormMessages {
   String get uniqueErrorText;
   String minWordsCountErrorText(int minWordsCount);
   String maxWordsCountErrorText(int maxWordsCount);
+  String get pleaseFixTheFormErrors;
 }
