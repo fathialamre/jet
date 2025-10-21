@@ -13,6 +13,39 @@ Built on **Riverpod 3** with code generation support, Jet combines powerful stat
 - **🌍 Global Ready** - Built-in internationalization, RTL support, and adaptive UI components
 - **🧩 Modular Design** - Use what you need, extend with adapters, customize to fit your requirements
 
+## 📑 Table of Contents
+
+- [Installation](#-installation)
+- [Quick Start](#-quick-start)
+- [Features](#-features)
+  - [Configuration](#️-configuration)
+  - [Routing](#-routing)
+  - [Adapters](#-adapters)
+  - [Storage](#-storage)
+  - [Theming](#-theming)
+  - [Localization](#-localization)
+  - [Environment Configuration](#-environment-configuration)
+  - [Networking](#-networking)
+  - [Error Handling](#️-error-handling)
+  - [Forms](#-forms)
+  - [Components](#-components)
+  - [Dialogs & Sheets](#-dialogs--sheets)
+  - [Extensions](#-extensions)
+  - [Security](#-security)
+  - [Sessions](#-sessions)
+  - [State Management](#-state-management)
+  - [Notifications](#-notifications)
+  - [Debugging](#-debugging)
+  - [Helpers](#-helpers)
+- [Key Features Summary](#-key-features-summary)
+- [Documentation](#-documentation)
+  - [Core Features](#core-features)
+  - [Advanced Features](#advanced-features)
+  - [Utilities](#utilities)
+- [Additional Resources](#-additional-resources)
+- [Contributing](#-contributing)
+- [License](#-license)
+
 ## 📦 Installation
 
 Add Jet to your Flutter project:
@@ -210,6 +243,26 @@ final text = context.jetI10n.confirm;
 ```
 
 📖 **[View Complete Documentation](docs/LOCALIZATION.md)**
+
+---
+
+### 🔧 Environment Configuration
+
+Type-safe environment variable management using `.env` files.
+
+```dart
+// Access environment variables with type safety
+final apiUrl = JetEnv.getString('API_URL', defaultValue: 'http://localhost');
+final timeout = JetEnv.getInt('API_TIMEOUT', defaultValue: 30);
+final debugMode = JetEnv.getBool('ENABLE_DEBUG', defaultValue: false);
+
+// Check if key exists
+if (JetEnv.has('API_KEY')) {
+  final apiKey = JetEnv.getString('API_KEY');
+}
+```
+
+📖 **[View Complete Documentation](docs/ENVIRONMENT.md)**
 
 ---
 
@@ -563,26 +616,6 @@ ProviderScope(
 ```
 
 📖 **[View Complete Documentation](docs/HELPERS.md)**
-
----
-
-### 🔧 Environment Configuration
-
-Type-safe environment variable management using `.env` files.
-
-```dart
-// Access environment variables with type safety
-final apiUrl = JetEnv.getString('API_URL', defaultValue: 'http://localhost');
-final timeout = JetEnv.getInt('API_TIMEOUT', defaultValue: 30);
-final debugMode = JetEnv.getBool('ENABLE_DEBUG', defaultValue: false);
-
-// Check if key exists
-if (JetEnv.has('API_KEY')) {
-  final apiKey = JetEnv.getString('API_KEY');
-}
-```
-
-📖 **[View Complete Documentation](docs/ENVIRONMENT.md)**
 
 ---
 

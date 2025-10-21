@@ -453,6 +453,73 @@ final apiUrl = JetEnv.getString('API_URL', defaultValue: '');
 2. Call `JetEnv.reload()` after changes
 3. Restart the app for production builds
 
+## About flutter_dotenv
+
+Jet's environment configuration is built on top of the **[flutter_dotenv](https://pub.dev/packages/flutter_dotenv)** package, which provides the core functionality for loading and parsing `.env` files.
+
+### Package Information
+
+- **Package**: [flutter_dotenv](https://pub.dev/packages/flutter_dotenv)
+- **Version**: Latest stable
+- **License**: MIT
+- **Repository**: [GitHub](https://github.com/Baseflow/flutter_dotenv)
+
+### What flutter_dotenv Provides
+
+Load configuration at runtime from a `.env` file which can be used throughout the application.
+
+The twelve-factor app stores config in environment variables (often shortened to env vars or env). Env vars are easy to change between deploys without changing any code... they are a language- and OS-agnostic standard.
+
+An environment is the set of variables known to a process (say, PATH, PORT, ...). It is desirable to mimic the production environment during development (testing, staging, ...) by reading these values from a file.
+
+This library parses that file and merges its values with the built-in `Platform.environment` map.
+
+### Security Considerations
+
+⚠️ **Important**: Sensitive keys like API keys and tokens should not be stored in your Flutter app. They can be extracted even if obfuscated. This library currently does not obfuscate variables as it may lull the consumers into a false sense of security. Use environment variables on the frontend application for non-sensitive configuration values, such as API endpoints and feature flags.
+
+For more details on mobile app security best practices, refer to the [OWASP Mobile Security Project](https://owasp.org/www-project-mobile-security-testing-guide/).
+
+### Basic flutter_dotenv Usage
+
+Create a `.env` file in the root of your project with the example content:
+
+```bash
+FOO=foo
+BAR=bar
+FOOBAR=$FOO$BAR
+ESCAPED_DOLLAR_SIGN='$1000'
+# This is a comment
+```
+
+**Note**: If deploying to web server, ensure that the config file is uploaded and not ignored. (Whitelist the config file on the server, or name the config file without a leading `.`)
+
+Add the `.env` file to your assets bundle in `pubspec.yaml`. Ensure that the path corresponds to the location of the `.env` file!
+
+```yaml
+flutter:
+  assets:
+    - .env
+```
+
+Remember to add the `.env` file as an entry in your `.gitignore` if it isn't already unless you want it included in your version control.
+
+```gitignore
+*.env
+```
+
+Load the `.env` file in `main.dart`. Note that flutter_dotenv >=5.0.0 has a slightly different syntax for consuming the DotEnv data.
+
+### Jet's Enhancement
+
+While flutter_dotenv provides the core functionality, Jet's `JetEnv` wrapper adds:
+
+- **Type Safety**: Strongly typed getters with default values
+- **Adapter Integration**: Automatic initialization during app boot
+- **Error Handling**: Graceful fallbacks and debug logging
+- **Configuration Management**: Centralized config via `EnvironmentConfig`
+- **Multi-Environment Support**: Base + override files for different environments
+
 ## See Also
 
 - [Configuration Documentation](CONFIGURATION.md) - App configuration with JetConfig
