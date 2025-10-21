@@ -14,7 +14,6 @@ import 'package:jet/networking/errors/errors.dart';
 /// - Pull to refresh
 /// - Loading and error states
 /// - Lists, grids, and single items
-/// - Provider families (separate methods for clarity)
 /// - Built-in error handling with custom error widgets
 /// - Horizontal and vertical scrolling
 /// - Scroll controller support
@@ -23,7 +22,6 @@ import 'package:jet/networking/errors/errors.dart';
 ///
 /// ## Features
 ///
-/// - **Separate Family Methods**: Clear distinction between regular and family providers
 /// - **Empty States**: Automatic empty state handling with customization
 /// - **Error Handling**: Built-in error widgets with retry functionality
 /// - **Flexible Scrolling**: Horizontal/vertical with controller support
@@ -40,15 +38,6 @@ import 'package:jet/networking/errors/errors.dart';
 /// )
 /// ```
 ///
-/// **List with family provider:**
-/// ```dart
-/// JetBuilder.familyList(
-///   context: context,
-///   provider: postsByCategoryProvider,
-///   param: 'electronics',
-///   itemBuilder: (post, index) => PostCard(post: post),
-/// )
-/// ```
 ///
 /// **Grid with customization:**
 /// ```dart
@@ -109,11 +98,9 @@ import 'package:jet/networking/errors/errors.dart';
 /// JetBuilder: Helpers for wiring Riverpod providers with Jet + AsyncValue
 class JetBuilder {
   /// Build a ListView from an AsyncValue<List<T>>
-  ///
-  /// Use this for regular providers. For family providers, use [familyList].
   static Widget list<T>({
     required BuildContext context,
-    required ProviderListenable<AsyncValue<List<T>>> provider,
+    required ProviderBase<AsyncValue<List<T>>> provider,
     required Widget Function(T item, int index) itemBuilder,
     Future<void> Function()? onRefresh,
     VoidCallback? onRetry,
@@ -128,20 +115,20 @@ class JetBuilder {
     bool shrinkWrap = false,
     Axis scrollDirection = Axis.vertical,
     Widget Function(BuildContext, int)? separatorBuilder,
+    Key? key,
   }) {
     return _StateWidget<List<T>>(
       provider: provider,
       context: context,
+      wrapInScroll: false, // ListView is already scrollable
       builder: (items, ref) {
         if (items.isEmpty) {
-          return empty ??
-              JetEmptyWidget(
-                title: emptyTitle ?? context.jetI10n.noItemsFound,
-              );
+          return _buildEmptyState(context, empty, emptyTitle);
         }
 
         if (separatorBuilder != null) {
           return ListView.separated(
+            key: key,
             controller: controller,
             physics: scrollPhysics,
             shrinkWrap: shrinkWrap,
@@ -154,6 +141,7 @@ class JetBuilder {
         }
 
         return ListView.builder(
+          key: key,
           controller: controller,
           physics: scrollPhysics,
           shrinkWrap: shrinkWrap,
@@ -172,11 +160,9 @@ class JetBuilder {
   }
 
   /// Build a GridView from an AsyncValue<List<T>>
-  ///
-  /// Use this for regular providers. For family providers, use [familyGrid].
   static Widget grid<T>({
     required BuildContext context,
-    required ProviderListenable<AsyncValue<List<T>>> provider,
+    required ProviderBase<AsyncValue<List<T>>> provider,
     required Widget Function(T item, int index) itemBuilder,
     required int crossAxisCount,
     Future<void> Function()? onRefresh,
@@ -193,19 +179,19 @@ class JetBuilder {
     double mainAxisSpacing = 0.0,
     double crossAxisSpacing = 0.0,
     double childAspectRatio = 1.0,
+    Key? key,
   }) {
     return _StateWidget<List<T>>(
       provider: provider,
       context: context,
+      wrapInScroll: false, // GridView is already scrollable
       builder: (items, ref) {
         if (items.isEmpty) {
-          return empty ??
-              JetEmptyWidget(
-                title: emptyTitle ?? context.jetI10n.noItemsFound,
-              );
+          return _buildEmptyState(context, empty, emptyTitle);
         }
 
         return GridView.builder(
+          key: key,
           controller: controller,
           physics: scrollPhysics,
           shrinkWrap: shrinkWrap,
@@ -229,11 +215,9 @@ class JetBuilder {
   }
 
   /// Build a single item widget from AsyncValue<T>
-  ///
-  /// Use this for regular providers. For family providers, use [familyItem].
   static Widget item<T>({
     required BuildContext context,
-    required ProviderListenable<AsyncValue<T>> provider,
+    required ProviderBase<AsyncValue<T>> provider,
     required Widget Function(T item, WidgetRef ref) builder,
     Future<void> Function()? onRefresh,
     VoidCallback? onRetry,
@@ -243,6 +227,7 @@ class JetBuilder {
     return _StateWidget<T>(
       provider: provider,
       context: context,
+      wrapInScroll: true, // Enable scrolling for single items
       builder: builder,
       onRefresh: onRefresh,
       onRetry: onRetry,
@@ -252,203 +237,24 @@ class JetBuilder {
   }
 
   /// Build from AsyncValue<T> without forcing ListView/Grid
-  ///
-  /// Use this for regular providers. For family providers, use [familyBuilder].
   static Widget builder<T>({
     required BuildContext context,
-    required ProviderListenable<AsyncValue<T>> provider,
+    required ProviderBase<AsyncValue<T>> provider,
     required Widget Function(T data, WidgetRef ref) builder,
     Future<void> Function()? onRefresh,
     VoidCallback? onRetry,
-    Widget? loading,
-    Widget Function(Object error, StackTrace? stackTrace)? error,
+    Widget? loadingBuilder,
+    Widget Function(Object error, StackTrace? stackTrace)? errorBuilder,
   }) {
     return _StateWidget<T>(
       provider: provider,
       context: context,
+      wrapInScroll: true, // Enable scrolling for custom builders
       builder: builder,
       onRefresh: onRefresh,
       onRetry: onRetry,
-      loading: loading,
-      error: error,
-    );
-  }
-
-  /// Build a ListView from an AsyncValue<List<T>> with a family provider
-  ///
-  /// Use this when you need to pass a parameter to your provider.
-  /// For regular providers without parameters, use [list].
-  static Widget familyList<T, Param>({
-    required BuildContext context,
-    required ProviderListenable<AsyncValue<List<T>>> Function(Param) provider,
-    required Param param,
-    required Widget Function(T item, int index) itemBuilder,
-    Future<void> Function()? onRefresh,
-    VoidCallback? onRetry,
-    Widget? loading,
-    Widget? empty,
-    String? emptyTitle,
-    Widget Function(Object error, StackTrace? stackTrace)? error,
-    ScrollController? controller,
-    ScrollPhysics? scrollPhysics,
-    EdgeInsetsGeometry? padding,
-    double? itemExtent,
-    bool shrinkWrap = false,
-    Axis scrollDirection = Axis.vertical,
-    Widget Function(BuildContext, int)? separatorBuilder,
-  }) {
-    return _StateFamilyWidget<List<T>, Param>(
-      provider: provider,
-      param: param,
-      context: context,
-      builder: (items, ref) {
-        if (items.isEmpty) {
-          return empty ??
-              JetEmptyWidget(
-                title: emptyTitle ?? context.jetI10n.noItemsFound,
-              );
-        }
-
-        if (separatorBuilder != null) {
-          return ListView.separated(
-            controller: controller,
-            physics: scrollPhysics,
-            shrinkWrap: shrinkWrap,
-            padding: padding,
-            scrollDirection: scrollDirection,
-            itemCount: items.length,
-            itemBuilder: (ctx, index) => itemBuilder(items[index], index),
-            separatorBuilder: separatorBuilder,
-          );
-        }
-
-        return ListView.builder(
-          controller: controller,
-          physics: scrollPhysics,
-          shrinkWrap: shrinkWrap,
-          padding: padding,
-          itemExtent: itemExtent,
-          scrollDirection: scrollDirection,
-          itemCount: items.length,
-          itemBuilder: (ctx, index) => itemBuilder(items[index], index),
-        );
-      },
-      onRefresh: onRefresh,
-      onRetry: onRetry,
-      loading: loading,
-      error: error,
-    );
-  }
-
-  /// Build a GridView from an AsyncValue<List<T>> with a family provider
-  ///
-  /// Use this when you need to pass a parameter to your provider.
-  /// For regular providers without parameters, use [grid].
-  static Widget familyGrid<T, Param>({
-    required BuildContext context,
-    required ProviderListenable<AsyncValue<List<T>>> Function(Param) provider,
-    required Param param,
-    required Widget Function(T item, int index) itemBuilder,
-    required int crossAxisCount,
-    Future<void> Function()? onRefresh,
-    VoidCallback? onRetry,
-    Widget? loading,
-    Widget? empty,
-    String? emptyTitle,
-    Widget Function(Object error, StackTrace? stackTrace)? error,
-    ScrollController? controller,
-    ScrollPhysics? scrollPhysics,
-    EdgeInsetsGeometry? padding,
-    bool shrinkWrap = false,
-    Axis scrollDirection = Axis.vertical,
-    double mainAxisSpacing = 0.0,
-    double crossAxisSpacing = 0.0,
-    double childAspectRatio = 1.0,
-  }) {
-    return _StateFamilyWidget<List<T>, Param>(
-      provider: provider,
-      param: param,
-      context: context,
-      builder: (items, ref) {
-        if (items.isEmpty) {
-          return empty ??
-              JetEmptyWidget(
-                title: emptyTitle ?? context.jetI10n.noItemsFound,
-              );
-        }
-
-        return GridView.builder(
-          controller: controller,
-          physics: scrollPhysics,
-          shrinkWrap: shrinkWrap,
-          padding: padding,
-          scrollDirection: scrollDirection,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            mainAxisSpacing: mainAxisSpacing,
-            crossAxisSpacing: crossAxisSpacing,
-            childAspectRatio: childAspectRatio,
-          ),
-          itemCount: items.length,
-          itemBuilder: (ctx, index) => itemBuilder(items[index], index),
-        );
-      },
-      onRefresh: onRefresh,
-      onRetry: onRetry,
-      loading: loading,
-      error: error,
-    );
-  }
-
-  /// Build a single item widget from AsyncValue<T> with a family provider
-  ///
-  /// Use this when you need to pass a parameter to your provider.
-  /// For regular providers without parameters, use [item].
-  static Widget familyItem<T, Param>({
-    required BuildContext context,
-    required ProviderListenable<AsyncValue<T>> Function(Param) provider,
-    required Param param,
-    required Widget Function(T item, WidgetRef ref) builder,
-    Future<void> Function()? onRefresh,
-    VoidCallback? onRetry,
-    Widget? loading,
-    Widget Function(Object error, StackTrace? stackTrace)? error,
-  }) {
-    return _StateFamilyWidget<T, Param>(
-      provider: provider,
-      param: param,
-      context: context,
-      builder: builder,
-      onRefresh: onRefresh,
-      onRetry: onRetry,
-      loading: loading,
-      error: error,
-    );
-  }
-
-  /// Build from AsyncValue<T> with a family provider without forcing ListView/Grid
-  ///
-  /// Use this when you need to pass a parameter to your provider.
-  /// For regular providers without parameters, use [builder].
-  static Widget familyBuilder<T, Param>({
-    required BuildContext context,
-    required ProviderListenable<AsyncValue<T>> Function(Param) provider,
-    required Param param,
-    required Widget Function(T data, WidgetRef ref) builder,
-    Future<void> Function()? onRefresh,
-    VoidCallback? onRetry,
-    Widget? loading,
-    Widget Function(Object error, StackTrace? stackTrace)? error,
-  }) {
-    return _StateFamilyWidget<T, Param>(
-      provider: provider,
-      param: param,
-      context: context,
-      builder: builder,
-      onRefresh: onRefresh,
-      onRetry: onRetry,
-      loading: loading,
-      error: error,
+      loading: loadingBuilder,
+      error: errorBuilder,
     );
   }
 }
@@ -463,127 +269,93 @@ class _StateWidget<T> extends JetConsumerWidget {
     this.onRetry,
     this.loading,
     this.error,
+    this.wrapInScroll = false,
   });
 
-  final ProviderListenable<AsyncValue<T>> provider;
+  final ProviderBase<AsyncValue<T>> provider;
   final BuildContext context;
   final Widget Function(T data, WidgetRef ref) builder;
   final Future<void> Function()? onRefresh;
   final VoidCallback? onRetry;
   final Widget? loading;
   final Widget Function(Object error, StackTrace? stackTrace)? error;
+  final bool wrapInScroll;
 
   @override
   Widget build(BuildContext context, WidgetRef ref, Jet jet) {
-    final asyncValue = ref.watch(provider);
+    final providerListenable = provider as ProviderListenable<AsyncValue<T>>;
+    final asyncValue = ref.watch(providerListenable);
+
+    Widget content = asyncValue.when(
+      skipLoadingOnReload: true,
+      skipLoadingOnRefresh: true,
+      data: (data) => builder(data, ref),
+      error: (err, stack) =>
+          error?.call(err, stack) ??
+          _buildDefaultErrorWidget(
+            err,
+            stack,
+            jet,
+            ref,
+            this.context,
+            onRetry,
+            providerListenable,
+          ),
+      loading: () => loading ?? jet.config.loader,
+    );
+
+    // Wrap in SingleChildScrollView if needed for pull-to-refresh
+    if (wrapInScroll) {
+      content = SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: content,
+      );
+    }
 
     return CustomMaterialIndicator(
-      onRefresh:
-          onRefresh ??
-          () async {
-            return ref.refresh(provider as Refreshable<AsyncValue<T>>);
-          },
+      onRefresh: onRefresh ?? () => _defaultRefresh(ref, provider),
       triggerMode: IndicatorTriggerMode.onEdge,
       indicatorBuilder: (context, controller) {
         return SizedBox(
           height: 60.0,
           child: Center(
-            child: _buildRefreshIndicator(controller, asyncValue),
+            child: _buildRefreshIndicator(controller),
           ),
         );
       },
-      child: asyncValue.when(
-        skipLoadingOnReload: true,
-        skipLoadingOnRefresh: true,
-        data: (data) => builder(data, ref),
-        error: (err, stack) =>
-            error?.call(err, stack) ??
-            _buildDefaultErrorWidget(
-              err,
-              stack,
-              jet,
-              ref,
-              this.context,
-              onRetry,
-              provider,
-            ),
-        loading: () => loading ?? jet.config.loader,
-      ),
+      child: content,
     );
   }
 }
 
-/// State widget for provider families
-class _StateFamilyWidget<T, Param> extends JetConsumerWidget {
-  const _StateFamilyWidget({
-    required this.provider,
-    required this.param,
-    required this.context,
-    required this.builder,
-    this.onRefresh,
-    this.onRetry,
-    this.loading,
-    this.error,
-  });
-
-  final ProviderListenable<AsyncValue<T>> Function(Param) provider;
-  final Param param;
-  final BuildContext context;
-  final Widget Function(T data, WidgetRef ref) builder;
-  final Future<void> Function()? onRefresh;
-  final VoidCallback? onRetry;
-  final Widget? loading;
-  final Widget Function(Object error, StackTrace? stackTrace)? error;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref, Jet jet) {
-    final asyncValue = ref.watch(provider(param));
-
-    return CustomMaterialIndicator(
-      onRefresh:
-          onRefresh ??
-          () async {
-            return ref.refresh(provider(param) as Refreshable<AsyncValue<T>>);
-          },
-      triggerMode: IndicatorTriggerMode.onEdge,
-      indicatorBuilder: (context, controller) {
-        return SizedBox(
-          height: 60.0,
-          child: Center(
-            child: _buildRefreshIndicator(controller, asyncValue),
-          ),
-        );
-      },
-      child: asyncValue.when(
-        skipLoadingOnReload: true,
-        skipLoadingOnRefresh: true,
-        data: (data) => builder(data, ref),
-        error: (err, stack) =>
-            error?.call(err, stack) ??
-            _buildDefaultErrorWidget(
-              err,
-              stack,
-              jet,
-              ref,
-              this.context,
-              onRetry,
-              provider(param),
-            ),
-        loading: () => loading ?? jet.config.loader,
-      ),
-    );
-  }
-}
-
-Widget _buildRefreshIndicator<T>(
-  IndicatorController controller,
-  AsyncValue<T> asyncValue,
+/// Helper method to build empty state widget
+Widget _buildEmptyState(
+  BuildContext context,
+  Widget? empty,
+  String? emptyTitle,
 ) {
+  return empty ??
+      JetEmptyWidget(title: emptyTitle ?? context.jetI10n.noItemsFound);
+}
+
+/// Default refresh handler
+Future<void> _defaultRefresh<T>(
+  WidgetRef ref,
+  ProviderBase<AsyncValue<T>> provider,
+) async {
+  // Most providers are Refreshable, so we cast directly
+  // If this fails at runtime, the developer will get a clear error
+  return ref.refresh(provider as Refreshable<AsyncValue<T>>);
+}
+
+/// Optimized refresh indicator widget
+Widget _buildRefreshIndicator(IndicatorController controller) {
   return AnimatedBuilder(
     animation: controller,
     builder: (context, _) {
       return CircularProgressIndicator(
         value: controller.isLoading ? null : controller.value,
+        strokeWidth: 2.0,
       );
     },
   );

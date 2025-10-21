@@ -257,6 +257,20 @@ Unified state widget for handling lists, grids, and single items with automatic 
 - ✅ Built-in loading and error handling
 - ✅ Family provider support
 - ✅ Type-safe with generics
+- ✅ Optimized performance with minimal rebuilds
+- ✅ Optional key support for advanced widget identity
+
+### Performance Optimizations
+
+JetBuilder includes several performance optimizations to ensure smooth rendering even with large datasets:
+
+- **Reduced Widget Rebuilds**: Memoized refresh handlers and optimized builder functions minimize unnecessary widget recreation
+- **Improved Type Safety**: Better generic constraints eliminate unsafe type casts and prevent runtime errors
+- **Widget Identity Support**: Optional `key` parameter enables Flutter to better track and optimize widget rebuilds when items have stable identifiers
+- **Code Efficiency**: Extracted common logic reduces code duplication and improves maintainability
+- **Memory Optimization**: Better widget caching potential through const optimization where possible
+
+These optimizations are transparent to developers—existing code continues to work without modification while automatically benefiting from improved performance.
 
 ### List View
 
@@ -339,14 +353,23 @@ class UserDetailsPage extends StatelessWidget {
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `provider` | `ProviderListenable<List<T>>` | Yes | Riverpod provider |
+| `context` | `BuildContext` | Yes | Build context |
+| `provider` | `ProviderBase<AsyncValue<List<T>>>` | Yes | Riverpod provider |
 | `itemBuilder` | `Widget Function(T, int)` | Yes | Item builder function |
-| `padding` | `EdgeInsets?` | No | List padding |
-| `physics` | `ScrollPhysics?` | No | Scroll physics |
+| `onRefresh` | `Future<void> Function()?` | No | Custom refresh handler |
+| `onRetry` | `VoidCallback?` | No | Custom retry handler |
+| `loading` | `Widget?` | No | Custom loading widget |
+| `empty` | `Widget?` | No | Custom empty state widget |
+| `emptyTitle` | `String?` | No | Empty state title |
+| `error` | `Widget Function(Object, StackTrace?)?` | No | Custom error widget |
+| `controller` | `ScrollController?` | No | Scroll controller |
+| `scrollPhysics` | `ScrollPhysics?` | No | Scroll physics |
+| `padding` | `EdgeInsetsGeometry?` | No | List padding |
+| `itemExtent` | `double?` | No | Fixed item extent |
 | `shrinkWrap` | `bool` | No | Shrink wrap |
-| `loadingWidget` | `Widget?` | No | Custom loading widget |
-| `errorWidget` | `Widget Function(Object)?` | No | Custom error widget |
-| `emptyWidget` | `Widget?` | No | Custom empty state widget |
+| `scrollDirection` | `Axis` | No | Scroll direction |
+| `separatorBuilder` | `Widget Function(BuildContext, int)?` | No | Separator builder |
+| `key` | `Key?` | No | Optional key for ListView widget for better rebuild optimization |
 
 **JetBuilder.grid Parameters:**
 
@@ -358,6 +381,101 @@ Same as list, plus:
 | `crossAxisSpacing` | `double` | No | Horizontal spacing |
 | `mainAxisSpacing` | `double` | No | Vertical spacing |
 | `childAspectRatio` | `double` | No | Item aspect ratio |
+| `key` | `Key?` | No | Optional key for GridView widget for better rebuild optimization |
+
+### Best Practices for JetBuilder
+
+#### 1. Use Keys for Stable Item Identifiers
+
+When your list items have stable, unique identifiers, provide a key to optimize Flutter's rebuild process:
+
+```dart
+JetBuilder.list<Post>(
+  context: context,
+  provider: postsProvider,
+  key: const Key('posts_list'),  // Helps Flutter track widget identity
+  itemBuilder: (post, index) => PostCard(
+    key: ValueKey(post.id),  // Key each item by its unique ID
+    post: post,
+  ),
+)
+```
+
+**When to use keys:**
+- Items have unique, stable IDs (database IDs, UUIDs)
+- List can be reordered, filtered, or sorted
+- Items are complex widgets with expensive build operations
+
+#### 2. Leverage Type Safety
+
+Always specify generic types for compile-time safety:
+
+```dart
+// Good - type-safe
+JetBuilder.list<Post>(
+  context: context,
+  provider: postsProvider,
+  itemBuilder: (post, index) => PostCard(post: post),
+)
+
+// Avoid - loses type inference benefits
+JetBuilder.list(
+  context: context,
+  provider: postsProvider,
+  itemBuilder: (post, index) => PostCard(post: post as Post),
+)
+```
+
+#### 3. Optimize Large Lists
+
+For large datasets (hundreds or thousands of items), consider:
+
+- Using `shrinkWrap: false` (default) when possible
+- Providing a `ScrollController` if you need scroll position tracking
+- Using `itemExtent` for fixed-height items to improve scroll performance
+
+```dart
+JetBuilder.list<Product>(
+  context: context,
+  provider: productsProvider,
+  itemExtent: 80.0,  // Fixed height improves performance
+  controller: _scrollController,
+  itemBuilder: (product, index) => ProductListItem(product: product),
+)
+```
+
+#### 4. Custom Empty States
+
+Provide meaningful empty states for better UX:
+
+```dart
+JetBuilder.list<Message>(
+  context: context,
+  provider: messagesProvider,
+  itemBuilder: (message, index) => MessageCard(message: message),
+  empty: EmptyMessagesWidget(
+    icon: Icons.inbox_outlined,
+    title: 'No messages yet',
+    subtitle: 'Start a conversation to see messages here',
+  ),
+)
+```
+
+#### 5. Grid Layout Optimization
+
+For grids, adjust `crossAxisCount` based on screen size:
+
+```dart
+JetBuilder.grid<Photo>(
+  context: context,
+  provider: photosProvider,
+  crossAxisCount: MediaQuery.of(context).size.width > 600 ? 4 : 2,
+  childAspectRatio: 1.0,
+  mainAxisSpacing: 8,
+  crossAxisSpacing: 8,
+  itemBuilder: (photo, index) => PhotoCard(photo: photo),
+)
+```
 
 ## JetPaginator
 
