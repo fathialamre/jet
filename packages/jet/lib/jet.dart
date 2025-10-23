@@ -8,7 +8,7 @@ class Jet {
   Jet({required this.config});
 
   AutoRouteProvider? _routerProvider;
-  late ProviderContainer _container;
+  late WidgetRef _ref;
 
   void setRouter(AutoRouteProvider provider) {
     _routerProvider = provider;
@@ -23,21 +23,21 @@ class Jet {
     return _routerProvider!;
   }
 
-  /// Set the ProviderContainer for accessing Riverpod providers throughout the app.
+  /// Set the WidgetRef for accessing Riverpod providers throughout the app.
   ///
-  /// This container is used by services and adapters to access Riverpod state
+  /// This ref is used by services and adapters to access Riverpod state
   /// outside of the widget tree, such as in notification handlers, background tasks,
   /// and other non-UI contexts.
   ///
-  /// The container is automatically set during app initialization in boot.dart,
+  /// The ref is automatically set during app initialization by AdapterInitializer,
   /// before any adapters are executed.
-  void setContainer(ProviderContainer container) {
-    _container = container;
+  void setRef(WidgetRef ref) {
+    _ref = ref;
   }
 
-  /// Get the ProviderContainer for accessing Riverpod providers.
+  /// Get the WidgetRef for accessing Riverpod providers.
   ///
-  /// The container is guaranteed to be set before adapters run, so you can safely
+  /// The ref is guaranteed to be set before adapters run, so you can safely
   /// access it without null checks in adapter boot() methods and services.
   ///
   /// Example usage in adapters:
@@ -45,12 +45,12 @@ class Jet {
   /// class MyAdapter extends JetAdapter {
   ///   @override
   ///   Future<Jet?> boot(Jet jet) async {
-  ///     final container = jet.container;  // No null check needed!
-  ///     MyService.setContainer(container);
+  ///     final ref = jet.ref;  // No null check needed!
+  ///     MyService.setRef(ref);
   ///   }
   /// }
   /// ```
-  ProviderContainer get container => _container;
+  WidgetRef get ref => _ref;
 
   static Future<Jet> fly({
     required Future<Jet> Function() setup,

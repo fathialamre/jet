@@ -117,6 +117,8 @@ abstract class JetConsumerStatefulWidget extends ConsumerStatefulWidget {
 
   @override
   JetConsumerState createState();
+
+  
 }
 
 /// The State for a [JetConsumerStatefulWidget]

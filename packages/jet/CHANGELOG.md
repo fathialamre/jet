@@ -7,15 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0-alpha.3] - 2025-01-27
+
 ### Added
-- **JetTab keep-alive feature** - Preserve tab state when switching (scroll position, form input, media playback)
-- **JetTab lazy loading feature** - Build tab content only when first visited for improved performance
-- **Comprehensive JetTab documentation** - See [JET_TAB.md](JET_TAB.md) for complete guide
+- **Multi-environment configuration system** with comprehensive environment management
+- **Environment adapter system** for flexible configuration across different environments
+- **Enhanced JetBuilder optimization** with improved performance and type safety
+- **Pull-to-refresh indicator improvements** with proper async operation handling
+- **JetConsumerWidget enhancements** with direct jet parameter passing
+- **Adapter initializer system** for streamlined bootstrap process
+- **Enhanced notification system** with improved event handling and configuration
 
 ### Changed
-- Enhanced `JetTab.simple()` with `keepAlive` and `lazyLoad` parameters
-- Enhanced `JetTab.router()` with `keepAlive` and `lazyLoad` parameters
-- Improved `JetTab` performance for apps with many tabs
+- **Refactored configuration system** with environment-based management
+- **Improved bootstrap process** with new adapter initialization pattern
+- **Enhanced state management** with better consumer widget integration
+- **Optimized performance** across multiple components
+- **Updated notification adapters** with improved error handling
+
+### Fixed
+- **Pull-to-refresh timing issues** - indicator now properly waits for async operations
+- **State management improvements** with better type safety
+- **Configuration loading issues** with enhanced environment handling
+- **Documentation inconsistencies** across multiple guides
+
+### Documentation
+- **Added comprehensive environment configuration guide**
+- **Enhanced README** with table of contents and improved structure
+- **Updated routing and theming documentation**
+- **Simplified debugging section** with better examples
+- **Removed version numbers** from documentation for cleaner maintenance
+- **Replaced Faker with LoggerObserver** in Helpers documentation
 
 ## [0.0.3-alpha.2] - 2025-01-27
 
