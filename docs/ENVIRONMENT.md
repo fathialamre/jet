@@ -163,6 +163,151 @@ EnvironmentConfig.withPlatformMerge(
 )
 ```
 
+## Working with Multiple Environments
+
+Managing different environments (development, staging, production) is essential for modern app development. Jet's environment system makes this straightforward with file-based configuration and override mechanisms.
+
+### Environment File Structure
+
+Create multiple environment files in your project root (same directory as `pubspec.yaml`):
+
+```
+project-root/
+├── .env                    # Base configuration (shared)
+├── .env.development       # Development overrides
+├── .env.staging          # Staging overrides
+├── .env.production       # Production overrides
+└── .env.local            # Local dev overrides (gitignored)
+```
+
+### Example Environment Files
+
+**Base `.env`** - Shared across all environments:
+
+```bash
+APP_NAME=Jet Example
+APP_VERSION=1.0.0
+CACHE_DURATION=3600
+MAX_RETRIES=3
+```
+
+**`.env.development`** - Development settings:
+
+```bash
+API_URL=https://dev-api.example.com
+API_TIMEOUT=60
+ENABLE_DEBUG=true
+ENABLE_ANALYTICS=false
+```
+
+**`.env.staging`** - Staging settings:
+
+```bash
+API_URL=https://staging-api.example.com
+API_TIMEOUT=45
+ENABLE_DEBUG=false
+ENABLE_ANALYTICS=true
+```
+
+**`.env.production`** - Production settings:
+
+```bash
+API_URL=https://api.example.com
+API_TIMEOUT=30
+ENABLE_DEBUG=false
+ENABLE_ANALYTICS=true
+```
+
+### Configuration Setup
+
+Use Dart defines to switch between environments:
+
+```dart
+class AppConfig extends JetConfig {
+  static const String env = String.fromEnvironment(
+    'ENV',
+    defaultValue: 'development',
+  );
+  
+  @override
+  EnvironmentConfig? get environmentConfig {
+    switch (env) {
+      case 'development':
+        return EnvironmentConfig.development();
+      case 'staging':
+        return const EnvironmentConfig(
+          envPath: '.env',
+          envOverridePaths: ['.env.staging'],
+        );
+      case 'production':
+        return EnvironmentConfig.production();
+      default:
+        return EnvironmentConfig.development();
+    }
+  }
+}
+```
+
+### Running Different Environments
+
+```bash
+# Development (default)
+flutter run
+
+# Staging
+flutter run --dart-define=ENV=staging
+
+# Production
+flutter run --dart-define=ENV=production --release
+```
+
+### Building for Different Environments
+
+```bash
+# Build development APK
+flutter build apk --dart-define=ENV=development
+
+# Build staging APK
+flutter build apk --dart-define=ENV=staging
+
+# Build production APK/Bundle
+flutter build apk --dart-define=ENV=production
+flutter build appbundle --dart-define=ENV=production
+
+# Build for iOS
+flutter build ipa --dart-define=ENV=production
+```
+
+### Add to pubspec.yaml
+
+Include environment files in your assets:
+
+```yaml
+flutter:
+  assets:
+    - .env
+    - .env.development
+    - .env.staging
+    - .env.production
+```
+
+### Git Configuration
+
+Add sensitive files to `.gitignore`:
+
+```gitignore
+# Local environment overrides
+.env.local
+.env*.local
+```
+
+Create an `.env.example` for documentation:
+
+```bash
+cp .env .env.example
+# Replace sensitive values with placeholders
+```
+
 ### Using with Network Services
 
 ```dart
