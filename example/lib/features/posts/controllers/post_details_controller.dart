@@ -12,8 +12,7 @@ class PostDetailsController extends _$PostDetailsController {
   }
 
   Future<Post?> fetchPostById(int id) async {
-    await Future.delayed(const Duration(seconds: 2));
-    final service = ref.read(postsServiceProvider.notifier);
+    final service = ref.watch(postsServiceProvider.notifier);
     return await service.fetchPostById(id);
   }
 }

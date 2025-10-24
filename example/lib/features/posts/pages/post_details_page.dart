@@ -10,6 +10,15 @@ class PostDetailsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+
+    final post = ref.watch(postDetailsControllerProvider(id));
+   
+
+   post.when(
+    data: (post) => Text(post?.title ?? ''),
+    error: (error, stack) => Text(error.toString()),
+    loading: () => const Center(child: CircularProgressIndicator()),
+   );
     return Scaffold(
       appBar: AppBar(
         title: Text('Post Details'),
