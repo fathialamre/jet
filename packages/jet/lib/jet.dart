@@ -1,41 +1,44 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jet/config/jet_config.dart';
-import 'package:jet/router/jet_router.dart';
+import 'package:jet/router/router_provider.dart';
 
 class Jet {
   final JetConfig config;
+  final RouterProvider? routerProvider;
 
-  Jet({required this.config});
+  Jet({
+    required this.config,
+    this.routerProvider,
+  });
 
-  AutoRouteProvider? _routerProvider;
-  late WidgetRef _ref;
+  late Ref _ref;
 
-  void setRouter(AutoRouteProvider provider) {
-    _routerProvider = provider;
-  }
-
-  AutoRouteProvider get routerProvider {
-    if (_routerProvider == null) {
+  RouterProvider get getRouterProvider {
+    if (routerProvider == null) {
       throw Exception(
-        'You must register a router provider before using adapters',
+        'Router provider not configured. Pass routerProvider to Jet constructor.',
       );
     }
-    return _routerProvider!;
+    return routerProvider!;
   }
 
-  /// Set the WidgetRef for accessing Riverpod providers throughout the app.
+  RootStackRouter get router => _ref.read(routerProvider!);
+
+  /// Set the Ref for accessing Riverpod providers throughout the app.
   ///
   /// This ref is used by services and adapters to access Riverpod state
   /// outside of the widget tree, such as in notification handlers, background tasks,
   /// and other non-UI contexts.
   ///
-  /// The ref is automatically set during app initialization by AdapterInitializer,
+  /// The ref is automatically set during app initialization by the jetProvider override,
   /// before any adapters are executed.
-  void setRef(WidgetRef ref) {
+  Jet setRef(Ref ref) {
     _ref = ref;
+    return this;
   }
 
-  /// Get the WidgetRef for accessing Riverpod providers.
+  /// Get the Ref for accessing Riverpod providers.
   ///
   /// The ref is guaranteed to be set before adapters run, so you can safely
   /// access it without null checks in adapter boot() methods and services.
@@ -50,7 +53,7 @@ class Jet {
   ///   }
   /// }
   /// ```
-  WidgetRef get ref => _ref;
+  Ref get ref => _ref;
 
   static Future<Jet> fly({
     required Future<Jet> Function() setup,

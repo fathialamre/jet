@@ -619,7 +619,7 @@ packages:
       path: "../packages/jet"
       relative: true
     source: path
-    version: "0.0.3-alpha.2"
+    version: "0.1.0-alpha.3"
   js:
     dependency: transitive
     description:

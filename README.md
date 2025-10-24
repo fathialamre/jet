@@ -71,7 +71,6 @@ import 'package:flutter/material.dart';
 class AppConfig extends JetConfig {
   @override
   List<JetAdapter> get adapters => [
-    RouterAdapter(),
     StorageAdapter(),
     NotificationsAdapter(),
   ];
@@ -99,6 +98,7 @@ Create a router file at `lib/core/router/app_router.dart`:
 
 ```dart
 import 'package:auto_route/auto_route.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 @AutoRouterConfig()
 class AppRouter extends RootStackRouter {
@@ -108,9 +108,7 @@ class AppRouter extends RootStackRouter {
   ];
 }
 
-final appRouterProvider = AutoDisposeProvider<AppRouter>((ref) {
-  return AppRouter();
-});
+final appRouter = Provider<AppRouter>((ref) => AppRouter());
 ```
 
 ### 3. Initialize in main.dart
@@ -125,11 +123,11 @@ void main() async {
   final config = AppConfig();
   
   Jet.fly(
-    setup: () => Boot.start(config),
-    setupFinished: (jet) {
-      jet.setRouter(appRouterProvider);
-      Boot.finished(jet, config);
-    },
+    setup: () => Boot.start(
+      config,
+      routerProvider: appRouter,
+    ),
+    setupFinished: (jet) => Boot.finished(jet, config),
   );
 }
 ```
@@ -145,7 +143,10 @@ Centralized app configuration with `JetConfig` for adapters, locales, themes, an
 ```dart
 class AppConfig extends JetConfig {
   @override
-  List<JetAdapter> get adapters => [RouterAdapter()];
+  List<JetAdapter> get adapters => [
+    StorageAdapter(),
+    NotificationsAdapter(),
+  ];
 
   @override
   List<LocaleInfo> get supportedLocales => [
@@ -162,6 +163,19 @@ class AppConfig extends JetConfig {
 
 Type-safe navigation with **[AutoRoute](https://pub.dev/packages/auto_route)** integration. AutoRoute provides code generation for type-safe routes, eliminating string-based navigation and providing compile-time safety.
 
+**Router Configuration:**
+```dart
+// Pass router provider to Boot.start()
+Jet.fly(
+  setup: () => Boot.start(
+    config,
+    routerProvider: appRouter, // Router configured here
+  ),
+  setupFinished: (jet) => Boot.finished(jet, config),
+);
+```
+
+**Navigation:**
 ```dart
 // Navigate to a route
 context.router.push(ProfileRoute());
@@ -186,6 +200,22 @@ class FirebaseAdapter implements JetAdapter {
     return jet;
   }
 }
+```
+
+**Note:** Router configuration has been simplified! Instead of using `RouterAdapter`, pass your router provider directly to `Boot.start()`:
+
+```dart
+// ✅ New way (recommended)
+Jet.fly(
+  setup: () => Boot.start(
+    config,
+    routerProvider: appRouter,
+  ),
+  setupFinished: (jet) => Boot.finished(jet, config),
+);
+
+// ❌ Old way (deprecated)
+// List<JetAdapter> get adapters => [RouterAdapter()];
 ```
 
 📖 **[View Complete Documentation](docs/ADAPTERS.md)**

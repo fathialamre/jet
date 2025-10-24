@@ -53,7 +53,7 @@ abstract class JetNotificationEvent {
   ///   ref.read(routerProvider).push(OrderRoute(id: orderId));
   /// }
   /// ```
-  WidgetRef get ref => JetNotifications.ref;
+  Ref get ref => JetNotifications.ref;
 
   /// Handle notification tap event.
   ///

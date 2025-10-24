@@ -3,14 +3,21 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jet/config/jet_config.dart';
 import 'package:jet/jet.dart';
 import 'package:jet/bootstrap/adapter_initializer.dart';
+import 'package:jet/router/router_provider.dart';
 
 class Boot {
-  static Future<Jet> start(JetConfig config) async {
+  static Future<Jet> start(
+    JetConfig config, {
+    RouterProvider? routerProvider,
+  }) async {
     WidgetsFlutterBinding.ensureInitialized();
 
     // Create the Jet instance
-    // The ref will be set later by AdapterInitializer when ProviderScope is ready
-    final jet = Jet(config: config);
+    // The ref will be set in the jetProvider override when ProviderScope is ready
+    final jet = Jet(
+      config: config,
+      routerProvider: routerProvider,
+    );
 
     return jet;
   }

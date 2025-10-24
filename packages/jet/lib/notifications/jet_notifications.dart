@@ -86,8 +86,8 @@ class JetNotifications {
   // Static observer instance
   static JetNotificationObserver? _observer;
 
-  // Static WidgetRef instance for accessing Riverpod providers
-  static WidgetRef? _ref;
+  // Static Ref instance for accessing Riverpod providers
+  static Ref? _ref;
 
   JetNotifications({String title = "", String body = ""})
     : _title = title,
@@ -104,27 +104,27 @@ class JetNotifications {
   /// Get the current notification observer
   static JetNotificationObserver? get observer => _observer;
 
-  /// Set the WidgetRef for accessing Riverpod providers in notification events
+  /// Set the Ref for accessing Riverpod providers in notification events
   ///
   /// This is called by the NotificationsAdapter during initialization.
   /// The adapter gets the ref from the Jet instance (jet.ref) and passes it here.
   /// Once set, notification events can access Riverpod providers through the ref.
   ///
   /// Architecture flow:
-  /// ProviderScope created → AdapterInitializer gets ref → sets on Jet →
+  /// ProviderScope created → jetProvider override sets ref on Jet →
   /// NotificationsAdapter passes to JetNotifications
-  static void setRef(WidgetRef ref) {
+  static void setRef(Ref ref) {
     _ref = ref;
   }
 
-  /// Get the current WidgetRef for accessing Riverpod providers.
+  /// Get the current Ref for accessing Riverpod providers.
   ///
   /// The ref is guaranteed to be set by the NotificationsAdapter before any
   /// notification events are triggered, so you can safely access it without null checks.
   ///
   /// This ref is provided by the Jet framework and allows notification events
   /// to access any Riverpod provider outside of the widget tree.
-  static WidgetRef get ref {
+  static Ref get ref {
     if (_ref == null) {
       throw StateError(
         'JetNotifications ref not set. Ensure NotificationsAdapter is registered in your app adapters.',

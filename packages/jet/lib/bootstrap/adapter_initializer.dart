@@ -4,16 +4,17 @@ import 'package:jet/adapters/jet_adapter.dart';
 import 'package:jet/jet.dart';
 import 'package:jet/widgets/main/jet_app.dart';
 
-/// Widget responsible for initializing adapters with access to WidgetRef.
+/// Widget responsible for initializing adapters with access to Ref.
 ///
-/// This widget boots all adapters during initState, giving them access to
-/// the Riverpod ref for reading providers. Once initialization is complete,
-/// it renders the main JetApp.
+/// This widget boots all adapters during initState. The ref is already
+/// set on the Jet instance via the jetProvider override. Once initialization
+/// is complete, it renders the main JetApp.
 ///
 /// Architecture:
 /// 1. ProviderScope is created as root
-/// 2. AdapterInitializer boots all adapters with ref access
-/// 3. JetApp is rendered once adapters are ready
+/// 2. jetProvider override sets ref on Jet instance
+/// 3. AdapterInitializer boots all adapters with ref access
+/// 4. JetApp is rendered once adapters are ready
 class AdapterInitializer extends ConsumerStatefulWidget {
   final Jet jet;
 
@@ -38,10 +39,8 @@ class _AdapterInitializerState extends ConsumerState<AdapterInitializer> {
 
   Future<void> _initializeAdapters() async {
     try {
-      // Store the ref in Jet so adapters can access it
-      widget.jet.setRef(ref);
-
-      // Boot all adapters with the Jet instance that now has ref access
+      // Boot all adapters with the Jet instance that already has ref access
+      // The ref was set in the jetProvider override
       await bootApplication(widget.jet.config, jet: widget.jet);
 
       // Run afterBoot hooks
