@@ -22,10 +22,10 @@ class NotificationsAdapter extends JetAdapter {
       // Set the notification observer from config
       JetNotifications.setObserver(jet.config.notificationObserver);
 
-      // Pass the WidgetRef from Jet to JetNotifications
+      // Pass the ProviderContainer from Jet to JetNotifications
       // This allows notification events to access Riverpod providers
-      // The ref is guaranteed to be set before adapters run
-      JetNotifications.setRef(jet.ref);
+      // The container is guaranteed to be set before adapters run
+      JetNotifications.setContainer(jet.container);
 
       // Initialize notifications
       await JetNotifications.initialize();

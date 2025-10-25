@@ -86,8 +86,8 @@ class JetNotifications {
   // Static observer instance
   static JetNotificationObserver? _observer;
 
-  // Static Ref instance for accessing Riverpod providers
-  static Ref? _ref;
+  // Static ProviderContainer instance for accessing Riverpod providers
+  static late ProviderContainer _container;
 
   JetNotifications({String title = "", String body = ""})
     : _title = title,
@@ -104,34 +104,26 @@ class JetNotifications {
   /// Get the current notification observer
   static JetNotificationObserver? get observer => _observer;
 
-  /// Set the Ref for accessing Riverpod providers in notification events
+  /// Set the ProviderContainer for accessing Riverpod providers in notification events
   ///
   /// This is called by the NotificationsAdapter during initialization.
-  /// The adapter gets the ref from the Jet instance (jet.ref) and passes it here.
-  /// Once set, notification events can access Riverpod providers through the ref.
+  /// The adapter gets the container from the Jet instance (jet.container) and passes it here.
+  /// Once set, notification events can access Riverpod providers through the container.
   ///
   /// Architecture flow:
-  /// ProviderScope created → jetProvider override sets ref on Jet →
-  /// NotificationsAdapter passes to JetNotifications
-  static void setRef(Ref ref) {
-    _ref = ref;
+  /// boot.dart creates container → sets on Jet → NotificationsAdapter passes to JetNotifications
+  static void setContainer(ProviderContainer container) {
+    _container = container;
   }
 
-  /// Get the current Ref for accessing Riverpod providers.
+  /// Get the current ProviderContainer for accessing Riverpod providers.
   ///
-  /// The ref is guaranteed to be set by the NotificationsAdapter before any
+  /// The container is guaranteed to be set by the NotificationsAdapter before any
   /// notification events are triggered, so you can safely access it without null checks.
   ///
-  /// This ref is provided by the Jet framework and allows notification events
+  /// This container is provided by the Jet framework and allows notification events
   /// to access any Riverpod provider outside of the widget tree.
-  static Ref get ref {
-    if (_ref == null) {
-      throw StateError(
-        'JetNotifications ref not set. Ensure NotificationsAdapter is registered in your app adapters.',
-      );
-    }
-    return _ref!;
-  }
+  static ProviderContainer get container => _container;
 
   /// Initialize the local notifications plugin
   static Future<bool> initialize() async {
@@ -187,14 +179,14 @@ class JetNotifications {
 
   /// Handle notification response when app is in foreground
   static void onDidReceiveNotificationResponse(NotificationResponse response) {
-    _observer?.onResponse(response: response);
+    _observer!.onResponse(response: response);
 
     try {
       final wrapper = NotificationResponseWrapper(response);
       final event = JetNotificationEventRegistry.findHandler(response);
 
       if (event != null) {
-        _observer?.onEventHandlerFound(
+        _observer!.onEventHandlerFound(
           eventName: event.name,
           notificationId: response.id ?? 0,
           response: response,
@@ -208,13 +200,13 @@ class JetNotifications {
           event.onTap(response);
         }
       } else {
-        _observer?.onNoEventHandler(
+        _observer!.onNoEventHandler(
           notificationId: response.id ?? 0,
           response: response,
         );
       }
     } catch (e) {
-      _observer?.onError(
+      _observer!.onError(
         message: "NOTIFICATION: Error handling notification response: $e",
         error: e,
       );
@@ -225,7 +217,7 @@ class JetNotifications {
   static void onDidReceiveBackgroundNotificationResponse(
     NotificationResponse response,
   ) {
-    _observer?.onBackgroundResponse(
+    _observer!.onBackgroundResponse(
       response: response,
     );
 
@@ -234,7 +226,7 @@ class JetNotifications {
       final event = JetNotificationEventRegistry.findHandler(response);
 
       if (event != null) {
-        _observer?.onBackgroundEventHandlerFound(
+        _observer!.onBackgroundEventHandlerFound(
           eventName: event.name,
           notificationId: response.id ?? 0,
           response: response,
@@ -248,13 +240,13 @@ class JetNotifications {
           event.onTap(response);
         }
       } else {
-        _observer?.onNoBackgroundEventHandler(
+        _observer!.onNoBackgroundEventHandler(
           notificationId: response.id ?? 0,
           response: response,
         );
       }
     } catch (e) {
-      _observer?.onBackgroundError(
+      _observer!.onBackgroundError(
         message:
             "NOTIFICATION: Error handling background notification response: $e",
         error: e,
@@ -264,7 +256,7 @@ class JetNotifications {
 
   /// Trigger onReceive event for notifications
   static void _triggerOnReceiveEvent(int id, String? payload) {
-    _observer?.onReceive(
+    _observer!.onReceive(
       notificationId: id,
       payload: payload,
     );
@@ -282,7 +274,7 @@ class JetNotifications {
       final event = JetNotificationEventRegistry.findHandler(response);
 
       if (event != null) {
-        _observer?.onReceiveHandlerFound(
+        _observer!.onReceiveHandlerFound(
           eventName: event.name,
           notificationId: id,
           payload: payload,
@@ -291,18 +283,18 @@ class JetNotifications {
         // Call the onReceive method
         event.onReceive(response);
 
-        _observer?.onReceiveCompleted(
+        _observer!.onReceiveCompleted(
           notificationId: id,
           payload: payload,
         );
       } else {
-        _observer?.onNoReceiveHandler(
+        _observer!.onNoReceiveHandler(
           notificationId: id,
           payload: payload,
         );
       }
     } catch (e) {
-      _observer?.onReceiveError(
+      _observer!.onReceiveError(
         message: "❌ NOTIFICATION: Error triggering onReceive event: $e",
         error: e,
         notificationId: id,
@@ -628,13 +620,13 @@ class JetNotifications {
     if (_sendAt != null) {
       String sendAtDateTime = at!.toString();
 
-      _observer?.onScheduling(
+      _observer!.onScheduling(
         message: "Scheduling notification for: $sendAtDateTime",
         scheduledTime: at,
       );
 
       final scheduledTime = tz.TZDateTime.parse(tz.local, sendAtDateTime);
-      _observer?.onSchedulingParsed(
+      _observer!.onSchedulingParsed(
         message: "Parsed scheduled time: $scheduledTime",
         parsedTime: scheduledTime,
       );
@@ -650,7 +642,7 @@ class JetNotifications {
         payload: _payload,
       );
 
-      _observer?.onSchedulingSuccess(
+      _observer!.onSchedulingSuccess(
         message: "Notification scheduled successfully",
         scheduledTime: at,
       );

@@ -35,10 +35,10 @@ abstract class JetNotificationEvent {
   /// Used for debugging and logging purposes.
   String get name;
 
-  /// Access the Riverpod WidgetRef to read providers
+  /// Access the Riverpod ProviderContainer to read providers
   ///
   /// This allows notification events to interact with app state through Riverpod.
-  /// The ref is guaranteed to be available when notification events are triggered.
+  /// The container is guaranteed to be available when notification events are triggered.
   ///
   /// Example usage:
   /// ```dart
@@ -47,13 +47,13 @@ abstract class JetNotificationEvent {
   ///   final orderId = int.parse(response.payload ?? '0');
   ///
   ///   // Update state using Riverpod (no null check needed!)
-  ///   ref.read(orderProvider.notifier).selectOrder(orderId);
+  ///   container.read(orderProvider.notifier).selectOrder(orderId);
   ///
   ///   // Navigate using router
-  ///   ref.read(routerProvider).push(OrderRoute(id: orderId));
+  ///   container.read(routerProvider).push(OrderRoute(id: orderId));
   /// }
   /// ```
-  Ref get ref => JetNotifications.ref;
+  ProviderContainer get container => JetNotifications.container;
 
   /// Handle notification tap event.
   ///

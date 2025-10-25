@@ -1,3 +1,4 @@
+import 'package:example/core/adapters/router_adapter.dart';
 import 'package:example/core/config/app_theme.dart';
 import 'package:example/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ import 'package:jet/jet_framework.dart';
 class AppConfig extends JetConfig {
   @override
   List<JetAdapter> get adapters => [
+    RouterAdapter(),
     NotificationsAdapter(),
   ];
 

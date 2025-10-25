@@ -1,46 +1,42 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jet/config/jet_config.dart';
-import 'package:jet/router/router_provider.dart';
 
 class Jet {
   final JetConfig config;
-  final RouterProvider? routerProvider;
 
-  Jet({
-    required this.config,
-    this.routerProvider,
-  });
+  Jet({required this.config});
 
-  late Ref _ref;
+  Provider? _routerProvider;
+  late ProviderContainer _container;
 
-  RouterProvider get getRouterProvider {
-    if (routerProvider == null) {
-      throw Exception(
-        'Router provider not configured. Pass routerProvider to Jet constructor.',
-      );
-    }
-    return routerProvider!;
+  void setRouter(Provider provider) {
+    _routerProvider = provider;
   }
 
-  RootStackRouter get router => _ref.read(routerProvider!);
+  Provider get routerProvider {
+    if (_routerProvider == null) {
+      throw Exception(
+        'You must register a router provider before using adapters',
+      );
+    }
+    return _routerProvider!;
+  }
 
-  /// Set the Ref for accessing Riverpod providers throughout the app.
+  /// Set the ProviderContainer for accessing Riverpod providers throughout the app.
   ///
-  /// This ref is used by services and adapters to access Riverpod state
+  /// This container is used by services and adapters to access Riverpod state
   /// outside of the widget tree, such as in notification handlers, background tasks,
   /// and other non-UI contexts.
   ///
-  /// The ref is automatically set during app initialization by the jetProvider override,
+  /// The container is automatically set during app initialization in boot.dart,
   /// before any adapters are executed.
-  Jet setRef(Ref ref) {
-    _ref = ref;
-    return this;
+  void setContainer(ProviderContainer container) {
+    _container = container;
   }
 
-  /// Get the Ref for accessing Riverpod providers.
+  /// Get the ProviderContainer for accessing Riverpod providers.
   ///
-  /// The ref is guaranteed to be set before adapters run, so you can safely
+  /// The container is guaranteed to be set before adapters run, so you can safely
   /// access it without null checks in adapter boot() methods and services.
   ///
   /// Example usage in adapters:
@@ -48,12 +44,12 @@ class Jet {
   /// class MyAdapter extends JetAdapter {
   ///   @override
   ///   Future<Jet?> boot(Jet jet) async {
-  ///     final ref = jet.ref;  // No null check needed!
-  ///     MyService.setRef(ref);
+  ///     final container = jet.container;  // No null check needed!
+  ///     MyService.setContainer(container);
   ///   }
   /// }
   /// ```
-  Ref get ref => _ref;
+  ProviderContainer get container => _container;
 
   static Future<Jet> fly({
     required Future<Jet> Function() setup,

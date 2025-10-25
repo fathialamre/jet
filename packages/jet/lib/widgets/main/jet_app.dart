@@ -11,7 +11,7 @@ class JetApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Watch all reactive state
-    final router = ref.watch(jet.getRouterProvider);
+    final router = ref.watch(jet.routerProvider);
     final locale = ref.watch(languageSwitcherProvider);
     final themeMode = ref.watch(currentThemeModeProvider);
     final lockState = ref.watch(appLockProvider);
